@@ -1,6 +1,6 @@
 .idea
-tmp
+*tmp*
 bin
-build
+build*
 lib
 install
