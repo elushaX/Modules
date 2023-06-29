@@ -1,5 +1,5 @@
 
-#include "BaseModule.hpp"
+#include "Module.hpp"
 
 int main() {
   tp::ModuleManifest* ModuleDependencies[] = { &tp::gModuleBase, nullptr };

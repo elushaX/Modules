@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "BaseModule.hpp"
+#include "Module.hpp"
 
 namespace tp {
   extern ModuleManifest gModuleContainers;

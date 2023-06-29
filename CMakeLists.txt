@@ -10,7 +10,7 @@ project(Types)
 
 add_compile_definitions(MEM_DEBUG)
 
-add_subdirectory(BaseModule)
+add_subdirectory(Module)
 add_subdirectory(Utils)
 add_subdirectory(Containers)
 #add_subdirectory(Allocators)

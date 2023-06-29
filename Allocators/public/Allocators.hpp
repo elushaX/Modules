@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BaseModule.hpp"
+#include "Module.hpp"
 
 #include "HeapAllocatorGlobal.hpp"
 #include "HeapAllocator.hpp"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BaseModule.hpp"
+#include "Module.hpp"
 
 #define PTR_OFFSET(first, offset) (*((&first) + offset))
 #define MEMBER_OFFSET(s, m) (alni(&(((s*)0)->m)))
