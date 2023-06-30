@@ -16,9 +16,9 @@ namespace tp {
     inline bool descentLeft(AvlNumericKey in) const { return in.val < val; }
     inline bool exactNode(AvlNumericKey in) const { return in.val == val; }
 
-    inline AvlNumericKey getFindKey(/**/) const { return val; }
-    inline AvlNumericKey keyInRightSubtree(AvlNumericKey in) const { return in.val; }
-    inline AvlNumericKey keyInLeftSubtree(AvlNumericKey in) const { return in.val; }
+    inline AvlNumericKey getFindKey(/**/) const { return *this; }
+    inline AvlNumericKey keyInRightSubtree(AvlNumericKey in) const { return in; }
+    inline AvlNumericKey keyInLeftSubtree(AvlNumericKey in) const { return in; }
 
     inline void updateTreeCacheCallBack() {}
 	};
@@ -47,7 +47,7 @@ namespace tp {
 
     private:
       inline bool descentRight(KeyArg aKey) const { return key.descentRight(aKey); }
-      inline bool descentLeft(KeyArg aKey) const { return key.descentRight(aKey); }
+      inline bool descentLeft(KeyArg aKey) const { return key.descentLeft(aKey); }
       inline bool exactNode(KeyArg aKey) const { return key.exactNode(aKey); }
 
       inline KeyArg getFindKey(const Node* node = nullptr) const { return key.getFindKey(/*node*/); }
@@ -73,7 +73,13 @@ namespace tp {
       return new (mAlloc.allocate(sizeof(Node))) Node(key, data);
     }
 
-		inline ualni getNodeHeight(const Node* node) const {
+    inline void injectNodeInstead(Node* place, Node* inject) {
+      // TODO : swap instead of copy
+      place->data = inject->data;
+      place->key = inject->key;
+    }
+
+		inline alni getNodeHeight(const Node* node) const {
 			return node ? node->mHeight : -1;
 		}
 
@@ -194,17 +200,18 @@ namespace tp {
 			if (head->exactNode(key)) {
 				if (head->mRight && head->mLeft) {
           Node* min = minNode(head->mRight);
-					head->data = min->data;
-					head->mRight = removeUtil(head->mRight, min->getFindKey(head->mRight));
+          auto const& newKey = min->getFindKey(head->mRight);
+          injectNodeInstead(head, min);
+					head->mRight = removeUtil(head->mRight, newKey);
 				}
 				else if (head->mRight) {
-					head->data = head->mRight->data;
+          injectNodeInstead(head, head->mRight);
 					deleteNode(head->mRight);
 					head->mRight = nullptr;
           mSize--;
 				}
 				else if (head->mLeft) {
-					head->data = head->mLeft->data;
+          injectNodeInstead(head, head->mLeft);
           deleteNode(head->mLeft);
 					head->mLeft = nullptr;
           mSize--;
@@ -337,12 +344,18 @@ namespace tp {
 				// TODO: incomplete test
 				if (!head->descentLeft(head->mLeft->getFindKey(head))) return head;
 				if (head->mLeft->mParent != head) return head;
+        if (!head->mRight && head->mLeft->mHeight != head->mHeight - 1) return head;
 			}
 
 			if (head->mRight) {
 				if (!head->descentRight(head->mRight->getFindKey(head))) return head;
 				if (head->mRight->mParent != head) return head;
+        if (!head->mLeft && head->mRight->mHeight != head->mHeight - 1) return head;
 			}
+
+      if (head->mLeft && head->mRight) {
+        if (max(head->mLeft->mHeight, head->mRight->mHeight) != head->mHeight - 1) return head;
+      }
 
 			int balance = getNodeHeight(head->mRight) - getNodeHeight(head->mLeft);
 
