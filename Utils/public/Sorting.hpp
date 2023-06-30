@@ -41,23 +41,23 @@ namespace tp {
 
 			while (i < n1 && j < n2) {
 				if (!(grater(Left[i], Right[j]))) {
-          buff[k] = Left[i];
+					buff[k] = Left[i];
 					i++;
 				} else {
-          buff[k] = Right[j];
+					buff[k] = Right[j];
 					j++;
 				}
 				k++;
 			}
 
 			while (i < n1) {
-        buff[k] = Left[i];
+				buff[k] = Left[i];
 				i++;
 				k++;
 			}
 
 			while (j < n2) {
-        buff[k] = Right[j];
+				buff[k] = Right[j];
 				j++;
 				k++;
 			}

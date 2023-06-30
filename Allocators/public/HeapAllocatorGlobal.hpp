@@ -12,7 +12,7 @@ namespace tp {
 #endif
 		
 		static void* allocate(ualni aBlockSize);
-    static void deallocate(void* aPtr);
+		static void deallocate(void* aPtr);
 		~HeapAllocGlobal();
 	};
 };

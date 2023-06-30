@@ -12,110 +12,110 @@
 namespace tp {
 
 	class CallStackCapture {
-  public:
-    typedef tp::alni FramePointer;
+	public:
+		typedef tp::alni FramePointer;
 
-    class CallStack {
-      friend CallStackCapture;
-      FramePointer frames[MAX_CALL_DEPTH_CAPTURE];
+		class CallStack {
+			friend CallStackCapture;
+			FramePointer frames[MAX_CALL_DEPTH_CAPTURE];
 
-    public:
-      [[nodiscard]] ualni getDepth() const;
+		public:
+			[[nodiscard]] ualni getDepth() const;
 
-      class Iterator {
-        const FramePointer* mFrame;
-      public:
-        explicit Iterator(const FramePointer* frame) : mFrame(frame) {};
-        FramePointer getFrame() { return *mFrame; }
-        bool operator==(const Iterator& in) const { return in.mFrame == mFrame; }
-        void operator++() { mFrame++; }
-        const Iterator& operator*() const { return *this; }
-      };
+			class Iterator {
+				const FramePointer* mFrame;
+			public:
+				explicit Iterator(const FramePointer* frame) : mFrame(frame) {};
+				FramePointer getFrame() { return *mFrame; }
+				bool operator==(const Iterator& in) const { return in.mFrame == mFrame; }
+				void operator++() { mFrame++; }
+				const Iterator& operator*() const { return *this; }
+			};
 
-      [[nodiscard]] Iterator begin() const { return Iterator(frames + FRAMES_TO_SKIP_START); }
-      [[nodiscard]] Iterator end() const { return Iterator(frames + FRAMES_TO_SKIP_START + getDepth()); }
-    };
+			[[nodiscard]] Iterator begin() const { return Iterator(frames + FRAMES_TO_SKIP_START); }
+			[[nodiscard]] Iterator end() const { return Iterator(frames + FRAMES_TO_SKIP_START + getDepth()); }
+		};
 
-    class DebugSymbols {
-      friend CallStackCapture;
-      char function[MAX_DEBUG_INFO_LEN + 1] = { 0 };
-      char file[MAX_DEBUG_INFO_LEN + 1] = { 0 };
-      ualni line = 0;
-    public:
-      [[nodiscard]] const char* getFunc() const { return function; }
-      [[nodiscard]] const char* getFile() const { return file; }
-      [[nodiscard]] ualni getLine() const { return line; }
-    };
+		class DebugSymbols {
+			friend CallStackCapture;
+			char function[MAX_DEBUG_INFO_LEN + 1] = { 0 };
+			char file[MAX_DEBUG_INFO_LEN + 1] = { 0 };
+			ualni line = 0;
+		public:
+			[[nodiscard]] const char* getFunc() const { return function; }
+			[[nodiscard]] const char* getFile() const { return file; }
+			[[nodiscard]] ualni getLine() const { return line; }
+		};
 
-  public:
-    CallStackCapture();
-    ~CallStackCapture();
+	public:
+		CallStackCapture();
+		~CallStackCapture();
 
-    [[nodiscard]] const CallStack* getSnapshot();
-    const DebugSymbols* getSymbols(FramePointer fp);
+		[[nodiscard]] const CallStack* getSnapshot();
+		const DebugSymbols* getSymbols(FramePointer fp);
 
-  public:
+	public:
 
-    template<class Saver>
-    void write(Saver& file) {
-      file.write(mBuffLoad);
-      for (auto cs : *this) {
-        file.write(cs.getCallStack()->getDepth());
-        for (auto frame : *cs.getCallStack()) {
-          file.write((ualni) frame.getFrame());
-        }
-      }
-      file.write(mSymbols);
-    }
+		template<class Saver>
+		void write(Saver& file) {
+			file.write(mBuffLoad);
+			for (auto cs : *this) {
+				file.write(cs.getCallStack()->getDepth());
+				for (auto frame : *cs.getCallStack()) {
+					file.write((ualni) frame.getFrame());
+				}
+			}
+			file.write(mSymbols);
+		}
 
-    // independent of the configuration
-    template<class Loader>
-    void read(Loader& file) {
-      clear();
-      ualni loadLen;
-      file.read(loadLen);
-      for (auto cs = loadLen; cs; cs--) {
-        ualni callStackLen;
-        file.read(callStackLen);
-        for (auto fp = callStackLen; fp; fp--) {
-          // --
-        }
-      }
-    }
+		// independent of the configuration
+		template<class Loader>
+		void read(Loader& file) {
+			clear();
+			ualni loadLen;
+			file.read(loadLen);
+			for (auto cs = loadLen; cs; cs--) {
+				ualni callStackLen;
+				file.read(callStackLen);
+				for (auto fp = callStackLen; fp; fp--) {
+					// --
+				}
+			}
+		}
 
-  public:
-    class Iterator {
-      const CallStack* mSnapshot;
-    public:
-      explicit Iterator(const CallStack* start) : mSnapshot(start) {};
-      const CallStack* getCallStack() { return mSnapshot; }
-      bool operator==(const Iterator& in) const { return in.mSnapshot == mSnapshot; }
-      void operator++() { mSnapshot++; }
-      const Iterator& operator*() const { return *this; }
-    };
+	public:
+		class Iterator {
+			const CallStack* mSnapshot;
+		public:
+			explicit Iterator(const CallStack* start) : mSnapshot(start) {};
+			const CallStack* getCallStack() { return mSnapshot; }
+			bool operator==(const Iterator& in) const { return in.mSnapshot == mSnapshot; }
+			void operator++() { mSnapshot++; }
+			const Iterator& operator*() const { return *this; }
+		};
 
-    [[nodiscard]] Iterator begin() const { return Iterator(mBuff); }
-    [[nodiscard]] Iterator end() const { return  Iterator(mBuff + mBuffLoad); }
+		[[nodiscard]] Iterator begin() const { return Iterator(mBuff); }
+		[[nodiscard]] Iterator end() const { return  Iterator(mBuff + mBuffLoad); }
 
-  private:
+	private:
 
-    struct CallStackKey {
-      CallStack* cs;
-      bool operator==(const CallStackKey& in) const;
-    };
+		struct CallStackKey {
+			CallStack* cs;
+			bool operator==(const CallStackKey& in) const;
+		};
 
-    static void platformWriteStackTrace(CallStack* stack);
-    static void platformWriteDebugSymbols(FramePointer frame, DebugSymbols* out);
-    [[nodiscard]] static ualni hashCallStack(CallStackKey key);
+		static void platformWriteStackTrace(CallStack* stack);
+		static void platformWriteDebugSymbols(FramePointer frame, DebugSymbols* out);
+		[[nodiscard]] static ualni hashCallStack(CallStackKey key);
 
-    void clear();
+		void clear();
 
-  private:
-    ualni mBuffLen;
-    ualni mBuffLoad;
-    CallStack* mBuff;
-    Map<CallStackKey, CallStack*, DefaultAllocator, hashCallStack> mSnapshots;
-    Map<FramePointer, DebugSymbols> mSymbols;
+	private:
+		ualni mBuffLen;
+		ualni mBuffLoad;
+		CallStack* mBuff;
+		Map<CallStackKey, CallStack*, DefaultAllocator, hashCallStack> mSnapshots;
+		Map<FramePointer, DebugSymbols> mSymbols;
 	};
 
 	extern CallStackCapture* gCSCapture;

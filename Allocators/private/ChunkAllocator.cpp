@@ -107,7 +107,7 @@ bool ChunkAlloc::isFull() const { return !mNFreeBlocks; }
 bool ChunkAlloc::isEmpty() const { return mNFreeBlocks == mNBlocks; }
 
 ChunkAlloc::~ChunkAlloc() {
-  // TODO : check for leaks
+	// TODO : check for leaks
 	if (mOwnBuff) {
 		HeapAllocGlobal::deallocate(mBuff);
 	}

@@ -140,7 +140,7 @@ HeapAllocGlobal::~HeapAllocGlobal() {
 		DEBUG_BREAK("Destruction of not freed Allocator");
 
 		#ifdef MEM_STACK_TRACE
-    // TODO: log leaks
+		// TODO: log leaks
 		#endif
 	}
 }

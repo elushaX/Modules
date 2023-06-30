@@ -8,24 +8,24 @@
 
 namespace tp {
 
-  class ModuleManifest {
-  public:
-    typedef bool (*ModuleInit)(const ModuleManifest*);
-    typedef void (*ModuleDeinit)(const ModuleManifest*);
+	class ModuleManifest {
+	public:
+		typedef bool (*ModuleInit)(const ModuleManifest*);
+		typedef void (*ModuleDeinit)(const ModuleManifest*);
 
-    ModuleManifest(const char* aModuleName, ModuleInit aInit, ModuleDeinit aDeinit, ModuleManifest** aDependencies);
-    [[nodiscard]] bool isInitialized() const;
-    bool initialize();
-    void deinitialize();
-    [[nodiscard]] const char* getName() const;
-  private:
-    const char* mModuleName = nullptr;
-    ModuleManifest** mDependencies; // NULL terminated
-    bool mInitialized = false;
-    ModuleInit mInit = nullptr;
-    ModuleDeinit mDeinit = nullptr;
-    uhalni mInitCount = 0;
-  };
+		ModuleManifest(const char* aModuleName, ModuleInit aInit, ModuleDeinit aDeinit, ModuleManifest** aDependencies);
+		[[nodiscard]] bool isInitialized() const;
+		bool initialize();
+		void deinitialize();
+		[[nodiscard]] const char* getName() const;
+	private:
+		const char* mModuleName = nullptr;
+		ModuleManifest** mDependencies; // NULL terminated
+		bool mInitialized = false;
+		ModuleInit mInit = nullptr;
+		ModuleDeinit mDeinit = nullptr;
+		uhalni mInitCount = 0;
+	};
 
-  extern ModuleManifest gModuleBase;
+	extern ModuleManifest gModuleBase;
 };

@@ -7,92 +7,92 @@
 
 namespace tp {
 
-  template <typename Type, class Allocator = DefaultAllocator>
+	template <typename Type, class Allocator = DefaultAllocator>
 	class List {
 
-    typedef SelCopyArg<Type> TypeArg;
-    typedef ualni Index;
+		typedef SelCopyArg<Type> TypeArg;
+		typedef ualni Index;
 
-  public:
+	public:
 
-    struct Node {
-      Type data;
-      Node* next = nullptr;
-      Node* prev = nullptr;
-      Node() = default;
-      explicit Node(TypeArg p_data) : data(p_data) {}
-      Type& operator->() { return data; }
-    };
+		struct Node {
+			Type data;
+			Node* next = nullptr;
+			Node* prev = nullptr;
+			Node() = default;
+			explicit Node(TypeArg p_data) : data(p_data) {}
+			Type& operator->() { return data; }
+		};
 
-    class IteratorPointer {
-    protected:
-      Node* mIter;
-    public:
-      IteratorPointer() = default;
-      Type& operator->() { return (mIter->data); }
-      const Type& operator->() const { return (mIter->data); }
-    };
+		class IteratorPointer {
+		protected:
+			Node* mIter;
+		public:
+			IteratorPointer() = default;
+			Type& operator->() { return (mIter->data); }
+			const Type& operator->() const { return (mIter->data); }
+		};
 
-    class IteratorReference {
-    protected:
-      Node* mIter;
-    public:
-      IteratorReference() = default;
-      Type* operator->() { return &(mIter->data); }
-      const Type* operator->() const { return &(mIter->data); }
-    };
+		class IteratorReference {
+		protected:
+			Node* mIter;
+		public:
+			IteratorReference() = default;
+			Type* operator->() { return &(mIter->data); }
+			const Type* operator->() const { return &(mIter->data); }
+		};
 
-    class Iterator : public TypeSelect<TypeTraits<Type>::isPointer, IteratorPointer, IteratorReference>::Result {
-    public:
+		class Iterator : public TypeSelect<TypeTraits<Type>::isPointer, IteratorPointer, IteratorReference>::Result {
+		public:
 
-      explicit Iterator(Node* iter) { this->mIter = iter; }
+			explicit Iterator(Node* iter) { this->mIter = iter; }
 
-      Node* node() { return this->mIter; }
-      Type& data() { return this->mIter->data; }
-      const Node* node() const { return this->mIter; }
-      const Type& data() const { return this->mIter->data; }
+			Node* node() { return this->mIter; }
+			Type& data() { return this->mIter->data; }
+			const Node* node() const { return this->mIter; }
+			const Type& data() const { return this->mIter->data; }
 
-      const Iterator& operator*() const { return *this; }
+			const Iterator& operator*() const { return *this; }
 
-      Iterator& operator++() {
-        this->mIter = this->mIter->next;
-        return *this;
-      }
+			Iterator& operator++() {
+				this->mIter = this->mIter->next;
+				return *this;
+			}
 
-      bool operator==(const Iterator& left) const { return left.mIter == this->mIter; }
-      bool operator!=(const Iterator& left) const { return left.mIter != this->mIter; }
-    };
+			bool operator==(const Iterator& left) const { return left.mIter == this->mIter; }
+			bool operator!=(const Iterator& left) const { return left.mIter != this->mIter; }
+		};
 
-  private:
+	private:
 		Node* mFirst = nullptr;
 		Node* mLast = nullptr;
 		Index mLength = 0;
 		Allocator mAlloc;
 
-  public:
+	public:
 
 		List() = default;
 
 		List(const init_list<Type>& list) { operator=(list); }
 
-    [[nodiscard]] inline Node* first() const { return mFirst; }
-    [[nodiscard]] inline Node* last() const { return mLast; }
+		[[nodiscard]] inline Node* first() const { return mFirst; }
+		[[nodiscard]] inline Node* last() const { return mLast; }
 		[[nodiscard]] inline Index length() const { return mLength; }
 
-    [[nodiscard]] Node* newNode() { return new (mAlloc.allocate(sizeof(Node))) Node(); }
-    [[nodiscard]] Node* newNode(TypeArg arg) { return new (mAlloc.allocate(sizeof(Node))) Node(arg); }
-    [[nodiscard]] Node* newNodeNotConstructed() {
-      auto node = (Node*) mAlloc.allocate(sizeof(Node));
-      node->next = node->prev = nullptr;
-      return node;
-    }
+		[[nodiscard]] Node* newNode() { return new (mAlloc.allocate(sizeof(Node))) Node(); }
+		[[nodiscard]] Node* newNode(TypeArg arg) { return new (mAlloc.allocate(sizeof(Node))) Node(arg); }
+		[[nodiscard]] Node* newNodeNotConstructed() {
+			auto node = (Node*) mAlloc.allocate(sizeof(Node));
+			node->next = node->prev = nullptr;
+			return node;
+		}
 
-    [[nodiscard]] const Allocator& getAllocator() const { return mAlloc; }
+		[[nodiscard]] const Allocator& getAllocator() const { return mAlloc; }
 
-    void deleteNode(Node* node) {
-      node->~Node();
-      mAlloc.deallocate(node);
-    }
+		void deleteNode(Node* node) {
+			node->~Node();
+			mAlloc.deallocate(node);
+		}
 
 		Node* addNodeBack() {
 			auto const out = newNode();
@@ -145,7 +145,7 @@ namespace tp {
 			mLength--;
 		}
 
-    [[nodiscard]] Node* findIdx(Index idx) const {
+		[[nodiscard]] Node* findIdx(Index idx) const {
 			DEBUG_ASSERT(!mFirst || idx > mLength - 1)
 			Node* found = mFirst;
 			for (int i = 0; i != idx; i++) {
@@ -154,7 +154,7 @@ namespace tp {
 			return found;
 		}
 
-    [[nodiscard]] Node* find(const TypeArg data) const {
+		[[nodiscard]] Node* find(const TypeArg data) const {
 			Node* found = mFirst;
 			for (alni i = 0; data != found->data; i++) {
 				if (!found->next) {
@@ -165,33 +165,33 @@ namespace tp {
 			return found;
 		}
 
-    [[nodiscard]] inline const Type& operator[](Index idx) const {
+		[[nodiscard]] inline const Type& operator[](Index idx) const {
 			DEBUG_ASSERT(idx < mLength)
 			return find(idx)->data;
 		}
 
 		void pushBack(Node* new_node) { attach(new_node, mLast); }
-    void pushFront(Node* new_node) { attach(new_node, nullptr); }
+		void pushFront(Node* new_node) { attach(new_node, nullptr); }
 		void pushBack(TypeArg data) { pushBack(newNode(data)); }
 		void pushFront(TypeArg data) { pushFront(newNode(data)); }
 
 		void popBack() {
-      DEBUG_ASSERT(mLast)
-      detach(mLast);
-      deleteNode(mLast);
+			DEBUG_ASSERT(mLast)
+			detach(mLast);
+			deleteNode(mLast);
 		}
 
 		void popFront() {
 			DEBUG_ASSERT(mFirst)
-      auto temp = mFirst;
-      detach(mFirst);
-      deleteNode(temp);
+			auto temp = mFirst;
+			detach(mFirst);
+			deleteNode(temp);
 		}
 
 		void insert(Node* node, Index idx) {
 			if (!mLength) {
-        attach(node, mLast);
-      } else if (idx >= mLength) {
+				attach(node, mLast);
+			} else if (idx >= mLength) {
 				attach(node, nullptr);
 			} else {
 				attach(node, find(idx)->prev);
@@ -209,11 +209,11 @@ namespace tp {
 
 		void removeAll() {
 			while (mFirst) {
-        popFront();
-      }
+				popFront();
+			}
 		}
 
-    // copies data
+		// copies data
 		List& operator+=(const List& in) {
 			for (auto node : in) {
 				pushBack(node.data());
@@ -229,38 +229,38 @@ namespace tp {
 		}
 
 		List& operator=(const List& in) {
-      if (this == &in) { return *this; }
+			if (this == &in) { return *this; }
 			removeAll();
-      (*this) += in;
+			(*this) += in;
 			return *this;
 		}
 
 		List& operator=(const init_list<Type>& list) {
-      removeAll();
+			removeAll();
 			*this += list;
 			return *this;
 		}
 
-    [[nodiscard]] bool operator==(const List& in) const {
-      if (in == *this) { return true; }
-      if (in.length() != length()) {
-        return false;
-      }
-      Node* left = in.first();
-      Node* right = first();
-      while (left && right) {
-        if (left->data != right->data) {
-          return false;
-        }
-      }
-      if (left != right) {
-        return false;
-      }
-      return true;
-    }
+		[[nodiscard]] bool operator==(const List& in) const {
+			if (in == *this) { return true; }
+			if (in.length() != length()) {
+				return false;
+			}
+			Node* left = in.first();
+			Node* right = first();
+			while (left && right) {
+				if (left->data != right->data) {
+					return false;
+				}
+			}
+			if (left != right) {
+				return false;
+			}
+			return true;
+		}
 
 		template <typename compare_val>
-    [[nodiscard]] Node* find(bool (*found)(Node* node, compare_val val), compare_val value) const {
+		[[nodiscard]] Node* find(bool (*found)(Node* node, compare_val val), compare_val value) const {
 			for (Node* node = mFirst; node; node = node->next) {
 				if (found(node, value)) {
 					return node;
@@ -269,12 +269,12 @@ namespace tp {
 			return nullptr;
 		}
 
-    [[nodiscard]] Iterator begin() const {
+		[[nodiscard]] Iterator begin() const {
 			Iterator out(mFirst);
 			return out;
 		}
 
-    [[nodiscard]] Iterator end() const {
+		[[nodiscard]] Iterator end() const {
 			return Iterator(nullptr);
 		}
 
@@ -290,33 +290,33 @@ namespace tp {
 		}
 
 		void detachAll() {
-      while (mFirst) {
-        detach(mFirst);
-      }
+			while (mFirst) {
+				detach(mFirst);
+			}
 		}
 
-    template<class Saver>
-    void write(Saver& file) const {
-      file.write(mLength);
-      for (auto item : *this) {
-        file.write(item.data());
-      }
-    }
+		template<class Saver>
+		void write(Saver& file) const {
+			file.write(mLength);
+			for (auto item : *this) {
+				file.write(item.data());
+			}
+		}
 
-    template<class Loader>
-    void read(Loader& file) {
-      removeAll();
-      ualni len;
-      file.read(len);
-      for (auto i = len; i; i--) {
-        auto node = newNodeNotConstructed();
-        file.read(node->data);
-        pushBack(node);
-      }
-    }
+		template<class Loader>
+		void read(Loader& file) {
+			removeAll();
+			ualni len;
+			file.read(len);
+			for (auto i = len; i; i--) {
+				auto node = newNodeNotConstructed();
+				file.read(node->data);
+				pushBack(node);
+			}
+		}
 
-    ~List() {
-      removeAll();
-    }
+		~List() {
+			removeAll();
+		}
 	};
 }

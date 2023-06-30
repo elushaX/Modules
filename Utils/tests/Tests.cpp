@@ -8,60 +8,60 @@
 using namespace tp;
 
 void printSnapshot(const tp::CallStackCapture::CallStack* snapshot) {
-  printf("CallStack: \n");
-  for (auto frame : *snapshot) {
-    auto symbols = gCSCapture->getSymbols(frame.getFrame());
-    printf("  %s   -----   %s:%llu\n", symbols->getFunc(), symbols->getFile(), symbols->getLine());
-  }
-  printf("\n");
+	printf("CallStack: \n");
+	for (auto frame : *snapshot) {
+		auto symbols = gCSCapture->getSymbols(frame.getFrame());
+		printf("  %s   -----   %s:%llu\n", symbols->getFunc(), symbols->getFile(), symbols->getLine());
+	}
+	printf("\n");
 }
 
 void common() {
-  gCSCapture->getSnapshot();
+	gCSCapture->getSnapshot();
 }
 
 void first() {
-  common();
-  common();
-  common();
+	common();
+	common();
+	common();
 }
 
 void second() {
-  common();
-  common();
-  common();
-  common();
+	common();
+	common();
+	common();
+	common();
 }
 
 void third() {
-  common();
-  common();
+	common();
+	common();
 }
 
 void root() {
-  first();
-  second();
-  third();
+	first();
+	second();
+	third();
 }
 
 TEST_DEF(Debugging) {
-  root();
+	root();
 
-  for (auto cs : *gCSCapture) {
-    printSnapshot(cs.getCallStack());
-  }
+	for (auto cs : *gCSCapture) {
+		printSnapshot(cs.getCallStack());
+	}
 }
 
 int main() {
 
-  tp::ModuleManifest* deps[] = { &tp::gModuleUtils, nullptr };
-  tp::ModuleManifest testModule("UtilsTest", nullptr, nullptr, deps);
+	tp::ModuleManifest* deps[] = { &tp::gModuleUtils, nullptr };
+	tp::ModuleManifest testModule("UtilsTest", nullptr, nullptr, deps);
 
-  if (!testModule.initialize()) {
-    return 1;
-  }
+	if (!testModule.initialize()) {
+		return 1;
+	}
 
-  testDebugging();
+	testDebugging();
 
-  testModule.deinitialize();
+	testModule.deinitialize();
 }

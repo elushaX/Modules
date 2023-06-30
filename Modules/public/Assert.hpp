@@ -5,7 +5,7 @@
 
 namespace tp {
 	void _assert_(const char* exp, const char* file, int line);
-  void terminate(tp::alni code = 0);
+	void terminate(tp::alni code = 0);
 };
 
 #define FAIL(exp) tp::_assert_(#exp, __FILE__, __LINE__);

@@ -61,7 +61,7 @@ void HeapAlloc::deallocate(void* aPtr) {
 		}
 	}
 
-  HeapAllocGlobal::deallocate(head);
+	HeapAllocGlobal::deallocate(head);
 }
 
 HeapAlloc::~HeapAlloc() {
@@ -69,7 +69,7 @@ HeapAlloc::~HeapAlloc() {
 		DEBUG_BREAK("Destruction of not freed Allocator");
 
 		#ifdef MEM_STACK_TRACE
-    // TODO : log leaks and free them up
+		// TODO : log leaks and free them up
 		#endif
 	}
 }

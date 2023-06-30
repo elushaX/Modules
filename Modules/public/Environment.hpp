@@ -6,138 +6,138 @@
 
 namespace tp {
 
-  class Environment {
-  public:
+	class Environment {
+	public:
 
-    enum class Arch { UNDEF, INTEL, ARM } mArch = Arch::UNDEF;
+		enum class Arch { UNDEF, INTEL, ARM } mArch = Arch::UNDEF;
 
-    // Build Type
-    #if  defined(__DEBUG__) || defined(_DEBUG) || defined(DEBUG) || !defined(NDEBUG)
-      #define ENV_BUILD_DEBUG
-      enum class BuildType { UNDEF, DEBUG, RELEASE } mBuildType = BuildType::DEBUG;
-    #else
-      #define ENV_BUILD_RELEASE
-      enum class BuildType { UNDEF, DEBUG, RELEASE } mBuildType = BuildType::RELEASE;
-    #endif
+		// Build Type
+		#if  defined(__DEBUG__) || defined(_DEBUG) || defined(DEBUG) || !defined(NDEBUG)
+			#define ENV_BUILD_DEBUG
+			enum class BuildType { UNDEF, DEBUG, RELEASE } mBuildType = BuildType::DEBUG;
+		#else
+			#define ENV_BUILD_RELEASE
+			enum class BuildType { UNDEF, DEBUG, RELEASE } mBuildType = BuildType::RELEASE;
+		#endif
 
-    // MCVS
-    #ifdef _MSC_VER
-      #define ENV_COMPILER_MSVC
-      enum class Toolchain { UNDEF, GNU, LLVM, MSVC } mToolchain = Toolchain::MSVC;
+		// MCVS
+		#ifdef _MSC_VER
+			#define ENV_COMPILER_MSVC
+			enum class Toolchain { UNDEF, GNU, LLVM, MSVC } mToolchain = Toolchain::MSVC;
 
-      // VERSION
-      // TODO
+			// VERSION
+			// TODO
 
-      // TARGET OS
-      #if defined(_WIN32) || defined(_WIN64)
-        #define ENV_OS_WINDOWS
-        enum class OS { UNDEF, LINUX, WINDOWS, ANDROID, IOS } mOS = OS::WINDOWS;
-      #else
-        enum class OS { UNDEF, LINUX, WINDOWS, ANDROID, IOS } mOS = OS::UNDEF;
-        #error "unexplored compilation to os target"
-      #endif
+			// TARGET OS
+			#if defined(_WIN32) || defined(_WIN64)
+				#define ENV_OS_WINDOWS
+				enum class OS { UNDEF, LINUX, WINDOWS, ANDROID, IOS } mOS = OS::WINDOWS;
+			#else
+				enum class OS { UNDEF, LINUX, WINDOWS, ANDROID, IOS } mOS = OS::UNDEF;
+				#error "unexplored compilation to os target"
+			#endif
 
-      // TARGET ALIGNED SIZE
-      #ifdef  _WIN64
-        enum class ArchWidth { UNDEF, X64, X32 } mWidth = ArchWidth::X64;
-        #define ENV_BITS_64
-      #else
-        enum class ArchWidth { UNDEF, X64, X32 } mWidth = ArchWidth::X32;
-        #define ENV_BITS_32
-      #endif
+			// TARGET ALIGNED SIZE
+			#ifdef  _WIN64
+				enum class ArchWidth { UNDEF, X64, X32 } mWidth = ArchWidth::X64;
+				#define ENV_BITS_64
+			#else
+				enum class ArchWidth { UNDEF, X64, X32 } mWidth = ArchWidth::X32;
+				#define ENV_BITS_32
+			#endif
 
-    #endif
+		#endif
 
-    // GCC
-    #if defined(__GNUC__) && !defined(__llvm__) && !defined(__INTEL_COMPILER)
-      #define ENV_COMPILER_GCC
-      enum class Toolchain { UNDEF, GNU, LLVM, MSVC } mToolchain = Toolchain::GNU;
+		// GCC
+		#if defined(__GNUC__) && !defined(__llvm__) && !defined(__INTEL_COMPILER)
+			#define ENV_COMPILER_GCC
+			enum class Toolchain { UNDEF, GNU, LLVM, MSVC } mToolchain = Toolchain::GNU;
 
-      // VERSION
-      #if (__GNUC___ > 5 || (__GNUC__ == 5 && __GNUC_MINOR__ >= 1))
-        // TODO
-      #endif
+			// VERSION
+			#if (__GNUC___ > 5 || (__GNUC__ == 5 && __GNUC_MINOR__ >= 1))
+				// TODO
+			#endif
 
-      // TARGET OS
-      #if defined(__linux__) && !defined(__ANDROID__)
-        #define ENV_OS_LINUX
-        enum class OS { UNDEF, LINUX, WINDOWS, ANDROID, IOS } mOS = OS::LINUX;
-      #else
-        #error "unexplored compilation to os target"
-      #endif
+			// TARGET OS
+			#if defined(__linux__) && !defined(__ANDROID__)
+				#define ENV_OS_LINUX
+				enum class OS { UNDEF, LINUX, WINDOWS, ANDROID, IOS } mOS = OS::LINUX;
+			#else
+				#error "unexplored compilation to os target"
+			#endif
 
-      // TARGET ALIGNED SIZE
-      #if defined(__aarch64__) || defined(__x86_64__) || defined(__ARM_64BIT_STATE)
-        #define ENV_BITS_64
-        enum class ArchWidth { UNDEF, X64, X32 } mWidth = ArchWidth::X64;
-      #elif defined(__x86_64__) || defined(i386)
-        #define ENV_BITS_32
-        enum class ArchWidth { UNDEF, X64, X32 } mWidth = ArchWidth::X32;
-      #endif
+			// TARGET ALIGNED SIZE
+			#if defined(__aarch64__) || defined(__x86_64__) || defined(__ARM_64BIT_STATE)
+				#define ENV_BITS_64
+				enum class ArchWidth { UNDEF, X64, X32 } mWidth = ArchWidth::X64;
+			#elif defined(__x86_64__) || defined(i386)
+				#define ENV_BITS_32
+				enum class ArchWidth { UNDEF, X64, X32 } mWidth = ArchWidth::X32;
+			#endif
 
-    #endif
+		#endif
 
-    // CLANG
-    #if defined(__clang__) && !defined(ENV_COMPILER_GCC)
-      #define ENV_COMPILER_CLANG
-      enum class Toolchain { UNDEF, GNU, LLVM, MSVC } mToolchain = Toolchain::LLVM;
+		// CLANG
+		#if defined(__clang__) && !defined(ENV_COMPILER_GCC)
+			#define ENV_COMPILER_CLANG
+			enum class Toolchain { UNDEF, GNU, LLVM, MSVC } mToolchain = Toolchain::LLVM;
 
-      // VERSION
-      #if (__clang_major__ > 5 || (__GNUC__ == 5 && __GNUC_MINOR__ >= 1))
-        // TODO
-      #endif
+			// VERSION
+			#if (__clang_major__ > 5 || (__GNUC__ == 5 && __GNUC_MINOR__ >= 1))
+				// TODO
+			#endif
 
-      // TARGET OS
-      #if defined(__linux__) && !defined(__ANDROID__)
-        #define ENV_OS_LINUX
-        enum class OS { UNDEF, LINUX, WINDOWS, ANDROID, IOS } mOS = OS::LINUX;
-      #elif defined(__ANDROID__)
-        enum class OS { UNDEF, LINUX, WINDOWS, ANDROID, IOS } mOS = OS::ANDOID;
-        #define ENV_OS_ANDROID
-      #else
-        #error "unexplored compilation to target os"
-      #endif
+			// TARGET OS
+			#if defined(__linux__) && !defined(__ANDROID__)
+				#define ENV_OS_LINUX
+				enum class OS { UNDEF, LINUX, WINDOWS, ANDROID, IOS } mOS = OS::LINUX;
+			#elif defined(__ANDROID__)
+				enum class OS { UNDEF, LINUX, WINDOWS, ANDROID, IOS } mOS = OS::ANDOID;
+				#define ENV_OS_ANDROID
+			#else
+				#error "unexplored compilation to target os"
+			#endif
 
-      // TARGET ALIGNED SIZE
-      #if defined(__aarch64__) || defined(__x86_64__) || defined(__ARM_64BIT_STATE)
-        #define ENV_BITS_64
-        enum class ArchWidth { UNDEF, X64, X32 } mWidth = ArchWidth::X64;
-      #elif defined(__x86_64__) || defined(i386)
-        #define ENV_BITS_32
-        enum class ArchWidth { UNDEF, X64, X32 } mWidth = ArchWidth::X32;
-      #endif
+			// TARGET ALIGNED SIZE
+			#if defined(__aarch64__) || defined(__x86_64__) || defined(__ARM_64BIT_STATE)
+				#define ENV_BITS_64
+				enum class ArchWidth { UNDEF, X64, X32 } mWidth = ArchWidth::X64;
+			#elif defined(__x86_64__) || defined(i386)
+				#define ENV_BITS_32
+				enum class ArchWidth { UNDEF, X64, X32 } mWidth = ArchWidth::X32;
+			#endif
 
-    #endif
+		#endif
 
-    #if defined(__EMSCRIPTEN__) || defined(__MINGW32__) || defined(__MINGW32__) || defined(__MINGW64__)
-    #error "compiler is not supported"
-    #else
-    #if !(defined(ENV_COMPILER_MSVC) || defined(ENV_COMPILER_CLANG) || defined(ENV_COMPILER_GCC))
-            // Linux and Linux - derived           __linux__
-        // Darwin(Mac OS X and iOS)         __APPLE__
-        // Akaros     __ros__
-        // NaCL                             __native_client__
-        // AsmJS                            __asmjs__
-        // Fuschia                         __Fuchsia__
-        #error "unknown compiler"
-    #endif
-    #endif
+		#if defined(__EMSCRIPTEN__) || defined(__MINGW32__) || defined(__MINGW32__) || defined(__MINGW64__)
+		#error "compiler is not supported"
+		#else
+		#if !(defined(ENV_COMPILER_MSVC) || defined(ENV_COMPILER_CLANG) || defined(ENV_COMPILER_GCC))
+						// Linux and Linux - derived           __linux__
+				// Darwin(Mac OS X and iOS)         __APPLE__
+				// Akaros     __ros__
+				// NaCL                             __native_client__
+				// AsmJS                            __asmjs__
+				// Fuschia                         __Fuchsia__
+				#error "unknown compiler"
+		#endif
+		#endif
 
-    void log() const;
-  };
+		void log() const;
+	};
 
-  #ifndef ENV_BITS_64
-    #error "ERROR - not 64 bit archytectures are out of support"
-  #endif
+	#ifndef ENV_BITS_64
+		#error "ERROR - not 64 bit archytectures are out of support"
+	#endif
 
-  const extern Environment gEnvironment;
+	const extern Environment gEnvironment;
 
 	typedef char int1;
 	typedef unsigned char uint1;
 	typedef short int2;
 	typedef unsigned short uint2;
 	typedef unsigned int uint4;
-  typedef uint2 ufalni;
+	typedef uint2 ufalni;
 	typedef uint4 uhalni;
 	typedef int int4;
 	typedef int4 halni;

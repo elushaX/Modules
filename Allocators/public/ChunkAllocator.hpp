@@ -15,7 +15,7 @@ namespace tp {
 		void* allocate();
 		void deallocate(void* aPtr);
 		[[nodiscard]] bool isFull() const;
-    [[nodiscard]] bool isEmpty() const;
+		[[nodiscard]] bool isEmpty() const;
 
 		~ChunkAlloc();
 
