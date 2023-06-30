@@ -1,9 +1,9 @@
 Containers:
-  ADd check copy times
+  ADd check copy times !
   Addbuff
   Vector
   Vector 2d
-  AVL dont copy data just swap
+  AVL dont copy data just swap !
 
 Strings:
   Implement
@@ -12,6 +12,7 @@ Math:
   Implement
 
 Utils:
+  Group failed checks by source !!
   Stack trace fixes
 
 Tokenizer:

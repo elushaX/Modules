@@ -23,7 +23,8 @@ namespace tp {
 
   private:
     struct TestingNode {
-      List<FailedCheck> mFailedChecks;
+      struct FailedCheckRecord { FailedCheck failedCheck; ualni times; };
+      List<FailedCheckRecord> mFailedChecks;
       List<TestingNode*> mSubTests;
       const char* mName = "Unnamed";
       TestingNode* mParent = nullptr;

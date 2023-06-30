@@ -22,7 +22,13 @@ void Testing::endTest() {
 }
 
 void Testing::addFailedCheck(const FailedCheck& info) {
-  mCurrent->mFailedChecks.pushBack(info);
+  DEBUG_BREAK(0 && info.expression);
+  auto lastRecord = &mCurrent->mFailedChecks.last()->data;
+  if (lastRecord && lastRecord->failedCheck.file == info.file && lastRecord->failedCheck.line == info.line) {
+    lastRecord->times++;
+    return;
+  }
+  mCurrent->mFailedChecks.pushBack({ info, 1 });
 }
 
 void Testing::reportState() {
@@ -58,7 +64,9 @@ void Testing::TestingNode::report(const char* path) const {
   auto newPath = path ? std::string(path) + "/" + mName : std::string(mName);
 
   for (auto check : mFailedChecks) {
-    printf("%s Failed - (%s) %s:%llu\n", newPath.c_str(), check.data().expression, check.data().file, check.data().line);
+    auto failedCheck = &check.data().failedCheck;
+    auto times = check.data().times;
+    printf("%s Failed - (%s) %s:%llu x%i\n", newPath.c_str(), failedCheck->expression, failedCheck->file, failedCheck->line, (halni) times);
   }
 
   for (const auto& child : mSubTests) {
