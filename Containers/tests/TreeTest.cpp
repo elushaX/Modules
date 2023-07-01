@@ -1,7 +1,7 @@
 
 #include "Tests.hpp"
 
-#include "AvlTree.hpp"
+#include "Tree.hpp"
 
 #include "Testing.hpp"
 
