@@ -36,6 +36,7 @@ int main() {
 	testList();
 	testMap();
 	testAvl();
+  testBuffer();
 
 	testModule.deinitialize();
 }

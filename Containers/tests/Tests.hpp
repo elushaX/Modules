@@ -71,3 +71,4 @@ public:
 void testList();
 void testMap();
 void testAvl();
+void testBuffer();
