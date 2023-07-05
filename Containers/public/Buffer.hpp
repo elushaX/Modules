@@ -90,7 +90,7 @@ namespace tp {
 
 		Buffer& operator=(const Buffer& in) {
 			if (this == &in) return *this;
-			~Buffer();
+			this->~Buffer();
 			new (this) Buffer(in);
 			return *this;
 		}
@@ -156,6 +156,16 @@ namespace tp {
 			mLoad++;
 		}
 
+    void append(const Buffer& in) {
+      if (!in.mLoad) return;
+      auto newLoad = mLoad + in.mLoad;
+      auto newSize = mSize;
+      while (newLoad >= newSize) newSize = tResizePolicy(newSize);
+      if (newSize != mSize) resizeBuffer(newSize);
+      for (auto i = mLoad; i < newLoad; i++) new (&mBuff[i]) tType(in.mBuff[i - mLoad]);
+      mLoad = newLoad;
+    }
+
 		void pop() {
 			DEBUG_ASSERT(mLoad)
 			mBuff[mLoad].~tType();
@@ -164,6 +174,7 @@ namespace tp {
       DEBUG_ASSERT(prevSize < mSize)
 			if (prevSize > mLoad) resizeBuffer(prevSize);
 		}
+
 
   private:
     void resizeBuffer(ualni newSize) {
