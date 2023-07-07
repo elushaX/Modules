@@ -53,7 +53,7 @@ namespace tp {
 		}
 
 		Vec(const Vec& in) {
-			memcp(mBuff, in.mBuff, sizeof(Type) * tSize);
+			memCopy(mBuff, in.mBuff, sizeof(Type) * tSize);
 		}
 
 		Type& operator[](ualni i) {

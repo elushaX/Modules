@@ -3,9 +3,9 @@
 #include "HeapAllocatorGlobal.hpp"
 #include "PrivateConfig.hpp"
 
+#include "Utils.hpp"
 #include "Debugging.hpp"
 
-#include <stddef.h>
 #include <cstdlib>
 
 using namespace tp;
@@ -40,10 +40,10 @@ namespace tp {
 		MemHead* mNext;
 		ualni mBlockSize;
 		#ifdef MEM_STACK_TRACE
-		CallStackSnapshots::StackShapshot mCallStack;
+		const CallStackCapture::CallStack* mCallStack;
 		#endif
 	};
-};
+}
 
 enum : ualni {
 	ALIGNED_SIZE = ENV_ALNI_SIZE_B,
@@ -74,29 +74,28 @@ void* HeapAllocGlobal::allocate(ualni aBlockSize) {
 	// 2) Link with existing blocks
 	mNumAllocations++;
 	if (mEntry) {
-		head->mNext = mEntry->mNext;
-		head->mPrev = mEntry->mPrev;
-		if (mEntry->mNext) mEntry->mNext->mPrev = head;
-		if (mEntry->mPrev) mEntry->mPrev->mNext = head;
-	}
-	else {
+		DEBUG_ASSERT(!mEntry->mNext)
+		head->mNext = nullptr;
+		head->mPrev = mEntry;
+		mEntry->mNext = head;
+	} else {
 		head->mNext = nullptr;
 		head->mPrev = nullptr;
 	}
 	mEntry = head;
 
 	// 3) Wrap fill
-	memsetv(wrap_top, WRAP_SIZE, WRAP_VAL);
-	memsetv(wrap_bottom, WRAP_SIZE, WRAP_VAL);
+	memSetVal(wrap_top, WRAP_SIZE, WRAP_VAL);
+	memSetVal(wrap_bottom, WRAP_SIZE, WRAP_VAL);
 
 	// 4) Trace the stack
 	#ifdef MEM_STACK_TRACE
-	head->mCallStack = gCallStackSnapshots.capture();
+	head->mCallStack = gCSCapture->getSnapshot();
 	#endif
 
 	// 5) clear data
 #ifdef MEM_CLEAR_ON_ALLOC
-	memsetv(data, aBlockSize, CLEAR_ALLOC_VAL);
+	memSetVal(data, aBlockSize, CLEAR_ALLOC_VAL);
 #endif
 
 	return data;
@@ -104,46 +103,48 @@ void* HeapAllocGlobal::allocate(ualni aBlockSize) {
 
 void HeapAllocGlobal::deallocate(void* aPtr) {
 	// 1) Restore the pointers
-	auto head = ((MemHead*)(aPtr)) - 1;
+	auto head = ((MemHead*)((int1*)aPtr - WRAP_SIZE)) - 1;
 	auto wrap_top = (int1*)(head + 1);
 	auto data = wrap_top + WRAP_SIZE;
 	auto wrap_bottom = data + head->mBlockSize;
 
 	// 2) Unlink with blocks
 	mNumAllocations--;
-	if (mEntry->mNext) mEntry->mNext->mPrev = mEntry->mPrev;
-	if (mEntry->mPrev) mEntry->mPrev->mNext = mEntry->mNext;
+	DEBUG_ASSERT(!mEntry->mNext)
+	if (head->mNext) head->mNext->mPrev = head->mPrev;
+	if (head->mPrev) head->mPrev->mNext = head->mNext;
 	if (head == mEntry) {
-		if (mEntry->mNext) {
-			mEntry = mEntry->mNext;
-		}
-		else {
-			mEntry = mEntry->mPrev;
-		}
+		mEntry = head->mPrev;
 	}
 
 	// 3) Check the wrap
-	RelAssert(memequalv(wrap_top, WRAP_SIZE, WRAP_VAL) && memequalv(wrap_bottom, WRAP_SIZE, WRAP_VAL) && "Allocated Block Wrap Corrupted!");
+	ASSERT(!memCompareVal(wrap_top, WRAP_SIZE, WRAP_VAL) && "Allocated Block Wrap Corrupted!")
+	ASSERT(!memCompareVal(wrap_bottom, WRAP_SIZE, WRAP_VAL) && "Allocated Block Wrap Corrupted!")
 
 	// 4) clear data
 #ifdef MEM_CLEAR_ON_ALLOC
-	memsetv(data, head->mBlockSize, CLEAR_DEALLOC_VAL);
+	memSetVal(data, head->mBlockSize, CLEAR_DEALLOC_VAL);
 #endif
 
 	// 5) free the block
-	free(aPtr); 
+	free(head);
 }
 
-HeapAllocGlobal::~HeapAllocGlobal() {
+bool HeapAllocGlobal::checkLeaks() {
 	// 1) Check for not deallocated memory
 	if (mNumAllocations) {
-		DEBUG_BREAK("Destruction of not freed Allocator");
 
 		#ifdef MEM_STACK_TRACE
-		// TODO: log leaks
+		gCSCapture->logLeaks();
 		#endif
+
+		DEBUG_BREAK("Destruction of not freed Allocator")
+		return true;
 	}
+	return false;
 }
+
+HeapAllocGlobal::~HeapAllocGlobal() = default;
 
 #endif
 

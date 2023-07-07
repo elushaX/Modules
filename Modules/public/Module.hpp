@@ -4,7 +4,7 @@
 #include "Common.hpp"
 #include "Assert.hpp"
 
-#define MODULE_SANITY_CHECK(name) ASSERT(name.isInitialized() && "Modules Is Not Initialized" && #name)
+#define MODULE_SANITY_CHECK(name) DEBUG_ASSERT(name.isInitialized() && "Modules Is Not Initialized" && #name)
 
 namespace tp {
 

@@ -4,15 +4,23 @@
 
 namespace tp {
 
-	struct HeapAlloc {
+	class HeapAlloc {
 
 #ifdef MEM_DEBUG
 		ualni mNumAllocations = 0;
 		struct MemHeadLocal* mEntry = nullptr;
 #endif
 
+	public:
+		HeapAlloc() = default;
+		~HeapAlloc();
+
+	public:
 		void* allocate(ualni aBlockSize);
 		void deallocate(void* aPtr);
-		~HeapAlloc();
+
+	public:
+		[[nodiscard]] bool checkWrap() const { return false; }
+		void checkValid() {}
 	};
-};
+}

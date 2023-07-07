@@ -54,6 +54,9 @@ namespace tp {
 		[[nodiscard]] const CallStack* getSnapshot();
 		const DebugSymbols* getSymbols(FramePointer fp);
 
+		static void printSnapshot(const CallStack* snapshot);
+		void logLeaks();
+
 	public:
 
 		template<class Saver>

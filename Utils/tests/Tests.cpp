@@ -47,9 +47,7 @@ void root() {
 TEST_DEF(Debugging) {
 	root();
 
-	for (auto cs : *gCSCapture) {
-		printSnapshot(cs.getCallStack());
-	}
+	gCSCapture->logLeaks();
 }
 
 int main() {

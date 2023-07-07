@@ -34,7 +34,7 @@ namespace tp {
 
 		Mat& operator=(const Mat& in) {
 			if (&in == this) return *this;
-			memcp(this, &in, sizeof(Mat<Type, tNRows, tNColoumns>));
+			memCopy(this, &in, sizeof(Mat<Type, tNRows, tNColoumns>));
 			return *this;
 		}
 
@@ -341,7 +341,7 @@ namespace tp {
 		}
 
 		Mat& operator=(const Mat& in) {
-			memcp(this, &in, sizeof(Mat2<Type>));
+			memCopy(this, &in, sizeof(Mat2<Type>));
 			return *this;
 		}
 

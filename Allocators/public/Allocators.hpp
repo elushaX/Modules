@@ -8,15 +8,15 @@
 #include "PoolAllocator.hpp"
 
 namespace tp {
-	extern ModuleManifest gModuleAllocator;
-};
+	extern ModuleManifest gModuleAllocators;
+}
 
 inline void* operator new(std::size_t aSize, void* aWhere) noexcept { return aWhere; }
 
 void* operator new(std::size_t aSize);
 void* operator new[](std::size_t aSize);
-void  operator delete(void* aPtr);
-void  operator delete[](void* aPtr);
+void  operator delete(void* aPtr) noexcept;
+void  operator delete[](void* aPtr) noexcept;
 
 void* operator new(std::size_t aSize, tp::HeapAlloc& aAlloc);
 void* operator new[](std::size_t aSize, tp::HeapAlloc& aAlloc);

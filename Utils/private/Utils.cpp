@@ -10,12 +10,12 @@
 void initializeCallStackCapture();
 void deinitializeCallStackCapture();
 
-static bool initialize(const tp::ModuleManifest* self) {
+static bool initialize(const tp::ModuleManifest*) {
 	initializeCallStackCapture();
 	return true;
 }
 
-static void deinitialize(const tp::ModuleManifest* self) {
+static void deinitialize(const tp::ModuleManifest*) {
 	deinitializeCallStackCapture();
 	tp::gTesting.reportState();
 	if (tp::gTesting.hasFailed()) { exit(1); }
@@ -26,40 +26,40 @@ namespace tp {
 	static ModuleManifest* sModuleUtilsDeps[] = { &gModuleContainers, nullptr };
 	ModuleManifest gModuleUtils = ModuleManifest("Utils", initialize, deinitialize, sModuleUtilsDeps);
 
-	void memsetv(void* p, uhalni bytesize, uint1 val) {
+	void memSetVal(void* p, uhalni byteSize, uint1 val) {
 		MODULE_SANITY_CHECK(gModuleBase)
 
-		alni alignedval = 0;
-		for (ualni idx = 0; idx < sizeof(alni); idx++) {
-			((uint1*) &alignedval)[idx] = val;
+		alni alignedVal = val;
+		alignedVal = (alignedVal << 8) | alignedVal;
+		alignedVal = (alignedVal << 16) | alignedVal;
+		alignedVal = (alignedVal << 32) | alignedVal;
+
+		ualni alignedLen = byteSize / sizeof(alni);
+		for (ualni idx = 0; idx < alignedLen; idx++) {
+			((alni*) p)[idx] = alignedVal;
 		}
 
-		ualni alignedlen = bytesize / sizeof(alni);
-		for (ualni idx = 0; idx < alignedlen; idx++) {
-			((alni*) p)[idx] = alignedval;
-		}
-
-		ualni unalignedlen = bytesize - (alignedlen * sizeof(alni));
-		for (ualni idx = 0; idx < unalignedlen; idx++) {
-			((uint1*) p)[bytesize - idx - 1] = val;
+		ualni unalignedLen = byteSize - (alignedLen * sizeof(alni));
+		for (ualni idx = 0; idx < unalignedLen; idx++) {
+			((uint1*) p)[byteSize - idx - 1] = val;
 		}
 	}
 
-	void memcp(void* left, const void* right, uhalni len) {
+	void memCopy(void* left, const void* right, uhalni len) {
 		MODULE_SANITY_CHECK(gModuleBase)
 
-		ualni alignedlen = len / sizeof(alni);
-		for (ualni idx = 0; idx < alignedlen; idx++) {
+		ualni alignedLen = len / sizeof(alni);
+		for (ualni idx = 0; idx < alignedLen; idx++) {
 			((alni*) left)[idx] = ((alni*) right)[idx];
 		}
 
-		ualni unalignedlen = len - (alignedlen * sizeof(alni));
-		for (ualni idx = 0; idx < unalignedlen; idx++) {
+		ualni unalignedLen = len - (alignedLen * sizeof(alni));
+		for (ualni idx = 0; idx < unalignedLen; idx++) {
 			((uint1*) left)[len - idx - 1] = ((uint1*) right)[len - idx - 1];
 		}
 	}
 
-	int1 memecomp(const void* left, const void* right, uhalni len) {
+	int1 memCompare(const void* left, const void* right, uhalni len) {
 		MODULE_SANITY_CHECK(gModuleBase)
 		if (!len) return 0;
 
@@ -87,7 +87,41 @@ namespace tp {
 		return 0;
 	}
 
-	alnf randf() {
+
+	int1 memCompareVal(const void* left, uhalni len, uint1 val) {
+		MODULE_SANITY_CHECK(gModuleBase)
+		if (!len) return 0;
+
+		alni valAligned = val;
+		valAligned = (valAligned << 8) | valAligned;
+		valAligned = (valAligned << 16) | valAligned;
+		valAligned = (valAligned << 32) | valAligned;
+
+		ualni alignedLength = len / sizeof(alni);
+		for (ualni idx = 0; idx < alignedLength; idx++) {
+			if (((alni*) left)[idx] == valAligned) {
+				continue;
+			}
+			if (((alni*) left)[idx] > valAligned) {
+				return 1;
+			}
+			return -1;
+		}
+
+		ualni unalignedLength = len - (alignedLength * sizeof(alni));
+		for (ualni idx = 0; idx < unalignedLength; idx++) {
+			if (((uint1*) left)[len - idx - 1] == val) {
+				continue;
+			}
+			if (((uint1*) left)[len - idx - 1] > val) {
+				return 1;
+			}
+			return -1;
+		}
+		return 0;
+	}
+
+	alnf randomFloat() {
 		alnf r = static_cast<alnf>(std::rand()) / static_cast<alnf>(RAND_MAX);
 		return r;
 	}

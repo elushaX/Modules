@@ -5,9 +5,6 @@
 
 #include "PrivateConfig.hpp"
 
-#include <stddef.h>
-#include <cstdlib>
-
 using namespace tp;
 
 #if not defined(MEM_DEBUG)
@@ -24,7 +21,7 @@ namespace tp {
 		MemHeadLocal* mPrev;
 		MemHeadLocal* mNext;
 	};
-};
+}
 
 void* HeapAlloc::allocate(ualni aBlockSize) {
 	auto head = (MemHeadLocal*) HeapAllocGlobal::allocate(aBlockSize + sizeof(MemHeadLocal));
@@ -32,12 +29,11 @@ void* HeapAlloc::allocate(ualni aBlockSize) {
 
 	mNumAllocations++;
 	if (mEntry) {
-		head->mNext = mEntry->mNext;
-		head->mPrev = mEntry->mPrev;
-		if (mEntry->mNext) mEntry->mNext->mPrev = head;
-		if (mEntry->mPrev) mEntry->mPrev->mNext = head;
-	}
-	else {
+		DEBUG_ASSERT(!mEntry->mNext)
+		head->mNext = nullptr;
+		head->mPrev = mEntry;
+		mEntry->mNext = head;
+	} else {
 		head->mNext = nullptr;
 		head->mPrev = nullptr;
 	}
@@ -50,15 +46,11 @@ void HeapAlloc::deallocate(void* aPtr) {
 	auto head = ((MemHeadLocal*)(aPtr)) - 1;
 	
 	mNumAllocations--;
-	if (mEntry->mNext) mEntry->mNext->mPrev = mEntry->mPrev;
-	if (mEntry->mPrev) mEntry->mPrev->mNext = mEntry->mNext;
+	DEBUG_ASSERT(!mEntry->mNext)
+	if (head->mNext) head->mNext->mPrev = head->mPrev;
+	if (head->mPrev) head->mPrev->mNext = head->mNext;
 	if (head == mEntry) {
-		if (mEntry->mNext) {
-			mEntry = mEntry->mNext;
-		}
-		else {
-			mEntry = mEntry->mPrev;
-		}
+		mEntry = head->mPrev;
 	}
 
 	HeapAllocGlobal::deallocate(head);
@@ -66,7 +58,7 @@ void HeapAlloc::deallocate(void* aPtr) {
 
 HeapAlloc::~HeapAlloc() {
 	if (mNumAllocations) {
-		DEBUG_BREAK("Destruction of not freed Allocator");
+		DEBUG_BREAK("Destruction of not freed Allocator")
 
 		#ifdef MEM_STACK_TRACE
 		// TODO : log leaks and free them up

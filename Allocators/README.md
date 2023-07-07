@@ -16,7 +16,7 @@ void test_call11() {
 }
 
 int main(char argc, char* argv[]) {
-  tp::ModuleManifest* ModuleDependencies[] = { &tp::gModuleAllocator, NULL };
+  tp::ModuleManifest* ModuleDependencies[] = { &tp::gModuleAllocators, NULL };
   tp::ModuleManifest TestModule("Test", NULL, NULL, ModuleDependencies);
   TestModule.initialize();
   

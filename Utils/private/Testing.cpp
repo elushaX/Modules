@@ -11,7 +11,8 @@ Testing tp::gTesting;
 
 void Testing::startTest(const char* name) {
 	MODULE_SANITY_CHECK(gModuleUtils)
-	mCurrent->mSubTests.pushBack(new TestingNode{ {}, {}, name, mCurrent });
+	auto newNode = new (malloc(sizeof(TestingNode))) TestingNode{ {}, {}, name, mCurrent };
+	mCurrent->mSubTests.pushBack(newNode);
 	mCurrent = mCurrent->mSubTests.last()->data;
 }
 
@@ -76,6 +77,7 @@ void Testing::TestingNode::report(const char* path) const {
 
 Testing::TestingNode::~TestingNode() {
 	for (const auto& child : mSubTests) {
-		delete child.data();
+		child.data()->~TestingNode();
+		free(child.data());
 	}
 }

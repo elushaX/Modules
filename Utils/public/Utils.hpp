@@ -9,13 +9,14 @@ namespace tp {
 
 	extern ModuleManifest gModuleUtils;
 
-	void memsetv(void* p, uhalni bytesize, uint1 val);
-	void memcp(void* left, const void* right, uhalni len);
-	int1 memequal(const void* left, const void* right, uhalni len);
+	void memSetVal(void* p, uhalni byteSize, uint1 val);
+	void memCopy(void* left, const void* right, uhalni len);
+	int1 memCompare(const void* left, const void* right, uhalni len);
+	int1 memCompareVal(const void* left, uhalni len, uint1 val);
 }
 
 namespace tp {
-	[[nodiscard]] alnf randf();
+	[[nodiscard]] alnf randomFloat();
 }
 
 namespace tp {
@@ -73,6 +74,7 @@ namespace tp {
 
 		tType idxBegin() const { return mBegin; }
 		tType idxEnd() const { return mEnd; }
+		tType idxDiff() const { return mEnd - mBegin; }
 		Iterator begin() { return Iterator(mBegin); }
 		Iterator end() { return Iterator(mEnd); }
 	};

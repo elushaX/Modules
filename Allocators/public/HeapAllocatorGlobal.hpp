@@ -4,15 +4,24 @@
 
 namespace tp {
 
-	struct HeapAllocGlobal {
+	class HeapAllocGlobal {
 
 #ifdef MEM_DEBUG
 		static ualni mNumAllocations;
 		static struct MemHead* mEntry;
 #endif
-		
+
+	public:
+		HeapAllocGlobal() = default;
+		~HeapAllocGlobal();
+
+	public:
 		static void* allocate(ualni aBlockSize);
 		static void deallocate(void* aPtr);
-		~HeapAllocGlobal();
+
+		static bool checkLeaks();
+	public:
+		[[nodiscard]] bool checkWrap() const { return false; }
+		void checkValid() {}
 	};
-};
+}

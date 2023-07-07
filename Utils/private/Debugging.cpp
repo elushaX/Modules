@@ -9,11 +9,12 @@ using namespace tp;
 CallStackCapture* tp::gCSCapture = nullptr;
 
 void initializeCallStackCapture() {
-	gCSCapture = new CallStackCapture();
+	gCSCapture = new (malloc(sizeof(CallStackCapture))) CallStackCapture();
 }
 
 void deinitializeCallStackCapture() {
-	delete gCSCapture;
+	gCSCapture->~CallStackCapture();
+	free(gCSCapture);
 }
 
 ualni CallStackCapture::CallStack::getDepth() const {
@@ -196,6 +197,21 @@ void CallStackCapture::platformWriteDebugSymbols(FramePointer frame, DebugSymbol
 	}
 
 	free(symbolsArray);
+}
+
+void CallStackCapture::printSnapshot(const CallStack* snapshot) {
+	printf("CallStack: \n");
+	for (auto frame : *snapshot) {
+		auto symbols = gCSCapture->getSymbols(frame.getFrame());
+		printf("  %s   -----   %s:%llu\n", symbols->getFunc(), symbols->getFile(), symbols->getLine());
+	}
+	printf("\n");
+}
+
+void CallStackCapture::logLeaks() {
+	for (auto cs : *this) {
+		printSnapshot(cs.getCallStack());
+	}
 }
 
 #else

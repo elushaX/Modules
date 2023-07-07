@@ -26,7 +26,7 @@ tp::ualni TestAllocator::getAllocationsCount() const {
 
 int main() {
 
-	tp::ModuleManifest* deps[] = { &tp::gModuleUtils, nullptr };
+	tp::ModuleManifest* deps[] = { &tp::gModuleContainers, &tp::gModuleUtils, nullptr };
 	tp::ModuleManifest testModule("ContainersTest", init, nullptr, deps);
 
 	if (!testModule.initialize()) {
