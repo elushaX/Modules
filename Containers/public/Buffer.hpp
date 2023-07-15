@@ -179,7 +179,8 @@ namespace tp {
 			for (ualni i = 0; i < mLoad; i++) mBuff[i].~tType();
 			mBuff = (tType*) mAllocator.allocate(sizeof(tType) * aSize);
 			mSize = aSize;
-			mLoad = 0;
+			mLoad = aSize;
+			for (ualni i = 0; i < mLoad; i++) new (mBuff + i) tType();
 		}
 
   private:

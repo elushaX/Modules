@@ -13,8 +13,8 @@ const ualni size = 1000;
 TEST_DEF_STATIC(Simple1) {
 	Buffer2D<int> buff;
 	buff.reserve({ 4, 4 });
-	buff.set( 2, 2, 5);
-	TEST(buff.get(2, 2) == 5);
+	buff.set( { 2, 2 }, 5);
+	TEST(buff.get( { 2, 2 } ) == 5);
 }
 
 TEST_DEF_STATIC(Simple2) {

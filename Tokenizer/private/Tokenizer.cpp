@@ -4,7 +4,6 @@
 using namespace tp;
 
 static ModuleManifest* sModuleDependencies[] = {
-	&tp::gModuleMath, 
 	&tp::gModuleStrings,
 	nullptr
 };

@@ -32,7 +32,7 @@ namespace tp {
 			bool mExclude = false;
 
 			bool isTransition(const tAlphabetType& symbol) {
-				if (symbol == nullptr) return false;
+				if (symbol == 0) return false;
 				if (!mConsumesSymbol || mAcceptsAll) return true;
 				bool const in_range = (symbol >= mAcceptingRange.mBegin && symbol <= mAcceptingRange.mEnd);
 				return in_range != mExclude;
@@ -112,7 +112,7 @@ namespace tp {
 				}
 			}
 
-			return { start, end + 1 };
+			return Range<tAlphabetType>( start, end + 1 );
 		}
 
 		// vertices that are reachable from initial set with no input consumption (E-transitions)
@@ -187,7 +187,7 @@ namespace tp {
 
 			struct DStateKey {
 				const List<NState*>* nStates;
-				bool operator==(const DStateKey& in) {
+				bool operator==(const DStateKey& in) const {
 					if (nStates->length() != in.nStates->length()) {
 						return false;
 					}
@@ -238,11 +238,11 @@ namespace tp {
 
 			// includes closure of NFA start state by definition
 			auto start_state = new DState();
-			nfa.closure({ nfa.getStartVertex() }, start_state->nstates, ualni(start_state));
+			nfa.closure({ nfa.getStartVertex() }, start_state->nStates, ualni(start_state));
 
 			Map<DStateKey, DState*, DefaultAllocator, DStateKey::dStateHashFunc, 256> dStates;
 
-			dStates.put({ &start_state->nstates }, start_state);
+			dStates.put({ &start_state->nStates }, start_state);
 
 			List<DState*> working_set = { start_state };
 
@@ -255,7 +255,7 @@ namespace tp {
 
 					List<NState*> reachableNStates;
 
-					nfa.move(currentDState->data->nstates, reachableNStates, symbol, ualni(currentDState + symbol));
+					nfa.move(currentDState->data->nStates, reachableNStates, symbol, ualni(currentDState + symbol));
 					nfa.closure(reachableNStates, reachableNStates, ualni(currentDState + symbol));
 
 					if (!reachableNStates.length()) {
@@ -278,11 +278,11 @@ namespace tp {
 							targetDState->debug_idx = dStates.size();
 						#endif
 
-						targetDState->nstates = reachableNStates;
+						targetDState->nStates = reachableNStates;
 
 						// append to working stack
 						working_set.pushBack(targetDState);
-						dStates.put({ &targetDState->nstates }, targetDState);
+						dStates.put({ &targetDState->nStates }, targetDState);
 					}
 
 					// add transition to DFA state
@@ -302,18 +302,18 @@ namespace tp {
 						break;
 					}
 				}
-				node->val->dvertex = addVertex(state);
+				node->val->dVertex = addVertex(state);
 			}
 
 			// connect all vertices
 			for (auto node : dStates) {
 				for (auto edge : node->val->transitions) {
-					addTransition(node->val->dvertex, edge.data().state->dvertex, edge.data().accepting_code);
+					addTransition(node->val->dVertex, edge.data().state->dVertex, edge.data().accepting_code);
 				}
 			}
 
 			// set the starting vertex
-			mStart = start_state->dvertex;
+			mStart = start_state->dVertex;
 
 			// cleanup
 			for (auto node : dStates) {
@@ -411,7 +411,7 @@ namespace tp {
 
 		Buffer2D<ualni> mTransitions;
 		Buffer<tStateType> mStates;
-		Range<tAlphabetType> mSymbolRange = nullptr;
+		Range<tAlphabetType> mSymbolRange = { 0, 0 };
 		
 		ualni mIter = 0;
 		ualni mIterPrev = 0;
@@ -431,31 +431,35 @@ namespace tp {
 			mTransitions.assign(dfa.nVertices());
 			mStates.reserve(sizeY);
 
+			ualni idx = 0;
 			for (auto vertex : dfa.mVertices) {
 				auto state = vertex.data().termination_state;
-				mStates[vertex.idx()] = state;
+				mStates[idx] = state;
+				idx++;
 			}
 
 			mStates[dfa.nVertices()] = tFailedStateVal;
 
+			idx = 0;
 			for (auto vertex : dfa.mVertices) {
 				if (&vertex.data() == dfa.mStart) {
-					mStart = mIter = mIterPrev = vertex.idx();
+					mStart = mIter = mIterPrev = idx;
 				}
+				idx++;
 			}
 
+			ualni vertexIdx = 0;
 			for (auto vertex : dfa.mVertices) {
 				for (auto edge : vertex.data().edges) {
-					ualni idx = 0;
-					for (auto vertex : dfa.mVertices) {
-						if (edge.data().vertex == &vertex.data()) {
-							idx = vertex.idx();
-							break;
-						}
+					ualni vertex2Idx = 0;
+					for (auto vertex2 : dfa.mVertices) {
+						if (edge.data().vertex == &vertex2.data()) break;
+						vertex2Idx++;
 					}
 					auto const code = edge.data().transition_code;
-					mTransitions.set(code - mSymbolRange.mBegin, (uhalni) vertex.idx(), idx);
+					mTransitions.set( { (ualni) (code - mSymbolRange.mBegin), (ualni) vertexIdx }, vertex2Idx);
 				}
+				vertexIdx++;
 			}
 		}
 
@@ -465,10 +469,10 @@ namespace tp {
 
 		tStateType move(tAlphabetType symbol) {
 			if (symbol >= mSymbolRange.mBegin && symbol < mSymbolRange.mEnd) {
-				mIter = mTransitions.get({ symbol - mSymbolRange.mBegin, mIter });
+				mIter = mTransitions.get({ (ualni) (symbol - mSymbolRange.mBegin), (ualni) mIter });
 			}
 			else {
-				mIter = mStates.length() - 1;
+				mIter = mStates.size() - 1;
 			}
 			
 			if (mIterPrev == mStart) {
