@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Utils.hpp"
+#include "Buffer.hpp"
 
 namespace tp {
 

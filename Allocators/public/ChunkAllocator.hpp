@@ -14,6 +14,7 @@
 * 2) updating list entry to that block.
 */
 
+#include "HeapAllocatorGlobal.hpp"
 #include "Environment.hpp"
 #include "PrivateConfig.hpp"
 
