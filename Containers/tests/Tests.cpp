@@ -37,6 +37,7 @@ int main() {
 	testMap();
 	testAvl();
   testBuffer();
+	testBuffer2d();
 
 	testModule.deinitialize();
 }

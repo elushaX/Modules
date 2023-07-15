@@ -72,3 +72,4 @@ void testList();
 void testMap();
 void testAvl();
 void testBuffer();
+void testBuffer2d();
