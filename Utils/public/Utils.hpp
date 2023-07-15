@@ -24,7 +24,7 @@ namespace tp {
 	template <typename T1, typename T2>
 	class Pair {
 	public:
-		Pair() {}
+		Pair() = default;
 		Pair(T1 t1, T2 t2) : head(t1), tail(t2) {}
 		union { T1 t1; T1 head; T1 x; };
 		union { T2 t2; T2 tail;	T2 y; };

@@ -1,5 +1,6 @@
 
 #include "Buffer.hpp"
+#include "Utils.hpp"
 
 namespace tp {
 
@@ -8,11 +9,14 @@ namespace tp {
 
 	template <typename tType>
 	class Buffer2D {
+	public:
+		typedef ualni Index;
+		typedef Pair<Index, Index> Index2D;
 		typedef SelCopyArg<tType> tTypeArg;
-		typedef Pair<uhalni, uhalni> Size;
 
-		Size mSize;
+	private:
 		tType* mBuff = nullptr;
+		Index2D mSize = { 0, 0 };
 
 	public:
 
@@ -22,11 +26,11 @@ namespace tp {
 			delete mBuff;
 		}
 
-		explicit Buffer2D(Pair<ualni, ualni> aSize) {
+		explicit Buffer2D(Index2D aSize) {
 			reserve(aSize);
 		}
 
-		[[nodiscard]] Pair<ualni, ualni> size() const {
+		[[nodiscard]] Index2D size() const {
 			return { mSize.x, mSize.y };
 		}
 
@@ -34,22 +38,22 @@ namespace tp {
 			return mBuff;
 		}
 
-		inline tType& get(uhalni x, uhalni y) {
-			DEBUG_ASSERT(x < mSize.x && y < mSize.y && x >= 0 && y >= 0)
-			return *(mBuff + mSize.x * y + x);
+		inline tType& get(const Index2D& at) {
+			DEBUG_ASSERT(at.x < mSize.x && at.y < mSize.y && at.x >= 0 && at.y >= 0)
+			return *(mBuff + mSize.x * at.y + at.x);
 		}
 
-		inline const tType& get(uhalni x, uhalni y) const {
-			DEBUG_ASSERT(x < mSize.x && y < mSize.y && x >= 0 && y >= 0)
-			return *(mBuff + mSize.x * y + x);
+		inline const tType& get(const Index2D& at) const {
+			DEBUG_ASSERT(at.x < mSize.x && at.y < mSize.y && at.x >= 0 && at.y >= 0)
+			return *(mBuff + mSize.x * at.y + at.x);
 		}
 
-		inline void set(uhalni x, uhalni y, tTypeArg value) {
-			DEBUG_ASSERT(x < mSize.x && y < mSize.y && x >= 0 && y >= 0)
-			*(mBuff + mSize.x * y + x) = value;
+		inline void set(const Index2D& at, tTypeArg value) {
+			DEBUG_ASSERT(at.x < mSize.x && at.y < mSize.y && at.x >= 0 && at.y >= 0)
+			*(mBuff + mSize.x * at.y + at.x) = value;
 		}
 
-		void reserve(Size newSize) {
+		void reserve(const Index2D& newSize) {
 			if (mSize.x != newSize.x || mSize.y != newSize.y) {
 				delete mBuff;
 				mBuff = new tType[newSize.x * newSize.y];
@@ -58,8 +62,8 @@ namespace tp {
 		}
 
 		void assign(tType value) {
-			uhalni len = mSize.x * mSize.y;
-			for (uhalni i = 0; i < len; i++) {
+			Index len = mSize.x * mSize.y;
+			for (Index i = 0; i < len; i++) {
 				mBuff[i] = value;
 			}
 		}
