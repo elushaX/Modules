@@ -3,6 +3,10 @@
 
 #include "AutomataGraph.h"
 
+namespace tp {
+	extern ModuleManifest gModuleTokenizer;
+}
+
 namespace tp::RegEx {
 		
 		struct AstNode {

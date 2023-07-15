@@ -9,6 +9,8 @@
 
 namespace tp {
 
+	extern ModuleManifest gModuleTokenizer;
+
 	template <typename tAlphabetType, typename tStateType, tStateType tNoStateVal, tStateType tFailedStateVal>
 	class TransitionMatrix;
 

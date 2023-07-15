@@ -80,16 +80,6 @@ namespace tp {
 			goto LOOP;
 		}
 
-		static bool toValue(const tChar* in, bool& val) {
-			if (!calcLength(in)) return false;
-			if (isEqual(in, "False") || isEqual(in, "false") || isEqual(in, "0")) {
-				val = false;
-			} else {
-				val = true;
-			}
-			return true;
-		}
-
 		// returns 0 : nl1 + 1 : nl2 + 1 : nl3 + 1 : ... : size
 		static void calcLineOffsets(const tChar* aBuff, Index aLength, Buffer<Index>& aOut) {
 			Index lines = 0;
@@ -111,34 +101,34 @@ namespace tp {
 		}
 		
 
-		[[nodiscard]] static bool convertStringToValue(const tChar* input, alni& output) {
+		static bool convertStringToValue(const tChar* input, alni& output) {
 			char* endPtr;
 			output = std::strtoll(input, &endPtr, 10);
 			return (endPtr == input + calcLength(input));
 		}
 
-		[[nodiscard]] static bool convertStringToValue(const tChar* input, alnf& output) {
+		static bool convertStringToValue(const tChar* input, alnf& output) {
 			char* endPtr;
 			output = std::strtod(input, &endPtr);
 			return (endPtr == input + calcLength(input));
 		}
 
-		[[nodiscard]] static bool convertStringToValue(const tChar* input, bool& output) {
+		static bool convertStringToValue(const tChar* input, bool& output) {
 			output = !(isEqualLogic(input, "False") || isEqualLogic(input, "false") || isEqualLogic(input, "0"));
       return true;
 		}
 
-		[[nodiscard]] static bool convertValueToString(alni input, tChar* output, Index bufferSize) {
+		static bool convertValueToString(alni input, tChar* output, Index bufferSize) {
 			int result = std::snprintf(output, bufferSize, "%lld", input);
 			return result >= 0;
 		}
 		
-		[[nodiscard]] static bool convertValueToString(alnf input, tChar* output, Index bufferSize) {
+		static bool convertValueToString(alnf input, tChar* output, Index bufferSize) {
 			int result = std::snprintf(output, bufferSize, "%f", input);
 			return result >= 0;
 		}
 
-		[[nodiscard]] static bool convertValueToString(bool input, tChar* output, Index bufferSize) {
+		static bool convertValueToString(bool input, tChar* output, Index bufferSize) {
 			const char* str = (input ? "true" : "false");
 			Index length = calcLength(str);
 			if (length >= bufferSize)
