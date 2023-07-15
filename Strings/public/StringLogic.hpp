@@ -129,10 +129,6 @@ namespace tp {
 			return nullptr;
 		}
 
-		static ualni fromValueLength(bool val) {
-			return val ? 4 : 5;
-		}
-
 		static tChar* fromValue(bool val, tChar* ownBuff) {
 			alni len = val ? 4 : 5;
 			tChar* out = ownBuff ? ownBuff : new tChar[len + 1];
@@ -153,12 +149,12 @@ namespace tp {
 		}
 
 		static bool toValue(const tChar*, alni&, ualni) {
-			DEBUG_BREAK(false)
+			ASSERT(false)
 			return false;
 		}
 
 		static bool toValue(const tChar*, alnf&, ualni) {
-			DEBUG_BREAK(false)
+			ASSERT(false)
 			return false;
 		}
 
