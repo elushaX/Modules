@@ -1,19 +1,24 @@
-All:
-  Testing !
-  Serialization
 
-Containers:
-  Add mem leakage tests
-  Buffer 2d !
-  Add check copy times
-  AVL dont copy data just swap
-  More tests on mBuff and avl
+Storage:
+  Implement
 
-Strings:
+CommandLineParser:
+  Implement
+
+Objects:
+  Implement
+
+TextEditor:
   Implement
 
 Utils:
   Stack trace fixes
 
-Tokenizer:
-  Implement
+Containers:
+  Add mem leakage tests
+  Add check copy times
+  AVL dont copy data just swap
+
+
+Testing !
+Serialization
