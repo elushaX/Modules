@@ -42,11 +42,12 @@ namespace tp {
 			MODULE_SANITY_CHECK(gModuleStrings)
 			DEBUG_ASSERT(aBuff)
 			auto const len = Logic::calcLength(aBuff);
-			resize(len);
-			memCopy(mBuff, aBuff, len);
 			mReferenceCount = 0;
 			mIsConst = false;
 			mEditedIdx = 0;
+			mBuff = new tChar[len + 1];
+			mBuff[len] = Logic::getEndChar();
+			memCopy(mBuff, aBuff, len);
 		}
 
 		[[nodiscard]] tChar* getBuffer() {
@@ -72,7 +73,12 @@ namespace tp {
 		typedef StringData<tChar> Data;
 		typedef typename Logic::Index Index;
 
-		enum { STRINGS_POOL_SIZE = 1024, };
+		enum {
+			STRINGS_POOL_SIZE = 1024,
+			MAX_INT_STRING_LENGTH = 10,
+			MAX_BOOL_STRING_LENGTH = 10,
+			MAX_FLOAT_STRING_LENGTH = 10,
+		};
 		static PoolAlloc<StringData<tChar>, STRINGS_POOL_SIZE> sStringPool;
 		static Data sNullString;
 
@@ -137,8 +143,9 @@ namespace tp {
 
 		// output will be null if in TextEditing mode
 		tChar* resize(uint1 size) {
-			if (!mData->getEditor()) mData->resize(size);
-			return mData->getBuffer();
+			makeModifiable();
+			mData->resize(size);
+			return write();
 		}
 
 	public:
@@ -160,6 +167,40 @@ namespace tp {
 		}
 
 	public: // Syntax sugars
+
+		explicit StringTemplate(alni val) {
+			auto raw = new tChar[MAX_INT_STRING_LENGTH];
+			Logic::convertValueToString(val, raw, MAX_INT_STRING_LENGTH);
+			mData = new (sStringPool.allocate(0)) StringData(raw);
+		}
+
+		explicit StringTemplate(alnf val) {
+			auto raw = new tChar[MAX_FLOAT_STRING_LENGTH];
+			Logic::convertValueToString(val, raw, MAX_FLOAT_STRING_LENGTH);
+			mData = new (sStringPool.allocate(0)) StringData(raw);
+		}
+
+		explicit StringTemplate(bool val) {
+			auto raw = new tChar[MAX_BOOL_STRING_LENGTH];
+			Logic::convertValueToString(val, raw, MAX_BOOL_STRING_LENGTH);
+			mData = new (sStringPool.allocate(0)) StringData(raw);
+		}
+
+		explicit operator alni() {
+			alni out;
+			return Logic::convertStringToValue(read(), out);
+		}
+
+		explicit operator alnf() {
+			alnf out;
+			return Logic::convertStringToValue(read(), out);
+		}
+
+		explicit operator bool() {
+			bool out;
+			return Logic::convertStringToValue(read(), out);
+		}
+
 		Index size() const {
 			return Logic::calcLength(read());
 		}
@@ -181,10 +222,17 @@ namespace tp {
 			return *this;
 		}
 
+		bool operator==(const StringTemplate& in) const {
+			if (&in == this) return true;
+			if (in.mData == mData) return true;
+			return Logic::isEqualLogic(in.read(), read());
+		}
+
 	public: // Debugging
 		[[nodiscard]] ualni getReferenceCount() const { return mData->mReferenceCount; }
 		[[nodiscard]] bool getIsConstFlag() const { return mData->mIsConst; }
 	};
+
 
 	template<typename tChar>
 	PoolAlloc<StringData<tChar>, StringTemplate<tChar>::STRINGS_POOL_SIZE> StringTemplate<tChar>::sStringPool;
@@ -193,4 +241,9 @@ namespace tp {
 	StringData<tChar> StringTemplate<tChar>::sNullString;
 
 	using String = StringTemplate<int1>;
+
+	template<typename tChar>
+	ualni hash(StringTemplate<tChar> in) {
+		return hash(in.read());
+	}
 }
