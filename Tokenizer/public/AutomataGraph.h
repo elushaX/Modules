@@ -4,7 +4,7 @@
 #include "List.hpp"
 #include "Buffer.hpp"
 #include "Buffer2D.hpp"
-#include "Mat.hpp"
+#include "Utils.hpp"
 #include "Map.hpp"
 
 namespace tp {
@@ -409,8 +409,8 @@ namespace tp {
 
 		static_assert(TypeTraits<tAlphabetType>::isIntegral, "tAlphabetType must be enumerable.");
 
-		Buffer2D<ualni> mTransitions{};
-		Buffer<tStateType> mStates{};
+		Buffer2D<ualni> mTransitions;
+		Buffer<tStateType> mStates;
 		Range<tAlphabetType> mSymbolRange = nullptr;
 		
 		ualni mIter = 0;
@@ -423,12 +423,13 @@ namespace tp {
 
 		void construct(const DFA<tAlphabetType, tStateType, tNoStateVal, tFailedStateVal>& dfa) {
 			mSymbolRange = dfa.getRange();
-			auto range_len = uhalni(mSymbolRange.mEnd - mSymbolRange.mBegin);
-			Vec2<uhalni> dim = { range_len ? range_len : 1, (uhalni) (dfa.nVertices() + 1) };
+			auto range_len = ualni(mSymbolRange.mEnd - mSymbolRange.mBegin);
+			auto sizeX = range_len ? range_len : 1;
+			auto sizeY =  (ualni) (dfa.nVertices() + 1);
 
-			mTransitions.reserve(dim);
+			mTransitions.reserve({ sizeX, sizeY });
 			mTransitions.assign(dfa.nVertices());
-			mStates.reserve(dim.y);
+			mStates.reserve(sizeY);
 
 			for (auto vertex : dfa.mVertices) {
 				auto state = vertex.data().termination_state;
@@ -464,7 +465,7 @@ namespace tp {
 
 		tStateType move(tAlphabetType symbol) {
 			if (symbol >= mSymbolRange.mBegin && symbol < mSymbolRange.mEnd) {
-				mIter = mTransitions.get((uhalni) (symbol - mSymbolRange.mBegin), (uhalni) mIter);
+				mIter = mTransitions.get({ symbol - mSymbolRange.mBegin, mIter });
 			}
 			else {
 				mIter = mStates.length() - 1;
