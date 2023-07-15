@@ -136,6 +136,7 @@ namespace tp::RegEx {
 					case TOK_ANY: out = parseAny(); break;
 					case TOK_VAL: out = parseVal(); break;
 					case TOK_NONE: { discardTok(); return nullptr; };
+					default: break;
 				}
 				if (!out) {
 					discardTok();
