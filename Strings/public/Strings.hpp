@@ -136,8 +136,8 @@ namespace tp {
 		}
 
 		// output will be null if in TextEditing mode
-		[[nodiscard]] tChar* resize() {
-			if (!mData->getEditor()) mData->resize();
+		tChar* resize(uint1 size) {
+			if (!mData->getEditor()) mData->resize(size);
 			return mData->getBuffer();
 		}
 
