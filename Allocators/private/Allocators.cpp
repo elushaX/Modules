@@ -3,8 +3,12 @@
 
 #include <cstdlib>
 
-static tp::ModuleManifest* sModuleDependencies[] = { &tp::gModuleBase, nullptr };
-tp::ModuleManifest tp::gModuleAllocators = ModuleManifest("Allocators", nullptr, nullptr, sModuleDependencies);
+static void deinit(const tp::ModuleManifest* self) {
+	tp::HeapAllocGlobal::checkLeaks();
+}
+
+static tp::ModuleManifest* sModuleDependencies[] = { &tp::gModuleUtils, nullptr };
+tp::ModuleManifest tp::gModuleAllocators = ModuleManifest("Allocators", nullptr, deinit, sModuleDependencies);
 
 
 void* operator new(size_t aSize) { return tp::HeapAllocGlobal::allocate(aSize); }

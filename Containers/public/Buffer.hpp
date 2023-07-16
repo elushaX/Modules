@@ -80,7 +80,7 @@ namespace tp {
 		}
 
 		explicit Buffer(ualni size) : mSize(size), mLoad(0) {
-			mBuff = (tType*) mAllocator.allocate(sizeof(tType) * tMinSize);
+			mBuff = (tType*) mAllocator.allocate(sizeof(tType) * size);
 		}
 
 		Buffer(const Buffer& in) : mSize(in.mSize), mLoad(in.mLoad) {

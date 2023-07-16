@@ -208,7 +208,7 @@ void CallStackCapture::printSnapshot(const CallStack* snapshot) {
 	printf("\n");
 }
 
-void CallStackCapture::logLeaks() {
+void CallStackCapture::logAll() {
 	for (auto cs : *this) {
 		printSnapshot(cs.getCallStack());
 	}

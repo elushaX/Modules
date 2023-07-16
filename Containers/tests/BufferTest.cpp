@@ -1,18 +1,14 @@
 
 #include "Tests.hpp"
-
 #include "Buffer.hpp"
-
 #include "Testing.hpp"
-
-#include <iostream>
 
 using namespace tp;
 
 const ualni size = 1000;
 
 TEST_DEF_STATIC(Simple1) {
-  Buffer<TestClass> buff;
+  Buffer<TestClass, HeapAlloc> buff;
   TEST(buff.size() == 0);
   for (auto i : Range(size * 10)) {
     buff.append(TestClass(i));
@@ -23,7 +19,7 @@ TEST_DEF_STATIC(Simple1) {
 }
 
 TEST_DEF_STATIC(Simple2) {
-  Buffer<TestClass> buff(size);
+  Buffer<TestClass, HeapAlloc> buff(size);
   TEST(buff.size() == 0);
   for (auto i : Range(size * 10)) buff.append(TestClass(i));
   TEST(buff.size() == size * 10);

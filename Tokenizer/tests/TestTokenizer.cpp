@@ -1,10 +1,9 @@
 
 #include "Testing.hpp"
 #include "Tokenizer.hpp"
+#include <cstdio>
 
-#include <iostream>
-
-#define LOG(val) std::cout << #val << " "
+#define LOG(val) // std::cout << #val << " "
 
 using namespace tp;
 
@@ -126,7 +125,7 @@ TEST_DEF_STATIC(Simple) {
 	});
 
 	if (!lexer.isBuild()) {
-		std::cout << lexer.getBuildError().description;
+		printf("Error : %s", lexer.getBuildError().description);
 		return;
 	}
 
@@ -141,7 +140,7 @@ TEST_DEF_STATIC(Simple) {
 		outputHash += ualni(tok);
 
 		switch (tok) {
-			case TokType::SPACE: { std::cout << " "; } break;
+			case TokType::SPACE: { printf(" "); } break;
 			case TokType::VAR: { LOG(VAR); } break;
 			case TokType::CLASS_DEF: { LOG(CLASS_DEF); } break;
 			case TokType::SELF: { LOG(SELF); } break;
@@ -188,7 +187,7 @@ TEST_DEF_STATIC(Simple) {
 
 	} while (tok != TokType::TOK_SOURCE_END && tok != TokType::FAILED);
 
-	std::cout << "\n\nOutputHash : " << outputHash;
+	printf("\n\nOutputHash : %llu", outputHash);
 
 	TEST(outputHash == outputHashPassed);
 }

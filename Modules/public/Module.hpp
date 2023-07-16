@@ -15,9 +15,12 @@ namespace tp {
 
 		ModuleManifest(const char* aModuleName, ModuleInit aInit, ModuleDeinit aDeinit, ModuleManifest** aDependencies);
 		[[nodiscard]] bool isInitialized() const;
-		bool initialize();
+		bool initialize(const ModuleManifest* parent = nullptr);
 		void deinitialize();
 		[[nodiscard]] const char* getName() const;
+		void setCustomData(void* data) { mCustomData = data; }
+		void* getCustomData(void* data) const { return mCustomData; }
+
 	private:
 		const char* mModuleName = nullptr;
 		ModuleManifest** mDependencies; // NULL terminated
@@ -25,6 +28,7 @@ namespace tp {
 		ModuleInit mInit = nullptr;
 		ModuleDeinit mDeinit = nullptr;
 		uhalni mInitCount = 0;
+		void* mCustomData = nullptr;
 	};
 
 	extern ModuleManifest gModuleBase;

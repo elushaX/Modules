@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Module.hpp"
+#include "Utils.hpp"
 
 #include "HeapAllocatorGlobal.hpp"
 #include "HeapAllocator.hpp"
@@ -12,6 +12,7 @@ namespace tp {
 }
 
 inline void* operator new(std::size_t aSize, void* aWhere) noexcept { return aWhere; }
+inline void* operator new[](std::size_t aSize, void* aWhere) noexcept { return aWhere; }
 
 void* operator new(std::size_t aSize);
 void* operator new[](std::size_t aSize);

@@ -387,6 +387,13 @@ namespace tp {
 			}
 		}
 
-		~Map() { removeAll();	}
+		~Map() {
+			for (ualni i = 0; i < mNSlots; i++) {
+				if (mTable[i] && !isDeletedNode(mTable[i])) {
+					deleteNode(mTable[i]);
+				}
+			}
+			deleteTable(mTable);
+		}
 	};
 }

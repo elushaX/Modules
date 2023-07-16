@@ -47,7 +47,7 @@ void root() {
 TEST_DEF(Debugging) {
 	root();
 
-	gCSCapture->logLeaks();
+	gCSCapture->logAll();
 }
 
 int main() {

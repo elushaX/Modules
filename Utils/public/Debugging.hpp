@@ -55,7 +55,7 @@ namespace tp {
 		const DebugSymbols* getSymbols(FramePointer fp);
 
 		static void printSnapshot(const CallStack* snapshot);
-		void logLeaks();
+		void logAll();
 
 	public:
 

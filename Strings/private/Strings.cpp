@@ -17,7 +17,6 @@ void deinitialize(const ModuleManifest*) {
 static tp::ModuleManifest* sModuleDependencies[] = {
 	&tp::gModuleContainers,
 	&tp::gModuleAllocators,
-	&tp::gModuleUtils,
 	nullptr
 };
 
