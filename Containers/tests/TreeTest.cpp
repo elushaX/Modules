@@ -1,16 +1,12 @@
 
 #include "Tests.hpp"
-
 #include "Tree.hpp"
-
 #include "Testing.hpp"
-
-#include <iostream>
 
 using namespace tp;
 
 TEST_DEF_STATIC(Simple) {
-	AvlTree<AvlNumericKey<alni>, TestClass, TestAllocator> tree;
+	AvlTree<AvlNumericKey<alni>, TestClass, HeapAlloc> tree;
 
 	TEST(tree.size() == 0);
 	TEST(tree.head() == nullptr);
@@ -27,7 +23,7 @@ TEST_DEF_STATIC(Simple) {
 }
 
 TEST_DEF_STATIC(Persistance) {
-	AvlTree<AvlNumericKey<alni>, TestClass, TestAllocator> tree;
+	AvlTree<AvlNumericKey<alni>, TestClass, HeapAlloc> tree;
 
 	const auto size = 1000;
 
@@ -46,7 +42,7 @@ TEST_DEF_STATIC(Persistance) {
 	// random load
 	ualni loadSize = 0;
 	while (loadSize < size / 2) {
-		ualni idx = rand() % (size - 1);
+		auto idx = ualni(randomFloat() * (size - 1));
 		DEBUG_ASSERT(idx < size)
 		if (!buff[idx].presents) {
 			tree.insert((alni) buff[idx].data.getVal(), buff[idx].data);
@@ -86,7 +82,7 @@ TEST_DEF_STATIC(Persistance) {
 	// random unload
 	ualni unloadSize = 0;
 	while (unloadSize < size / 2) {
-		ualni idx = rand() % (size - 1);
+		auto idx = ualni(randomFloat() * (size - 1));
 		if (buff[idx].presents) {
 
 			tree.remove((alni) buff[idx].data.getVal());

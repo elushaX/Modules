@@ -118,8 +118,15 @@ void HeapAllocGlobal::deallocate(void* aPtr) {
 	}
 
 	// 3) Check the wrap
-	ASSERT(!memCompareVal(wrap_top, WRAP_SIZE, WRAP_VAL) && "Allocated Block Wrap Corrupted!")
-	ASSERT(!memCompareVal(wrap_bottom, WRAP_SIZE, WRAP_VAL) && "Allocated Block Wrap Corrupted!")
+	if (memCompareVal(wrap_top, WRAP_SIZE, WRAP_VAL)) {
+		CallStackCapture::printSnapshot(head->mCallStack);
+		ASSERT(!"Allocated Block Wrap Corrupted!")
+	}
+
+	if (memCompareVal(wrap_bottom, WRAP_SIZE, WRAP_VAL)) {
+		CallStackCapture::printSnapshot(head->mCallStack);
+		ASSERT(!"Allocated Block Wrap Corrupted!")
+	}
 
 	// 4) clear data
 #ifdef MEM_CLEAR_ON_ALLOC
@@ -135,10 +142,12 @@ bool HeapAllocGlobal::checkLeaks() {
 	if (mNumAllocations) {
 
 		#ifdef MEM_STACK_TRACE
-		gCSCapture->logLeaks();
+		for (auto iter = mEntry; iter; iter = iter->mPrev) {
+			CallStackCapture::printSnapshot(iter->mCallStack);
+		}
 		#endif
 
-		DEBUG_BREAK("Destruction of not freed Allocator")
+		ASSERT(!"Destruction of not freed Allocator")
 		return true;
 	}
 	return false;

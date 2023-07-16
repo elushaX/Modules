@@ -14,7 +14,7 @@ void testMath();
 int main() {
 
   tp::ModuleManifest* deps[] = { &tp::gModuleUtils, nullptr };
-  tp::ModuleManifest testModule("ContainersTest", init, nullptr, deps);
+  tp::ModuleManifest testModule("MathTest", init, nullptr, deps);
 
   if (!testModule.initialize()) {
     return 1;

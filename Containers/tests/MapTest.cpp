@@ -1,15 +1,12 @@
 
 #include "Tests.hpp"
 #include "Testing.hpp"
-
 #include "Map.hpp"
-
-#include <iostream>
 
 using namespace tp;
 
 TEST_DEF_STATIC(SimpleReference) {
-	tp::Map<tp::ualni, TestClass, TestAllocator> map;
+	tp::Map<tp::ualni, TestClass, HeapAlloc> map;
 
 	for (auto i : Range(1000, 100000)) {
 		map.put(i, TestClass(i));
@@ -40,12 +37,10 @@ TEST_DEF_STATIC(SimpleReference) {
 	}
 
 	map.removeAll();
-
-	TEST(map.getAllocator().getAllocationsCount()  == 1);
 }
 
 TEST_DEF_STATIC(SimplePointer) {
-	tp::Map<tp::ualni, TestClass*, TestAllocator> map;
+	tp::Map<tp::ualni, TestClass*, HeapAlloc> map;
 
 	for (auto i : Range(1000)) {
 		map.put(i, new TestClass(i));
@@ -57,11 +52,14 @@ TEST_DEF_STATIC(SimplePointer) {
 	}
 
 	for (auto i : Range(1000)) {
+		auto del = map.get(i);
 		map.put(i, new TestClass(i));
+		delete del;
 	}
 
 	for (auto i : Range(900, 1000)) {
 		TEST(map.presents(i));
+		delete map.get(i);
 		map.remove(i);
 		TEST(!map.presents(i));
 	}
@@ -77,30 +75,25 @@ TEST_DEF_STATIC(SimplePointer) {
 	}
 
 	map.removeAll();
-
-	TEST(map.getAllocator().getAllocationsCount()  == 1);
 }
 
 TEST_DEF_STATIC(Copy) {
-	tp::Map<tp::ualni, TestClass, TestAllocator> map;
+	tp::Map<tp::ualni, TestClass, HeapAlloc> map;
 
 	for (auto i : Range(10)) {
 		map.put(i, TestClass(i));
 	}
 
-	tp::Map<tp::ualni, TestClass, TestAllocator> map2 = map;
+	tp::Map<tp::ualni, TestClass, HeapAlloc> map2 = map;
 
 	TEST_EQUAL(map, map2);
 
 	map.removeAll();
 	map2.removeAll();
-
-	TEST(map.getAllocator().getAllocationsCount()  == 1);
-	TEST(map2.getAllocator().getAllocationsCount()  == 1);
 }
 
 TEST_DEF_STATIC(SaveLoad) {
-	tp::Map<tp::ualni, TestClass, TestAllocator> map;
+	tp::Map<tp::ualni, TestClass, HeapAlloc> map;
 
 	for (auto i : Range(10)) {
 		map.put(i, TestClass(i));
@@ -112,13 +105,13 @@ TEST_DEF_STATIC(SaveLoad) {
 
 	map.removeAll();
 
-	TEST(map.getAllocator().getAllocationsCount()  == 1);
+	TEST(map.size() == 0);
 
 	file.setAddress(0);
 
 	map.read(file);
 
-	TEST(map.getAllocator().getAllocationsCount()  == 11);
+	TEST(map.size() == 10);
 
 	for (auto i : Range(10)) {
 		TEST(map.presents(i));
@@ -126,8 +119,6 @@ TEST_DEF_STATIC(SaveLoad) {
 	}
 
 	map.removeAll();
-
-	TEST(map.getAllocator().getAllocationsCount()  == 1);
 }
 
 TEST_DEF(Map) {

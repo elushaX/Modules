@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Utils.hpp"
+#include "Allocators.hpp"
 
 class TestClass {
 	tp::ualni val2 = 0;
@@ -25,15 +26,6 @@ public:
 
 	[[nodiscard]] tp::ualni getVal() const { return val1; }
 	void setVal(tp::ualni val) { val1 = val; }
-};
-
-class TestAllocator {
-	tp::ualni nAllocations = 0;
-public:
-	TestAllocator() = default;
-	void* allocate(tp::ualni size);
-	void deallocate(void* p);
-	[[nodiscard]] tp::ualni getAllocationsCount() const;
 };
 
 class TestFile {

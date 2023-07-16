@@ -24,7 +24,7 @@ bool ModuleManifest::isInitialized() const {
 	return mInitialized;
 }
 
-bool ModuleManifest::initialize() {
+bool ModuleManifest::initialize(const ModuleManifest* parent) {
 
 	mInitCount++;
 
@@ -35,10 +35,10 @@ bool ModuleManifest::initialize() {
 	mInitialized = true;
 
 	for (auto module = mDependencies; module && *module; module++) {
-		mInitialized &= (*module)->initialize();
+		mInitialized &= (*module)->initialize(this);
 	}
 
-	std::cout << "====== Initializing \"" << mModuleName << "\"\n";
+	std::cout << "=== Initializing \"" << mModuleName << "\" from \"" << (parent ? parent->mModuleName : mModuleName ) << "\"\n";
 
 	if (mInit) mInitialized &= mInit(this);
 

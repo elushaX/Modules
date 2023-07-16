@@ -16,36 +16,53 @@ namespace tp::RegEx {
 				REPEAT,
 				VAL,
 			} mType = NONE;
+
+			AstNode() = default;
+			virtual ~AstNode() = default;
 		};
 
 		template <typename tAlphabetType>
 		struct AstVal : public AstNode {
 			explicit AstVal(tAlphabetType val) : mVal(val) { mType = VAL; }
+			~AstVal() override = default;
 			tAlphabetType mVal;
 		};
 
 		struct AstCompound : public AstNode {
 			AstCompound() { mType = COMPOUND; }
+			~AstCompound() override {
+				for (auto iter : mChilds) {
+					delete iter.data();
+				}
+				mChilds.removeAll();
+			}
 			List<AstNode*> mChilds;
 		};
 
 		struct AstAlternation : public AstNode {
 			AstAlternation() { mType = OR;	}
+			~AstAlternation() override {
+				delete mFirst;
+				delete mSecond;
+			}
 			AstNode* mFirst = nullptr;
 			AstNode* mSecond = nullptr;
 		};
 
 		struct AstIf : public AstNode {
 			AstIf() { mType = IF; }
+			~AstIf() override { delete mNode; }
 			AstNode* mNode = nullptr;
 		};
 
 		struct AstAny : public AstNode {
 			AstAny() { mType = ANY; }
+			~AstAny() override = default;
 		};
 
 		struct AstRepetition : public AstNode {
 			AstRepetition() { mType = REPEAT; }
+			~AstRepetition() override { delete mNode; }
 			AstNode* mNode = nullptr;
 			bool mPlus = false;
 		};
@@ -53,8 +70,9 @@ namespace tp::RegEx {
 		template <typename tAlphabetType>
 		struct AstClass : public AstNode {
 			AstClass() { mType = CLASS; }
+			~AstClass() override { mRanges.removeAll(); }
 			List<Range<tAlphabetType>> mRanges;
-			bool mExclude{};
+			bool mExclude = false;
 		};
 
 		struct ParseError {
