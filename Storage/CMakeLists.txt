@@ -12,12 +12,6 @@ add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
 target_include_directories(${PROJECT_NAME} PUBLIC ./public/)
 target_link_libraries(${PROJECT_NAME} PUBLIC Strings)
 
-### ---------------------- Applications  ---------------------  ###
-add_executable(Server ./applications/Server.cpp)
-add_executable(Client ./applications/Client.cpp)
-target_link_libraries(Server PUBLIC ${PROJECT_NAME})
-target_link_libraries(Client PUBLIC ${PROJECT_NAME})
-
 ### -------------------------- Tests  --------------------------  ###
 enable_testing()
 file(GLOB TEST_SOURCES "./tests/*.cpp")
@@ -26,3 +20,7 @@ target_link_libraries(${PROJECT_NAME}Tests  ${PROJECT_NAME} Utils)
 add_test(NAME ${PROJECT_NAME}Tests COMMAND ${PROJECT_NAME}Tests)
 
 install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/lib)
+
+
+# todo :remove
+add_subdirectory(applications)
