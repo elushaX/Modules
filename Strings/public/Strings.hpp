@@ -24,7 +24,7 @@ namespace tp {
 
 		StringData() {
 			mBuff = (tChar*) "*";
-			mReferenceCount = 0;
+			mReferenceCount = 1;
 			mIsConst = true;
 			mEditedIdx = 0;
 		}
@@ -73,7 +73,7 @@ namespace tp {
 		typedef typename Logic::Index Index;
 
 		enum { STRINGS_POOL_SIZE = 1024, };
-		static PoolAlloc<StringData<tChar>, STRINGS_POOL_SIZE>* sStringPool;
+		static PoolAlloc<StringData<tChar>, STRINGS_POOL_SIZE> sStringPool;
 		static Data sNullString;
 
 	private:
@@ -94,14 +94,14 @@ namespace tp {
 
 		// Creates new string data from raw data pointer.
 		// Does not own string buffer - string buffer will not be freed. Initializes as const memory.
-		explicit StringTemplate(const tChar* raw) {
-			mData = new (sStringPool->allocate(0)) StringData(raw, true);
+		StringTemplate(const tChar* raw) {
+			mData = new (sStringPool.allocate(0)) StringData(raw, true);
 			incReference(mData);
 		}
 
 		// Copies raw data and claims ownership over it
-		explicit StringTemplate(tChar* raw) {
-			mData = new (sStringPool->allocate(0)) StringData(raw);
+		StringTemplate(tChar* raw) {
+			mData = new (sStringPool.allocate(0)) StringData(raw);
 			incReference(mData);
 		}
 
@@ -117,8 +117,8 @@ namespace tp {
 		void decReference(Data* dp) {
 			dp->mReferenceCount--;
 			if (!dp->mReferenceCount) {
-				sStringPool->deallocate(mData);
 				mData->~StringData();
+				sStringPool.deallocate(mData);
 			}
 		}
 
@@ -146,7 +146,7 @@ namespace tp {
 			// We have no rights to modify if someone references that memory too
 			// So we need to create new copy of StringData
 			if (mData->mReferenceCount > 1) {
-				mData = new (sStringPool->allocate(0)) StringData(mData->mBuff);
+				mData = new (sStringPool.allocate(0)) StringData(mData->mBuff);
 				incReference(mData);
 				return;
 			}
@@ -154,7 +154,7 @@ namespace tp {
 			// Also if initial raw data was marked as const - create copy of raw data
 			// Note - raw data will be lost at this point if no other record of such is stored
 			if (mData->mIsConst) {
-				mData = new (sStringPool->allocate(0)) StringData(mData->mBuff);
+				mData = new (sStringPool.allocate(0)) StringData(mData->mBuff);
 				incReference(mData);
 			}
 		}
@@ -176,14 +176,18 @@ namespace tp {
 
 		StringTemplate& operator=(const StringTemplate& in) {
 			if (&in == this) return *this;
-			~StringTemplate();
+			this->~StringTemplate();
 			new (this) StringTemplate(in);
 			return *this;
 		}
+
+	public: // Debugging
+		[[nodiscard]] ualni getReferenceCount() const { return mData->mReferenceCount; }
+		[[nodiscard]] bool getIsConstFlag() const { return mData->mIsConst; }
 	};
 
 	template<typename tChar>
-	PoolAlloc<StringData<tChar>, StringTemplate<tChar>::STRINGS_POOL_SIZE>* StringTemplate<tChar>::sStringPool;
+	PoolAlloc<StringData<tChar>, StringTemplate<tChar>::STRINGS_POOL_SIZE> StringTemplate<tChar>::sStringPool;
 
 	template<typename tChar>
 	StringData<tChar> StringTemplate<tChar>::sNullString;

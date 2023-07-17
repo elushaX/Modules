@@ -1,7 +1,9 @@
 
-#include "Testing.hpp"
+#include "Tests.hpp"
+
 #include "Strings.hpp"
 
+void testStringLogic();
 void testStrings();
 void testLogging();
 
@@ -14,6 +16,7 @@ int main() {
 		return 1;
 	}
 
+	testStringLogic();
 	testStrings();
 	testLogging();
 
