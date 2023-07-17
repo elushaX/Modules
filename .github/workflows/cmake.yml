@@ -41,6 +41,6 @@ jobs:
       run: ctest -C ${{env.BUILD_TYPE}}
       
     - name: Code Coverage Summary
-    - uses: irongut/CodeCoverageSummary@v1.3.0
+      uses: irongut/CodeCoverageSummary@v1.3.0
 
 
