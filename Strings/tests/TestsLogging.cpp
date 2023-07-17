@@ -1,11 +1,9 @@
 
-#include "Testing.hpp"
+#include "Tests.hpp"
 #include "Logging.hpp"
 
-TEST_DEF_STATIC(Simple) {
-	// TEST(false);
-}
+using namespace tp;
 
 TEST_DEF(Logging) {
-	testSimple();
+
 }
