@@ -75,7 +75,7 @@ namespace tp {
 		};
 
 		virtual ~File() {
-			File::disconnect();
+			if (mStatus.isOpened()) File::disconnect();
 		}
 
 	public:

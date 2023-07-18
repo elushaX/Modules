@@ -6,20 +6,20 @@ using namespace tp;
 
 TEST_DEF_STATIC(Simple) {
 
-	int1 data[] = { 0, 1, 2, 3, 4 };
-	int1 dataRead[]{};
+	const int1* data = "abcde\0";
+	int1 dataRead[6]{};
 
 	{
 		File file;
-		file.connect(FileLocation(String("tmp2")), FileConnectionType(false));
-		file.writeBytes(data, 5);
+		file.connect(FileLocation(String("tmp2.txt")), FileConnectionType(false));
+		file.writeBytes(data, 6);
 		file.disconnect();
 	}
 
 	{
 		File file;
-		file.connect(FileLocation(String("tmp2")), FileConnectionType(true));
-		file.readBytes(dataRead, 5);
+		file.connect(FileLocation(String("tmp2.txt")), FileConnectionType(true));
+		file.readBytes(dataRead, 6);
 		file.disconnect();
 	}
 
