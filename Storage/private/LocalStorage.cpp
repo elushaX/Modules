@@ -12,11 +12,11 @@ bool File::connect(const FileLocation& location, const FileConnectionType& conne
 
 	switch (connectionInfo.getType()) {
 		case FileConnectionType::READ:
-			handle->open(location.getLocation().read(), true);
+			handle->open(location.getLocation().read(), false);
 			break;
 
 		case FileConnectionType::WRITE:
-			handle->open(location.getLocation().read(), false);
+			handle->open(location.getLocation().read(), true);
 			break;
 
 		default:
@@ -31,6 +31,7 @@ bool File::connect(const FileLocation& location, const FileConnectionType& conne
 
 	mStatus.setStatus(FileConnectionStatus::OPENED);
 	mHandle = handle;
+	mConnectionType = connectionInfo;
 	return true;
 }
 

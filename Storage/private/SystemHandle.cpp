@@ -40,7 +40,7 @@ void FileSystemHandle::seekp(ualni in) {
 
 void FileSystemHandle::read(int1* in, ualni size) {
 	auto strm = (std::fstream*) stream;
-	strm->write(in, size);
+	strm->read(in, size);
 }
 
 void FileSystemHandle::write(const int1* in, ualni size) {

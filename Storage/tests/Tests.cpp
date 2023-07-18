@@ -1,12 +1,12 @@
 
 #include "Testing.hpp"
-#include "Utils.hpp"
+#include "Storage.hpp"
 
 void testLocalStorage();
 
 int main() {
 
-	tp::ModuleManifest* deps[] = { &tp::gModuleUtils, nullptr };
+	tp::ModuleManifest* deps[] = { &tp::gModuleStorage, nullptr };
 	tp::ModuleManifest testModule("StorageTest", nullptr, nullptr, deps);
 
 	if (!testModule.initialize()) {
