@@ -4,7 +4,7 @@
 using namespace tp;
 
 static ModuleManifest* sModuleDependencies[] = { &gModuleTokenizer, &gModuleStorage, nullptr };
-ModuleManifest tp::gModuleStorage = ModuleManifest("CommandLine", nullptr, nullptr, sModuleDependencies);
+ModuleManifest tp::gModuleCommandLine = ModuleManifest("CommandLine", nullptr, nullptr, sModuleDependencies);
 
 const char* regexSpace = "\n|\t| |\r";
 const char* regexFalse = "N|n|(False)|(false)";

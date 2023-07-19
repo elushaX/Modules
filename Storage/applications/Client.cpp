@@ -1,81 +1,64 @@
-#include "asio.hpp"
+#include "SystemAPI.hpp"
 
-#include <iostream>
-#include <string>
-#include <mutex>
+#include "Strings.hpp"
 
-// #include <unistd.h>
-// #include <cstring>
+#include <pthread.h>
 
-constexpr int PORT = 3333;
-const char* SERVER_IP = "127.0.0.1";
+using namespace tp;
 
-std::mutex mutex;
+class CharClient {
 
-void* readServerBroadcast(void* clientSocketPtr) {
-	auto socket = ((asio::ip::tcp::socket*)clientSocketPtr);
+	typedef void* (*ThreadFunction)(void *);
 
-	while (true) {
+	Client client;
+	pthread_mutex_t mutex;
 
-		short messageSize;
-		asio::read(*socket, asio::buffer(&messageSize, 2));
-
-		mutex.lock();
-
-		auto message = new char[messageSize + 1];
-		message[messageSize] = 0;
-
-		asio::read(*socket, asio::buffer(message, messageSize));
-
-		std::cerr << "Broadcast : " << message << std::endl;
-
-		delete[] message;
-
-		mutex.unlock();
+public:
+	CharClient(int port, const char* ip) {
+		pthread_mutex_unlock(&mutex);
+		client.connect(ip, port);
 	}
 
-	return nullptr;
-}
+	void start() {
+		// Create a new thread to handle the client
+		pthread_t threadId;
+		if (pthread_create(&threadId, nullptr, (ThreadFunction) readServerBroadcast, this)) {
+			printf("Failed to create thread for client\n");
+			return;
+		}
+
+		// Detach the thread so it can run independently
+		pthread_detach(threadId);
+
+		while (true) {
+			const auto length =  1024;
+			static char message[length];
+
+			printf(" >> ");
+			fgets(message, length, stdin);
+
+			if (String::Logic::isEqualLogic(message, "exit")) return;
+
+			pthread_mutex_lock(&mutex);
+			client.write(message);
+			pthread_mutex_unlock(&mutex);
+		}
+	}
+
+	static void* readServerBroadcast(CharClient* self) {
+		while (true) {
+			auto message = self->client.read();
+			pthread_mutex_lock(&self->mutex);
+			printf("Broadcast : %s \n", message);
+			delete[] message;
+			pthread_mutex_unlock(&self->mutex);
+		}
+		return nullptr;
+	}
+};
 
 int main() {
-	asio::io_context ioContext;
-
-	// Create a TCP socket
-	asio::ip::tcp::socket socket(ioContext);
-
-	// Connect to a server
-	asio::ip::tcp::endpoint endpoint(asio::ip::address::from_string(SERVER_IP), PORT);
-	socket.connect(endpoint);
-
-	// Create a new thread to handle the client
-	pthread_t threadId;
-	if (pthread_create(&threadId, nullptr, readServerBroadcast, (void*) &socket) != 0) {
-		std::cerr << "Failed to create thread for client" << std::endl;
-		return 1;
-	}
-
-	// Detach the thread so it can run independently
-	pthread_detach(threadId);
-
-	while (true) {
-		std::string message;
-		std::cout << " >> ";
-		std::cin >> message;
-
-		mutex.lock();
-
-		// Send a message to the server
-		auto messageSize = (short) message.size();
-		asio::write(socket, asio::buffer(&messageSize, 2));
-
-		// Send a message to the server
-		asio::write(socket, asio::buffer(message + "\n"));
-
-		mutex.unlock();
-	}
-
-	// Close socket
-	// close(clientSocket);
-
+	CharClient client(5555, "127.0.0.1");
+	client.start();
 	return 0;
 }

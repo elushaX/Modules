@@ -1,8 +1,10 @@
 #pragma once
 
-#include "Storage.hpp"
+#include "SystemAPI.hpp"
 
 namespace tp {
+
+	/*
 	class Client : public Storage {
 		// same as local storage file but transfers all commands to server
 	};
@@ -11,4 +13,5 @@ namespace tp {
 		// opens local storage and transfers all client command to it
 		// manages multiple clients
 	};
+	*/
 }
