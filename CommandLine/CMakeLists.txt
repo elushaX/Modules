@@ -10,7 +10,7 @@ file(GLOB SOURCES "./private/*.cpp")
 file(GLOB HEADERS "./public/*.hpp")
 add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
 target_include_directories(${PROJECT_NAME} PUBLIC ./public/)
-target_link_libraries(${PROJECT_NAME} PUBLIC Tokenizer)
+target_link_libraries(${PROJECT_NAME} PUBLIC Tokenizer Storage)
 
 ### -------------------------- Tests  --------------------------  ###
 enable_testing()

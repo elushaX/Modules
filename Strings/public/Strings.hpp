@@ -188,17 +188,20 @@ namespace tp {
 
 		explicit operator alni() {
 			alni out;
-			return Logic::convertStringToValue(read(), out);
+			Logic::convertStringToValue(read(), out);
+			return out;
 		}
 
 		explicit operator alnf() {
 			alnf out;
-			return Logic::convertStringToValue(read(), out);
+			Logic::convertStringToValue(read(), out);
+			return out;
 		}
 
 		explicit operator bool() {
 			bool out;
-			return Logic::convertStringToValue(read(), out);
+			Logic::convertStringToValue(read(), out);
+			return out;
 		}
 
 		Index size() const {

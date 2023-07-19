@@ -3,9 +3,15 @@ cmake_minimum_required(VERSION 3.2)
 
 project(Applications)
 
-### ---------------------- Applications  ---------------------  ###
-add_executable(Server ./Server.cpp)
-add_executable(Client ./Client.cpp)
+file(GLOB SOURCES_CLIENT ./Client.cpp)
+file(GLOB SOURCES_SERVER ./Server.cpp)
 
-include_directories(Client ./../../Externals/asio/asio/include)
-include_directories(Server ./../../Externals/asio/asio/include)
+set(ASIO_INCLUDE ./../../Externals/asio/asio/include)
+
+add_executable(Client ${SOURCES_CLIENT})
+include_directories(Client ${ASIO_INCLUDE})
+#link_libraries(Client Storage CommandLine)
+
+add_executable(Server ${SOURCES_SERVER})
+include_directories(Server ${ASIO_INCLUDE})
+#link_libraries(Server Storage CommandLine)

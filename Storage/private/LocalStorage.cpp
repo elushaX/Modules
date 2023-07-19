@@ -2,7 +2,20 @@
 
 #include "SystemHandle.hpp"
 
+#include <cstdio>
+
 using namespace tp;
+
+
+bool FileLocation::exists() const {
+	FILE* file = fopen(mLocation.read(), "r");
+	if (file) {
+		// File exists, close it and return 1
+		fclose(file);
+		return true;
+	}
+	return false;
+}
 
 bool File::connect(const FileLocation& location, const FileConnectionType& connectionInfo) {
 	DEBUG_ASSERT(!mStatus.isOpened());
