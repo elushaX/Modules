@@ -5,3 +5,4 @@
 #include "CommandLine.hpp"
 
 void testCommandLine();
+void testInterpreter();

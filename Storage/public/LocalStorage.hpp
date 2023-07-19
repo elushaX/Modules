@@ -13,6 +13,7 @@ namespace tp {
 		explicit  FileLocation(const String& location) : mLocation(location) {}
 		void setLocation(const String& location) { mLocation = location; }
 		[[nodiscard]] const String& getLocation() const { return mLocation; }
+		[[nodiscard]] bool exists() const;
 	};
 
 	class FileConnectionType {
