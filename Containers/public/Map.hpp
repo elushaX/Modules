@@ -247,7 +247,7 @@ namespace tp {
 
 		const tVal& getSlotVal(Idx slot) const {
 			DEBUG_ASSERT(slot.idx < mNSlots && (mTable[slot.idx] && !isDeletedNode(mTable[slot.idx])) && "Key Error")
-			return mTable[slot]->val;
+			return mTable[slot.idx]->val;
 		}
 
 		tVal& getSlotVal(Idx slot) {
