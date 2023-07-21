@@ -3,7 +3,7 @@
 
 using namespace tp;
 
-static ModuleManifest* sModuleDependencies[] = { &gModuleTokenizer, &gModuleStorage, nullptr };
+static ModuleManifest* sModuleDependencies[] = { &gModuleTokenizer, &gModuleConnection, nullptr };
 ModuleManifest tp::gModuleCommandLine = ModuleManifest("CommandLine", nullptr, nullptr, sModuleDependencies);
 
 const char* regexSpace = "\n|\t| |\r";
@@ -219,7 +219,7 @@ alni CommandLine::getInt(const String& id) const { auto& arg = getArg(id, Arg::I
 alnf CommandLine::getFloat(const String& id) const { auto& arg = getArg(id, Arg::FLOAT); return arg.mFloat.mVal; }
 bool CommandLine::getBool(const String& id) const { auto& arg = getArg(id, Arg::BOOL); return arg.mBool.mFlag; }
 const String& CommandLine::getString(const String& id) const { auto& arg = getArg(id, Arg::STR); return arg.mStr.mStr; }
-const FileLocation& CommandLine::getFile(const String& id) const { auto& arg = getArg(id, Arg::FILE_IN); return arg.mFile.mFileLocation; }
+const LocalConnectionLocation& CommandLine::getFile(const String& id) const { auto& arg = getArg(id, Arg::FILE_IN); return arg.mFile.mFileLocation; }
 
 
 CommandLine::Arg& CommandLine::getArg(const String& id, Arg::Type type) {

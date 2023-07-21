@@ -1,6 +1,6 @@
 
+#include "LocalConnection.hpp"
 #include "Testing.hpp"
-#include "LocalStorage.hpp"
 
 using namespace tp;
 
@@ -10,15 +10,15 @@ TEST_DEF_STATIC(Simple) {
 	int1 dataRead[6]{};
 
 	{
-		File file;
-		file.connect(FileLocation(String("tmp2.txt")), FileConnectionType(false));
+		LocalConnection file;
+		file.connect(LocalConnectionLocation(String("tmp2.txt")), LocalConnectionType(false));
 		file.writeBytes(data, 6);
 		file.disconnect();
 	}
 
 	{
-		File file;
-		file.connect(FileLocation(String("tmp2.txt")), FileConnectionType(true));
+		LocalConnection file;
+		file.connect(LocalConnectionLocation(String("tmp2.txt")), LocalConnectionType(true));
 		file.readBytes(dataRead, 6);
 		file.disconnect();
 	}
@@ -28,6 +28,6 @@ TEST_DEF_STATIC(Simple) {
 	}
 }
 
-TEST_DEF(LocalStorage) {
+TEST_DEF(LocalConnection) {
 	testSimple();
 }

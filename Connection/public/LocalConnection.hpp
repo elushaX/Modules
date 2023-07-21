@@ -1,22 +1,22 @@
 #pragma once
 
-#include "Storage.hpp"
+#include "ConnectionCommon.hpp"
 
 namespace tp {
 
-	class FileSystemHandle;
+	class LocalConnectionContext;
 
-	class FileLocation {
+	class LocalConnectionLocation {
 		String mLocation;
 	public:
-		FileLocation() : mLocation("tmp") {};
-		explicit  FileLocation(const String& location) : mLocation(location) {}
+		LocalConnectionLocation() : mLocation("tmp") {};
+		explicit LocalConnectionLocation(const String& location) : mLocation(location) {}
 		void setLocation(const String& location) { mLocation = location; }
 		[[nodiscard]] const String& getLocation() const { return mLocation; }
 		[[nodiscard]] bool exists() const;
 	};
 
-	class FileConnectionType {
+	class LocalConnectionType {
 	public:
 		enum HandleType {
 			READ,
@@ -28,15 +28,15 @@ namespace tp {
 		HandleType mHandleType;
 
 	public:
-		FileConnectionType() : mHandleType(NONE) {}
-		explicit FileConnectionType(bool read) : mHandleType((HandleType) read) {}
-		explicit FileConnectionType(HandleType handleType) : mHandleType(handleType) {}
+		LocalConnectionType() : mHandleType(NONE) {}
+		explicit LocalConnectionType(bool read) : mHandleType((HandleType) read) {}
+		explicit LocalConnectionType(HandleType handleType) : mHandleType(handleType) {}
 		[[nodiscard]] HandleType getType() const { return mHandleType; }
 		[[nodiscard]] bool isRead() const { return mHandleType == READ; }
 		[[nodiscard]] bool isWrite() const { return mHandleType == WRITE; }
 	};
 
-	class FileConnectionStatus {
+	class LocalConnectionStatus {
 	public:
 		enum Status {
 			NONE,
@@ -50,43 +50,43 @@ namespace tp {
 		Status mStatus = NONE;
 
 	public:
-		FileConnectionStatus() = default;
+		LocalConnectionStatus() = default;
 		[[nodiscard]] Status getStatus() const { return mStatus; }
 		void setStatus(Status status) { mStatus = status; }
 		[[nodiscard]] bool isOpened() const { return mStatus == OPENED; }
 	};
 
-	class File {
+	class LocalConnection {
 		typedef ualni SizeBytes;
 		typedef ualni BytePointer;
 		typedef int1 Byte;
 
 	private:
-		FileSystemHandle* mHandle = nullptr;
+		LocalConnectionContext* mHandle = nullptr;
 
-		FileLocation mLocation;
-		FileConnectionType mConnectionType;
-		FileConnectionStatus mStatus;
+		LocalConnectionLocation mLocation;
+		LocalConnectionType mConnectionType;
+		LocalConnectionStatus mStatus;
 
 		BytePointer mPointer = 0;
 
 	public:
-		File() {
-			MODULE_SANITY_CHECK(gModuleStorage)
+		LocalConnection() {
+			MODULE_SANITY_CHECK(gModuleConnection)
 		};
 
-		virtual ~File() {
-			if (mStatus.isOpened()) File::disconnect();
+		virtual ~LocalConnection() {
+			if (mStatus.isOpened()) LocalConnection::disconnect();
 		}
 
 	public:
-		virtual bool connect(const FileLocation& location, const FileConnectionType& connectionInfo);
+		virtual bool connect(const LocalConnectionLocation& location, const LocalConnectionType& connectionInfo);
 		virtual bool disconnect();
 
 	public:
-		virtual const FileConnectionStatus& getConnectionStatus() { return mStatus; }
-		virtual const FileConnectionType& getConnectionType() { return mConnectionType; }
-		virtual const FileLocation& getLocation() { return mLocation; }
+		virtual const LocalConnectionStatus& getConnectionStatus() { return mStatus; }
+		virtual const LocalConnectionType& getConnectionType() { return mConnectionType; }
+		virtual const LocalConnectionLocation& getLocation() { return mLocation; }
 
 	public:
 		virtual bool setPointer(BytePointer pointer);

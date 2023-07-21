@@ -1,10 +1,10 @@
-#include "SystemAPI.hpp"
+#include "Disk.hpp"
 
 #include <fstream>
 
 using namespace tp;
 
-ualni tp::FileSystemHandle::size() {
+ualni tp::LocalConnectionContext::size() {
 	auto strm = (std::fstream*) stream;
 	ualni out = 0;
 	strm->seekg(0, std::ios::beg);
@@ -14,41 +14,41 @@ ualni tp::FileSystemHandle::size() {
 	return out;
 }
 
-FileSystemHandle::FileSystemHandle() {
+LocalConnectionContext::LocalConnectionContext() {
 	stream = new std::fstream();
 }
 
-FileSystemHandle::~FileSystemHandle() {
+LocalConnectionContext::~LocalConnectionContext() {
 	auto strm = (std::fstream*) stream;
 	delete strm;
 }
 
-bool FileSystemHandle::isOpen() {
+bool LocalConnectionContext::isOpen() {
 	auto strm = (std::fstream*) stream;
 	return strm->is_open();
 }
 
-void FileSystemHandle::close() {
+void LocalConnectionContext::close() {
 	auto strm = (std::fstream*) stream;
 	strm->close();
 }
 
-void FileSystemHandle::seekp(ualni in) {
+void LocalConnectionContext::seekp(ualni in) {
 	auto strm = (std::fstream*) stream;
 	strm->seekp(in);
 }
 
-void FileSystemHandle::read(int1* in, ualni size) {
+void LocalConnectionContext::read(int1* in, ualni size) {
 	auto strm = (std::fstream*) stream;
 	strm->read(in, size);
 }
 
-void FileSystemHandle::write(const int1* in, ualni size) {
+void LocalConnectionContext::write(const int1* in, ualni size) {
 	auto strm = (std::fstream*) stream;
 	strm->write(in, size);
 }
 
-void FileSystemHandle::open(const char* path, bool read) {
+void LocalConnectionContext::open(const char* path, bool read) {
 	auto strm = (std::fstream*) stream;
 	if (read)
 		strm->open(path, std::ios::in | std::ios::binary | std::ios::app);
