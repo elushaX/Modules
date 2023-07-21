@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Tokenizer.hpp"
 #include "Map.hpp"
-#include "LocalStorage.hpp"
+#include "LocalConnection.hpp"
+#include "Tokenizer.hpp"
 
 namespace tp {
 
@@ -33,7 +33,7 @@ namespace tp {
 		};
 
 		struct FileInputArg {
-			FileLocation mFileLocation;
+			LocalConnectionLocation mFileLocation;
 		};
 
 		struct Arg {
@@ -81,7 +81,7 @@ namespace tp {
 		[[nodiscard]] alnf getFloat(const String& id) const;
 		[[nodiscard]] bool getBool(const String& id) const;
 		[[nodiscard]] const String& getString(const String& id) const;
-		[[nodiscard]] const FileLocation& getFile(const String& id) const;
+		[[nodiscard]] const LocalConnectionLocation& getFile(const String& id) const;
 
 		const CommandLine& operator=(const CommandLine&) = delete;
 

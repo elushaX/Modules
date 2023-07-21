@@ -1,13 +1,12 @@
-#include "LocalStorage.hpp"
+#include "LocalConnection.hpp"
 
-#include "SystemAPI.hpp"
+#include "bindings/Disk.hpp"
 
 #include <cstdio>
 
 using namespace tp;
 
-
-bool FileLocation::exists() const {
+bool LocalConnectionLocation::exists() const {
 	FILE* file = fopen(mLocation.read(), "r");
 	if (file) {
 		// File exists, close it and return 1
@@ -17,18 +16,18 @@ bool FileLocation::exists() const {
 	return false;
 }
 
-bool File::connect(const FileLocation& location, const FileConnectionType& connectionInfo) {
+bool LocalConnection::connect(const LocalConnectionLocation& location, const LocalConnectionType& connectionInfo) {
 	DEBUG_ASSERT(!mStatus.isOpened());
 	if (mStatus.isOpened()) return false;
 
-	auto handle = new FileSystemHandle();
+	auto handle = new LocalConnectionContext();
 
 	switch (connectionInfo.getType()) {
-		case FileConnectionType::READ:
+		case LocalConnectionType::READ:
 			handle->open(location.getLocation().read(), false);
 			break;
 
-		case FileConnectionType::WRITE:
+		case LocalConnectionType::WRITE:
 			handle->open(location.getLocation().read(), true);
 			break;
 
@@ -37,33 +36,33 @@ bool File::connect(const FileLocation& location, const FileConnectionType& conne
 	};
 
 	if (!handle->isOpen()) {
-		mStatus.setStatus(FileConnectionStatus::DENIED);
+		mStatus.setStatus(LocalConnectionStatus::DENIED);
 		delete handle;
 		return false;
 	}
 
-	mStatus.setStatus(FileConnectionStatus::OPENED);
+	mStatus.setStatus(LocalConnectionStatus::OPENED);
 	mHandle = handle;
 	mConnectionType = connectionInfo;
 	return true;
 }
 
-bool File::disconnect() {
+bool LocalConnection::disconnect() {
 	DEBUG_ASSERT(mStatus.isOpened());
 	if (!mStatus.isOpened() || !mHandle) return false;
 	mHandle->close();
 	delete mHandle;
-	mStatus.setStatus(FileConnectionStatus::CLOSED);
+	mStatus.setStatus(LocalConnectionStatus::CLOSED);
 	return true;
 }
 
-bool File::setPointer(BytePointer pointer) {
+bool LocalConnection::setPointer(BytePointer pointer) {
 	DEBUG_ASSERT(mStatus.isOpened());
 	if (!mStatus.isOpened()) return false;
 	return true;
 }
 
-bool File::readBytes(Byte* bytes, SizeBytes size) {
+bool LocalConnection::readBytes(Byte* bytes, SizeBytes size) {
 	DEBUG_ASSERT(mStatus.isOpened() && mConnectionType.isWrite());
 	if (!mStatus.isOpened() || !mConnectionType.isWrite()) return false;
 
@@ -73,7 +72,7 @@ bool File::readBytes(Byte* bytes, SizeBytes size) {
 	return true;
 }
 
-bool File::writeBytes(const Byte* bytes, SizeBytes size) {
+bool LocalConnection::writeBytes(const Byte* bytes, SizeBytes size) {
 	DEBUG_ASSERT(mStatus.isOpened() && mConnectionType.isRead());
 	if (!mStatus.isOpened() || !mConnectionType.isRead()) return false;
 
@@ -83,7 +82,7 @@ bool File::writeBytes(const Byte* bytes, SizeBytes size) {
 	return true;
 }
 
-File::SizeBytes File::size() {
+LocalConnection::SizeBytes LocalConnection::size() {
 	DEBUG_ASSERT(mStatus.isOpened());
 	if (!mStatus.isOpened() || !mHandle) return 0;
 	return mHandle->size();
