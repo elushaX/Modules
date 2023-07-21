@@ -168,7 +168,7 @@ namespace tp {
 		String extractVal() {
 			auto crs = getCursorPrev();
 			String out;
-			out.resize(mLastTokLen + 1);
+			out.resize(mLastTokLen);
 			memCopy(out.write(), crs.str(), mLastTokLen);
 			return out;
 		}

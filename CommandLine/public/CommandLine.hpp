@@ -2,13 +2,11 @@
 
 #include "Tokenizer.hpp"
 #include "Map.hpp"
+#include "LocalStorage.hpp"
 
 namespace tp {
 
-	// TODO : replace
-	class File {
-
-	};
+	extern ModuleManifest gModuleCommandLine;
 
 	struct CommandLine {
 
@@ -35,13 +33,12 @@ namespace tp {
 		};
 
 		struct FileInputArg {
-			String mFilepath;
-			File mFile;
+			FileLocation mFileLocation;
 		};
 
 		struct Arg {
 			String mId;
-			enum Type { INT, FLOAT, BOOL, STR, FILE_IN } mType;
+			enum Type { INT, FLOAT, BOOL, STR, FILE_IN, NONE } mType = NONE;
 			union {
 				IntArg mInt;
 				FloatArg mFloat;
@@ -73,16 +70,23 @@ namespace tp {
 		CommandLine(const init_list<Arg>& args);
 		~CommandLine();
 
-		bool parse(char argc, const char* argv[], bool logError = true, ualni skipArgs = 1);
+		void resetError() { mError.mDescr = nullptr; }
 
-		alni getInt(const String& id);
-		alnf getFloat(const String& id);
-		bool getBool(const String& id);
-		const String& getString(const String& id);
-		File& getFile(const String& id);
+		bool parse(char argc, const char* argv[], bool logError = true, ualni skipArgs = 1);
+		bool parse(const char* args, bool logError = true);
+
+		void help() const;
+
+		[[nodiscard]] alni getInt(const String& id) const;
+		[[nodiscard]] alnf getFloat(const String& id) const;
+		[[nodiscard]] bool getBool(const String& id) const;
+		[[nodiscard]] const String& getString(const String& id) const;
+		[[nodiscard]] const FileLocation& getFile(const String& id) const;
+
+		const CommandLine& operator=(const CommandLine&) = delete;
 
 	private:
-		enum class TokType { SPACE, INT, FLOAT, BOOL_FALSE, BOOL_TRUE, STR, NONE, FAILURE, END, } mType;
+		enum class TokType { SPACE, INT, FLOAT, BOOL_FALSE, BOOL_TRUE, STR, NONE, FAILURE, END, };
 		typedef SimpleTokenizer<char, TokType, TokType::NONE, TokType::FAILURE, TokType::END> Tokenizer;
 
 		Tokenizer mTokenizer;
@@ -90,7 +94,12 @@ namespace tp {
 		List<Arg*> mArgsOrder;
 		ualni mOptionals = 0;
 
+		enum class ArgTokType { SPACE, ARG, NONE, FAILURE, END, };
+		SimpleTokenizer<char, ArgTokType, ArgTokType::NONE, ArgTokType::FAILURE, ArgTokType::END> mArgumentTokenizer;
+
 		Arg& getArg(const String& id, Arg::Type type);
+		[[nodiscard]] const Arg& getArg(const String& id, Arg::Type type) const;
+
 		void ErrInvalidArgCount();
 		void ErrInvalidArgSyntax(Arg* arg);
 		void ErrInvalidArgType(Arg* arg);
@@ -98,8 +107,8 @@ namespace tp {
 		void ErrFileCouldNotOpen(Arg* arg);
 		void ErrValNotinRange(Arg* arg);
 		void ErrLog();
-		static void ArgLog(Arg& arg);
+		static void logArg(const Arg& arg);
 		static void initDefault(Arg& arg);
 		void parseArg(Arg& arg, const char* src);
 	};
-};
+}

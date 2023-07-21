@@ -12,7 +12,8 @@ int main() {
 		return 1;
 	}
 
-	testCommandLine();
+	// testCommandLine();
+	testInterpreter();
 
 	testModule.deinitialize();
 }

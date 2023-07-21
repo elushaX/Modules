@@ -3,6 +3,9 @@
 
 using namespace tp;
 
+static ModuleManifest* sModuleDependencies[] = { &gModuleTokenizer, &gModuleStorage, nullptr };
+ModuleManifest tp::gModuleCommandLine = ModuleManifest("CommandLine", nullptr, nullptr, sModuleDependencies);
+
 const char* regexSpace = "\n|\t| |\r";
 const char* regexFalse = "N|n|(False)|(false)";
 const char* regexTrue = "Y|y|(True)|(true)";
@@ -13,11 +16,13 @@ const char* regexString = "'{'-'}*'";
 CommandLine::Arg::Arg(const Arg& arg) {
 	mId = arg.mId;
 	switch (arg.mType) {
-	case CommandLine::Arg::INT: mType = INT;	mInt = arg.mInt; break;
-	case CommandLine::Arg::FLOAT: mType = FLOAT; mFloat = arg.mFloat; break;
-	case CommandLine::Arg::BOOL: mType = BOOL; mBool = arg.mBool; break;
-	case CommandLine::Arg::STR: mType = STR; new (&mStr) StringArg(); mStr = arg.mStr; break;
-	case CommandLine::Arg::FILE_IN: mType = FILE_IN;	new (&mFile) FileInputArg(); mFile = arg.mFile; break;
+		case CommandLine::Arg::INT: mType = INT;	mInt = arg.mInt; break;
+		case CommandLine::Arg::FLOAT: mType = FLOAT; mFloat = arg.mFloat; break;
+		case CommandLine::Arg::BOOL: mType = BOOL; mBool = arg.mBool; break;
+		case CommandLine::Arg::STR: mType = STR; new (&mStr) StringArg(); mStr = arg.mStr; break;
+		case CommandLine::Arg::FILE_IN: mType = FILE_IN;	new (&mFile) FileInputArg(); mFile = arg.mFile; break;
+		default:
+			ASSERT(false)
 	}
 	mOptional = arg.mOptional;
 }
@@ -30,6 +35,7 @@ CommandLine::Arg::Arg(const String& id, Type type) {
 		case CommandLine::Arg::BOOL: mType = BOOL; new (&mBool) BoolArg(); break;
 		case CommandLine::Arg::STR: mType = STR; new (&mStr) StringArg(); break;
 		case CommandLine::Arg::FILE_IN: mType = FILE_IN;	new (&mFile) FileInputArg(); break;
+		default: ASSERT(false)
 	}
 	mOptional = false;
 }
@@ -119,6 +125,13 @@ CommandLine::CommandLine(const init_list<Arg>& args) {
 		});
 
 	ASSERT(mTokenizer.isBuild() && "Internal Error")
+
+	mArgumentTokenizer.build({
+			{ regexSpace, ArgTokType::SPACE },
+			{ "{ - }*", ArgTokType::ARG }
+		});
+
+	ASSERT(mTokenizer.isBuild() && "Internal Error")
 }
 
 CommandLine::~CommandLine() {
@@ -153,20 +166,71 @@ bool CommandLine::parse(char argc, const char* argv[], bool logError, ualni skip
 		}
 		idx++;
 	}
-
 	return true;
-
-	//set_working_dir();
 }
 
-alni CommandLine::getInt(const String& id) { auto& arg = getArg(id, Arg::INT); return arg.mInt.mVal; }
-alnf CommandLine::getFloat(const String& id) { auto& arg = getArg(id, Arg::FLOAT); return arg.mFloat.mVal; }
-bool CommandLine::getBool(const String& id) { auto& arg = getArg(id, Arg::BOOL); return arg.mBool.mFlag; }
-const String& CommandLine::getString(const String& id) { auto& arg = getArg(id, Arg::STR); return arg.mStr.mStr; }
-File& CommandLine::getFile(const String& id) { auto& arg = getArg(id, Arg::FILE_IN); return arg.mFile.mFile; }
+bool CommandLine::parse(const char* args, bool logError) {
+	mArgumentTokenizer.bindSource(args);
+	mArgumentTokenizer.reset();
+
+	ualni argc = 0;
+	auto tok = mArgumentTokenizer.readTok();
+	auto argument = mArgsOrder.first();
+
+	while (tok != ArgTokType::FAILURE && tok != ArgTokType::END) {
+		if (tok != ArgTokType::ARG) {
+			tok = mArgumentTokenizer.readTok();
+			continue;
+		}
+
+		if (!argument) {
+			ErrInvalidArgCount();
+			if (logError) ErrLog();
+			return false;
+		}
+
+		parseArg(*argument->data, mArgumentTokenizer.extractVal().read());
+
+		if (mError && logError) {
+			ErrLog();
+			return false;
+		}
+
+		argc++;
+		argument = argument->next;
+		tok = mArgumentTokenizer.readTok();
+	}
+
+	ualni idx = 0;
+	for (auto arg : mArgsOrder) {
+		if (idx >= argc) {
+			initDefault(*arg.data());
+		}
+		if (mError) {
+			if (logError) ErrLog();
+			return false;
+		}
+		idx++;
+	}
+	return true;
+}
+
+alni CommandLine::getInt(const String& id) const { auto& arg = getArg(id, Arg::INT); return arg.mInt.mVal; }
+alnf CommandLine::getFloat(const String& id) const { auto& arg = getArg(id, Arg::FLOAT); return arg.mFloat.mVal; }
+bool CommandLine::getBool(const String& id) const { auto& arg = getArg(id, Arg::BOOL); return arg.mBool.mFlag; }
+const String& CommandLine::getString(const String& id) const { auto& arg = getArg(id, Arg::STR); return arg.mStr.mStr; }
+const FileLocation& CommandLine::getFile(const String& id) const { auto& arg = getArg(id, Arg::FILE_IN); return arg.mFile.mFileLocation; }
 
 
 CommandLine::Arg& CommandLine::getArg(const String& id, Arg::Type type) {
+	auto idx = mArgs.presents(id);
+	ASSERT(idx && "Invalid Id")
+	auto& arg = mArgs.getSlotVal(idx);
+	ASSERT(arg->mType == type && "Invalid Type Requested")
+	return *arg;
+}
+
+const CommandLine::Arg& CommandLine::getArg(const String& id, Arg::Type type) const {
 	auto idx = mArgs.presents(id);
 	ASSERT(idx && "Invalid Id")
 	auto& arg = mArgs.getSlotVal(idx);
@@ -192,7 +256,7 @@ void CommandLine::ErrLog() {
 		}
 
 		printf("\nArgument: %lli\n", idx);
-		ArgLog(*mError.mArg);
+		logArg(*mError.mArg);
 	}
 
 	printf("Error Description: %s. \n", mError.mDescr);
@@ -201,7 +265,7 @@ void CommandLine::ErrLog() {
 	ualni idx = 0;
 	for (auto arg : mArgsOrder) {
 		printf(" -- %lli -- \n", idx);
-		ArgLog(*arg.data());
+		logArg(*arg.data());
 		idx++;
 	}
 
@@ -214,42 +278,43 @@ void CommandLine::ErrLog() {
 	printf("  File - else\n");
 }
 
-void CommandLine::ArgLog(Arg& arg) {
+void CommandLine::logArg(const Arg& arg) {
 	switch (arg.mType) {
-	case Arg::INT: {
-		printf("Type    : Int\n");
-		printf("Range   : %lli - %lli\n", arg.mInt.mAcceptingRange.mBegin, arg.mInt.mAcceptingRange.mEnd);
-		if (arg.mOptional) {
-			printf("Default : %lli\n", arg.mInt.mDefault);
-		}
-		printf("Given   : %lli\n", arg.mInt.mVal);
-	} break;
-	case Arg::FLOAT: {
-		printf("Type    : Float\n");
-		printf("Range   : %f - %f\n", (halnf) arg.mFloat.mAcceptingRange.mBegin, (halnf) arg.mFloat.mAcceptingRange.mEnd);
-		if (arg.mOptional) {
-			printf("Default : %f\n", arg.mFloat.mDefault);
-		}
-		printf("Given   : %f\n", arg.mFloat.mVal);
-	} break;
-	case Arg::BOOL: {
-		printf("Type    : Bool\n");
-		if (arg.mOptional) {
-			printf("Default : %s\n", arg.mBool.mDefault ? "True" : "False");
-		}
-		printf("Given   : %s\n", arg.mBool.mFlag ? "True" : "False");
-	} break;
-	case Arg::STR: {
-		printf("Type    : String\n");
-		if (arg.mOptional) {
-			printf("Default : %s\n", arg.mStr.mDefault.read());
-		}
-		printf("Given   : %s\n", arg.mStr.mStr.read());
-	} break;
-	case Arg::FILE_IN: {
-		printf("Type : File Input\n");
-		printf("Given Path : %s\n", arg.mFile.mFilepath.read());
-	} break;
+		case Arg::INT: {
+			printf("Type    : Int\n");
+			printf("Range   : %lli - %lli\n", arg.mInt.mAcceptingRange.mBegin, arg.mInt.mAcceptingRange.mEnd);
+			if (arg.mOptional) {
+				printf("Default : %lli\n", arg.mInt.mDefault);
+			}
+			printf("Value   : %lli\n", arg.mInt.mVal);
+		} break;
+		case Arg::FLOAT: {
+			printf("Type    : Float\n");
+			printf("Range   : %f - %f\n", (halnf) arg.mFloat.mAcceptingRange.mBegin, (halnf) arg.mFloat.mAcceptingRange.mEnd);
+			if (arg.mOptional) {
+				printf("Default : %f\n", arg.mFloat.mDefault);
+			}
+			printf("Value   : %f\n", arg.mFloat.mVal);
+		} break;
+		case Arg::BOOL: {
+			printf("Type    : Bool\n");
+			if (arg.mOptional) {
+				printf("Default : %s\n", arg.mBool.mDefault ? "True" : "False");
+			}
+			printf("Value   : %s\n", arg.mBool.mFlag ? "True" : "False");
+		} break;
+		case Arg::STR: {
+			printf("Type    : String\n");
+			if (arg.mOptional) {
+				printf("Default : %s\n", arg.mStr.mDefault.read());
+			}
+			printf("Value   : %s\n", arg.mStr.mStr.read());
+		} break;
+		case Arg::FILE_IN: {
+			printf("Type : File Input\n");
+			printf("Value Path : %s\n", arg.mFile.mFileLocation.getLocation().read());
+		} break;
+		default: ASSERT(false)
 	}
 }
 
@@ -305,7 +370,8 @@ void CommandLine::parseArg(Arg& arg, const char* src) {
 				ErrInvalidArgType(&arg);
 				return;
 			}
-			arg.mStr.mStr = val;
+			arg.mStr.mStr.resize(val.size() - 2);
+			memCopy(arg.mStr.mStr.write(), val.read() + 1, val.size() - 2);
 		} break;
 
 		case Arg::BOOL: {
@@ -313,7 +379,7 @@ void CommandLine::parseArg(Arg& arg, const char* src) {
 				ErrInvalidArgType(&arg);
 				return;
 			}
-			arg.mBool.mFlag = bool(val);
+			arg.mBool.mFlag = tok == TokType::BOOL_TRUE;
 		} break;
 
 		case Arg::FILE_IN: {
@@ -322,24 +388,23 @@ void CommandLine::parseArg(Arg& arg, const char* src) {
 				return;
 			}
 
-			arg.mFile.mFilepath = val;
+			arg.mFile.mFileLocation.setLocation(val);
 
-			/*
-			// TODO : replace
-			if (!File::exists(arg.mFile.mFilepath.cstr())) {
+			if (!arg.mFile.mFileLocation.exists()) {
 				ErrFileNotExists(&arg);
 				return;
 			}
 
-			arg.mFile.mFile.open(arg.mFile.mFilepath.cstr(), osfile_openflags::LOAD);
-			if (!arg.mFile.mFile.opened) {
-				ErrFileCouldNotOpen(&arg);
-				return;
-			}
-			*/
-
 		} break;
+		default: ASSERT(false)
 	}
 
 	arg.mIsPassed = true;
+}
+
+void CommandLine::help() const {
+	printf("Arguments:\n");
+	for (auto arg : mArgsOrder) {
+		logArg(*arg.data());
+	}
 }
