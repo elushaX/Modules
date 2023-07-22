@@ -11,14 +11,14 @@ TEST_DEF_STATIC(Simple) {
 
 	{
 		LocalConnection file;
-		file.connect(LocalConnectionLocation(String("tmp2.txt")), LocalConnectionType(false));
+		file.connect(LocalConnection::Location(String("tmp2.txt")), LocalConnection::Type(false));
 		file.writeBytes(data, 6);
 		file.disconnect();
 	}
 
 	{
 		LocalConnection file;
-		file.connect(LocalConnectionLocation(String("tmp2.txt")), LocalConnectionType(true));
+		file.connect(LocalConnection::Location(String("tmp2.txt")), LocalConnection::Type(true));
 		file.readBytes(dataRead, 6);
 		file.disconnect();
 	}
