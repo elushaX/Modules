@@ -219,7 +219,7 @@ alni CommandLine::getInt(const String& id) const { auto& arg = getArg(id, Arg::I
 alnf CommandLine::getFloat(const String& id) const { auto& arg = getArg(id, Arg::FLOAT); return arg.mFloat.mVal; }
 bool CommandLine::getBool(const String& id) const { auto& arg = getArg(id, Arg::BOOL); return arg.mBool.mFlag; }
 const String& CommandLine::getString(const String& id) const { auto& arg = getArg(id, Arg::STR); return arg.mStr.mStr; }
-const LocalConnectionLocation& CommandLine::getFile(const String& id) const { auto& arg = getArg(id, Arg::FILE_IN); return arg.mFile.mFileLocation; }
+const LocalConnection::Location& CommandLine::getFile(const String& id) const { auto& arg = getArg(id, Arg::FILE_IN); return arg.mFile.mFileLocation; }
 
 
 CommandLine::Arg& CommandLine::getArg(const String& id, Arg::Type type) {

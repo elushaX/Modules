@@ -3,72 +3,19 @@
 #include "ConnectionCommon.hpp"
 
 namespace tp {
-
 	class LocalConnectionContext;
 
-	class LocalConnectionLocation {
-		String mLocation;
+	class LocalConnection : public Connection {
 	public:
-		LocalConnectionLocation() : mLocation("tmp") {};
-		explicit LocalConnectionLocation(const String& location) : mLocation(location) {}
-		void setLocation(const String& location) { mLocation = location; }
-		[[nodiscard]] const String& getLocation() const { return mLocation; }
-		[[nodiscard]] bool exists() const;
-	};
-
-	class LocalConnectionType {
-	public:
-		enum HandleType {
-			READ,
-			WRITE,
-			NONE,
+		class Location {
+			String mLocation;
+		public:
+			Location() : mLocation("tmp") {};
+			explicit Location(const String& location) : mLocation(location) {}
+			void setLocation(const String& location) { mLocation = location; }
+			[[nodiscard]] const String& getLocation() const { return mLocation; }
+			[[nodiscard]] bool exists() const;
 		};
-
-	private:
-		HandleType mHandleType;
-
-	public:
-		LocalConnectionType() : mHandleType(NONE) {}
-		explicit LocalConnectionType(bool read) : mHandleType((HandleType) read) {}
-		explicit LocalConnectionType(HandleType handleType) : mHandleType(handleType) {}
-		[[nodiscard]] HandleType getType() const { return mHandleType; }
-		[[nodiscard]] bool isRead() const { return mHandleType == READ; }
-		[[nodiscard]] bool isWrite() const { return mHandleType == WRITE; }
-	};
-
-	class LocalConnectionStatus {
-	public:
-		enum Status {
-			NONE,
-			OPENED,
-			CLOSED,
-			DENIED,
-			INVALID,
-		};
-
-	private:
-		Status mStatus = NONE;
-
-	public:
-		LocalConnectionStatus() = default;
-		[[nodiscard]] Status getStatus() const { return mStatus; }
-		void setStatus(Status status) { mStatus = status; }
-		[[nodiscard]] bool isOpened() const { return mStatus == OPENED; }
-	};
-
-	class LocalConnection {
-		typedef ualni SizeBytes;
-		typedef ualni BytePointer;
-		typedef int1 Byte;
-
-	private:
-		LocalConnectionContext* mHandle = nullptr;
-
-		LocalConnectionLocation mLocation;
-		LocalConnectionType mConnectionType;
-		LocalConnectionStatus mStatus;
-
-		BytePointer mPointer = 0;
 
 	public:
 		LocalConnection() {
@@ -80,13 +27,13 @@ namespace tp {
 		}
 
 	public:
-		virtual bool connect(const LocalConnectionLocation& location, const LocalConnectionType& connectionInfo);
+		virtual bool connect(const Location& location, const Type& connectionInfo);
 		virtual bool disconnect();
 
 	public:
-		virtual const LocalConnectionStatus& getConnectionStatus() { return mStatus; }
-		virtual const LocalConnectionType& getConnectionType() { return mConnectionType; }
-		virtual const LocalConnectionLocation& getLocation() { return mLocation; }
+		virtual const Status& getConnectionStatus() { return mStatus; }
+		virtual const Type& getConnectionType() { return mConnectionType; }
+		virtual const Location& getLocation() { return mLocation; }
 
 	public:
 		virtual bool setPointer(BytePointer pointer);
@@ -95,5 +42,10 @@ namespace tp {
 
 	public:
 		virtual SizeBytes size();
+
+	private:
+		LocalConnectionContext* mHandle = nullptr;
+		Location mLocation;
+		BytePointer mPointer = 0;
 	};
 }

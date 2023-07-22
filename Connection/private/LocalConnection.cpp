@@ -6,7 +6,7 @@
 
 using namespace tp;
 
-bool LocalConnectionLocation::exists() const {
+bool LocalConnection::Location::exists() const {
 	FILE* file = fopen(mLocation.read(), "r");
 	if (file) {
 		// File exists, close it and return 1
@@ -16,18 +16,18 @@ bool LocalConnectionLocation::exists() const {
 	return false;
 }
 
-bool LocalConnection::connect(const LocalConnectionLocation& location, const LocalConnectionType& connectionInfo) {
+bool LocalConnection::connect(const Location& location, const Type& connectionInfo) {
 	DEBUG_ASSERT(!mStatus.isOpened());
 	if (mStatus.isOpened()) return false;
 
 	auto handle = new LocalConnectionContext();
 
 	switch (connectionInfo.getType()) {
-		case LocalConnectionType::READ:
+		case Type::READ:
 			handle->open(location.getLocation().read(), false);
 			break;
 
-		case LocalConnectionType::WRITE:
+		case Type::WRITE:
 			handle->open(location.getLocation().read(), true);
 			break;
 
@@ -36,12 +36,12 @@ bool LocalConnection::connect(const LocalConnectionLocation& location, const Loc
 	};
 
 	if (!handle->isOpen()) {
-		mStatus.setStatus(LocalConnectionStatus::DENIED);
+		mStatus.setStatus(Status::DENIED);
 		delete handle;
 		return false;
 	}
 
-	mStatus.setStatus(LocalConnectionStatus::OPENED);
+	mStatus.setStatus(Status::OPENED);
 	mHandle = handle;
 	mConnectionType = connectionInfo;
 	return true;
@@ -52,7 +52,7 @@ bool LocalConnection::disconnect() {
 	if (!mStatus.isOpened() || !mHandle) return false;
 	mHandle->close();
 	delete mHandle;
-	mStatus.setStatus(LocalConnectionStatus::CLOSED);
+	mStatus.setStatus(Status::CLOSED);
 	return true;
 }
 
