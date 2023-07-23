@@ -1,3 +1,15 @@
 [submodule "Externals/asio"]
 	path = Externals/asio
 	url = https://github.com/IlyaShurupov/asio.git
+[submodule "Externals/glfw"]
+	path = Externals/glfw
+	url = https://github.com/IlyaShurupov/glfw.git
+[submodule "Externals/imgui"]
+	path = Externals/imgui
+	url = https://github.com/IlyaShurupov/imgui.git
+[submodule "Externals/glew"]
+	path = Externals/glew
+	url = https://github.com/IlyaShurupov/glew.git
+[submodule "Externals/nanovg"]
+	path = Externals/nanovg
+	url = https://github.com/IlyaShurupov/nanovg.git

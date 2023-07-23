@@ -3,7 +3,7 @@
 #include "Environment.hpp"
 #include "Map.hpp"
 
-#define MAX_CALL_DEPTH_CAPTURE 16
+#define MAX_CALL_DEPTH_CAPTURE 128
 #define MAX_CALL_CAPTURES_MEM_SIZE_MB 16
 #define MAX_DEBUG_INFO_LEN 63
 #define FRAMES_TO_SKIP_START 2

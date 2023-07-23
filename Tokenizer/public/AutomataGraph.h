@@ -222,7 +222,6 @@ namespace tp {
 
 			// all NFA states that are reachable from initial DFA State for specific symbol in alphabet
 			struct DState {
-
 				struct DTransition {
 					DState* state = nullptr;
 					tAlphabetType accepting_code;
@@ -231,7 +230,7 @@ namespace tp {
 				List<NState*> nStates;
 				List<DTransition> transitions;
 
-				Vertex* dVertex = nullptr; // relevant DFA vertex
+				Vertex* dVertex= nullptr; // relevant DFA vertex
 
 				#ifdef ENV_BUILD_DEBUG
 				ualni debug_idx = 0;

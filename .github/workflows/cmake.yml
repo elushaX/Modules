@@ -20,7 +20,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Checkout submodules # checkout rest
+    - name: Setup externals
       shell: bash
       run: |
         # If your submodules are configured to use SSH instead of HTTPS please uncomment the following line
@@ -29,11 +29,15 @@ jobs:
         git submodule sync --recursive
         git -c "http.extraheader=$auth_header" -c protocol.version=2 submodule update --init --force --recursive --depth=1
         
-    - name: Install LLVM
-      run: sudo apt-get install -y llvm
+        sudo apt-get install python3 python-is-python3
+        sudo apt install libx11-dev
+        
+        cd Externals/glew/
+        make extensions
 
     - name: Set LLVM Toolchain
       run: |
+        sudo apt-get install -y llvm
         sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ 10
         sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++ 20
           

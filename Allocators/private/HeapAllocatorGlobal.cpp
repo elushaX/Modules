@@ -22,6 +22,8 @@ HeapAllocGlobal::~HeapAllocGlobal() = default;
 
 tp::MemHead* tp::HeapAllocGlobal::mEntry = nullptr;
 tp::ualni tp::HeapAllocGlobal::mNumAllocations = 0;
+tp::Mutex tp::HeapAllocGlobal::mMutex;
+bool tp::HeapAllocGlobal::mIgnore;
 
 // ----------------------- Debug Implementation ---------------------------- //
 // |----------------|
@@ -38,7 +40,8 @@ namespace tp {
 	struct MemHead {
 		MemHead* mPrev;
 		MemHead* mNext;
-		ualni mBlockSize;
+		uhalni mBlockSize;
+		uhalni mIgnored;
 		#ifdef MEM_STACK_TRACE
 		const CallStackCapture::CallStack* mCallStack;
 		#endif
@@ -69,12 +72,15 @@ void* HeapAllocGlobal::allocate(ualni aBlockSize) {
 	auto wrap_bottom = data + aBlockSize;
 
 	if (!head) { return nullptr; }
+
 	head->mBlockSize = aBlockSize;
+	head->mIgnored = mIgnore;
 
 	// 2) Link with existing blocks
+	mMutex.lock();
 	mNumAllocations++;
 	if (mEntry) {
-		DEBUG_ASSERT(!mEntry->mNext)
+		DEBUG_ASSERT(mEntry->mNext == nullptr)
 		head->mNext = nullptr;
 		head->mPrev = mEntry;
 		mEntry->mNext = head;
@@ -84,14 +90,17 @@ void* HeapAllocGlobal::allocate(ualni aBlockSize) {
 	}
 	mEntry = head;
 
-	// 3) Wrap fill
-	memSetVal(wrap_top, WRAP_SIZE, WRAP_VAL);
-	memSetVal(wrap_bottom, WRAP_SIZE, WRAP_VAL);
 
-	// 4) Trace the stack
+	// 3) Trace the stack
 	#ifdef MEM_STACK_TRACE
 	head->mCallStack = gCSCapture->getSnapshot();
 	#endif
+
+	mMutex.unlock();
+
+	// 4) Wrap fill
+	memSetVal(wrap_top, WRAP_SIZE, WRAP_VAL);
+	memSetVal(wrap_bottom, WRAP_SIZE, WRAP_VAL);
 
 	// 5) clear data
 #ifdef MEM_CLEAR_ON_ALLOC
@@ -102,6 +111,8 @@ void* HeapAllocGlobal::allocate(ualni aBlockSize) {
 }
 
 void HeapAllocGlobal::deallocate(void* aPtr) {
+	if (!aPtr) return;
+
 	// 1) Restore the pointers
 	auto head = ((MemHead*)((int1*)aPtr - WRAP_SIZE)) - 1;
 	auto wrap_top = (int1*)(head + 1);
@@ -109,6 +120,7 @@ void HeapAllocGlobal::deallocate(void* aPtr) {
 	auto wrap_bottom = data + head->mBlockSize;
 
 	// 2) Unlink with blocks
+	mMutex.lock();
 	mNumAllocations--;
 	DEBUG_ASSERT(!mEntry->mNext)
 	if (head->mNext) head->mNext->mPrev = head->mPrev;
@@ -116,34 +128,42 @@ void HeapAllocGlobal::deallocate(void* aPtr) {
 	if (head == mEntry) {
 		mEntry = head->mPrev;
 	}
+	mMutex.unlock();
 
-	// 3) Check the wrap
-	if (memCompareVal(wrap_top, WRAP_SIZE, WRAP_VAL)) {
-		CallStackCapture::printSnapshot(head->mCallStack);
-		ASSERT(!"Allocated Block Wrap Corrupted!")
+	if (!head->mIgnored) {
+		// 3) Check the wrap
+		if (memCompareVal(wrap_top, WRAP_SIZE, WRAP_VAL)) {
+			CallStackCapture::printSnapshot(head->mCallStack);
+			ASSERT(!"Allocated Block Wrap Corrupted!")
+		}
+
+		if (memCompareVal(wrap_bottom, WRAP_SIZE, WRAP_VAL)) {
+			CallStackCapture::printSnapshot(head->mCallStack);
+			ASSERT(!"Allocated Block Wrap Corrupted!")
+		}
+
+		// 4) clear data
+		#ifdef MEM_CLEAR_ON_ALLOC
+		memSetVal(data, head->mBlockSize, CLEAR_DEALLOC_VAL);
+		#endif
 	}
-
-	if (memCompareVal(wrap_bottom, WRAP_SIZE, WRAP_VAL)) {
-		CallStackCapture::printSnapshot(head->mCallStack);
-		ASSERT(!"Allocated Block Wrap Corrupted!")
-	}
-
-	// 4) clear data
-#ifdef MEM_CLEAR_ON_ALLOC
-	memSetVal(data, head->mBlockSize, CLEAR_DEALLOC_VAL);
-#endif
 
 	// 5) free the block
 	free(head);
 }
 
 bool HeapAllocGlobal::checkLeaks() {
+	ualni ignoredCount = 0;
+	for (auto iter = mEntry; iter; iter = iter->mPrev) {
+		ignoredCount += iter->mIgnored;
+	}
+
 	// 1) Check for not deallocated memory
-	if (mNumAllocations) {
+	if (mNumAllocations && ignoredCount != mNumAllocations) {
 
 		#ifdef MEM_STACK_TRACE
 		for (auto iter = mEntry; iter; iter = iter->mPrev) {
-			CallStackCapture::printSnapshot(iter->mCallStack);
+			if (!iter->mIgnored) CallStackCapture::printSnapshot(iter->mCallStack);
 		}
 		#endif
 
@@ -151,6 +171,18 @@ bool HeapAllocGlobal::checkLeaks() {
 		return true;
 	}
 	return false;
+}
+
+void HeapAllocGlobal::startIgnore() {
+	mMutex.lock();
+	mIgnore = true;
+	mMutex.unlock();
+}
+
+void HeapAllocGlobal::stopIgnore() {
+	mMutex.lock();
+	mIgnore = false;
+	mMutex.unlock();
 }
 
 HeapAllocGlobal::~HeapAllocGlobal() = default;
