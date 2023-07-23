@@ -13,8 +13,8 @@
 
 // -------- Canvas -------- //
 #define NANOVG_GL3_IMPLEMENTATION
-//#include <nanovg.h>
-//#include <nanovg_gl.h>
+#include <nanovg.h>
+#include <nanovg_gl.h>
 
 #include <cstdio>
 
@@ -99,7 +99,7 @@ class Showoff {
 		}
 	};
 
-	/*
+
 	class Canvas {
 
 		NVGcontext* vg;
@@ -146,7 +146,7 @@ class Showoff {
 			nvgEndFrame(vg);
 		}
 	};
-	*/
+
 
 public:
 	Showoff() = default;
@@ -154,28 +154,28 @@ public:
 	void init(GLFWwindow* window, int aWidth, int aHeight) {
 		gui.init(window);
 		gl.init();
-		// canvas.init(aWidth, aHeight);
+		canvas.init(aWidth, aHeight);
 	}
 
 	void deinit() {
 		gui.deinit();
 		gl.deinit();
-		// canvas.deinit();
+		canvas.deinit();
 	}
 
 	void draw() {
 		gl.beginDraw();
-		// canvas.beginDraw();
+		canvas.beginDraw();
 		gui.beginDraw();
 		gui.endDraw();
-		// canvas.endDraw();
+		canvas.endDraw();
 		gl.endDraw();
 	}
 
 private:
 	GUI gui{};
 	GL gl{};
-	// Canvas canvas{};
+	Canvas canvas{};
 };
 
 class Window {
@@ -259,9 +259,9 @@ int main() {
 	}
 
 	{
-		//tp::HeapAllocGlobal::startIgnore();
+		tp::HeapAllocGlobal::startIgnore();
 		auto window = Window::createWindow(800, 600, "Window 1");
-		//tp::HeapAllocGlobal::stopIgnore();
+		tp::HeapAllocGlobal::stopIgnore();
 
 		if (window) {
 			window->renderLoop();
