@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Module.hpp"
+#include "Multithreading.hpp"
 
 namespace tp {
 
@@ -9,6 +10,8 @@ namespace tp {
 #ifdef MEM_DEBUG
 		static ualni mNumAllocations;
 		static struct MemHead* mEntry;
+		static Mutex mMutex;
+		static bool mIgnore;
 #endif
 
 	public:
@@ -20,6 +23,9 @@ namespace tp {
 		static void deallocate(void* aPtr);
 
 		static bool checkLeaks();
+		static void startIgnore();
+		static void stopIgnore();
+
 	public:
 		[[nodiscard]] bool checkWrap() const { return false; }
 		void checkValid() {}
