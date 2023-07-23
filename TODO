@@ -1,24 +1,27 @@
-
-Storage:
-  Implement
-
-CommandLineParser:
-  Implement
+Testing !
+Serialization !
 
 Objects:
-  Implement
+  Implement !
 
-TextEditor:
-  Implement
+Storage:
+  Finish networking
+  Enable preloads
+
+Graphics:
+  Window event system
+  Graphics API
+  FPS count & Performance control
 
 Utils:
   Stack trace fixes
 
 Containers:
+  Add variant size buffer
+  Buffer improvements
   Add mem leakage tests
   Add check copy times
   AVL dont copy data just swap
 
-
-Testing !
-Serialization
+TextEditor:
+  Implement

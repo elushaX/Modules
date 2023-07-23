@@ -1,77 +1,76 @@
-#include "Strings.hpp"
+#pragma once
+
+#include "GraphicsCommon.hpp"
 
 namespace tp {
-
-	class ShowoffGlContext;
-	class ShowoffGUIContext;
-	class ShowoffCanvasContext;
-
 	class Window;
-	class WindowContext;
 
-	class Showoff {
+	class Graphics {
 	public:
 		class GL {
-			ShowoffGlContext* mContext;
-		public:
+			class Context;
+			Context* mContext;
+		private:
+			friend Graphics;
+
 			GL();
 			~GL();
 
 			void init();
 			void deinit();
-			static void beginDraw();
-			static void endDraw();
+			static void proc();
+			static void draw();
+		public:
+			// TODO : API
 		};
 
 		class GUI {
-			ShowoffGUIContext* mContext;
-		public:
+			class Context;
+			Context* mContext;
+		private:
+			friend Graphics;
+
 			GUI();
 			~GUI();
 
 			void init(Window* window);
 			void deinit();
-			void beginDraw();
-			void endDraw();
+			void proc();
+			void draw();
+
+		public:
+			// TODO : API
 		};
 
 		class Canvas {
-			ShowoffCanvasContext* mContext;
-		public:
+			class Context;
+			Context* mContext;
+		private:
+			friend Graphics;
+
 			Canvas();
 			~Canvas();
 
 			void init();
 			void deinit();
-			void beginDraw();
-			void endDraw();
+			void proc();
+			void draw();
+
+		public:
+			// TODO : API
 		};
 
-	public:
-		Showoff() = default;
+	private:
+		friend Window;
+
+		Graphics() = default;
 		void init(Window* window);
 		void deinit();
 		void draw();
 
 	private:
-		GUI gui;
-		GL gl;
-		Canvas canvas;
-	};
-
-	class Window {
-		Window(int width, int height, const char* title);
-		~Window();
-
-	public:
-		static Window* createWindow(int width, int height, const char* title);
-		static void destroyWindow(Window* window);
-
-	public:
-		void renderLoop();
-		WindowContext* getContext();
-	private:
-		WindowContext* mContext;
-		Showoff showoff;
+		GUI mGui;
+		GL mGl;
+		Canvas mCanvas;
 	};
 }
