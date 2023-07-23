@@ -1,4 +1,6 @@
 
+#include "NewPlacement.hpp"
+
 #include "LocalConnection.hpp"
 #include "Testing.hpp"
 

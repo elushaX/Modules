@@ -1,3 +1,4 @@
+#include "NewPlacement.hpp"
 
 #include "Tests.hpp"
 #include "Tree.hpp"
