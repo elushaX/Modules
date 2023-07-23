@@ -1,3 +1,5 @@
+#include "NewPlacement.hpp"
+
 #include "LocalConnection.hpp"
 
 #include "bindings/Disk.hpp"

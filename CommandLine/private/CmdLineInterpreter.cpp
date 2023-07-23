@@ -1,3 +1,5 @@
+#include "NewPlacement.hpp"
+
 #include "CmdLineInterpreter.hpp"
 
 #define MAX_LINE_LENGTH 1024

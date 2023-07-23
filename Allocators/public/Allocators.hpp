@@ -11,9 +11,6 @@ namespace tp {
 	extern ModuleManifest gModuleAllocators;
 }
 
-inline void* operator new(std::size_t aSize, void* aWhere) noexcept { return aWhere; }
-inline void* operator new[](std::size_t aSize, void* aWhere) noexcept { return aWhere; }
-
 void* operator new(std::size_t aSize);
 void* operator new[](std::size_t aSize);
 void  operator delete(void* aPtr) noexcept;

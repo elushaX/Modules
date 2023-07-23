@@ -1,3 +1,5 @@
+#include "NewPlacement.hpp"
+
 #include "Tests.hpp"
 #include "CmdLineInterpreter.hpp"
 
