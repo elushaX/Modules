@@ -111,7 +111,7 @@ namespace tp {
 			if (!mSource) {
 				return false;
 			}
-			if (mSource[mAdvancedOffset] == nullptr) {
+			if (mSource[mAdvancedOffset] == 0) {
 				return false;
 			}
 			return true;

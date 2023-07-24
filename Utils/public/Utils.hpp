@@ -12,6 +12,7 @@ namespace tp {
 	void memSetVal(void* p, uhalni byteSize, uint1 val);
 	void memCopy(void* left, const void* right, uhalni len);
 	int1 memCompare(const void* left, const void* right, uhalni len);
+	bool memEqual(const void* left, const void* right, uhalni len);
 	int1 memCompareVal(const void* left, uhalni len, uint1 val);
 }
 

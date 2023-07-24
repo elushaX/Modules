@@ -87,6 +87,9 @@ namespace tp {
 		return 0;
 	}
 
+	bool memEqual(const void* left, const void* right, uhalni len) {
+		return memCompare(left, right, len) == 0;
+	}
 
 	int1 memCompareVal(const void* left, uhalni len, uint1 val) {
 		MODULE_SANITY_CHECK(gModuleBase)
