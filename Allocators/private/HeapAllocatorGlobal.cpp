@@ -6,6 +6,7 @@
 #include "Utils.hpp"
 #include "Debugging.hpp"
 
+#include <cstdio>
 #include <cstdlib>
 
 using namespace tp;
@@ -66,12 +67,16 @@ void* HeapAllocGlobal::allocate(ualni aBlockSize) {
 	}
 
 	// 1) Allocate the block
+	ALLOCATE:
 	auto head = (MemHead*)malloc(aBlockSize + WRAP_SIZE * 2 + HEAD_SIZE);
+	if (!head) {
+		printf("WARNING : Cant allocate memory. Trying again\n");
+		goto ALLOCATE; // Just freeze if no memory is available
+	}
+
 	auto wrap_top = (int1*)(head + 1);
 	auto data = wrap_top + WRAP_SIZE;
 	auto wrap_bottom = data + aBlockSize;
-
-	if (!head) { return nullptr; }
 
 	head->mBlockSize = aBlockSize;
 	head->mIgnored = mIgnore;
