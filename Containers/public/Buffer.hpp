@@ -20,41 +20,110 @@ namespace tp {
 
 	template<typename tType, ualni tSize>
 	class ConstSizeBuffer {
-		SelCopyArg<tType> Arg;
+		typedef SelCopyArg<tType> Arg;
 
 	private:
 		tType mBuff[tSize];
+		ualni mLoad = 0;
 
 	public:
 		ConstSizeBuffer() = default;
 
 	public:
-		[[nodiscard]] ualni size() const { return tSize; }
+		[[nodiscard]] ualni size() const { return mLoad; }
+		[[nodiscard]] ualni getBuffSize() const { return tSize; }
 
-		tType& first() { 
-			return *mBuff; 
-		}
-		
-		const tType& first() const { 
-			return *mBuff; 
+		tType& first() {
+			DEBUG_ASSERT(mLoad)
+			return *mBuff;
 		}
 
-		tType& last() { 
-			return mBuff[tSize - 1];
+		const tType& first() const {
+			DEBUG_ASSERT(mLoad)
+			return *mBuff;
 		}
-		
-		const tType& last() const { 
-			return mBuff[tSize - 1]; 
+
+		tType& last() {
+			DEBUG_ASSERT(mLoad)
+			return mBuff[mLoad - 1];
+		}
+
+		const tType& last() const {
+			DEBUG_ASSERT(mLoad)
+			return mBuff[mLoad - 1];
 		}
 
 		tType& operator[](ualni aIdx) {
-			DEBUG_ASSERT(aIdx >= 0 && aIdx < tSize)
+			DEBUG_ASSERT(aIdx >= 0 && aIdx < mLoad)
 			return mBuff[aIdx];
 		}
 
 		const tType& operator[](ualni aIdx) const {
-			DEBUG_ASSERT(aIdx >= 0 && aIdx < tSize)
+			DEBUG_ASSERT(aIdx >= 0 && aIdx < mLoad)
 			return mBuff[aIdx];
+		}
+
+		void append(Arg data) {
+			ASSERT(mLoad != tSize)
+			new (&mBuff[mLoad]) tType(data);
+			mLoad++;
+		}
+
+		void pop() {
+			DEBUG_ASSERT(mLoad)
+			mBuff[mLoad].~tType();
+			mLoad--;
+		}
+
+		ConstSizeBuffer& operator=(const tp::init_list<tType>& init) {
+			for (auto arg : init) {
+				append(arg);
+			}
+			return *this;
+		}
+
+	public:
+
+		class IteratorPointer {
+		protected:
+			tType* mIter;
+		public:
+			IteratorPointer() = default;
+			tType& operator->() { return *mIter; }
+			const tType& operator->() const { return *mIter; }
+		};
+
+		class IteratorReference {
+		protected:
+			tType* mIter;
+		public:
+			IteratorReference() = default;
+			tType* operator->() { return mIter; }
+			const tType* operator->() const { return mIter; }
+		};
+
+		class Iterator : public TypeSelect<TypeTraits<tType>::isPointer, IteratorPointer, IteratorReference>::Result {
+		public:
+
+			explicit Iterator(tType* iter) { this->mIter = iter; }
+
+			const Iterator& operator*() const { return *this; }
+
+			Iterator& operator++() {
+				this->mIter++;
+				return *this;
+			}
+
+			bool operator==(const Iterator& left) const { return left.mIter == this->mIter; }
+			bool operator!=(const Iterator& left) const { return left.mIter != this->mIter; }
+		};
+
+		[[nodiscard]] Iterator begin() const {
+			return Iterator(mBuff);
+		}
+
+		[[nodiscard]] Iterator end() const {
+			return Iterator(mBuff + mLoad);
 		}
 	};
 
@@ -150,6 +219,14 @@ namespace tp {
 		}
 
 	public:
+		Buffer& operator=(const tp::init_list<tType>& init) {
+			// TODO : optimize
+			for (auto arg : init) {
+				append(arg);
+			}
+			return *this;
+		}
+
 		void append(Arg data) {
 			if (mLoad == mSize) resizeBuffer(tResizePolicy(mSize));
 			new (&mBuff[mLoad]) tType(data);
@@ -181,6 +258,53 @@ namespace tp {
 			mSize = aSize;
 			mLoad = aSize;
 			for (ualni i = 0; i < mLoad; i++) new (mBuff + i) tType();
+		}
+
+	public:
+		class IteratorPointer {
+		protected:
+			tType* mIter;
+		public:
+			IteratorPointer() = default;
+			tType& operator->() { return *mIter; }
+			const tType& operator->() const { return *mIter; }
+		};
+
+		class IteratorReference {
+		protected:
+			tType* mIter;
+		public:
+			IteratorReference() = default;
+			tType* operator->() { return mIter; }
+			const tType* operator->() const { return mIter; }
+		};
+
+		class Iterator : public TypeSelect<TypeTraits<tType>::isPointer, IteratorPointer, IteratorReference>::Result {
+		public:
+
+			explicit Iterator(tType* iter) { this->mIter = iter; }
+
+			const Iterator& operator*() const { return *this; }
+
+			tType& data() {
+				return *this->mIter;
+			}
+
+			Iterator& operator++() {
+				this->mIter++;
+				return *this;
+			}
+
+			bool operator==(const Iterator& left) const { return left.mIter == this->mIter; }
+			bool operator!=(const Iterator& left) const { return left.mIter != this->mIter; }
+		};
+
+		[[nodiscard]] Iterator begin() const {
+			return Iterator(mBuff);
+		}
+
+		[[nodiscard]] Iterator end() const {
+			return Iterator(mBuff + mLoad);
 		}
 
   private:
