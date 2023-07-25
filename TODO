@@ -30,6 +30,7 @@ Utils:
 
 Containers:
   Add variant size buffer
+  Buffer add resize function
   Buffer improvements
   Add mem leakage tests
   Add check copy times

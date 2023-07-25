@@ -318,4 +318,36 @@ namespace tp {
       mSize = newSize;
     }
 	};
+
+
+	template<typename tType>
+	void generatePermutations(const Buffer<Buffer<tType>>& in, Buffer<Buffer<tType>>& out) {
+		typedef long long Idx;
+
+		// sanity check
+		for (const auto & vec : in) {
+			if (!vec.size()) return;
+		}
+
+		out.resize(in.size());
+		auto len = Idx(1);
+		for (const auto & vec : in) len *= (Idx) vec.size();
+		for (auto i = 0; i < in.size(); i++) out[i].resize(len);
+
+		auto dub = Idx(1);
+		for (auto power = (Idx) in.size() - 1; power >= 0; power--) {
+			auto& vec = in[power];
+			long long i = 0;
+			while (i < len) {
+				for (auto val : vec) {
+					for (auto j = 0; j < dub; j++) {
+						out[power][i] = val;
+						i++;
+					}
+				}
+			}
+			dub *= (Idx) vec.size();
+		}
+	}
+
 }
