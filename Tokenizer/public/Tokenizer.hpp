@@ -25,7 +25,7 @@ namespace tp {
 			MODULE_SANITY_CHECK(gModuleTokenizer)
 		}
 
-		void build(const init_list<Pair<const tAlphabetType*, tTokType>>& rules) {
+		void build(const InitialierList<Pair<const tAlphabetType*, tTokType>>& rules) {
 			NFA<tAlphabetType, tTokType, tNoTokVal, tFailedTokVal> nfa;
 			
 			mError = RegEx::compile(nfa, rules);
@@ -89,7 +89,7 @@ namespace tp {
 
 		SimpleTokenizer() = default;
 
-		void build(const init_list<Pair<const tAlphabetType*, tTokType>>& rules) {
+		void build(const InitialierList<Pair<const tAlphabetType*, tTokType>>& rules) {
 			mTokenizer.build(rules);
 		}
 

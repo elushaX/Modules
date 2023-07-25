@@ -10,7 +10,7 @@ namespace tp {
 	template <typename Type, class Allocator = DefaultAllocator>
 	class List {
 
-		typedef SelCopyArg<Type> TypeArg;
+		typedef SelectValueOrReference<Type> TypeArg;
 		typedef ualni Index;
 
 	public:
@@ -73,7 +73,7 @@ namespace tp {
 
 		List() = default;
 
-		List(const init_list<Type>& list) { operator=(list); }
+		List(const InitialierList<Type>& list) { operator=(list); }
 
 		[[nodiscard]] inline Node* first() const { return mFirst; }
 		[[nodiscard]] inline Node* last() const { return mLast; }
@@ -221,7 +221,7 @@ namespace tp {
 			return *this;
 		}
 
-		List& operator+=(const init_list<Type>& list) {
+		List& operator+=(const InitialierList<Type>& list) {
 			for (auto item : list) {
 				pushBack(item);
 			}
@@ -235,7 +235,7 @@ namespace tp {
 			return *this;
 		}
 
-		List& operator=(const init_list<Type>& list) {
+		List& operator=(const InitialierList<Type>& list) {
 			removeAll();
 			*this += list;
 			return *this;
@@ -295,22 +295,23 @@ namespace tp {
 			}
 		}
 
-		template<class Saver>
-		void write(Saver& file) const {
-			file.write(mLength);
+	public:
+		template<class tArchiver>
+		void archiveWrite(tArchiver& ar) const {
+			ar << mLength;
 			for (auto item : *this) {
-				file.write(item.data());
+				ar << item.data();
 			}
 		}
 
-		template<class Loader>
-		void read(Loader& file) {
+		template<class tArchiver>
+		void archiveRead(tArchiver& ar) {
 			removeAll();
-			ualni len;
-			file.read(len);
+			decltype(mLength) len;
+			ar >> len;
 			for (auto i = len; i; i--) {
 				auto node = newNodeNotConstructed();
-				file.read(node->data);
+				ar >> node->data;
 				pushBack(node);
 			}
 		}

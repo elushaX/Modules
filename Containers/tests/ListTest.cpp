@@ -2,6 +2,7 @@
 
 #include "Tests.hpp"
 #include "Testing.hpp"
+#include "Archiver.hpp"
 
 using namespace tp;
 
@@ -53,18 +54,19 @@ TEST_DEF_STATIC(Copy) {
 	list2.removeAll();
 }
 
-TEST_DEF_STATIC(SaveLoad) {
+TEST_DEF_STATIC(Serialization) {
 	tp::List<TestClass, HeapAlloc> list = { TestClass(1), TestClass(2), TestClass(3), TestClass(4) };
 
-	TestFile file;
+	ArchiverExample<1024, false> write;
+	ArchiverExample<1024, true> read;
 
-	list.write(file);
+	write % list;
 
 	list.removeAll();
 
-	file.setAddress(0);
+	memCopy(read.mBuff, write.mBuff, sizeof(write.mBuff));
 
-	list.read(file);
+	read % list;
 
 	ualni i = 0;
 	for (auto iter : list) {
@@ -79,5 +81,5 @@ TEST_DEF_STATIC(SaveLoad) {
 TEST_DEF(List) {
 	testSimplePointer();
 	testSimpleReference();
-	testSaveLoad();
+	testSerialization();
 }

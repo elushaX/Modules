@@ -67,7 +67,7 @@ namespace tp {
 			operator bool() { return mDescr != nullptr; }
 		} mError;
 
-		CommandLine(const init_list<Arg>& args);
+		CommandLine(const InitialierList<Arg>& args);
 		~CommandLine();
 
 		void resetError() { mError.mDescr = nullptr; }

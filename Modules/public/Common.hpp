@@ -4,15 +4,40 @@
 #include "Environment.hpp"
 #include "TypeInfo.hpp"
 #include <initializer_list>
+#include <typeinfo>
+#include <utility>
 
 namespace tp {
 	template<typename Type>
-	using init_list = std::initializer_list<Type>;
+	using InitialierList = std::initializer_list<Type>;
 
 	// Selects whether to pass by constant reference or by value
 	template <typename tType>
-	using SelCopyArg = typename TypeSelect<(sizeof(tType) > sizeof(tp::alni)), const tType&, tType>::Result;
+	using SelectValueOrReference = typename TypeSelect<(sizeof(tType) > sizeof(tp::alni)), const tType&, tType>::Result;
 
+	template <typename tType>
+	using VoidType = void;
+
+	template <typename tType>
+	struct Reference {
+		tType& operator()() {}
+	};
+
+	template <typename tType>
+	struct DeclareValue {
+			tType operator()() {}
+	};
+
+	struct TrueType {
+			static constexpr auto value = true;
+	};
+
+	struct FalseType {
+			static constexpr auto value = false;
+	};
+}
+
+namespace tp {
 	ualni next2pow(ualni v);
 	uhalni next2pow(uhalni v);
 	ufalni next2pow(ufalni v);

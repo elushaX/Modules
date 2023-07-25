@@ -17,7 +17,7 @@ void printSnapshot(const tp::CallStackCapture::CallStack* snapshot) {
 }
 
 void common() {
-	gCSCapture->getSnapshot();
+	auto tmp = gCSCapture->getSnapshot();
 }
 
 void first() {

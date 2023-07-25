@@ -25,8 +25,8 @@ namespace tp {
 
 	template <typename Key, typename Data, class Allocator = DefaultAllocator>
 	class AvlTree {
-		typedef SelCopyArg<Key> KeyArg;
-		typedef SelCopyArg<Data> DataArg;
+		typedef SelectValueOrReference<Key> KeyArg;
+		typedef SelectValueOrReference<Data> DataArg;
 
 	public:
 		class Node {
@@ -369,5 +369,32 @@ namespace tp {
 		}
 
 		bool isValid() { return findInvalidNode(head()) == nullptr; }
+
+		template<typename tFunctor>
+		void traverse(Node* node, bool after, tFunctor functor) {
+			if (!after) functor(node);
+			if (node->mLeft) traverse(node->mLeft, after, functor);
+			if (node->mRight) traverse(node->mRight, after, functor);
+			if (after) functor(node);
+		}
+
+		void removeAll() {
+			traverse(mRoot, true, [this](Node* node) {
+				deleteNode(node);
+			});
+			mRoot = nullptr;
+			mSize = 0;
+		}
+
+	public:
+		template<class tArchiver>
+		void archiveWrite(tArchiver& file) const {
+			FAIL("not implemented")
+		}
+
+		template<class tArchiver>
+		void archiveRead(tArchiver&) {
+			FAIL("not implemented")
+		}
 	};
 }
