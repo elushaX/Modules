@@ -15,7 +15,7 @@ namespace tp {
 	public:
 		typedef ualni Index;
 		typedef Pair<Index, Index> Index2D;
-		typedef SelCopyArg<tType> tTypeArg;
+		typedef SelectValueOrReference<tType> tTypeArg;
 
 	private:
 		tAllocator mAlloc;
@@ -40,6 +40,7 @@ namespace tp {
 
 		~Buffer2D() {
 			deleteBuffer();
+			mSize = { 0, 0 };
 		}
 
 		explicit Buffer2D(Index2D aSize) {
@@ -55,17 +56,17 @@ namespace tp {
 		}
 
 		inline tType& get(const Index2D& at) {
-			DEBUG_ASSERT(at.x < mSize.x && at.y < mSize.y && at.x >= 0 && at.y >= 0)
+			DEBUG_ASSERT(mBuff && at.x < mSize.x && at.y < mSize.y && at.x >= 0 && at.y >= 0)
 			return *(mBuff + mSize.x * at.y + at.x);
 		}
 
 		inline const tType& get(const Index2D& at) const {
-			DEBUG_ASSERT(at.x < mSize.x && at.y < mSize.y && at.x >= 0 && at.y >= 0)
+			DEBUG_ASSERT(mBuff && at.x < mSize.x && at.y < mSize.y && at.x >= 0 && at.y >= 0)
 			return *(mBuff + mSize.x * at.y + at.x);
 		}
 
 		inline void set(const Index2D& at, tTypeArg value) {
-			DEBUG_ASSERT(at.x < mSize.x && at.y < mSize.y && at.x >= 0 && at.y >= 0)
+			DEBUG_ASSERT(mBuff && at.x < mSize.x && at.y < mSize.y && at.x >= 0 && at.y >= 0)
 			*(mBuff + mSize.x * at.y + at.x) = value;
 		}
 
@@ -77,9 +78,34 @@ namespace tp {
 		}
 
 		void assign(tType value) {
+			DEBUG_ASSERT(mBuff);
 			Index len = mSize.x * mSize.y;
 			for (Index i = 0; i < len; i++) {
 				mBuff[i] = value;
+			}
+		}
+
+	public:
+		template<class tArchiver>
+		void archiveWrite(tArchiver& ar) const {
+			ar << mSize;
+			for (auto i = 0; i < mSize.x; i++) {
+				for (auto j = 0; j < mSize.y; j++) {
+					ar << get(i, j);
+				}
+			}
+		}
+
+		template<class tArchiver>
+		void archiveRead(tArchiver& ar) {
+			decltype(mSize) size;
+			deleteBuffer();
+			ar >> size;
+			reserve(size);
+			for (auto i = 0; i < mSize.x; i++) {
+				for (auto j = 0; j < mSize.y; j++) {
+					ar >> get(i, j);
+				}
 			}
 		}
 	};

@@ -12,7 +12,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC ./public/)
 
 ### -------------------------- Tests  --------------------------  ###
 enable_testing()
-add_executable(${PROJECT_NAME}Tests ${CMAKE_CURRENT_SOURCE_DIR}/tests/Tests.cpp)
+file(GLOB SOURCES_TEST "./tests/*.cpp")
+add_executable(${PROJECT_NAME}Tests ${SOURCES_TEST})
 target_link_libraries(${PROJECT_NAME}Tests  ${PROJECT_NAME})
 add_test(NAME ${PROJECT_NAME}Tests COMMAND ${PROJECT_NAME}Tests)
 

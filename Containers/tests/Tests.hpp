@@ -28,37 +28,6 @@ public:
 	void setVal(tp::ualni val) { val1 = val; }
 };
 
-class TestFile {
-	tp::ualni mem[1024] = { 0 };
-	tp::ualni address = 0;
-
-public:
-	TestFile() = default;
-
-	template<typename Type>
-	void write(const Type& val) {
-		val.write(*this);
-	}
-
-	template<>
-	void write<tp::ualni>(const tp::ualni& val) {
-		mem[address] = val;
-		address++;
-	}
-
-	void setAddress(tp::ualni addr) { address = addr; }
-
-	template<typename Type>
-	void read(Type& val) {
-		val.read(*this);
-	}
-
-	template<>
-	void read<tp::ualni>(tp::ualni& val) {
-		val = mem[address];
-		address++;
-	}
-};
 
 void testList();
 void testMap();

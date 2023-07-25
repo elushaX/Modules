@@ -67,7 +67,7 @@ Vec3F Camera::project(Vec2F normalized) {
 	halnf w = halnf((mTarget - mPos).length());
 	Vec4<halnf> world_pos4(normalized.x * w, normalized.y * w, z, w);
 
-	return inv * world_pos4;
+	return Vec3F(inv * world_pos4);
 }
 
 Vec2F Camera::project(const Vec3F& world) {

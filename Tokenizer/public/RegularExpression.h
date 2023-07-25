@@ -342,7 +342,7 @@ namespace tp::RegEx {
 				return compileUtil(regex, state);
 			}
 
-			Node compile(Graph& aGraph, init_list<Pair<const tAlphabetType*, tStateType>> aRules) {
+			Node compile(Graph& aGraph, InitialierList<Pair<const tAlphabetType*, tStateType>> aRules) {
 				mGraph = &aGraph;
 
 				auto left = mGraph->addVertex();
@@ -513,7 +513,7 @@ namespace tp::RegEx {
 		}
 
 		template <typename tAlphabetType, typename tStateType, tStateType tNoStateVal, tStateType tFailedStateVal>
-		CompileError<tStateType>	compile(NFA<tAlphabetType, tStateType, tNoStateVal, tFailedStateVal>& out, const init_list<Pair<const tAlphabetType*, tStateType>>& rules) {
+		CompileError<tStateType>	compile(NFA<tAlphabetType, tStateType, tNoStateVal, tFailedStateVal>& out, const InitialierList<Pair<const tAlphabetType*, tStateType>>& rules) {
 			Compiler<tAlphabetType, tStateType, tNoStateVal, tFailedStateVal> compiler;
 			compiler.compile(out, rules);
 			return compiler.mError;

@@ -7,11 +7,11 @@
 namespace tp {
 
 	template<typename Key>
-	ualni DefaultHashFunc(SelCopyArg<Key> key) {
+	ualni DefaultHashFunc(SelectValueOrReference<Key> key) {
 		return hash(key);
 	}
 
-	template<typename tKey, typename tVal, class tAllocator = DefaultAllocator, ualni(*tHashFunc)(SelCopyArg<tKey>) = DefaultHashFunc<tKey>, int tTableInitialSize = 4>
+	template<typename tKey, typename tVal, class tAllocator = DefaultAllocator, ualni(*tHashFunc)(SelectValueOrReference<tKey>) = DefaultHashFunc<tKey>, int tTableInitialSize = 4>
 	class Map {
 
 		enum {
@@ -20,8 +20,8 @@ namespace tp {
 			MAP_MAX_LOAD_PERCENTAGE = 66,
 		};
 
-		typedef SelCopyArg<tKey> KeyArg;
-		typedef SelCopyArg<tVal> ValArg;
+		typedef SelectValueOrReference<tKey> KeyArg;
+		typedef SelectValueOrReference<tVal> ValArg;
 
 	public:
 
@@ -35,7 +35,8 @@ namespace tp {
 
 		struct Idx {
 			alni idx = -1;
-			operator bool() { return idx != -1; }
+			[[nodiscard]] bool isValid() const { return bool(*this); }
+			explicit operator bool() const { return idx != -1; }
 		};
 
 	private:
@@ -365,24 +366,24 @@ namespace tp {
 			return mNSlots;
 		}
 
-		template<class Saver>
-		void write(Saver& file) {
-			file.write(mNEntries);
+		template<class Archiver>
+		void archiveWrite(Archiver& ar) const {
+			ar << mNEntries;
 			for (auto item : *this) {
-				file.write(item->val);
-				file.write(item->key);
+				ar << item->val;
+				ar << item->key;
 			}
 		}
 
-		template<class Loader>
-		void read(Loader& file) {
+		template<class Archiver>
+		void archiveRead(Archiver& ar) {
 			removeAll();
-			ualni len;
-			file.read(len);
+			decltype(mNSlots) len;
+			ar >> len;
 			for (auto i = len; i; i--) {
 				auto node = newNodeNotConstructed();
-				file.read(node->val);
-				file.read(node->key);
+				ar >> node->val;
+				ar >> node->key;
 				put(node);
 			}
 		}

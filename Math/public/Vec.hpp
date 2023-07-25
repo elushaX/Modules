@@ -6,7 +6,7 @@ namespace tp {
 
 	template <typename Type, const ualni tSize>
 	class Vec {
-		typedef SelCopyArg<Type> TypeArg;
+		typedef SelectValueOrReference<Type> TypeArg;
 
 	private:
 		Type mBuff[tSize];
@@ -21,7 +21,7 @@ namespace tp {
 			MODULE_SANITY_CHECK(gModuleMath)
 		}
 
-		Vec(TypeArg val) {
+		explicit Vec(TypeArg val) {
 			assign(val);
 		}
 
@@ -185,7 +185,7 @@ namespace tp {
 			return dot(in);
 		}
 
-		alnf length2() const {
+		[[nodiscard]] alnf length2() const {
 			alnf sum = 0;
 			for (ualni i = 0; i < tSize; i++) {
 				Type val = get(i);
@@ -194,7 +194,7 @@ namespace tp {
 			return sum;
 		}
 
-		alnf length() const {
+		[[nodiscard]] alnf length() const {
 			return sqrt(length2());
 		}
 
@@ -250,18 +250,18 @@ namespace tp {
 		}
 
 		template <typename TypeIn>
-		Vec(TypeIn Vec[2]) {
+		explicit Vec(TypeIn Vec[2]) {
 			x = (Type) Vec[0];
 			y = (Type) Vec[1];
 		}
 
 		template <typename TypeIn>
-		Vec(TypeIn val) {
+		explicit Vec(TypeIn val) {
 			x = y = (Type) val;
 		}
 
 		template <typename TypeIn>
-		Vec(Vec<TypeIn, 2>& Vec) {
+		explicit Vec(Vec<TypeIn, 2>& Vec) {
 			x = (Type) Vec.x;
 			y = (Type) Vec.y;
 		}
@@ -381,11 +381,11 @@ namespace tp {
 			return { -y, x };
 		}
 
-		alnf length2() const {
+		[[nodiscard]] alnf length2() const {
 			return (x * x + y * y);
 		}
 
-		alnf length() const {
+		[[nodiscard]] alnf length() const {
 			Type const tmp = (Type) (x * x + y * y);
 			return sqrt(tmp);
 		}
@@ -419,9 +419,9 @@ namespace tp {
 		Type z;
 
 		// Initialization
-		Vec() {}
+		Vec() = default;
 
-		Vec(const Vec<Type, 4>& in) {
+		explicit Vec(const Vec<Type, 4>& in) {
 			x = in[0];
 			y = in[1];
 			z = in[2];
@@ -433,13 +433,13 @@ namespace tp {
 			z = aZ;
 		}
 
-		Vec(Type Vec[3]) {
+		explicit Vec(Type Vec[3]) {
 			x = Vec[0];
 			y = Vec[1];
 			z = Vec[2];
 		}
 
-		Vec(Type x) {
+		explicit Vec(Type x) {
 			assign(x);
 		}
 
@@ -584,7 +584,7 @@ namespace tp {
 			return (x * in.x + y * in.y + z * in.z);
 		}
 
-		alnf length() const {
+		[[nodiscard]] alnf length() const {
 			return sqrt((halnf) (x * x + y * y + z * z));
 		}
 
@@ -632,11 +632,11 @@ namespace tp {
 			z = (Type) (tmp * sinA + z * cosA);
 		}
 
-		halnf angelX() const {
+		[[nodiscard]] halnf angelX() const {
 			return (halnf) atan2(y, z);
 		}
 
-		halnf angelY() const {
+		[[nodiscard]] halnf angelY() const {
 			return (halnf) atan2(x, z);
 		}
 	};
