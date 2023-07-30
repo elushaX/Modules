@@ -17,7 +17,7 @@ namespace obj {
 		static void destructor(EnumObject* self);
 		static void copy(EnumObject* self, const EnumObject* in);
 
-		void init(tp::init_list<const char*> list);
+		void init(tp::InitialierList<const char*> list);
 		const char* getActiveName();
 		const char* getItemName(tp::uhalni idx);
 
@@ -29,6 +29,6 @@ namespace obj {
 		static tp::alnf to_float(EnumObject* self);
 
 		static bool compare(EnumObject* first, EnumObject* second);
-		static EnumObject* create(tp::init_list<const char*> list);
+		static EnumObject* create(tp::InitialierList<const char*> list);
 	};
 };

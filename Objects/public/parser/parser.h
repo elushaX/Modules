@@ -105,7 +105,7 @@ namespace obj {
 
 		struct Error {
 			tp::String mDescr = "No Description";
-			tp::alni mAdvanecedIdx = NULL;
+			tp::alni mAdvanecedIdx = 0;
 
 			Error() {}
 			Error(tp::String descr, tp::alni idx) {
@@ -159,7 +159,7 @@ namespace obj {
 		BCgen::Expression* parseExprFUNC();
 		BCgen::Expression* parseExprChain(BCgen::Expression* prnt);
 
-		BCgen::Expression* parseExpr(tp::init_list<ExprType> expressions = {
+		BCgen::Expression* parseExpr(tp::InitialierList<ExprType> expressions = {
 			ExprType::BOOLEAN_NOT,
 			ExprType::BOOLEAN,
 			ExprType::Ariphm,
@@ -178,7 +178,7 @@ namespace obj {
 		BCgen::Statement* parseStmCopy();
 		BCgen::Statement* parseStmClassDef();
 		
-		BCgen::Statement* parseStm(tp::init_list<StmType> stm_types = {
+		BCgen::Statement* parseStm(tp::InitialierList<StmType> stm_types = {
 			StmType::DefFunc,
 			StmType::DefLocal,
 			StmType::Return,

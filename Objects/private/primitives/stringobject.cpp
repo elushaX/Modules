@@ -54,13 +54,13 @@ static alni save_size(StringObject* self) {
 	return {};
 }
 
-static void save(StringObject* self, Archiver& file_self) {
-	self->val.save(&file_self);
+static void save(StringObject* self, ArchiverOut& file_self) {
+	file_self << self->val;
 }
 
-static void load(Archiver& file_self, StringObject* self) {
+static void load(ArchiverIn& file_self, StringObject* self) {
 	new (&self->val) tp::String();
-	self->val.load(&file_self);
+	file_self >> self->val;
 }
 
 alni allocated_size(StringObject* self) {

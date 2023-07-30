@@ -11,7 +11,7 @@ ExpressionChild* Expression::ExprChild(tp::String id) {
 	return new ExpressionChild(this, id);
 }
 
-ExpressionCall* Expression::ExprCall(tp::init_list<Expression*> args) {
+ExpressionCall* Expression::ExprCall(tp::InitialierList<Expression*> args) {
 	return new ExpressionCall(this, args);
 }
 
@@ -51,7 +51,7 @@ ExpressionBoolean::ExpressionBoolean(Expression* invert)
 	: Expression(Type::BOOLEAN), mLeft(invert), mBoolType(BoolType::NOT){
 }
 
-ExpressionCall::ExpressionCall(Expression * mParent, tp::init_list<Expression*> args) : Expression(Type::CALL), mParent(mParent) {
+ExpressionCall::ExpressionCall(Expression * mParent, tp::InitialierList<Expression*> args) : Expression(Type::CALL), mParent(mParent) {
 	mArgs = args;
 }
 

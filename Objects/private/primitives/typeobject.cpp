@@ -16,17 +16,17 @@ TypeObject* TypeObject::create(const ObjectType* type) {
 
 static alni save_size(TypeObject* self) {
 	tp::String const nameid(self->mTypeRef->name);
-	return nameid.save_size();
+	return nameid.size() + sizeof(nameid.size());
 }
 
-static void save(TypeObject* self, Archiver& file_self) {
+static void save(TypeObject* self, ArchiverOut& file_self) {
 	tp::String const nameid(self->mTypeRef->name);
-	nameid.save(&file_self);
+	file_self << nameid;
 }
 
-static void load(Archiver& file_self, TypeObject* self) {
+static void load(ArchiverIn& file_self, TypeObject* self) {
 	tp::String nameid;
-	nameid.load(&file_self);
+	file_self >> nameid;
 
 	auto idx = NDO->types.presents(nameid);
 

@@ -36,7 +36,7 @@ tp::uint2 param(ByteCode* bytecode) {
 	return loadConstDataIdx(bytecode);
 }
 
-void Interpreter::exec(obj::MethodObject* method, obj::ClassObject* self, obj::DictObject* globals, tp::init_list<GlobalDef> globals2) {
+void Interpreter::exec(obj::MethodObject* method, obj::ClassObject* self, obj::DictObject* globals, tp::InitialierList<GlobalDef> globals2) {
 	if (!method->mScript->mBytecode.mInstructions.size()) {
 		return;
 	}
@@ -561,7 +561,7 @@ void Interpreter::stepBytecodeIn() {
 	}
 }
 
-void Interpreter::execAll(obj::MethodObject* method, obj::ClassObject* self, obj::DictObject* globals, tp::init_list<GlobalDef> globals2) {
+void Interpreter::execAll(obj::MethodObject* method, obj::ClassObject* self, obj::DictObject* globals, tp::InitialierList<GlobalDef> globals2) {
 	if (!method->mScript->mBytecode.mInstructions.size()) {
 		return;
 	}

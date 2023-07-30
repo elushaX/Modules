@@ -28,7 +28,7 @@ void EnumObject::copy(EnumObject* self, const EnumObject* in) {
 	tp::memCopy(self->entries, in->entries, self->nentries * ENV_ALNI_SIZE_B);
 }
 
-void obj::EnumObject::init(tp::init_list<const char*> list) {
+void obj::EnumObject::init(tp::InitialierList<const char*> list) {
 
 	if (entries) free(entries);
 
@@ -116,34 +116,34 @@ static alni save_size(EnumObject* self) {
 	return sizeof(uhalni) + sizeof(uhalni) + sizeof(alni) * self->nentries;
 }
 
-static void save(EnumObject* self, Archiver& file_self) {
+static void save(EnumObject* self, ArchiverOut& file_self) {
 	if (!self->entries) {
 		uhalni empty_code = -1;
-		file_self.write<uhalni>(&empty_code);
+		file_self << empty_code;
 		return;
 	}
-	file_self.write<uhalni>(&self->active);
-	file_self.write<uhalni>(&self->nentries);
-	file_self.write_bytes((tp::int1*) self->entries, self->nentries * ENV_ALNI_SIZE_B);
+	file_self << self->active;
+	file_self << self->nentries;
+	file_self.writeBytes((tp::int1*) self->entries, self->nentries * ENV_ALNI_SIZE_B);
 }
 
-static void load(Archiver& file_self, EnumObject* self) {
-	file_self.read<uhalni>(&self->active);
+static void load(ArchiverIn& file_self, EnumObject* self) {
+	file_self >> self->active;
 	if (self->active == -1) {
 		self->nentries = 0;
 		self->entries = NULL;
 		return;
 	}
-	file_self.read<uhalni>(&self->nentries);
+	file_self >> self->nentries;
 	self->entries = (alni*) malloc(self->nentries * ENV_ALNI_SIZE_B);
-	file_self.read_bytes((tp::int1*) self->entries, self->nentries * ENV_ALNI_SIZE_B);
+	file_self.readBytes((tp::int1*) self->entries, self->nentries * ENV_ALNI_SIZE_B);
 }
 
 bool obj::EnumObject::compare(EnumObject* first, EnumObject* second) {
 	return first->entries != NULL && second->entries != NULL && first->active == second->active;
 }
 
-EnumObject* obj::EnumObject::create(tp::init_list<const char*> list) {
+EnumObject* obj::EnumObject::create(tp::InitialierList<const char*> list) {
 	auto enum_object = (EnumObject*)obj::NDO->create("enum");
 	enum_object->init(list);
 	return enum_object;

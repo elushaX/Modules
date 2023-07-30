@@ -227,24 +227,4 @@ namespace obj {
 		}
 		return NULL;
 	}
-
-	objects_api* objects_init() {
-		if (!NDO) {
-			NDO = new objects_api();
-		}
-
-		obj::BCgen::init();
-
-		return NDO;
-	}
-
-	void objects_finalize() {
-
-		if (NDO) {
-			delete NDO;
-		}
-
-		obj::BCgen::deinit();
-	}
-
 };

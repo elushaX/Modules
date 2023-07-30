@@ -23,7 +23,7 @@ namespace obj {
 		mutable Object* self = NULL;
 		Arg args[MAX_ARGS];
 		
-		tp::int1 mNargs = NULL;
+		tp::int1 mNargs = 0;
 
 		void (*exec)(const TypeMethod* tm) = NULL;
 
@@ -40,7 +40,7 @@ namespace obj {
 		enum : tp::int2 { MAX_TYPE_METHODS = 128 };
 
 		TypeMethod* methods[MAX_TYPE_METHODS];
-		tp::halni mNMethods = NULL;
+		tp::halni mNMethods = 0;
 
 		struct LookupKey {
 			tp::int2 key = -1;

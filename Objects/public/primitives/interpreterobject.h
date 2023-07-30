@@ -10,9 +10,9 @@ namespace obj {
 
 		static void destructor(InterpreterObject* self);
 		static void constructor(InterpreterObject* self);
-		static void load(Archiver& file_self, InterpreterObject* self);
+		static void load(ArchiverIn& file_self, InterpreterObject* self);
 
-		void exec(obj::ClassObject* self = NULL, tp::init_list<Interpreter::GlobalDef> globals = {});
+		void exec(obj::ClassObject* self = NULL, tp::InitialierList<Interpreter::GlobalDef> globals = {});
 		void debug();
 		bool running();
 	};

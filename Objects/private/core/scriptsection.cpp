@@ -74,14 +74,14 @@ tp::alni ScriptSection::get_script_file_adress(Script* in) {
 	return  get_script_head_store_adress(in);
 }
 
-tp::alni ScriptSection::save_script_table_to_file_size(ScriptSection* self, Archiver& file) {
+tp::alni ScriptSection::save_script_table_to_file_size(ScriptSection* self, ArchiverOut& file) {
 	tp::alni size = 0;
 	size += 5; // header
 	size += sizeof(tp::alni); // scripts length
 
 	for (auto iter : self->mScripts) {
 
-		set_script_head_store_adress(iter.data(), file.adress + size);
+		set_script_head_store_adress(iter.data(), file.getAddress() + size);
 
 		size += sizeof(tp::alni); // scripts string obj ref
 		size += sizeof(tp::alni); // constants length
@@ -91,7 +91,8 @@ tp::alni ScriptSection::save_script_table_to_file_size(ScriptSection* self, Arch
 		}
 
 		// instructions
-		size += iter->mBytecode.mInstructions.saveSize();
+		ASSERT(false)
+		// size += iter->mBytecode.mInstructions.saveSize();
 	}
 
 	size += sizeof(tp::alni); // objects mem offset
@@ -99,124 +100,126 @@ tp::alni ScriptSection::save_script_table_to_file_size(ScriptSection* self, Arch
 	return size;
 }
 
-void ScriptSection::save_script_table_to_file(ScriptSection* self, Archiver& file) {
+void ScriptSection::save_script_table_to_file(ScriptSection* self, ArchiverOut& file) {
 	// header
-	file.write_bytes("/scr/", 5);
+	file.writeBytes("/scr/", 5);
 
 	// scripts length
 	tp::alni scripts_count = self->mScripts.length(); 
-	file.write<tp::alni>(&scripts_count);
+	file << scripts_count;
 
 	for (auto iter : self->mScripts) {
 		
 		// scripts string obj ref
 		auto obj_addres = obj::NDO->save(file, iter->mReadable);
-		file.write(&obj_addres);
+		file << obj_addres;
 
 		// constants length
 		tp::alni consts_count = iter->mBytecode.mConstants.size();
-		file.write<tp::alni>(&consts_count);
+		file << consts_count;
 
 		for (auto const_obj : iter->mBytecode.mConstants) {
 			// constant object addres
 			auto obj_addres = obj::NDO->save(file, const_obj.data());
-			file.write(&obj_addres);
+			file << obj_addres;
 		}
 
 		// mInstructions
-		iter->mBytecode.mInstructions.save(file);
+		ASSERT(false)
+		file << iter->mBytecode.mInstructions;
 	}
 
 	// header
-	file.write_bytes("/scr/", 5);
+	file.writeBytes("/scr/", 5);
 
-	tp::alni objects_mem_offset = file.avl_adress;
-	file.write<tp::alni>(&objects_mem_offset);
+	tp::alni objects_mem_offset = file.getFreeAddress();
+	file << objects_mem_offset;
 }
 
-void load_constants(ScriptSection* self, Archiver& file, tp::alni start_addr) {
-	auto addres = file.adress;
+void load_constants(ScriptSection* self, ArchiverIn& file, tp::alni start_addr) {
+	auto addres = file.getAddress();
 
-	file.adress = start_addr;
-	file.adress += 5; // header
+	file.setAddress(start_addr);
+	file.setAddress( start_addr + 5); // header
 	
 	tp::alni scripts_count;
-	file.read<tp::alni>(&scripts_count);
+	file >> scripts_count;
 
 	for (tp::alni i = 0; i < scripts_count; i++) {
 		
-		auto script = self->get_scritp_from_file_adress(file.adress);
+		auto script = self->get_scritp_from_file_adress(file.getAddress());
 
 		// script text
 		tp::alni str_addr;
-		file.read<tp::alni>(&str_addr);
+		file >> str_addr;
 		script->mReadable = NDO_CAST(obj::StringObject, obj::NDO->load(file, str_addr));
 
-		file.adress += sizeof(tp::alni); // constants length
+		file.setAddress(file.getAddress() + sizeof(tp::alni)); // constants length
 
 		for (auto const_obj : script->mBytecode.mConstants) {
 			tp::alni consts_addr;
-			file.read<tp::alni>(&consts_addr);
+			file >> consts_addr;
 			const_obj.data() = obj::NDO->load(file, consts_addr);
 		}
 
 		// instructions
-		file.adress += script->mBytecode.mInstructions.saveSize();
+		ASSERT(false)
+		//file.setAddress(file.getAddress() + script->mBytecode.mInstructions.saveSize());
 	}
 
-	file.adress = addres;
+	file.setAddress(addres);
 }
 
-void ScriptSection::load_script_table_from_file(ScriptSection* self, Archiver& file) {
+void ScriptSection::load_script_table_from_file(ScriptSection* self, ArchiverIn& file) {
 	for (auto iter : self->mScripts) {
 		set_script_head_store_adress(iter.data(), -1);
 	}
 
-	auto section_start_addr = file.adress;
+	auto section_start_addr = file.getAddress();
 
 	// header
-	file.adress += 5;
+	file.setAddress(file.getAddress() + 5);
 
 	// scripts length
 	tp::alni scripts_count;
-	file.read<tp::alni>(&scripts_count);
+	file >> scripts_count;
 
 	for (tp::alni i = 0; i < scripts_count; i++) {
 
 		auto new_script = self->createScript();
-		set_script_head_store_adress(new_script, file.adress);
+		set_script_head_store_adress(new_script, file.getAddress());
 
 		// scripts text
-		file.adress += sizeof(tp::alni);
+		file.setAddress(file.getAddress() + sizeof(tp::alni));
 
 		// constants length
 		tp::alni consts_count;
-		file.read<tp::alni>(&consts_count);
+		file >> consts_count;
 
 		new_script->mBytecode.mConstants.reserve(consts_count);
 
 		for (tp::alni j = 0; j < consts_count; j++) {
 			// constant object addres
 			tp::alni consts_addr;
-			file.read<tp::alni>(&consts_addr);
+			file >> consts_addr;
 
 			// skiping
 			//new_script->mBytecode.mConstants[j] = obj::NDO->load(file, consts_addr);
 		}
 
 		// mInstructions
-		new_script->mBytecode.mInstructions.load(file);
+		file >> new_script->mBytecode.mInstructions;
 	}
 
 	load_constants(self, file, section_start_addr);
 
 	// header
-	file.adress += 5;
+	file.setAddress(file.getAddress() + 5);
 
 	tp::alni objects_mem_offset;
-	file.read<tp::alni>(&objects_mem_offset);
+	file >> objects_mem_offset;
 
-	file.adress = objects_mem_offset;
+	file.setAddress(objects_mem_offset);
 }
 
 Script* ScriptSection::get_scritp_from_file_adress(tp::alni file_adress) {

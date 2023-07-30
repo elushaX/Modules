@@ -10,6 +10,8 @@ project(Types)
 
 add_compile_definitions(MEM_DEBUG)
 
+set(EXTERNALS ../Externals)
+
 add_subdirectory(Modules)
 add_subdirectory(Utils)
 add_subdirectory(Containers)
@@ -18,11 +20,7 @@ add_subdirectory(Allocators)
 add_subdirectory(Strings)
 add_subdirectory(Tokenizer)
 add_subdirectory(CommandLine)
-
-set(EXTERNALS ../Externals)
 add_subdirectory(Externals)
-
 add_subdirectory(Connection)
 add_subdirectory(Graphics)
-
-#add_subdirectory(Objects)
+add_subdirectory(Objects)

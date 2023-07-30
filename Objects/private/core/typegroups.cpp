@@ -31,7 +31,7 @@ void obj::TypeGroups::setType(ObjectType* type) {
 	this->type = type;
 }
 
-void obj::TypeGroups::addType(ObjectType* type, tp::init_list<const char*> path, tp::alni cur_dir_idx) {
+void obj::TypeGroups::addType(ObjectType* type, tp::InitialierList<const char*> path, tp::alni cur_dir_idx) {
 	DEBUG_ASSERT(is_group);
 
 	tp::alni dir_len = (tp::alni) path.size();

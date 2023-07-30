@@ -91,9 +91,8 @@ Parser::Parser() {
 
 tp::String to_string(const char* stream, tp::alni len) {
 	tp::String out;
-	out.reserve(len + 1);
-	tp::memcp(out.get_writable(), stream, len);
-	out.get_writable()[len] = '\0';
+	out.resize(len);
+	tp::memCopy(out.write(), stream, len);
 	return out;
 }
 
@@ -259,8 +258,10 @@ READ_ARG:
 	auto out = prnt->ExprCall({});
 	out->mArgs.reserve(args.length());
 
+	ualni idx = 0;
 	for (auto arg : args) {
-		out->mArgs[arg.idx()] = arg.data();
+		out->mArgs[idx] = arg.data();
+		idx++;
 	}
 
 	return out;
@@ -268,7 +269,7 @@ READ_ARG:
 
 Expression* Parser::parseExprAriphm() {
 
-	tp::init_list<ExprType> expessions = {
+	tp::InitialierList<ExprType> expessions = {
 		ExprType::Compound,
 		ExprType::NEW,
 		ExprType::LOCAL,
@@ -333,7 +334,7 @@ PRECEDENCE:
 
 Expression* Parser::parseExprBOOLEAN() {
 
-	tp::init_list<ExprType> expessions = {
+	tp::InitialierList<ExprType> expessions = {
 		ExprType::Compound,
 		ExprType::NEW,
 		ExprType::LOCAL,
@@ -412,7 +413,7 @@ PRECEDENCE:
 Expression* Parser::parseExprBOOLEAN_NOT() {
 	CHECK(tokRead() == Token::BOOL_NOT, {});
 
-	tp::init_list<ExprType> exprs = {
+	tp::InitialierList<ExprType> exprs = {
 		ExprType::Compound,
 		ExprType::BOOLEAN,
 		ExprType::Ariphm,
@@ -473,7 +474,7 @@ Expression* Parser::parseExprChain(Expression* prnt) {
 	return prnt;
 }
 
-Expression* Parser::parseExpr(tp::init_list<ExprType> expressions) {
+Expression* Parser::parseExpr(tp::InitialierList<ExprType> expressions) {
 
 	Expression* out = NULL;
 
@@ -604,8 +605,11 @@ READ_ARG:
 	auto func_def = StmDefFunc(name.token, {}, {});
 
 	func_def->mArgs.reserve(args.length());
+
+	ualni idx = 0;
 	for (auto iter : args) {
-		func_def->mArgs[iter.idx()] = iter.data();
+		func_def->mArgs[idx] = iter.data();
+		idx++;
 	}
 
 	StatementScope* scope = parseScope(true);
@@ -614,8 +618,11 @@ READ_ARG:
 	});
 
 	func_def->mStatements.reserve(scope->mStatements.size());
+
+	idx = 0;
 	for (auto stm : scope->mStatements) {
-		func_def->mStatements[stm.idx()] = stm.data();
+		func_def->mStatements[idx] = stm.data();
+		idx++;
 	}
 
 	delete scope;
@@ -753,7 +760,7 @@ Statement* Parser::parseStmClassDef() {
 	return StmClassDef(id.token, scope);
 }
 
-Statement* Parser::parseStm(tp::init_list<StmType> stm_types) {
+Statement* Parser::parseStm(tp::InitialierList<StmType> stm_types) {
 	Statement* out = NULL;
 
 	List<Error*> errors;
@@ -865,8 +872,11 @@ READ_STM:
 	}
 
 	out->mStatements.reserve(stms.length());
+
+	ualni idx = 0;
 	for (auto stm : stms) {
-		out->mStatements[stm.idx()] = stm.data();
+		out->mStatements[idx] = stm.data();
+		idx++;
 	}
 
 	return out;
@@ -896,8 +906,11 @@ Parser::Resault Parser::parse(const tp::String& oscript) {
 	} while (tokInputLeft());
 
 	mRes.scope->mStatements.reserve(stms.length());
+
+	ualni idx = 0;
 	for (auto stm : stms) {
-		mRes.scope->mStatements[stm.idx()] = stm.data();
+		mRes.scope->mStatements[idx] = stm.data();
+		idx++;
 	}
 
 	return mRes;

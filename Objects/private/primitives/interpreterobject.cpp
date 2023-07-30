@@ -19,13 +19,13 @@ void InterpreterObject::destructor(InterpreterObject* self) {
 	self->mInterpreter.~Interpreter();
 }
 
-void InterpreterObject::load(Archiver& file_self, InterpreterObject* self) {
+void InterpreterObject::load(ArchiverIn& file_self, InterpreterObject* self) {
 	new (&self->mInterpreter) Interpreter();
 }
 
 bool InterpreterObject::running() { return !mInterpreter.finished(); }
 
-void InterpreterObject::exec(obj::ClassObject* self, tp::init_list<Interpreter::GlobalDef> globals) {
+void InterpreterObject::exec(obj::ClassObject* self, tp::InitialierList<Interpreter::GlobalDef> globals) {
 
 	if (running()) {
 		return;

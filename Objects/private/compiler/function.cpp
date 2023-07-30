@@ -73,8 +73,8 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 			auto jump_inst = inst(Instruction(NULL, Instruction::InstType::JUMP));
 			auto end_mark = inst(Instruction());
 
-			jump_if_inst->data.mInstTarget = end_mark;
-			jump_inst->data.mInstTarget = check_mark;
+			jump_if_inst->data.mInstTarget = &end_mark->data;
+			jump_inst->data.mInstTarget = &check_mark->data;
 
 			break;
 		}
@@ -98,8 +98,8 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 
 			auto end_mark = inst(Instruction());
 
-			jump_if_inst->data.mInstTarget = else_mark;
-			jump_inst->data.mInstTarget = end_mark;
+			jump_if_inst->data.mInstTarget = &else_mark->data;
+			jump_inst->data.mInstTarget = &end_mark->data;
 
 			break;
 		}
@@ -396,11 +396,11 @@ void writeParam(ByteCode& out, tp::alni& idx, tp::int1* data, tp::alni size) {
 	}
 }
 
-tp::alni calcOffset(tp::List<Instruction>::Node* jump_inst, tp::List<Instruction>::Node* to) {
+tp::alni calcOffset(tp::List<Instruction>::Node* jump_inst, Instruction* to) {
 	tp::alni offset = 0;
-	bool reversed = jump_inst->data.mInstIdx > to->data.mInstIdx;
+	bool reversed = jump_inst->data.mInstIdx > to->mInstIdx;
 	auto iter_node = reversed ? jump_inst : jump_inst->next;
-	while (iter_node != to) {
+	while (&iter_node->data != to) {
 		offset += instSize(iter_node->data);
 		iter_node = reversed ? iter_node->prev : iter_node->next;
 	}

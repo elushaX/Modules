@@ -11,8 +11,8 @@ namespace obj {
 		static void destructor(ClassObject* self);
 		static void constructor(ClassObject* self);
 		static tp::alni save_size(ClassObject* self);
-		static void save(ClassObject* self, Archiver& file_self);
-		static void load(Archiver& file_self, ClassObject* self);
+		static void save(ClassObject* self, ArchiverOut& file_self);
+		static void load(ArchiverIn& file_self, ClassObject* self);
 
 		DictObject* members;
 
@@ -33,7 +33,7 @@ namespace obj {
 		template<typename Type>
 		Type* getMember(const tp::String& id) {
 			auto idx = members->presents(id);
-			if (idx) {
+			if (bool(idx)) {
 				return ((Type*)obj::ndo_cast(members->getSlotVal(idx), &Type::TypeData));
 			}
 			return NULL;

@@ -1,4 +1,5 @@
 
+#include "NewPlacement.hpp"
 #include "compiler/instruction.h"
 
 using namespace obj;
@@ -24,6 +25,6 @@ Instruction::Instruction(OpCode op, tp::alni param, tp::alni nBytes)
 	: mOp(op), mParam(param), mArgType(ArgType::PARAM), mParamBytes(nBytes), mInstType(InstType::EXEC) {
 }
 
-Instruction::Instruction(tp::List<Instruction>::Node* inst, InstType jump_type): mInstTarget(inst) {
+Instruction::Instruction(Instruction* inst, InstType jump_type): mInstTarget(inst) {
 	mInstType = jump_type;
 }

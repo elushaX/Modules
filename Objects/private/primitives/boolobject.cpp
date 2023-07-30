@@ -47,12 +47,12 @@ static alni save_size(BoolObject* self) {
 	return sizeof(alni);
 }
 
-static void save(BoolObject* self, Archiver& file_self) {
-	file_self.write<alni>(&self->val);
+static void save(BoolObject* self, ArchiverOut& file_self) {
+	file_self << self->val;
 }
 
-static void load(Archiver& file_self, BoolObject* self) {
-	file_self.read<alni>(&self->val);
+static void load(ArchiverIn& file_self, BoolObject* self) {
+	file_self >> self->val;
 }
 
 struct ObjectTypeConversions BoolObjectTypeConversions = {

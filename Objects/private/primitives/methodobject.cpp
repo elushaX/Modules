@@ -38,20 +38,18 @@ tp::alni MethodObject::save_size(MethodObject* self) {
 	return sizeof(tp::alni);
 }
 
-void MethodObject::save(MethodObject* self, Archiver& file_self) {
+void MethodObject::save(MethodObject* self, ArchiverOut& file_self) {
 	auto script_section = obj::ScriptSection::globalHandle();
-
 	// script_table_file_address
 	tp::alni script_table_file_address = script_section->get_script_file_adress(self->mScript);
-	file_self.write<tp::alni>(&script_table_file_address);
+	file_self << script_table_file_address;
 }
 
-void MethodObject::load(Archiver& file_self, obj::MethodObject* self) {
+void MethodObject::load(ArchiverIn& file_self, obj::MethodObject* self) {
 	auto script_section = obj::ScriptSection::globalHandle();
-
 	// script_table_file_address
 	tp::alni script_table_file_address;
-	file_self.read<tp::alni>(&script_table_file_address);
+	file_self >> script_table_file_address;
 	self->mScript = script_section->get_scritp_from_file_adress(script_table_file_address);
 }
 

@@ -61,7 +61,7 @@ tp::int2 TypeMethods::presents(tp::String id) const {
 	return -1;
 }
 
-TypeMethods::LookupKey TypeMethods::presents(const ObjectType* type, tp::string id) {
+TypeMethods::LookupKey TypeMethods::presents(const ObjectType* type, tp::String id) {
 	
 	tp::int2 depth = 0;
 	tp::int2 idx = 0;

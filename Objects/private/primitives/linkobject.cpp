@@ -28,21 +28,21 @@ alni LinkObject::save_size(LinkObject* self) {
 	return sizeof(alni);
 }
 
-void LinkObject::save(LinkObject* self, Archiver& file_self) {
+void LinkObject::save(LinkObject* self, ArchiverOut& file_self) {
 	if (self->link != NULL) {
 		alni link_object_save_adress = NDO->save(file_self, self->link);
-		file_self.write<alni>(&link_object_save_adress);
+		file_self << link_object_save_adress;
 	}
 	else {
 		alni null = -1;
-		file_self.write<alni>(&null);
+		file_self << null;
 	}
 }
 
-void LinkObject::load(Archiver& file_self, LinkObject* self) {
+void LinkObject::load(ArchiverIn& file_self, LinkObject* self) {
 
 	alni saved_object_adress;
-	file_self.read<alni>(&saved_object_adress);
+	file_self >> saved_object_adress;
 
 	if (saved_object_adress == -1) {
 		self->link = NULL;
