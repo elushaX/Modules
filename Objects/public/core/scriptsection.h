@@ -29,8 +29,8 @@ namespace obj {
 		void delete_script(Script* script);
 		void reference_script(Script* script);
 
-		static void save_script_table_to_file(ScriptSection* self, Archiver& file);
-		static void load_script_table_from_file(ScriptSection* self, Archiver& file);
-		static tp::alni save_script_table_to_file_size(ScriptSection* self, Archiver& file);
+		static void save_script_table_to_file(ScriptSection* self, ArchiverOut& file);
+		static void load_script_table_from_file(ScriptSection* self, ArchiverIn& file);
+		static tp::alni save_script_table_to_file_size(ScriptSection* self, ArchiverOut& file);
 	};
 };

@@ -38,25 +38,25 @@ alni ListObject::save_size(ListObject* self) {
 	return (len + 1) * sizeof(alni);
 }
 
-void ListObject::save(ListObject* self, Archiver& file_self) {
+void ListObject::save(ListObject* self, ArchiverOut& file_self) {
 	alni len = self->items.length();
-	file_self.write<alni>(&len);
+	file_self << len;
 
 	for (auto item : self->items) {
 		alni ndo_object_adress = NDO->save(file_self, item.data());
-		file_self.write<alni>(&ndo_object_adress);
+		file_self << ndo_object_adress;
 	}
 }
 
-void ListObject::load(Archiver& file_self, ListObject* self) {
+void ListObject::load(ArchiverIn& file_self, ListObject* self) {
 	new (&self->items) tp::List<Object*>();
 
 	alni len;
-	file_self.read<alni>(&len);
+	file_self >> len;
 
 	for (alni i = 0; i < len; i++) {
 		alni ndo_object_adress;
-		file_self.read<alni>(&ndo_object_adress);
+		file_self >> ndo_object_adress;
 		self->items.pushBack(NDO->load(file_self, ndo_object_adress));
 	}
 }
@@ -78,11 +78,13 @@ alni ListObject::allocated_size(ListObject* self) {
 }
 
 alni ListObject::allocated_size_recursive(ListObject* self) {
-	alni out = self->items.sizeAllocatedMem();
+	ASSERT(false)
+	//alni out = self->items.sizeAllocatedMem();
 	for (auto item : self->items) {
-		out += NDO->objsize_ram_recursive_util(item.data(), item->type);
+		//out += NDO->objsize_ram_recursive_util(item.data(), item->type);
 	}
-	return out;
+	// return out;
+	return 0;
 }
 
 void ListObject::pushBack(Object* obj) {

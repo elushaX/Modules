@@ -5,7 +5,7 @@ using namespace obj;
 using namespace BCgen;
 
 
-StatementFuncDef::StatementFuncDef(tp::String function_id, tp::init_list<tp::String> args, tp::init_list<Statement*> statements) {
+StatementFuncDef::StatementFuncDef(tp::String function_id, tp::InitialierList<tp::String> args, tp::InitialierList<Statement*> statements) {
 	mType = Type::DEF_FUNC;
 	mArgs = args;
 	mStatements = statements;
@@ -36,7 +36,7 @@ StatementPrint::StatementPrint(Expression* target) : mTarget(target) {
 	mType = Type::PRINT;
 }
 
-StatementScope::StatementScope(tp::init_list<Statement*> statements, bool aPushToScopeStack) {
+StatementScope::StatementScope(tp::InitialierList<Statement*> statements, bool aPushToScopeStack) {
 	mType = Type::SCOPE;
 	mStatements = statements;
 	mPushToScopeStack = aPushToScopeStack;
@@ -67,7 +67,7 @@ StatementClassDef::StatementClassDef(tp::String class_id, StatementScope* scope)
 }
 // helpers 
 
-StatementFuncDef* obj::BCgen::StmDefFunc(tp::String id, tp::init_list<tp::String> args, tp::init_list<Statement*> stms) {
+StatementFuncDef* obj::BCgen::StmDefFunc(tp::String id, tp::InitialierList<tp::String> args, tp::InitialierList<Statement*> stms) {
 	return new StatementFuncDef(id, args, stms);
 }
 
@@ -99,7 +99,7 @@ StatementIf* obj::BCgen::StmIf(Expression* condition, StatementScope* on_true, S
 	return new StatementIf(condition, on_true, on_false);
 }
 
-StatementScope* obj::BCgen::StmScope(tp::init_list<Statement*> statements, bool aPushToScopeStack = false) {
+StatementScope* obj::BCgen::StmScope(tp::InitialierList<Statement*> statements, bool aPushToScopeStack = false) {
 	return new StatementScope(statements, aPushToScopeStack);
 }
 

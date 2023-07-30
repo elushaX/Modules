@@ -15,8 +15,8 @@ namespace obj {
 		static void copy(MethodObject* self, MethodObject* in);
 		static void destructor(MethodObject* self);
 		static tp::alni save_size(MethodObject* self);
-		static void save(MethodObject* self,Archiver& file_self);
-		static void load(Archiver& file_self, obj::MethodObject* self);
+		static void save(MethodObject* self, ArchiverOut& file_self);
+		static void load(ArchiverIn& file_self, obj::MethodObject* self);
 
 		static void Initialize();
 		static void UnInitialize();

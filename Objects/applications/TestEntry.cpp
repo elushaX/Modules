@@ -1,37 +1,34 @@
 
 
-#include "MethodObject/methodobject.h"
+#include "primitives/methodobject.h"
 #include "primitives/primitives.h"
 
-#include "Interpreter/Interpreter.h"
+#include "interpreter/interpreter.h"
 
-#include "log.h"
+#include "compiler/function.h"
 
-#include "ByteCodeGen/Function.h"
-
-using namespace osc;
 using namespace tp;
 using namespace obj;
 
 void TestCompile(ByteCode& bytecode) {
 	using namespace BCgen;
 
-	Genereate(bytecode, 
+	Genereate(bytecode,
 	StmScope({
 
 		StmDefFunc("main", {}, {
 			StmDefLocal("i1", ExprConst(1)),
 			StmDefLocal("i2", ExprConst(2)),
 
-			StmDefFunc("add", {"first", "second"}, {
-				StmReturn(ExprAdd(ExprLocal("first"), ExprLocal("second")))
-			}),
+			//StmDefFunc("add", {"first", "second"}, {
+				// StmReturn(ExprAdd(ExprLocal("first"), ExprLocal("second")))
+			//}),
 
 			StmPrint(ExprLocal("i1")),
 			StmPrint(ExprConst(" + ")),
 			StmPrint(ExprLocal("i2")),
 			StmPrint(ExprConst(" = ")),
-			
+
 			StmPrint(ExprFunc("add")->ExprCall({ ExprLocal("i1"), ExprLocal("i2") })),
 
 			StmPrint(ExprConst("\n")),

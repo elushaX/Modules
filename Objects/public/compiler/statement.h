@@ -31,7 +31,7 @@ namespace obj {
 			tp::Buffer<Statement*> mStatements;
 			bool mPushToScopeStack = false;
 
-			StatementScope(tp::init_list<Statement*> statements, bool aPushToScopeStack);
+			StatementScope(tp::InitialierList<Statement*> statements, bool aPushToScopeStack);
 		};
 
 		struct StatementFuncDef : public Statement {
@@ -39,7 +39,7 @@ namespace obj {
 			tp::String mFunctionId;
 			tp::Buffer<Statement*> mStatements;
 
-			StatementFuncDef(tp::String function_id, tp::init_list<tp::String> args, tp::init_list<Statement*> statements);
+			StatementFuncDef(tp::String function_id, tp::InitialierList<tp::String> args, tp::InitialierList<Statement*> statements);
 		};
 
 		struct StatementLocalDef : public Statement {
@@ -101,14 +101,14 @@ namespace obj {
 		};
 
 		// Helpers
-		StatementFuncDef* StmDefFunc(tp::String id, tp::init_list<tp::String> args, tp::init_list<Statement*> stms);
+		StatementFuncDef* StmDefFunc(tp::String id, tp::InitialierList<tp::String> args, tp::InitialierList<Statement*> stms);
 		StatementLocalDef* StmDefLocal(tp::String id, Expression* value);
 		StatementCopy* StmCopy(Expression* left, Expression* right);
 		StatementPrint* StmPrint(Expression* target);
 		StatementReturn* StmReturn(Expression* obj);
 		StatementReturn* StmReturn();
 		StatementIf* StmIf(Expression* condition, StatementScope* on_true, StatementScope* on_false);
-		StatementScope* StmScope(tp::init_list<Statement*> statements, bool aPushToScopeStack);
+		StatementScope* StmScope(tp::InitialierList<Statement*> statements, bool aPushToScopeStack);
 		StatementWhile* StmWhile(Expression* condition, StatementScope* scope);
 		StatementIgnore* StmIgnore(Expression* expr);
 		StatementClassDef* StmClassDef(tp::String id, StatementScope* scope);

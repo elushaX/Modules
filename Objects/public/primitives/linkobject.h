@@ -13,8 +13,8 @@ namespace obj {
 		static LinkObject* create(Object* in);
 
 		static tp::alni save_size(LinkObject* self);
-		static void save(LinkObject* self, Archiver& file_self);
-		static void load(Archiver& file_self, LinkObject* self);
+		static void save(LinkObject* self, ArchiverOut& file_self);
+		static void load(ArchiverIn& file_self, LinkObject* self);
 		static tp::alni allocated_size(LinkObject* self);
 		static tp::alni allocated_size_recursive(LinkObject* self);
 		static tp::Buffer<Object*> childs_retrival(LinkObject* self);

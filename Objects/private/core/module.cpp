@@ -1,29 +1,29 @@
 
-#pragma once
-
 #include "NewPlacement.hpp"
-
-#include "primitives/primitives.h"
 
 #include "Tokenizer.hpp"
 
-void obj::primitives_uninitialize() {
-	obj::NullObject::uninit();
-	obj::MethodObject::UnInitialize();
-}
+#include "compiler/function.h"
 
-void obj::primitives_define_types() {
-	
-	using namespace obj;
-	using namespace tp;
+#include "primitives/boolobject.h"
+#include "primitives/classobject.h"
+#include "primitives/colorobject.h"
+#include "primitives/dictobject.h"
+#include "primitives/enumobject.h"
+#include "primitives/floatobject.h"
+#include "primitives/interpreterobject.h"
+#include "primitives/intobject.h"
+#include "primitives/linkobject.h"
+#include "primitives/listobject.h"
+#include "primitives/methodobject.h"
+#include "primitives/nullobject.h"
+#include "primitives/stringobject.h"
+#include "primitives/typeobject.h"
 
-	static bool initialized = false;
-	if (initialized) {
-		return;
-	}
+using namespace obj;
+using namespace tp;
 
-	DEBUG_ASSERT(NDO && "Objects library is not initialized");
-
+static void defineTypes() {
 	NDO->define(&DictObject::TypeData);
 	NDO->define(&IntObject::TypeData);
 	NDO->define(&LinkObject::TypeData);
@@ -37,7 +37,9 @@ void obj::primitives_define_types() {
 	NDO->define(&ColorObject::TypeData);
 	NDO->define(&InterpreterObject::TypeData);
 	NDO->define(&TypeObject::TypeData);
+}
 
+static void defineGroups() {
 	NDO->type_groups.addType(&DictObject::TypeData, {"Primitives"});
 	NDO->type_groups.addType(&IntObject::TypeData, {"Primitives"});
 	NDO->type_groups.addType(&LinkObject::TypeData, {"Primitives"});
@@ -50,26 +52,28 @@ void obj::primitives_define_types() {
 	NDO->type_groups.addType(&ClassObject::TypeData, {"Primitives"});
 	NDO->type_groups.addType(&ColorObject::TypeData, {"Primitives"});
 	NDO->type_groups.addType(&InterpreterObject::TypeData, { "scripting" });
-
-	obj::MethodObject::Initialize();
-
-	initialized = true;
 }
 
-namespace obj {
-	objects_api* objects_init();
-	void objects_finalize();
-};
 
-static bool objInit() {
-	obj::objects_init();
-	obj::primitives_define_types();
+static bool init(const tp::ModuleManifest*) {
+	if (!NDO) NDO = new objects_api();
+	obj::BCgen::init();
+
+	MethodObject::Initialize();
+
+	defineTypes();
+	defineGroups();
+
 	return true;
 }
 
-static void objDeinit() {
-	obj::primitives_uninitialize();
-	obj::objects_finalize();
+static void deinit(const tp::ModuleManifest*) {
+
+	NullObject::uninit();
+	MethodObject::UnInitialize();
+
+	obj::BCgen::deinit();
+	delete NDO;
 }
 
 static tp::ModuleManifest* sModuleDependencies[] = {
@@ -80,4 +84,4 @@ static tp::ModuleManifest* sModuleDependencies[] = {
 	NULL
 };
 
-tp::ModuleManifest obj::gModuleObjects = tp::ModuleManifest("Objects", objInit, objDeinit, sModuleDependencies);
+tp::ModuleManifest obj::gModuleObjects = tp::ModuleManifest("Objects", init, deinit, sModuleDependencies);

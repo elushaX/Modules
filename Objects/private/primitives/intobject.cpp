@@ -49,12 +49,12 @@ static alni save_size(IntObject* self) {
 	return sizeof(alni);
 }
 
-static void save(IntObject* self, Archiver& file_self) {
-	file_self.write<alni>(&self->val);
+static void save(IntObject* self, ArchiverOut& file_self) {
+	file_self << self->val;
 }
 
-static void load(Archiver& file_self, IntObject* self) {
-	file_self.read<alni>(&self->val);
+static void load(ArchiverIn& file_self, IntObject* self) {
+	file_self >> self->val;
 }
 
 struct ObjectTypeConversions IntObjectTypeConversions = {

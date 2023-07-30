@@ -37,15 +37,15 @@ alni ClassObject::save_size(ClassObject* self) {
 	return sizeof(alni); // dict object adress
 }
 
-void ClassObject::save(ClassObject* self, Archiver& file_self) {
+void ClassObject::save(ClassObject* self, ArchiverOut& file_self) {
 	// save dictobject
 	alni ndo_object_adress = NDO->save(file_self, self->members);
-	file_self.write<alni>(&ndo_object_adress);
+	file_self << ndo_object_adress;
 }
 
-void ClassObject::load(Archiver& file_self, ClassObject* self) {
+void ClassObject::load(ArchiverIn& file_self, ClassObject* self) {
 	alni ndo_object_adress;
-	file_self.read<alni>(&ndo_object_adress);
+	file_self >> ndo_object_adress;
 	self->members = NDO_CAST(DictObject, NDO->load(file_self, ndo_object_adress));
 }
 

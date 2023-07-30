@@ -121,7 +121,7 @@ namespace obj {
 			tp::halni len = 0;
 
 			OperandsInfo();
-			OperandsInfo(tp::init_list<Operand> list);
+			OperandsInfo(tp::InitialierList<Operand> list);
 		};
 
 		struct ParamsInfo {
@@ -135,7 +135,7 @@ namespace obj {
 			tp::halni len = 0;
 
 			ParamsInfo();
-			ParamsInfo(tp::init_list<Param> list);
+			ParamsInfo(tp::InitialierList<Param> list);
 		};
 
 		struct OpInfo {

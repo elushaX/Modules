@@ -16,7 +16,7 @@ namespace obj {
 
 		typedef struct { obj::Object* obj; tp::String id; } GlobalDef;
 
-		void exec(obj::MethodObject* method, obj::ClassObject* self = NULL, obj::DictObject* globals = NULL, tp::init_list<GlobalDef> globals2 = {});
+		void exec(obj::MethodObject* method, obj::ClassObject* self = NULL, obj::DictObject* globals = NULL, tp::InitialierList<GlobalDef> globals2 = {});
 
 		void stepBytecode();
 		void stepBytecodeIn();
@@ -24,6 +24,6 @@ namespace obj {
 
 		bool finished();
 
-		void execAll(obj::MethodObject* method, obj::ClassObject* self = NULL, obj::DictObject* globals = NULL, tp::init_list<GlobalDef> globals2 = {});
+		void execAll(obj::MethodObject* method, obj::ClassObject* self = NULL, obj::DictObject* globals = NULL, tp::InitialierList<GlobalDef> globals2 = {});
 	};
 };

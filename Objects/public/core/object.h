@@ -11,6 +11,8 @@
 #include "core/typegroups.h"
 #include "core/typemethods.h"
 
+#include "Archiver.hpp"
+
 //#include "interpreter/interpreter.h"
 
 /* Steps to create custom Object:
@@ -36,35 +38,47 @@ implement construct, destruct and copy methods */
 
 namespace obj {
 
-	class Archiver : public tp::LocalConnection {
+	template<bool tRead>
+	class Archiver : public tp::ArchiverTemplate<tRead> {
+		tp::LocalConnection mConnection;
+		tp::ualni mAddress = 0;
+		tp::ualni mFirstNotWritten = 0;
+
 	public:
-		enum Type { SAVE, LOAD };
-
 		Archiver() = default;
-		Archiver(const char*, Type) {};
+		explicit Archiver(const char* location) {};
 
-		bool opened;
-
-		tp::ualni adress{};
-
-		// not yet writen address
-		// always offsets on write without specific address
-		tp::ualni avl_adress{};
-
-		void write_bytes(const tp::int1* in, tp::alni size, tp::alni adress = -1) {}
-
-		template <typename Type>
-		void write(Type* in, tp::alni adress = -1) {
-			write_bytes((tp::int1*) in, sizeof(Type), adress);
+		void writeBytes(const tp::int1* val, tp::ualni size) override {
+			mConnection.writeBytes(val, size);
+			incrementAddresses(size);
 		}
 
-		void read_bytes(tp::int1* in, tp::alni size, tp::alni adress = -1) {}
+		void readBytes(tp::int1* val, tp::ualni size) override {
+			mConnection.readBytes(val, size);
+			incrementAddresses(size);
+		}
 
-		template <typename Type>
-		void read(Type* in, tp::alni adress = -1) {
-			read_bytes((tp::int1*) in, sizeof(Type), adress);
+		tp::ualni getAddress() { return mAddress; }
+
+		void setAddress(tp::ualni addr) { mAddress = addr; }
+
+		tp::ualni getFreeAddress() { return mFirstNotWritten; }
+
+		void setFreeAddress(tp::ualni addr) { mFirstNotWritten = addr; }
+
+		bool isOpened() { return mConnection.getConnectionStatus().isOpened(); }
+
+		bool getSize() { return mConnection.size(); }
+
+	private:
+		void incrementAddresses(tp::ualni size) {
+			// if (mAddress + size > mFirstNotWritten) mFirstNotWritten = mAddress + size;
+			mAddress += size;
 		}
 	};
+
+	using ArchiverIn = Archiver<true>;
+	using ArchiverOut = Archiver<false>;
 
 	extern tp::ModuleManifest gModuleObjects;
 
@@ -116,8 +130,8 @@ namespace obj {
 	typedef void (*object_copy)(Object* self, const Object* target);
 
 	typedef tp::alni(*object_save_size)(Object* self);
-	typedef void (*object_save)(Object*, Archiver&);
-	typedef void (*object_load)(Archiver&, Object*);
+	typedef void (*object_save)(Object*, ArchiverOut&);
+	typedef void (*object_load)(ArchiverIn&, Object*);
 
 	typedef bool (*object_compare)(Object*, Object*);
 
@@ -130,7 +144,7 @@ namespace obj {
 		object_constructor constructor = NULL;
 		object_destructor destructor = NULL;
 		object_copy copy = NULL;
-		tp::alni size = NULL;
+		tp::alni size = 0;
 		const char* name;
 		const ObjectTypeConversions* convesions = NULL;
 		const ObjectTypeAriphmetics* ariphmetics = NULL;
@@ -148,11 +162,11 @@ namespace obj {
 
 
 	#define SAVE_LOAD_MAX_CALLBACK_SLOTS 100
-	typedef void (pre_save_callback)(void* self, Archiver&);
-	typedef void (pre_load_callback)(void* self, Archiver&);
-	typedef void (post_save_callback)(void* self, Archiver&);
-	typedef void (post_load_callback)(void* self, Archiver&);
-	typedef tp::alni (slcb_size_callback)(void* self, Archiver&);
+	typedef void (pre_save_callback)(void* self, ArchiverOut&);
+	typedef void (pre_load_callback)(void* self, ArchiverIn&);
+	typedef void (post_save_callback)(void* self, ArchiverOut&);
+	typedef void (post_load_callback)(void* self, ArchiverIn&);
+	typedef tp::alni (slcb_size_callback)(void* self, ArchiverOut&);
 
 	struct save_load_callbacks {
 		void* self;
@@ -213,8 +227,8 @@ namespace obj {
 
 		bool save(Object*, tp::String path, bool compressed = true);
 		Object* load(tp::String path);
-		tp::alni save(Archiver&, Object*);
-		Object* load(Archiver&, tp::alni file_adress);
+		tp::alni save(ArchiverOut&, Object*);
+		Object* load(ArchiverIn&, tp::alni file_adress);
 	};
 
 	Object* ndo_cast(const Object* in, const ObjectType* to_type);

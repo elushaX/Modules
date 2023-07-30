@@ -166,6 +166,21 @@ namespace tp {
 			}
 		}
 
+		template<class tArchiver>
+		void archiveWrite(tArchiver& ar) const {
+			auto size = this->size();
+			ar << size;
+			ar.writeBytes(read(), size);
+		}
+
+		template<class tArchiver>
+		void archiveRead(tArchiver& ar) {
+			Index size;
+			ar >> size;
+			resize(size);
+			ar.readBytes(write(), size);
+		}
+
 	public: // Syntax sugars
 
 		explicit StringTemplate(alni val) {

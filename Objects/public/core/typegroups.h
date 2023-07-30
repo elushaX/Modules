@@ -21,7 +21,7 @@ namespace obj {
 
 		TypeGroups(bool is_group);
 
-		void addType(ObjectType* type, tp::init_list<const char*> path, tp::alni cur_arg = 0);
+		void addType(ObjectType* type, tp::InitialierList<const char*> path, tp::alni cur_arg = 0);
 		void setType(ObjectType* type);
 		bool isGroup();
 		Dict* getChilds();

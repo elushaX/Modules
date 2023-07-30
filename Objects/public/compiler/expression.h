@@ -33,7 +33,7 @@ namespace obj {
 			Expression(Type type);
 
 			ExpressionChild* ExprChild(tp::String id);
-			ExpressionCall* ExprCall(tp::init_list<Expression*> args);
+			ExpressionCall* ExprCall(tp::InitialierList<Expression*> args);
 		};
 
 		struct ExpressionNew : public Expression {
@@ -61,7 +61,7 @@ namespace obj {
 		struct ExpressionCall : public Expression {
 			Expression* mParent = NULL;
 			tp::Buffer<Expression*> mArgs;
-			ExpressionCall(Expression* mParent, tp::init_list<Expression*> args);
+			ExpressionCall(Expression* mParent, tp::InitialierList<Expression*> args);
 		};
 
 		struct ExpressionAriphm : public Expression {

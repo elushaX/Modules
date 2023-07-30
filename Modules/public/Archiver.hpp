@@ -115,27 +115,6 @@ namespace tp {
 			incrementAddresses(size);
 		}
 
-		template<typename tType>
-		static void test() {
-			const tType val;
-			tType res;
-
-			res.change();
-
-			ArchiverExample<tMaxMemory, false> write;
-			ArchiverExample<tMaxMemory, true> read;
-
-			write % val;
-
-			for (auto i = 0; i < tMaxMemory; i++) read.mBuff[i] = write.mBuff[i];
-
-			read % res;
-
-			if (val != res) {
-				throw "test failed";
-			}
-		}
-
 	public:
 		int1 mBuff[tMaxMemory]{};
 

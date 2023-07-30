@@ -11,8 +11,8 @@ namespace obj {
 		static void constructor(Object* self);
 
 		static tp::alni save_size(DictObject* self);
-		static void save(DictObject* self, Archiver& file_self);
-		static void load(Archiver& file_self, DictObject* self);
+		static void save(DictObject* self, ArchiverOut& file_self);
+		static void load(ArchiverIn& file_self, DictObject* self);
 		static tp::Buffer<Object*> childs_retrival(DictObject* self);
 		static tp::alni allocated_size(DictObject* self);
 		static tp::alni allocated_size_recursive(DictObject* self);
@@ -21,7 +21,7 @@ namespace obj {
 		void remove(tp::String);
 		Object* get(tp::String);
 		tp::Map<tp::String, Object*>::Idx presents(tp::String);
-		Object* getSlotVal(tp::alni);
+		Object* getSlotVal(tp::Map<tp::String, Object*>::Idx);
 
 		const tp::Map<tp::String, Object*>& getItems() const;
 

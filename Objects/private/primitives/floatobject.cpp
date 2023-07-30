@@ -47,12 +47,12 @@ static alni save_size(FloatObject* self) {
 	return sizeof(alnf);
 }
 
-static void save(FloatObject* self, Archiver& file_self) {
-	file_self.write<alnf>(&self->val);
+static void save(FloatObject* self, ArchiverOut& file_self) {
+	file_self << self->val;
 }
 
-static void load(Archiver& file_self, FloatObject* self) {
-	file_self.read<alnf>(&self->val);
+static void load(ArchiverIn& file_self, FloatObject* self) {
+	file_self >> self->val;
 }
 
 struct ObjectTypeConversions FloatObjectTypeConversions = {

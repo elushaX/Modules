@@ -15,11 +15,11 @@ target_include_directories(${PROJECT_NAME} PUBLIC ./public/)
 target_link_libraries(${PROJECT_NAME} PUBLIC Strings Math Tokenizer CommandLine Connection)
 
 ### -------------------------- Applications  --------------------------  ###
-add_executable(osc ./applications/Compiler.cpp)
-add_executable(osi ./applications/Interpreter.cpp)
+#add_executable(osc ./applications/Compiler.cpp)
+#add_executable(osi ./applications/Interpreter.cpp)
 
-target_link_libraries(osc ${PROJECT_NAME})
-target_link_libraries(osi ${PROJECT_NAME})
+#target_link_libraries(osc ${PROJECT_NAME})
+#target_link_libraries(osi ${PROJECT_NAME})
 
 ### -------------------------- Tests  --------------------------  ###
 enable_testing()

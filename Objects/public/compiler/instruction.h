@@ -16,13 +16,13 @@ namespace obj {
 
 			OpCode mOp = OpCode::NONE;
 
-			enum class ArgType {
+			enum class ArgType : tp::ualni {
 				NO_ARG,
 				PARAM,
 				CONST,
 			} mArgType = ArgType::NO_ARG;
 
-			enum class InstType {
+			enum class InstType : tp::ualni {
 				NONE,
 				JUMP,
 				JUMP_IF,
@@ -38,7 +38,7 @@ namespace obj {
 			ConstObject* mConstData2 = NULL;
 
 			tp::alni mInstIdx = 0;
-			tp::List<Instruction>::Node* mInstTarget = NULL;
+			Instruction* mInstTarget = NULL;
 
 			Instruction();
 			Instruction(ConstObject* constData);
@@ -46,7 +46,7 @@ namespace obj {
 			Instruction(OpCode op, ConstObject* constData);
 			Instruction(OpCode op, ConstObject* constData, ConstObject* constData2);
 			Instruction(OpCode op, tp::alni param, tp::alni nBytes);
-			Instruction(tp::List<Instruction>::Node* inst, InstType jump_type);
+			Instruction(Instruction* inst, InstType jump_type);
 		};
 	};
 };

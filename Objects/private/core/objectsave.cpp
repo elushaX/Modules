@@ -1,5 +1,6 @@
 
 
+#include "NewPlacement.hpp"
 #include "core/object.h"
 
 #include "HeapAllocatorGlobal.hpp"
@@ -30,7 +31,7 @@ namespace obj {
 		}
 
 		memh->down = NULL;
-		memh->flags = NULL;
+		memh->flags = 0;
 
 		#ifdef OBJECT_REF_COUNT
 		memh->refc = (tp::alni) 1;
@@ -185,7 +186,7 @@ namespace obj {
 		return objsize_file_recursive_util(self, self->type);
 	}
 
-	void object_recursive_save(Archiver& ndf, Object* self, const ObjectType* type) {
+	void object_recursive_save(ArchiverOut& ndf, Object* self, const ObjectType* type) {
 		if (type->base) {
 			object_recursive_save(ndf, self, type->base);
 		}
@@ -196,48 +197,48 @@ namespace obj {
 		}
 	}
 
-	tp::alni objects_api::save(Archiver& ndf, Object* in) {
+	tp::alni objects_api::save(ArchiverOut& ndf, Object* in) {
 		// if already saved return file_adress
 		if (NDO_MEMH_FROM_NDO(in)->flags != -1) {
 			return NDO_MEMH_FROM_NDO(in)->flags;
 		}
 
 		// save write adress for parent save function call 
-		tp::alni tmp_adress = ndf.adress;
+		tp::alni tmp_adress = ndf.getAddress();
 
 		// save requested object to first available adress
-		tp::alni save_adress = ndf.avl_adress;
+		tp::alni save_adress = ndf.getFreeAddress();
 
 		// save file_adress in memhead
 		NDO_MEMH_FROM_NDO(in)->flags = save_adress;
 
 		// update write adress
-		ndf.adress = save_adress;
+		ndf.setAddress(save_adress);
 
 		// save file object header
 		ObjectFileHead ofh = { 0, getrefc(in) };
-		ndf.write(&ofh);
-		tp::String(in->type->name).save(&ndf);
+		ndf << ofh;
+		ndf << tp::String(in->type->name);
 
 		// allocate for object file header
-		ndf.avl_adress += sizeof(ObjectFileHead) + tp::String::Logic::calcLength(in->type->name) + 1;
+		ndf.setFreeAddress(ndf.getFreeAddress() + sizeof(ObjectFileHead) + tp::String::Logic::calcLength(in->type->name) + 1);
 
 		// calc max size needed for saving all hierarchy of types
 		tp::alni file_alloc_size = objsize_file_util(in, in->type);
 
 		// offes first available adress
-		ndf.avl_adress += file_alloc_size;
+		ndf.setFreeAddress(ndf.getFreeAddress() + file_alloc_size);
 
 		object_recursive_save(ndf, in, in->type);
 
 		// restore adress for parent save function
-		ndf.adress = tmp_adress;
+		ndf.setAddress(tmp_adress);
 
 		// return addres of saved object in file space
 		return save_adress;
 	}
 
-	void object_recursive_load(Archiver& ndf, Object* out, const ObjectType* type) {
+	void object_recursive_load(ArchiverIn& ndf, Object* out, const ObjectType* type) {
 		if (type->base) {
 			object_recursive_load(ndf, out, type->base);
 		}
@@ -248,22 +249,23 @@ namespace obj {
 		}
 	}
 
-	Object* objects_api::load(Archiver& ndf, tp::alni file_adress) {
+	Object* objects_api::load(ArchiverIn& ndf, tp::alni file_adress) {
 		// check if already saved
 		if (((ObjectFileHead*) (loaded_file + file_adress))->load_head_adress) {
 			return ((ObjectFileHead*) (loaded_file + file_adress))->load_head_adress;
 		}
 
-		// save read adress
-		tp::alni parent_file_adress = ndf.adress;
+		// save read address
+		tp::alni parent_file_adress = ndf.getAddress();
 
-		// set read adress
-		ndf.adress = file_adress;
+		// set read address
+		ndf.setAddress(file_adress);
 
 		ObjectFileHead ofh;
-		ndf.read<ObjectFileHead>(&ofh);
+		ndf >> ofh;
+
 		tp::String type_name;
-		type_name.load(&ndf);
+		ndf >> type_name;
 
 		const ObjectType* object_type = NDO->types.get(type_name);
 		Object* out = ObjectMemAllocate(object_type);
@@ -277,40 +279,40 @@ namespace obj {
 		// save heap adress in "loaded_file"
 		((ObjectFileHead*) (loaded_file + file_adress))->load_head_adress = out;
 
-		// loads recursivelly
+		// loads recursively
 		object_recursive_load(ndf, out, object_type);
 
-		// restore read adress for parent call to continue
-		ndf.adress = parent_file_adress;
+		// restore read address for parent call to continue
+		ndf.setAddress(parent_file_adress);
 
 		// return heap memory adress
 		return out;
 	}
 
 	bool objects_api::save(Object* in, tp::String path, bool compressed) {
-		Archiver ndf(path.read(), Archiver::SAVE);
+		ArchiverOut ndf(path.read());
 
-		if (!ndf.opened) {
+		if (!ndf.isOpened()) {
 			return false;
 		}
 
 		clear_object_flags();
 
-		// save vesion info
+		// save version info
 		ObjectsFileHeader header;
-		ndf.write(&header);
+		ndf << header;
 
-		ndf.avl_adress = ndf.adress;
+		ndf.setFreeAddress(ndf.getAddress());
 
 		// pre allocate
 		for (tp::alni i = 0; i < SAVE_LOAD_MAX_CALLBACK_SLOTS; i++) {
 			if (sl_callbacks[i]) {
 				DEBUG_ASSERT(sl_callbacks[i]->size);
-				ndf.avl_adress += sl_callbacks[i]->size(sl_callbacks[i]->self, ndf);
+				ndf.setFreeAddress(ndf.getFreeAddress() + sl_callbacks[i]->size(sl_callbacks[i]->self, ndf));
 			}
 		}
 
-		// presave
+		// pre-save
 		for (tp::alni i = 0; i < SAVE_LOAD_MAX_CALLBACK_SLOTS; i++) {
 			if (sl_callbacks[i] && sl_callbacks[i]->pre_save) {
 				sl_callbacks[i]->pre_save(sl_callbacks[i]->self, ndf);
@@ -319,14 +321,12 @@ namespace obj {
 
 		save(ndf, in);
 
-		// postsave
+		// post-save
 		for (tp::alni i = 0; i < SAVE_LOAD_MAX_CALLBACK_SLOTS; i++) {
 			if (sl_callbacks[i] && sl_callbacks[i]->post_save) {
 				sl_callbacks[i]->post_save(sl_callbacks[i]->self, ndf);
 			}
 		}
-
-		ndf.disconnect();
 
 		// TODO : add compression
 		/*
@@ -354,24 +354,28 @@ namespace obj {
 		File ndf(temp_file_name.cstr(), tp::osfile_openflags::LOAD);
 	 	*/
 
-		Archiver ndf(path.read(), Archiver::LOAD);
+		ArchiverIn ndf(path.read());
 
-		if (!ndf.opened) {
+		if (!ndf.isOpened()) {
 			return NULL;
 		}
 
-		// check for compability
+		// check for compatibility
 		ObjectsFileHeader current_header;
 		ObjectsFileHeader loaded_header(false);
-		ndf.read(&loaded_header);
+
+		ndf >> loaded_header;
+
 		if (!tp::memEqual(&current_header, &loaded_header, sizeof(ObjectsFileHeader))) {
 			return NULL;
 		}
 
-		ndf.adress = 0;
-		loaded_file = (tp::int1*) malloc(ndf.size());
-		ndf.read_bytes(loaded_file, ndf.size());
-		ndf.adress = sizeof(ObjectsFileHeader);
+		ndf.setAddress(0);
+
+		loaded_file = (tp::int1*) malloc(ndf.getSize());
+		ndf.readBytes(loaded_file, ndf.getSize());
+
+		ndf.setAddress(sizeof(ObjectsFileHeader));
 
 		// preload
 		for (tp::alni i = 0; i < SAVE_LOAD_MAX_CALLBACK_SLOTS; i++) {
@@ -380,7 +384,7 @@ namespace obj {
 			}
 		}
 
-		Object* out = load(ndf, ndf.adress);
+		Object* out = load(ndf, ndf.getAddress());
 
 		// post
 		for (tp::alni i = 0; i < SAVE_LOAD_MAX_CALLBACK_SLOTS; i++) {

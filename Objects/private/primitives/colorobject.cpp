@@ -37,12 +37,12 @@ static alni save_size(ColorObject* self) {
 	return sizeof(tp::RGBA);
 }
 
-static void save(ColorObject* self, Archiver& file_self) {
-	file_self.write<tp::RGBA>(&self->mCol);
+static void save(ColorObject* self, ArchiverOut& file_self) {
+	file_self << self->mCol;
 }
 
-static void load(Archiver& file_self, ColorObject* self) {
-	file_self.read<tp::RGBA>(&self->mCol);
+static void load(ArchiverIn& file_self, ColorObject* self) {
+	file_self >> self->mCol;
 }
 
 struct ObjectTypeConversions ColorObjectTypeConversions = {

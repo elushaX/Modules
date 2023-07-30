@@ -15,7 +15,7 @@ using namespace obj;
 	add(opcode, { #name, #desc, ops, params } );
 
 OpcodeInfos::OperandsInfo::OperandsInfo() {}
-OpcodeInfos::OperandsInfo::OperandsInfo(tp::init_list<Operand> list) {
+OpcodeInfos::OperandsInfo::OperandsInfo(tp::InitialierList<Operand> list) {
 	DEBUG_ASSERT(MAX_OPERANDS >= list.size());
 	for (auto item : list) {
 		buff[len] = item;
@@ -24,7 +24,7 @@ OpcodeInfos::OperandsInfo::OperandsInfo(tp::init_list<Operand> list) {
 }
 
 OpcodeInfos::ParamsInfo::ParamsInfo() {}
-OpcodeInfos::ParamsInfo::ParamsInfo(tp::init_list<Param> list) {
+OpcodeInfos::ParamsInfo::ParamsInfo(tp::InitialierList<Param> list) {
 	DEBUG_ASSERT(MAX_PARAMS >= list.size());
 	for (auto item : list) {
 		buff[len] = item;

@@ -19,8 +19,8 @@ namespace obj {
 		static tp::alni allocated_size_recursive(ListObject* self);
 		static tp::alni allocated_size(ListObject* self);
 		static tp::Buffer<Object*> childs_retrival(ListObject* self);
-		static void load(Archiver& file_self, ListObject* self);
-		static void save(ListObject* self, Archiver& file_self);
+		static void load(ArchiverIn& file_self, ListObject* self);
+		static void save(ListObject* self, ArchiverOut& file_self);
 		static tp::alni save_size(ListObject* self);
 
 		const tp::List<Object*>& getItems() const;

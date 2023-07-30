@@ -52,39 +52,39 @@ alni DictObject::save_size(DictObject* self) {
 	return save_size;
 }
 
-void DictObject::save(DictObject* self, Archiver& file_self) {
+void DictObject::save(DictObject* self, ArchiverOut& file_self) {
 
 	// write size
 	alni len = self->items.size();
-	file_self.write<alni>(&len);
+	file_self << len;
 
 	// save hashmap pairs
 	for (auto item : self->items) {
 		// item val
 		alni ndo_object_adress = NDO->save(file_self, item->val);
-		file_self.write<alni>(&ndo_object_adress);
+		file_self << ndo_object_adress;
 
 		// item key
-		item->key.save(&file_self);
+		file_self << item->key;
 	}
 }
 
-void DictObject::load(Archiver& file_self, DictObject* self) {
+void DictObject::load(ArchiverIn& file_self, DictObject* self) {
 	new (&self->items) tp::Map<tp::String, Object*>();
 
 	alni len;
-	file_self.read<alni>(&len);
+	file_self >> len;
 
 	for (alni i = 0; i < len; i++) {
 
 		// read val
 		alni ndo_object_adress;
-		file_self.read<alni>(&ndo_object_adress);
+		file_self >> ndo_object_adress;
 		Object* val = NDO->load(file_self, ndo_object_adress);
 
 		// read key value
 		String key;
-		key.load(&file_self);
+		file_self >> key;
 
 		// add to dictinary
 		self->items.put(key, val);
@@ -103,11 +103,12 @@ tp::Buffer<Object*> DictObject::childs_retrival(DictObject* self) {
 }
 
 alni DictObject::allocated_size(DictObject* self) {
-	alni out = self->items.sizeAllocatedMem();
+	ASSERT(false)
+	// alni out = self->items.sizeAllocatedMem();
 	for (auto item : self->items) {
-		out += item->key.sizeAllocatedMem();
+		// out += item->key.sizeAllocatedMem();
 	}
-	return out;
+	// return out;
 	return 0;
 }
 
@@ -141,7 +142,7 @@ tp::Map<tp::String, Object*>::Idx DictObject::presents(tp::String str) {
 	return items.presents(str);
 }
 
-Object* DictObject::getSlotVal(tp::alni idx) {
+Object* DictObject::getSlotVal(tp::Map<tp::String, Object*>::Idx idx) {
 	return items.getSlotVal(idx);
 }
 
