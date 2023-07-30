@@ -18,8 +18,6 @@ namespace tp {
 #define DEBUG_ASSERT(exp) {}
 #endif
 
-
-
 #if defined(ENV_OS_WINDOWS)
 	#define DEBUG_BREAK(expr) if (expr) { __debugbreak(); }
 #elif defined(ENV_OS_ANDROID)

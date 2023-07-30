@@ -93,7 +93,7 @@ CommandLine::Arg::~Arg() {
 	}
 }
 
-CommandLine::CommandLine(const init_list<Arg>& args) {
+CommandLine::CommandLine(const InitialierList<Arg>& args) {
 	bool optional_start = false;
 
 	for (auto& arg : args) {

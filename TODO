@@ -1,7 +1,7 @@
-Testing !
-Serialization !
+Testing !!
 
 Objects:
+  Testing
   Serialization
   Alloc Size queries
   Compile !!
@@ -16,24 +16,29 @@ Objects:
   rename classes
   move functions around
 
-Storage:
-  Finish networking
-  Enable preloads
-
 Graphics:
   Window event system
   Graphics API
   FPS count & Performance control
 
-Utils:
-  Stack trace fixes
-
 Containers:
+  Test generatePermutations
   Add variant size buffer
+  Buffer add resize function
   Buffer improvements
+  Buff serialization
+  Tree serialization
+  Write Traverse Avl test
   Add mem leakage tests
   Add check copy times
   AVL dont copy data just swap
+
+Storage:
+  Finish networking
+  Enable preloads
+
+Utils:
+  Stack trace fixes
 
 TextEditor:
   Implement

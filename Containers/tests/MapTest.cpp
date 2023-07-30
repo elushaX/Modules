@@ -3,6 +3,7 @@
 #include "Tests.hpp"
 #include "Testing.hpp"
 #include "Map.hpp"
+#include "Archiver.hpp"
 
 using namespace tp;
 
@@ -100,17 +101,18 @@ TEST_DEF_STATIC(SaveLoad) {
 		map.put(i, TestClass(i));
 	}
 
-	TestFile file;
+	ArchiverExample<1024, false> write;
+	ArchiverExample<1024, true> read;
 
-	map.write(file);
+	write % map;
 
 	map.removeAll();
 
 	TEST(map.size() == 0);
 
-	file.setAddress(0);
+	memCopy(read.mBuff, write.mBuff, sizeof(write.mBuff));
 
-	map.read(file);
+	read % map;
 
 	TEST(map.size() == 10);
 

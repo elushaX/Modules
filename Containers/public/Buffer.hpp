@@ -20,7 +20,7 @@ namespace tp {
 
 	template<typename tType, ualni tSize>
 	class ConstSizeBuffer {
-		typedef SelCopyArg<tType> Arg;
+		typedef SelectValueOrReference<tType> Arg;
 
 	private:
 		tType mBuff[tSize];
@@ -28,6 +28,12 @@ namespace tp {
 
 	public:
 		ConstSizeBuffer() = default;
+
+		~ConstSizeBuffer() {
+			for (auto i = 0; i < mLoad; i++) {
+				mBuff[i].~tType();
+			}
+		}
 
 	public:
 		[[nodiscard]] ualni size() const { return mLoad; }
@@ -75,11 +81,16 @@ namespace tp {
 			mLoad--;
 		}
 
-		ConstSizeBuffer& operator=(const tp::init_list<tType>& init) {
+		ConstSizeBuffer& operator=(const tp::InitialierList<tType>& init) {
 			for (auto arg : init) {
 				append(arg);
 			}
 			return *this;
+		}
+
+		void clear() {
+			this->~ConstSizeBuffer();
+			new (this) ConstSizeBuffer();
 		}
 
 	public:
@@ -125,6 +136,24 @@ namespace tp {
 		[[nodiscard]] Iterator end() const {
 			return Iterator(mBuff + mLoad);
 		}
+
+	public:
+		template<class tArchiver>
+		void archiveWrite(tArchiver& ar) const {
+			ar << mLoad;
+			for (auto item : *this) {
+				ar << item.data();
+			}
+		}
+
+		template<class tArchiver>
+		void archiveRead(tArchiver& ar) {
+			clear();
+			ar >> mLoad;
+			for (auto i = 0; i < mLoad; i++) {
+				ar >> mBuff[i];
+			}
+		}
 	};
 
 	template<
@@ -135,7 +164,7 @@ namespace tp {
 		ualni tMinSize = 4
 	>
 	class Buffer {
-		typedef SelCopyArg<tType> Arg;
+		typedef SelectValueOrReference<tType> Arg;
 
 	private:
 		tType* mBuff;
@@ -157,10 +186,14 @@ namespace tp {
 			for (ualni i = 0; i < mLoad; i++) new (&mBuff[i]) tType(in.mBuff[i]);
 		}
 
+		void clear() {
+			this->~Buffer();
+			new (this) Buffer();
+		}
+
 		Buffer& operator=(const Buffer& in) {
 			if (this == &in) return *this;
-			this->~Buffer();
-			new (this) Buffer(in);
+			clear();
 			return *this;
 		}
 
@@ -219,7 +252,7 @@ namespace tp {
 		}
 
 	public:
-		Buffer& operator=(const tp::init_list<tType>& init) {
+		Buffer& operator=(const tp::InitialierList<tType>& init) {
 			// TODO : optimize
 			for (auto arg : init) {
 				append(arg);
@@ -307,6 +340,29 @@ namespace tp {
 			return Iterator(mBuff + mLoad);
 		}
 
+
+	public:
+		template<class tArchiver>
+		void archiveWrite(tArchiver& ar) const {
+			ar << mLoad;
+			for (auto item : *this) {
+				ar << item.data();
+			}
+		}
+
+		template<class tArchiver>
+		void archiveRead(tArchiver& ar) {
+			clear();
+			decltype(mLoad) len;
+			ar >> len;
+			for (auto i = len; i; i--) {
+				// TODO : optimize
+				if (mLoad == mSize) resizeBuffer(tResizePolicy(mSize));
+				ar >> mBuff[mLoad];
+				mLoad++;
+			}
+		}
+
   private:
     void resizeBuffer(ualni newSize) {
       DEBUG_ASSERT(newSize >= mLoad)
@@ -318,4 +374,36 @@ namespace tp {
       mSize = newSize;
     }
 	};
+
+
+	template<typename tType>
+	void generatePermutations(const Buffer<Buffer<tType>>& in, Buffer<Buffer<tType>>& out) {
+		typedef long long Idx;
+
+		// sanity check
+		for (const auto & vec : in) {
+			if (!vec.size()) return;
+		}
+
+		out.resize(in.size());
+		auto len = Idx(1);
+		for (const auto & vec : in) len *= (Idx) vec.size();
+		for (auto i = 0; i < in.size(); i++) out[i].resize(len);
+
+		auto dub = Idx(1);
+		for (auto power = (Idx) in.size() - 1; power >= 0; power--) {
+			auto& vec = in[power];
+			long long i = 0;
+			while (i < len) {
+				for (auto val : vec) {
+					for (auto j = 0; j < dub; j++) {
+						out[power][i] = val;
+						i++;
+					}
+				}
+			}
+			dub *= (Idx) vec.size();
+		}
+	}
+
 }
