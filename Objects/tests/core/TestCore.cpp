@@ -22,6 +22,11 @@ TEST_DEF_STATIC(BasicAPI) {
 
 	printf("%s\n", NDO->toString(savedInt).read());
 
+	TEST(NDO->compare(integer, savedInt));
+	TEST(NDO_CAST(IntObject, savedInt));
+	TEST(integer->val == NDO_CAST(IntObject, savedInt)->val);
+
+
 	NDO->destroy(integer);
 	NDO->destroy(savedInt);
 }

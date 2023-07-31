@@ -50,8 +50,11 @@ alnf StringObject::to_float(StringObject* self) {
 }
 
 static alni save_size(StringObject* self) {
-	// return self->val.save_size();
-	return {};
+	alni save_size = 0;
+	auto size = self->val.size();
+	save_size += (size) * sizeof(*self->val.read());
+	save_size += sizeof(decltype(size));
+	return save_size;
 }
 
 static void save(StringObject* self, ArchiverOut& file_self) {
