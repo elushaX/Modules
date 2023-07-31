@@ -121,6 +121,7 @@ namespace tp {
 		}
 
 		void decReference(Data* dp) {
+			DEBUG_ASSERT(dp->mReferenceCount > 0)
 			dp->mReferenceCount--;
 			if (!dp->mReferenceCount) {
 				mData->~StringData();
@@ -184,21 +185,24 @@ namespace tp {
 	public: // Syntax sugars
 
 		explicit StringTemplate(alni val) {
-			auto raw = new tChar[MAX_INT_STRING_LENGTH];
+			tChar raw[MAX_INT_STRING_LENGTH];
 			Logic::convertValueToString(val, raw, MAX_INT_STRING_LENGTH);
 			mData = new (sStringPool.allocate(0)) StringData(raw);
+			incReference(mData);
 		}
 
 		explicit StringTemplate(alnf val) {
-			auto raw = new tChar[MAX_FLOAT_STRING_LENGTH];
+			tChar raw[MAX_INT_STRING_LENGTH];
 			Logic::convertValueToString(val, raw, MAX_FLOAT_STRING_LENGTH);
 			mData = new (sStringPool.allocate(0)) StringData(raw);
+			incReference(mData);
 		}
 
 		explicit StringTemplate(bool val) {
-			auto raw = new tChar[MAX_BOOL_STRING_LENGTH];
+			tChar raw[MAX_INT_STRING_LENGTH];
 			Logic::convertValueToString(val, raw, MAX_BOOL_STRING_LENGTH);
 			mData = new (sStringPool.allocate(0)) StringData(raw);
+			incReference(mData);
 		}
 
 		explicit operator alni() {

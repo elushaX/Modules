@@ -172,6 +172,8 @@ bool HeapAllocGlobal::checkLeaks() {
 		}
 		#endif
 
+		printf(" Count : %llu", mNumAllocations);
+
 		ASSERT(!"Destruction of not freed Allocator")
 		return true;
 	}

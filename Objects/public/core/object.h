@@ -46,14 +46,18 @@ namespace obj {
 
 	public:
 		Archiver() = default;
-		explicit Archiver(const char* location) {};
+		explicit Archiver(const char* location) {
+				mConnection.connect(tp::LocalConnection::Location(location), tp::LocalConnection::Type(tRead));
+		};
 
 		void writeBytes(const tp::int1* val, tp::ualni size) override {
+			mConnection.setPointer(mAddress);
 			mConnection.writeBytes(val, size);
 			incrementAddresses(size);
 		}
 
 		void readBytes(tp::int1* val, tp::ualni size) override {
+			mConnection.setPointer(mAddress);
 			mConnection.readBytes(val, size);
 			incrementAddresses(size);
 		}
@@ -68,7 +72,7 @@ namespace obj {
 
 		bool isOpened() { return mConnection.getConnectionStatus().isOpened(); }
 
-		bool getSize() { return mConnection.size(); }
+		tp::ualni getSize() { return mConnection.size(); }
 
 	private:
 		void incrementAddresses(tp::ualni size) {
