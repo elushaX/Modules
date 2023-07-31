@@ -81,6 +81,7 @@ static tp::ModuleManifest* sModuleDependencies[] = {
 	&tp::gModuleMath, 
 	&tp::gModuleStrings,
 	&tp::gModuleTokenizer,
+	&tp::gModuleConnection,
 	NULL
 };
 

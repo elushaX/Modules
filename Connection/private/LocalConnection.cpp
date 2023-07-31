@@ -26,11 +26,11 @@ bool LocalConnection::connect(const Location& location, const Type& connectionIn
 
 	switch (connectionInfo.getType()) {
 		case Type::READ:
-			handle->open(location.getLocation().read(), false);
+			handle->open(location.getLocation().read(), true);
 			break;
 
 		case Type::WRITE:
-			handle->open(location.getLocation().read(), true);
+			handle->open(location.getLocation().read(), false);
 			break;
 
 		default:
@@ -61,12 +61,13 @@ bool LocalConnection::disconnect() {
 bool LocalConnection::setPointer(BytePointer pointer) {
 	DEBUG_ASSERT(mStatus.isOpened());
 	if (!mStatus.isOpened()) return false;
+	mPointer = pointer;
 	return true;
 }
 
 bool LocalConnection::readBytes(Byte* bytes, SizeBytes size) {
-	DEBUG_ASSERT(mStatus.isOpened() && mConnectionType.isWrite());
-	if (!mStatus.isOpened() || !mConnectionType.isWrite()) return false;
+	DEBUG_ASSERT(mStatus.isOpened() && mConnectionType.isRead());
+	if (!mStatus.isOpened() || !mConnectionType.isRead()) return false;
 
 	mHandle->seekp(mPointer);
 	mHandle->read(bytes, size);
@@ -75,8 +76,8 @@ bool LocalConnection::readBytes(Byte* bytes, SizeBytes size) {
 }
 
 bool LocalConnection::writeBytes(const Byte* bytes, SizeBytes size) {
-	DEBUG_ASSERT(mStatus.isOpened() && mConnectionType.isRead());
-	if (!mStatus.isOpened() || !mConnectionType.isRead()) return false;
+	DEBUG_ASSERT(mStatus.isOpened() && mConnectionType.isWrite());
+	if (!mStatus.isOpened() || !mConnectionType.isWrite()) return false;
 
 	mHandle->seekp(mPointer);
 	mHandle->write(bytes, size);

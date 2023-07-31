@@ -34,8 +34,8 @@ namespace tp {
 		class Type {
 		public:
 			enum State {
-				READ,
 				WRITE,
+				READ,
 				READ_WRITE,
 				NONE,
 			};

@@ -23,7 +23,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Strings Math Tokenizer CommandLine 
 
 ### -------------------------- Tests  --------------------------  ###
 enable_testing()
-file(GLOB TEST_SOURCES "./tests/*.cpp")
+file(GLOB TEST_SOURCES "./tests/*.cpp" "./tests/*/*.cpp")
 add_executable(${PROJECT_NAME}Tests ${TEST_SOURCES})
 target_link_libraries(${PROJECT_NAME}Tests  ${PROJECT_NAME} Utils)
 add_test(NAME ${PROJECT_NAME}Tests COMMAND ${PROJECT_NAME}Tests)

@@ -48,7 +48,7 @@ namespace tp {
 			if constexpr (HasFunc::template Write<Type>::value) {
 				val.archiveWrite(*this);
 			} else {
-				writeBytes((const int1*) &val, sizeof(val));
+				writeBytes((const int1*) &val, sizeof(Type));
 			}
 		}
 
@@ -60,7 +60,7 @@ namespace tp {
 			if constexpr (HasFunc::template Read<Type>::value) {
 				val.archiveRead(*this);
 			} else {
-				readBytes((int1*) &val, sizeof(val));
+				readBytes((int1*) &val, sizeof(Type));
 			}
 		}
 
