@@ -12,6 +12,7 @@
 #include "core/typemethods.h"
 
 #include "Archiver.hpp"
+#include "SizeCounter.hpp"
 
 //#include "interpreter/interpreter.h"
 
