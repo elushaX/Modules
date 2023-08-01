@@ -10,6 +10,7 @@ using namespace obj;
 
 void testCore();
 void testPrimitives();
+void testInterpreter();
 
 int main() {
 
@@ -20,6 +21,7 @@ int main() {
 
 		testCore();
 		testPrimitives();
+		testInterpreter();
 
 		module.deinitialize();
 	}
