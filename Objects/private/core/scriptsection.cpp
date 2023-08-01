@@ -150,6 +150,8 @@ void load_constants(ScriptSection* self, ArchiverIn& file, tp::alni start_addr) 
 		// script text
 		tp::alni str_addr;
 		file >> str_addr;
+
+		NDO->destroy(script->mReadable); // we already have string object in the script when creating script
 		script->mReadable = NDO_CAST(obj::StringObject, obj::NDO->load(file, str_addr));
 
 		file.setAddress(file.getAddress() + sizeof(tp::alni)); // constants length
@@ -257,6 +259,7 @@ void ScriptSection::initialize() {
 void ScriptSection::uninitialize() {
 	ASSERT(gScriptSection);
 	delete gScriptSection;
+	gScriptSection = nullptr;
 }
 
 ScriptSection* ScriptSection::globalHandle() {

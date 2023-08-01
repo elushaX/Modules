@@ -31,8 +31,8 @@ TEST_DEF_STATIC(Simple) {
 
 	interpreterLoaded->exec();
 
-	NDO->destroy(interpreter);
 	NDO->destroy(interpreterLoaded);
+	NDO->destroy(interpreter);
 }
 
 TEST_DEF(Interpreter) {

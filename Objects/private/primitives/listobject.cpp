@@ -57,7 +57,7 @@ void ListObject::load(ArchiverIn& file_self, ListObject* self) {
 	for (alni i = 0; i < len; i++) {
 		alni ndo_object_adress;
 		file_self >> ndo_object_adress;
-		self->items.pushBack(NDO->load(file_self, ndo_object_adress));
+		self->pushBack(NDO->load(file_self, ndo_object_adress));
 	}
 }
 

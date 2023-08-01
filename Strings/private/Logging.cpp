@@ -54,5 +54,6 @@ namespace tp {
 	void Logger::deinitializeGlobal() {
 		DEBUG_ASSERT(gLogger)
 		delete gLogger;
+		gLogger = nullptr;
 	}
 }
