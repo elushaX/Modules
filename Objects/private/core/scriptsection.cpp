@@ -91,8 +91,7 @@ tp::alni ScriptSection::save_script_table_to_file_size(ScriptSection* self, Arch
 		}
 
 		// instructions
-		ASSERT(false)
-		// size += iter->mBytecode.mInstructions.saveSize();
+		size += tp::SaveSizeCounter::calc(iter->mBytecode.mInstructions);
 	}
 
 	size += sizeof(tp::alni); // objects mem offset
@@ -125,7 +124,6 @@ void ScriptSection::save_script_table_to_file(ScriptSection* self, ArchiverOut& 
 		}
 
 		// mInstructions
-		ASSERT(false)
 		file << iter->mBytecode.mInstructions;
 	}
 
@@ -163,8 +161,7 @@ void load_constants(ScriptSection* self, ArchiverIn& file, tp::alni start_addr) 
 		}
 
 		// instructions
-		ASSERT(false)
-		//file.setAddress(file.getAddress() + script->mBytecode.mInstructions.saveSize());
+		file.setAddress(file.getAddress() + tp::SaveSizeCounter::calc(script->mBytecode.mInstructions));
 	}
 
 	file.setAddress(addres);

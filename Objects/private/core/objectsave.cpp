@@ -221,7 +221,7 @@ namespace obj {
 		ndf << tp::String(in->type->name);
 
 		// allocate for object file header
-		ndf.setFreeAddress(ndf.getFreeAddress() + sizeof(ObjectFileHead) + tp::String::Logic::calcLength(in->type->name) + sizeof(tp::String::Logic::Index));
+		ndf.setFreeAddress(ndf.getFreeAddress() + sizeof(ObjectFileHead) + tp::SaveSizeCounter::calc(tp::String(in->type->name)));
 
 		// calc max size needed for saving all hierarchy of types
 		tp::alni file_alloc_size = objsize_file_util(in, in->type);

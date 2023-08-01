@@ -44,9 +44,7 @@ alni DictObject::save_size(DictObject* self) {
 
 	for (auto item : self->items) {
 		// string length
-		auto size = item->key.size();
-		save_size += size * sizeof(*item->key.read());
-		save_size += sizeof(decltype(size));
+		save_size += tp::SaveSizeCounter::calc(item->key);
 
 		// object file adress
 		save_size += sizeof(alni);
