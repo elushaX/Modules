@@ -236,6 +236,9 @@ namespace obj {
 		Object* load(ArchiverIn&, tp::alni file_adress);
 	};
 
+	void logTypeData(const ObjectType* type);
+	void assertNoLeaks();
+
 	Object* ndo_cast(const Object* in, const ObjectType* to_type);
 
 	template <typename Type>

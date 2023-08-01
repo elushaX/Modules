@@ -3,6 +3,8 @@
 #include "NewPlacement.hpp"
 #include "core/object.h"
 
+#include "primitives/nullobject.h"
+
 #include "HeapAllocatorGlobal.hpp"
 
 #include <malloc.h>
@@ -62,6 +64,27 @@ namespace obj {
 
 		tp::HeapAllocGlobal::deallocate(memh);
 	}
+
+	void logTypeData(const ObjectType* type) {
+		printf("type - %s\n", type->name);
+		if (type->base) {
+			printf("Based on ");
+			logTypeData(type->base);
+		}
+	}
+
+	void assertNoLeaks() {
+		if (bottom) {
+			printf("ERROR : not all objects are destroyed\n");
+			tp::ualni idx = 0;
+			for (ObjectMemHead* memh = bottom; memh; memh = memh->up) {
+				printf(" ===== Object - %i. Ref count - %i ===== \n", idx, memh->refc);
+				logTypeData(NDO_FROM_MEMH(memh)->type);
+				idx++;
+			}
+		}
+	}
+
 
 	struct ObjectFileHead {
 		Object* load_head_adress = 0;
@@ -274,7 +297,13 @@ namespace obj {
 			return NULL;
 		}
 
-		setrefc(out, ofh.refc);
+		setrefc(out, 0);
+
+		// check for null object
+		if (out->type == &NullObject::TypeData) {
+			ObjectMemDeallocate(out);
+			out = NdoNull_globalInstance;
+		}
 
 		// save heap adress in "loaded_file"
 		((ObjectFileHead*) (loaded_file + file_adress))->load_head_adress = out;
@@ -404,8 +433,6 @@ namespace obj {
 			File::remove(temp_file_name.cstr());
 		}
 		*/
-
-		setrefc(out, 0);
 
 		return out;
 	}

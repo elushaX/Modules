@@ -527,6 +527,7 @@ void obj::BCgen::deinit() {
 	ASSERT(sParger);
 	if (sParger) {
 		delete sParger;
+		sParger = nullptr;
 	}
 }
 

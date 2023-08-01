@@ -49,6 +49,7 @@ void LinkObject::load(ArchiverIn& file_self, LinkObject* self) {
 	}
 	else {
 		self->link = NDO->load(file_self, saved_object_adress);
+		NDO->refinc(self->link);
 	}
 }
 

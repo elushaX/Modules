@@ -73,7 +73,11 @@ static void deinit(const tp::ModuleManifest*) {
 	MethodObject::UnInitialize();
 
 	obj::BCgen::deinit();
+
+	assertNoLeaks();
+
 	delete NDO;
+	NDO = nullptr;
 }
 
 static tp::ModuleManifest* sModuleDependencies[] = {

@@ -88,7 +88,7 @@ void DictObject::load(ArchiverIn& file_self, DictObject* self) {
 		file_self >> key;
 
 		// add to dictinary
-		self->items.put(key, val);
+		self->put(key, val);
 	}
 }
 
