@@ -1,20 +1,14 @@
 Testing !!
 
 Objects:
-  Testing
-  Serialization
-  Alloc Size queries
-  Compile !!
-  parser print error
   write tests before refactor !!
+  Alloc Size queries
   remove obj_ref_count macro
   fix all clang-tidy notices
-  write archiver
   replace all strings with const string ref
   replace all type usages with typedefs
   remove tp::
   rename classes
-  move functions around
 
 Graphics:
   Window event system
@@ -39,6 +33,7 @@ Storage:
 
 Utils:
   Stack trace fixes
+  Save leaks and then use in debugging to break when the same call occurs?
 
 TextEditor:
   Implement

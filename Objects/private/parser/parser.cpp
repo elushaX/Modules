@@ -884,7 +884,8 @@ READ_STM:
 
 Parser::Resault Parser::parse(const tp::String& oscript) {
 	mTok.bindSource(oscript.read());
-
+	mTok.reset();
+	
 	mRes.scope = new StatementScope({}, true);
 
 	List<Statement*> stms;
