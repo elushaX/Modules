@@ -177,8 +177,9 @@ namespace tp {
 
 		void popBack() {
 			DEBUG_ASSERT(mLast)
+			auto const tmp = mLast;
 			detach(mLast);
-			deleteNode(mLast);
+			deleteNode(tmp);
 		}
 
 		void popFront() {

@@ -15,6 +15,7 @@ namespace tp {
 	class StringData {
 		friend StringTemplate<tChar>;
 		typedef StringLogic<tChar> Logic;
+		typedef typename StringLogic<tChar>::Index Index;
 
 	private:
 		uint2 mIsConst; // source is non-modifiable
@@ -38,7 +39,7 @@ namespace tp {
 			mEditedIdx = 0;
 		}
 
-		explicit StringData(const tChar* aBuff) {
+		explicit StringData(tChar* aBuff) {
 			MODULE_SANITY_CHECK(gModuleStrings)
 			DEBUG_ASSERT(aBuff)
 			auto const len = Logic::calcLength(aBuff);
@@ -58,7 +59,7 @@ namespace tp {
 			if (!mIsConst) delete[] mBuff;
 		}
 
-		void resize(ualni size) {
+		void resize(Index size) {
 			DEBUG_ASSERT(mReferenceCount == 1 && !mIsConst)
 			delete[] mBuff;
 			mBuff = new tChar[size + 1];
@@ -143,7 +144,7 @@ namespace tp {
 		}
 
 		// output will be null if in TextEditing mode
-		tChar* resize(uint1 size) {
+		tChar* resize(Index size) {
 			makeModifiable();
 			mData->resize(size);
 			return write();
@@ -231,6 +232,12 @@ namespace tp {
 			Logic::calcLineOffsets(read(), size(), aOut);
 		}
 
+		StringTemplate& operator=(tChar* in) {
+			this->~StringTemplate();
+			new (this) StringTemplate(in);
+			return *this;
+		}
+
 		StringTemplate& operator=(const tChar* in) {
 			this->~StringTemplate();
 			new (this) StringTemplate(in);
@@ -248,6 +255,14 @@ namespace tp {
 			if (&in == this) return true;
 			if (in.mData == mData) return true;
 			return Logic::isEqualLogic(in.read(), read());
+		}
+
+		StringTemplate operator+(const StringTemplate& in) const {
+			StringTemplate out;
+			auto const newSize = in.size() + size();
+			out.resize(newSize);
+			Logic::insertLogic(out.write(), newSize, read(), in.read(), size(), in.size());
+			return out;
 		}
 
 	public: // Debugging

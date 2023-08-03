@@ -164,7 +164,7 @@ bool HeapAllocGlobal::checkLeaks() {
 	}
 
 	// 1) Check for not deallocated memory
-	if (mNumAllocations && ignoredCount != mNumAllocations) {
+	if (mNumAllocations && ignoredCount < mNumAllocations) {
 
 		#ifdef MEM_STACK_TRACE
 		for (auto iter = mEntry; iter; iter = iter->mPrev) {
@@ -172,7 +172,7 @@ bool HeapAllocGlobal::checkLeaks() {
 		}
 		#endif
 
-		printf(" Count : %llu", mNumAllocations);
+		printf(" Count : %llu", mNumAllocations - ignoredCount);
 
 		ASSERT(!"Destruction of not freed Allocator")
 		return true;

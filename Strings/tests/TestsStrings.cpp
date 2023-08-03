@@ -9,6 +9,18 @@ struct TestStruct {
 	String str = "test data";
 };
 
+TEST_DEF_STATIC(Addition) {
+	String str1 = "abc";
+	String str2 = "def";
+	{
+		str1 + str2;
+	}
+	{
+		TEST(str1 + str2 == "abcdef");
+		TEST(str1 + "aaaccc" == "abcaaaccc");
+	}
+}
+
 TEST_DEF_STATIC(Simple) {
 	String str;
 	TEST(str.getIsConstFlag());
@@ -35,4 +47,5 @@ TEST_DEF_STATIC(Simple) {
 
 TEST_DEF(Strings) {
 	testSimple();
+	testAddition();
 }

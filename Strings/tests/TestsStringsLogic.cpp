@@ -33,78 +33,78 @@ TEST_DEF(calcLength) {
 
 TEST_DEF(insertLogic_emptyTarget) {
 	// Test insertLogic function with an empty target string
+	char inserted[40] = { "" };
 	const char* cur = "Hello";
 	const char* tar = "";
 	const char* result = "Hello";
-	char* inserted = Logic::insertLogic(cur, tar, 5, 0);
+	Logic::insertLogic(inserted, 40, cur, tar, 5, 0);
 	TEST(Logic::isEqualLogic(inserted, result));
-	delete[] inserted;
 }
 
 TEST_DEF(insertLogic_emptyCurrent) {
 	// Test insertLogic function with an empty current string
+	char inserted[40] = { "" };
 	const char* cur = "";
 	const char* tar = "World";
 	const char* result = "World";
-	char* inserted = Logic::insertLogic(cur, tar, 0, 5);
+	Logic::insertLogic(inserted, 40, cur, tar, 0, 5);
 	TEST(Logic::isEqualLogic(inserted, result));
-	delete[] inserted;
 }
 
 TEST_DEF(insertLogic_curLengthLessThanPos) {
 	// Test insertLogic function with current length less than the insert position
+	char inserted[40] = { "" };
 	const char* cur = "Hello";
 	const char* tar = "World";
 	const char* result = "HelloWorld";
-	char* inserted = Logic::insertLogic(cur, tar, 10, 5);
+	Logic::insertLogic(inserted, 40, cur, tar, 10, 5);
 	TEST(Logic::isEqualLogic(inserted, result));
-	delete[] inserted;
 }
 
 TEST_DEF(removeLogic_emptyCurrent) {
 	// Test removeLogic function with an empty current string
+	char removed[40] = { "" };
 	const char* cur = "";
 	const char* result = "";
-	char* removed = Logic::removeLogic(cur, 0, 0);
+	Logic::removeLogic(removed, 40, cur, 0, 0);
 	TEST(Logic::isEqualLogic(removed, result));
-	delete[] removed;
 }
 
 TEST_DEF(removeLogic_removeUntilEnd) {
 	// Test removeLogic function by removing until the end of the current string
+	char removed[40] = { "" };
 	const char* cur = "HelloWorld";
 	const char* result = "World";
-	char* removed = Logic::removeLogic(cur, 0, 5);
+	Logic::removeLogic(removed, 40, cur, 0, 5);
 	TEST(Logic::isEqualLogic(removed, result));
-	delete[] removed;
 }
 
 TEST_DEF(removeLogic_removeMiddleCharacters) {
 	// Test removeLogic function by removing characters in the middle of the current string
+	char removed[40] = { "" };
 	const char* cur = "HelloWorld";
 	const char* result = "Helrld";
-	char* removed = Logic::removeLogic(cur, 3, 7);
+	Logic::removeLogic(removed, 40, cur, 3, 7);
 	TEST(Logic::isEqualLogic(removed, result));
-	delete[] removed;
 }
 
 TEST_DEF(insertLogicGood) {
 	// Test insertLogic function
+	char inserted[40] = { "" };
 	const char* cur = "Hello";
 	const char* tar = "World";
 	const char* result = "HelloWorld";
-	char* inserted = Logic::insertLogic(cur, tar, 5, 5);
+	Logic::insertLogic(inserted, 40, cur, tar, 5, 5);
 	TEST(Logic::isEqualLogic(inserted, result));
-	delete[] inserted;
 }
 
 TEST_DEF(removeLogicGood) {
 	// Test removeLogic function
+	char removed[40] = { "" };
 	const char* cur = "HelloWorld";
 	const char* result = "Helo";
-	char* removed = Logic::removeLogic(cur, 3, 8);
+	Logic::removeLogic(removed, 40, cur, 3, 8);
 	TEST(Logic::isEqualLogic(removed, result));
-	delete[] removed;
 }
 
 
