@@ -27,7 +27,10 @@ namespace tp {
 		static void destroyWindow(Window* window);
 
 	public:
-		void renderLoop();
+		void draw();
+		void processEvents();
+		[[nodiscard]] bool shouldClose() const;
+
 		auto getContext() -> Context*;
 
 	private:

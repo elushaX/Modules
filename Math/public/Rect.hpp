@@ -94,7 +94,7 @@ namespace tp {
 
 		// argument isInside
 		bool isInside(const Vec2<Type>& p) const {
-			return (p.each_compre(pos) && (pos + size).each_compre(p));
+			return isInside(p.x, p.y);
 		}
 
 		bool isInside(Type x, Type y) const {

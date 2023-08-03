@@ -7,7 +7,7 @@ project(Objects)
 
 ### ---------------------- Static Library  ---------------------  ###
 file(GLOB SOURCES "./private/*.cpp" "./private/*/*.cpp")
-file(GLOB HEADERS "./public/*.hpp" "./public/*/*.hpp")
+file(GLOB HEADERS "./public/*.hpp" "./public/*/*.hpp" "./applications/*.hpp")
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
 
@@ -17,9 +17,11 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Strings Math Tokenizer CommandLine 
 ### -------------------------- Applications  --------------------------  ###
 #add_executable(osc ./applications/Compiler.cpp)
 #add_executable(osi ./applications/Interpreter.cpp)
+add_executable(osg ./applications/GUI.cpp ./applications/GUIEntry.cpp)
 
 #target_link_libraries(osc ${PROJECT_NAME})
 #target_link_libraries(osi ${PROJECT_NAME})
+target_link_libraries(osg ${PROJECT_NAME} Graphics Imgui)
 
 ### -------------------------- Tests  --------------------------  ###
 enable_testing()

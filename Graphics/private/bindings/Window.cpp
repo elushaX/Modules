@@ -71,11 +71,13 @@ void Graphics::deinit() {
 	mGl.deinit();
 }
 
-void Graphics::draw() {
+void Graphics::proc() {
 	mGl.proc();
 	mCanvas.proc();
 	mGui.proc();
+}
 
+void Graphics::draw() {
 	mGl.draw();
 	mCanvas.draw();
 	mGui.draw();
@@ -110,6 +112,8 @@ Window::~Window() {
 
 
 Window* Window::createWindow(int width, int height, const char* title) {
+	tp::HeapAllocGlobal::startIgnore();
+
 	static int count = 1;
 	if (!count) {
 		printf("Window class is a singleton\n");
@@ -128,7 +132,10 @@ Window* Window::createWindow(int width, int height, const char* title) {
 		printf("GLFW Error: %i %s\n", error, description);
 	});
 
-	return new Window(width, height, title);
+	auto out = new Window(width, height, title);
+
+	tp::HeapAllocGlobal::stopIgnore();
+	return out;
 }
 
 void Window::destroyWindow(Window* window) {
@@ -136,15 +143,18 @@ void Window::destroyWindow(Window* window) {
 	glfwTerminate();
 }
 
-void Window::renderLoop() {
-	while (!glfwWindowShouldClose(mContext->window)) {
+bool Window::shouldClose() const {
+	return glfwWindowShouldClose(mContext->window);
+}
 
-		mGraphics.draw();
+void Window::processEvents() {
+	glfwPollEvents();
+	mGraphics.proc();
+}
 
-		// Swap buffers and poll events
-		glfwSwapBuffers(mContext->window);
-		glfwPollEvents();
-	}
+void Window::draw() {
+	mGraphics.draw();
+	glfwSwapBuffers(mContext->window);
 }
 
 auto Window::getContext() -> Context* { return mContext; }

@@ -42,9 +42,13 @@ void Graphics::GUI::deinit() {
 }
 
 void Graphics::GUI::proc() {
+	tp::HeapAllocGlobal::startIgnore();
+
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
+
+	tp::HeapAllocGlobal::stopIgnore();
 
 	// ImGui code goes here
 	ImGui::Begin("Window");

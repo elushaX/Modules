@@ -26,42 +26,42 @@ namespace tp {
 			return iter - in;
 		}
 
-		static tChar* insertLogic(const tChar* cur, const tChar* tar, Index at, Index len) {
+		static void insertLogic(tChar* result, Index resultLen, const tChar* cur, const tChar* tar, Index at, Index len) {
 			auto curLen = calcLength(cur);
 			auto allLen = curLen + len;
-			auto* out = new tChar[allLen + 1];
+			ASSERT(allLen <= resultLen);
 
 			DEBUG_ASSERT(curLen >= 0)
 			DEBUG_ASSERT(len >= 0)
 			DEBUG_ASSERT(at < curLen + 1 && at >= 0)
 
 			for (Index idx = 0; idx < at; idx++) {
-				out[idx] = cur[idx];
+				result[idx] = cur[idx];
 			}
 			for (Index idx = 0; idx < len; idx++) {
-				out[idx + at] = tar[idx];
+				result[idx + at] = tar[idx];
 			}
 			for (Index idx = at + len; idx < allLen; idx++) {
-				out[idx] = cur[idx - len];
+				result[idx] = cur[idx - len];
 			}
-			out[allLen] = '\0';
-			return out;
+			result[allLen] = '\0';
 		}
 
 		// including end not including start
-		static tChar* removeLogic(const tChar* cur, Index start, Index end) {
+		static void removeLogic(tChar* result, Index resultLen, const tChar* cur, Index start, Index end) {
 			auto curLen = calcLength(cur);
 			auto rangeLen = end - start;
 			auto newLen = curLen - rangeLen;
-			auto* out = new tChar[newLen + 1];
-			out[newLen] = '\0';
+
+			ASSERT(newLen <= resultLen);
+
+			result[newLen] = '\0';
 			for (Index idx = 0; idx < start; idx++) {
-				out[idx] = cur[idx];
+				result[idx] = cur[idx];
 			}
 			for (Index idx = end; idx < curLen; idx++) {
-				out[idx - rangeLen] = cur[idx];
+				result[idx - rangeLen] = cur[idx];
 			}
-			return out;
 		}
 
 		static bool isEqualLogic(const tChar* left, const tChar* right) {

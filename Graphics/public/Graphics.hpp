@@ -67,6 +67,7 @@ namespace tp {
 		void init(Window* window);
 		void deinit();
 		void draw();
+		void proc();
 
 	private:
 		GUI mGui;

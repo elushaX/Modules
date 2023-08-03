@@ -1,6 +1,13 @@
 Testing !!
 
+Graphics:
+  Window event system
+  Graphics API
+  FPS count & Performance control
+
 Objects:
+  Debug GUI
+  use anonymous namespaces for object static methods
   write tests before refactor !!
   Alloc Size queries
   remove obj_ref_count macro
@@ -9,11 +16,6 @@ Objects:
   replace all type usages with typedefs
   remove tp::
   rename classes
-
-Graphics:
-  Window event system
-  Graphics API
-  FPS count & Performance control
 
 Containers:
   Test generatePermutations
