@@ -544,7 +544,7 @@ bool obj::BCgen::Compile(obj::MethodObject* method) {
 	if (res.err) {
 		// TODO : print parse error
 		auto loc = res.err->get_err_location(script.read());
-		printf("Parser Error (%i,%i): \n", loc.head, loc.tail);
+		printf("Parser Error (%i,%i): %s\n", loc.head, loc.tail, res.err->mDescr.read());
 		// tp::gLogeer->write(tp::sfmt("Parser Error (%i,%i): \n", loc.head, loc.tail), true, tp::Logger::LogEntry::ERR);
 		// tp::GLog->write(res.err->mDescr, true, tp::Logger::LogEntry::ERR);
 		return false;

@@ -13,8 +13,55 @@
 using namespace tp;
 using namespace obj;
 
-TEST_DEF_STATIC(Simple) {
+auto script1 = R"(
+class A {
+	var string = "hello";
+	def log(name) {
+		<< self.string;
+		<< name;
+	}
+}
 
+def main() {
+	var a = new A();
+	a.log(" user ");
+}
+
+main();
+
+var i = 10;
+
+if (i == 10) {
+	while (i > 0) {
+		<< i;
+		i = i - 1;
+	}
+} else {
+	<< " no ";
+}
+
+)";
+
+auto script = R"(
+var i = 10;
+)";
+
+TEST_DEF_STATIC(Complex) {
+	auto method = NDO_CAST(MethodObject, NDO->create("method"));
+	auto interpreter = NDO_CAST(InterpreterObject, NDO->create("interpreter"));
+
+	interpreter->getMember<LinkObject>("target method")->setLink(method);
+
+	method->mScript->mReadable->val = script1;
+	method->compile();
+
+	interpreter->exec();
+
+
+	NDO->destroy(interpreter);
+}
+
+TEST_DEF_STATIC(Simple) {
 	auto method = NDO_CAST(MethodObject, NDO->create("method"));
 	auto interpreter = NDO_CAST(InterpreterObject, NDO->create("interpreter"));
 
@@ -37,4 +84,5 @@ TEST_DEF_STATIC(Simple) {
 
 TEST_DEF(Interpreter) {
 	testSimple();
+	//testComplex();
 }
