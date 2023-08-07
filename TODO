@@ -1,21 +1,39 @@
 Testing !!
 
+Objects:
+  tokenizing:
+    test all
+
+  parsing:
+    make cf grammar
+    make lalr parser
+    test all
+
+  features:
+    add debug line information into bytecode
+    implement Alloc Size queries
+
+  enhance:
+    use anonymous namespaces for object static methods
+    remove obj_ref_count macro
+    fix all clang-tidy notices
+    replace all strings with const string ref
+    replace all type usages with typedefs
+    remove tp::
+    rename classes
+
+  bugs:
+    disallow Alloc Size queries
+
+
+Modules:
+  Remove all static variable into module's data
+  Make modules simple threaded
+
 Graphics:
   Window event system
   Graphics API
   FPS count & Performance control
-
-Objects:
-  Debug GUI
-  use anonymous namespaces for object static methods
-  write tests before refactor !!
-  Alloc Size queries
-  remove obj_ref_count macro
-  fix all clang-tidy notices
-  replace all strings with const string ref
-  replace all type usages with typedefs
-  remove tp::
-  rename classes
 
 Containers:
   Test generatePermutations
