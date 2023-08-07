@@ -14,12 +14,12 @@ const char* script =
 R"(
 
 /* yea
-comment  */
+comment  "and string inside"  with int 123 and float 0.123f */
 
 -1.f;
 
 if (+1.f) {
-	var string = "string value
+	var string = "string value some &&characters inside string&& -= asdf 09a
 	another line";
 
 }
