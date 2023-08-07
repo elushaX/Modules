@@ -82,9 +82,10 @@ Parser::Parser() {
 		{ "true",	 Token::CONST_TRUE },
 		{ "false", Token::CONST_FALSE },
 		{ "((\\-)|(\\+))?[0-9]+i?",	 Token::CONST_INT },
-		{ "((\\-)|(\\+))?([0-9]+)(\\.)([0-9]*)?f?",	 Token::CONST_FLOAT },
-		{ "(/\\*){\\*-\\*}*(\\*/)",	 Token::COMMENT_BLOCK },
-		{ "\"{\"-\"}*\"",	 Token::CONST_STRING },
+		{ R"(((\-)|(\+))?([0-9]+)(\.)([0-9]*)?f?)",	 Token::CONST_FLOAT },
+		{ R"((/\*){\*-\*}*(\*/))",	 Token::COMMENT_BLOCK },
+		{ R"("{"-"}*")",	 Token::CONST_STRING },
+
 		{ "([a-z]|[A-Z]|_)+([a-z]|[A-Z]|[0-9]|_)*",	 Token::ID },
 	});
 }
