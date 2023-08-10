@@ -351,17 +351,15 @@ namespace tp::RegEx {
 				halni idx = 0;
 				for (auto rule: aRules) {
 
-					auto node = idx ? compileUtil(rule.head, rule.tail) : compileUtil(rule.head, rule.tail, left, right);
+					auto node = compileUtil(rule.head, rule.tail);
 
 					if (!(node.left && node.right)) {
 						mError.mRuleIndex = idx;
 						return {};
 					}
 
-					if (idx) {
-						transitionAny(left, node.left);
-						transitionAny(node.right, right);
-					}
+					transitionAny(left, node.left);
+					transitionAny(node.right, right);
 
 					idx++;
 				}
@@ -373,7 +371,7 @@ namespace tp::RegEx {
 
 		private:
 
-			Node compileUtil(const tAlphabetType* regex, tStateType state, Vertex* aLeft = nullptr, Vertex* aRight = nullptr) {
+			Node compileUtil(const tAlphabetType* regex, tStateType state) {
 				Parser parser;
 				auto astNode = parser.parse(regex);
 				if (parser.mError.isError()) {
@@ -384,7 +382,7 @@ namespace tp::RegEx {
 					return {};
 				}
 
-				auto node = compileNode(astNode, aLeft, aRight);
+				auto node = compileNode(astNode, nullptr, nullptr);
 				delete astNode;
 
 				mGraph->setVertexState(node.right, state);

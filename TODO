@@ -1,9 +1,6 @@
 Testing !!
 
 Objects:
-  tokenizing:
-    test all
-
   parsing:
     make cf grammar
     make lalr parser

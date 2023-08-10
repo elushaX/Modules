@@ -42,9 +42,8 @@ struct State {
 typedef Buffer<State> Automata;
 
 void initializeTokenizer(CFGTokenizer* tok) {
-	typedef decltype(tok->getTokenizer()) TokBase;
 	tok->build({
-			{ TokBase::etherRE, Token::IGNORED },
+			{ CFGTokenizer::tTokenizer::etherRE, Token::IGNORED },
 			{ "Start", Token::START },
 			{ ":", Token::EQUAL },
 			{ "\\[", Token::TERMINAL_START },
@@ -52,8 +51,8 @@ void initializeTokenizer(CFGTokenizer* tok) {
 			{ "\\|", Token::ALTERNATION },
 			{ ";", Token::RULE_END },
 			{ "&", Token::EPSILON },
-			{ TokBase::idRE, Token::ID },
-			{ TokBase::commentBlockRE, Token::COMMENT },
+			{ CFGTokenizer::tTokenizer::idRE, Token::ID },
+			{ CFGTokenizer::tTokenizer::commentBlockRE, Token::COMMENT },
 	});
 
 	ASSERT(tok->isBuild())

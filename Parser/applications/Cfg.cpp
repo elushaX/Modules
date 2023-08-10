@@ -21,7 +21,7 @@ void run(const String& source) {
 		return;
 	}
 
-	printf("Grammar is accepted.\n");
+	printf("Grammar accepted.\n");
 
 	printf("Example text formed from grammar : TODO\n");
 

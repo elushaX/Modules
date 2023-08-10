@@ -422,6 +422,10 @@ namespace tp {
 
 		TransitionMatrix() = default;
 
+		auto getStates() const { return &mStates; }
+		auto getTransitions() const { return &mTransitions; }
+		auto getStart() const { return mStart; }
+
 		void construct(const DFA<tAlphabetType, tStateType, tNoStateVal, tFailedStateVal>& dfa) {
 			mSymbolRange = dfa.getRange();
 			auto range_len = ualni(mSymbolRange.mEnd - mSymbolRange.mBegin);
