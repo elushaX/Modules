@@ -16,6 +16,8 @@ enum class Token {
 	ALTERNATION,
 	RULE_END,
 	IGNORED,
+	EPSILON,
+	COMMENT,
 	END,
 	FAILED,
 };
@@ -31,6 +33,7 @@ struct State {
 		void (*action)(CfGrammar* grammar, const String& tok) = nullptr;
 	};
 
+	String name;
 	String error;
 	Buffer<Transition> transitions;
 	bool accept = false;
@@ -41,25 +44,28 @@ typedef Buffer<State> Automata;
 void initializeTokenizer(CFGTokenizer* tok) {
 	typedef decltype(tok->getTokenizer()) TokBase;
 	tok->build({
-			{ TokBase::idRE, Token::ID },
 			{ TokBase::etherRE, Token::IGNORED },
 			{ "Start", Token::START },
 			{ ":", Token::EQUAL },
-			{ "[", Token::TERMINAL_START },
-			{ "]", Token::TERMINAL_END },
-			{ "|", Token::ALTERNATION },
+			{ "\\[", Token::TERMINAL_START },
+			{ "\\]", Token::TERMINAL_END },
+			{ "\\|", Token::ALTERNATION },
 			{ ";", Token::RULE_END },
+			{ "&", Token::EPSILON },
+			{ TokBase::idRE, Token::ID },
+			{ TokBase::commentBlockRE, Token::COMMENT },
 	});
+
+	ASSERT(tok->isBuild())
 }
 
 void initAutomata(Automata& automata) {
-	automata.reserve(8);
+	automata.reserve(7);
 	auto states = &automata.first();
 
 	auto root = states++;
 	auto end = states++;
 	auto start = states++;
-	auto startEnd = states++;
 	auto rule = states++;
 	auto rhs = states++;
 	auto terminalStart = states++;
@@ -75,11 +81,7 @@ void initAutomata(Automata& automata) {
 	};
 
 	start->transitions = {
-			{ Token::ID, startEnd},
-	};
-
-	startEnd->transitions = {
-			{ Token::RULE_END,
+			{ Token::ID,
 			 root,
 			 [](CfGrammar* grammar, const String& tok) {
 				 grammar->startTerminal = tok;
@@ -98,7 +100,11 @@ void initAutomata(Automata& automata) {
 			 }
 			},
 			{ Token::ID, rhs, [](CfGrammar* grammar, const String& tok) {
-				 grammar->rules.last()->data.args.pushBack({ tok, false });
+				 grammar->rules.last()->data.args.pushBack({ tok, false, false });
+			 }
+			},
+			{ Token::EPSILON, rhs, [](CfGrammar* grammar, const String& tok) {
+				 grammar->rules.last()->data.args.pushBack({ tok, false, true });
 			 }
 			},
 			{ Token::TERMINAL_START, terminalStart },
@@ -106,8 +112,8 @@ void initAutomata(Automata& automata) {
 	};
 
 	terminalStart->transitions = {
-			{ Token::ID, rhs, [](CfGrammar* grammar, const String& tok) {
-				 grammar->rules.last()->data.args.pushBack({ tok, true });
+			{ Token::ID, terminalEnd, [](CfGrammar* grammar, const String& tok) {
+				 grammar->rules.last()->data.args.pushBack({ tok, true, false });
 			 }
 			},
 	};
@@ -121,11 +127,17 @@ void initAutomata(Automata& automata) {
 
 	root->error = "Expected 'Start' statement, rule or end of text";
 	start->error = idError;
-	startEnd->error = stmEndError;
 	rule->error = "Expected production equality ':'";
 	rhs->error = "Expected alternation '|', terminal id, statement end ';' or terminal start '[' ";
 	terminalStart->error = idError;
 	terminalEnd->error = "Expected terminal end '[' ";
+
+	root->name = "root";
+	start->name = "start";
+	rule->name = "production";
+	rhs->name = "rhs";
+	terminalStart->name = "terminalStart";
+	terminalEnd->name = "terminalEnd";
 
 	end->accept = true;
 }
@@ -139,6 +151,10 @@ bool parse(const AlphabetType* text, Automata* automata, CFGTokenizer* tok, CfGr
 
 		auto token = tok->readTok();
 
+		if (token == Token::IGNORED || token == Token::COMMENT) {
+			continue;
+		}
+
 		if (token == Token::FAILED) {
 			auto errorLocation = tok->getCursorPrev().get2DLocation();
 			printf("Syntax error at (%llu, %llu)\n", errorLocation.line, errorLocation.character);
@@ -151,7 +167,7 @@ bool parse(const AlphabetType* text, Automata* automata, CFGTokenizer* tok, CfGr
 
 		for (auto transition : state->transitions) {
 			if (transition->tok == token) {
-				transition->action(grammar, tokVal);
+				if (transition->action) transition->action(grammar, tokVal);
 				state = transition->target;
 				isTransition = true;
 				break;
@@ -185,6 +201,6 @@ void CfGrammar::deinitializeCfGrammarParser(CfGrammarParserState* state) {
 	delete state;
 }
 
-void CfGrammar::parse(CfGrammarParserState* context, const int1* source) {
-	::parse(source, &context->automata, &context->tokenizer, this);
+bool CfGrammar::parse(CfGrammarParserState* context, const String& source) {
+	return ::parse(source.read(), &context->automata, &context->tokenizer, this);
 }

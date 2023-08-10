@@ -1,0 +1,12 @@
+
+/*
+Sample grammar.
+This grammar wil produce text in the form: TODO
+*/
+
+/* This is the starting production of the grammar */
+Start A
+
+/* Production rule */
+A : [ ID ];
+

@@ -337,6 +337,7 @@ void CommandLine::parseArg(Arg& arg, const char* src) {
 	auto tok = mTokenizer.readTok();
 	if (tok < TokType::INT || tok > TokType::STR) {
 		ErrInvalidArgSyntax(&arg);
+		return;
 	}
 
 	auto val = mTokenizer.extractVal();

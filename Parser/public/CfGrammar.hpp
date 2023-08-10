@@ -2,6 +2,7 @@
 
 #include "Strings.hpp"
 #include "List.hpp"
+#include "Map.hpp"
 
 namespace tp {
 
@@ -9,7 +10,8 @@ namespace tp {
 		struct Rule {
 			struct Arg {
 				String id;
-				bool isTerminal;
+				bool isTerminal = false;
+				bool isEpsilon = false;
 			};
 
 			String id;
@@ -19,11 +21,27 @@ namespace tp {
 		List<Rule> rules;
 		String startTerminal;
 
+	private:
+		struct NonTerminal {
+			List<Rule*> rules;
+			Map<String, NonTerminal*> references;
+			Map<String, NonTerminal*> referencing;
+		};
+
+		struct Terminal {};
+
+		Map<String, Terminal> mTerminals;
+		Map<String, NonTerminal> mNonTerminals;
+
 	public:
 		static struct CfGrammarParserState* initializeCfGrammarParser();
 		static void deinitializeCfGrammarParser(CfGrammarParserState*);
 
 	public:
-		void parse(CfGrammarParserState* context, const int1* source);
+		bool parse(CfGrammarParserState* context, const String& source);
+		bool compile();
+
+		bool isAmbiguous();
+		void optimize();
 	};
 }
