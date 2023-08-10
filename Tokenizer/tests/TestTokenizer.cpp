@@ -193,6 +193,46 @@ TEST_DEF_STATIC(Simple) {
 	TEST(outputHash == outputHashPassed);
 }
 
+TEST_DEF(Covarage) {
+	enum class TokType {
+		START = 0,
+		NONE = 1,
+		FAILED = 2,
+		SPACE = 3,
+		ID = 4,
+		COMMENT_BLOCK = 5,
+		TOK_SOURCE_END = 6,
+	};
+
+	SimpleTokenizer<char, TokType, TokType::NONE, TokType::FAILED, TokType::TOK_SOURCE_END> lexer;
+
+	lexer.build({
+			{ "([a-c]|A)+",	 TokType::ID },
+			{ "A", TokType::START },
+			{ " ", TokType::SPACE },
+	});
+
+	if (!lexer.isBuild()) {
+		printf("Error : %s", lexer.getBuildError().description);
+		return;
+	}
+
+	lexer.bindSource(" A bc cb cc ");
+	/* 											 3    5    3  0  3 4 3 4 3      6 */
+
+	TokType tok;
+	ualni outputHash = 0;
+	printf("\n\n OutputHash : ");
+	do {
+		tok = lexer.readTok();
+		outputHash += ualni(tok);
+		printf(" %i ", int(tok));
+	} while (tok != TokType::TOK_SOURCE_END && tok != TokType::FAILED);
+	printf(" : %llu", outputHash);
+	TEST(outputHash == 90);
+}
+
 TEST_DEF(Tokenizer) {
 	testSimple();
+	// testCovarage(); TODO : test environment for an error
 }

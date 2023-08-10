@@ -12,6 +12,12 @@ add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
 target_include_directories(${PROJECT_NAME} PUBLIC ./public/)
 target_link_libraries(${PROJECT_NAME} PUBLIC Tokenizer)
 
+### -------------------------- Applications  --------------------------  ###
+add_executable(cfg ./applications/Cfg.cpp )
+target_link_libraries(cfg ${PROJECT_NAME} CommandLine)
+
+configure_file(rsc/grammar.txt grammar.txt COPYONLY)
+
 ### -------------------------- Tests  --------------------------  ###
 enable_testing()
 file(GLOB TEST_SOURCES "./tests/*.cpp")
