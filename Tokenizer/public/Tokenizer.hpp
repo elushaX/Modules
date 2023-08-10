@@ -20,6 +20,15 @@ namespace tp {
 		}
 
 	public:
+		// Some useful RE to be reused
+		static constexpr const tAlphabetType* etherRE = "\n|\t| |\r";
+		static constexpr const tAlphabetType* intRE = "((\\-)|(\\+))?[0-9]+i?";
+		static constexpr const tAlphabetType* floatRE = R"(((\-)|(\+))?([0-9]+)(\.)([0-9]*)?f?)";
+		static constexpr const tAlphabetType* commentBlockRE = R"((/\*){\*-\*}*(\*/))";
+		static constexpr const tAlphabetType* stringRE = R"("{"-"}*")";
+		static constexpr const tAlphabetType* idRE =  "([a-z]|[A-Z]|_)+([a-z]|[A-Z]|[0-9]|_)*";
+
+	public:
 
 		Tokenizer() {
 			MODULE_SANITY_CHECK(gModuleTokenizer)
@@ -85,9 +94,30 @@ namespace tp {
 			const tAlphabetType* mSource = nullptr;
 			ualni mAdvancedOffset = 0;
 			const tAlphabetType* str() { return mSource + mAdvancedOffset; }
+
+			struct Location2D {
+				ualni line = 0;
+				ualni character = 0;
+			};
+
+			Location2D get2DLocation() {
+				Location2D out;
+				typedef typename StringLogic<tAlphabetType>::Index Idx;
+				Buffer<Idx> offsets;
+				StringLogic<tAlphabetType>::calcLineOffsets(mSource, StringLogic<tAlphabetType>::calcLength(mSource), offsets);
+				for (ualni idx = 1; idx < offsets.size(); idx++) {
+					if (offsets[idx] > mAdvancedOffset) {
+						out.line = idx - 1;
+						break;
+					}
+				}
+				out.character = mAdvancedOffset - offsets[out.line];
+				return out;
+			}
 		};
 
 		SimpleTokenizer() = default;
+		auto getTokenizer() const { return mTokenizer; }
 
 		void build(const InitialierList<Pair<const tAlphabetType*, tTokType>>& rules) {
 			mTokenizer.build(rules);
