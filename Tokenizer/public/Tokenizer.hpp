@@ -50,6 +50,8 @@ namespace tp {
 			return !mError.isError();
 		}
 
+		auto getMatrix() const { return &mTransitionMatrix; }
+
 		const RegEx::CompileError<tTokType>& getBuildError() {
 			return mError;
 		}
@@ -80,8 +82,11 @@ namespace tp {
 
 	template <typename tAlphabetType, typename tTokType, tTokType tNoTokVal, tTokType tFailedTokVal, tTokType tSourceEndTokVal>
 	class SimpleTokenizer {
-		
-		Tokenizer<tAlphabetType, tTokType, tNoTokVal, tFailedTokVal> mTokenizer;
+	public:
+		typedef Tokenizer<tAlphabetType, tTokType, tNoTokVal, tFailedTokVal> tTokenizer;
+
+	private:
+		tTokenizer mTokenizer;
 
 		const tAlphabetType* mSource = nullptr;
 		ualni mLastTokLen = 0;
@@ -117,7 +122,7 @@ namespace tp {
 		};
 
 		SimpleTokenizer() = default;
-		auto getTokenizer() const { return mTokenizer; }
+		auto getTokenizer() const { return &mTokenizer; }
 
 		void build(const InitialierList<Pair<const tAlphabetType*, tTokType>>& rules) {
 			mTokenizer.build(rules);

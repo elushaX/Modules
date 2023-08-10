@@ -30,7 +30,7 @@ return
 
 )";
 
-TEST_DEF_STATIC(Simple) {
+TEST_DEF_STATIC(General) {
 
 	enum class TokType {
 		NONE,
@@ -193,7 +193,7 @@ TEST_DEF_STATIC(Simple) {
 	TEST(outputHash == outputHashPassed);
 }
 
-TEST_DEF(Covarage) {
+TEST_DEF(Simple) {
 	enum class TokType {
 		START = 0,
 		NONE = 1,
@@ -207,9 +207,9 @@ TEST_DEF(Covarage) {
 	SimpleTokenizer<char, TokType, TokType::NONE, TokType::FAILED, TokType::TOK_SOURCE_END> lexer;
 
 	lexer.build({
+			{ " ", TokType::SPACE },
 			{ "([a-c]|A)+",	 TokType::ID },
 			{ "A", TokType::START },
-			{ " ", TokType::SPACE },
 	});
 
 	if (!lexer.isBuild()) {
@@ -218,7 +218,6 @@ TEST_DEF(Covarage) {
 	}
 
 	lexer.bindSource(" A bc cb cc ");
-	/* 											 3    5    3  0  3 4 3 4 3      6 */
 
 	TokType tok;
 	ualni outputHash = 0;
@@ -229,10 +228,10 @@ TEST_DEF(Covarage) {
 		printf(" %i ", int(tok));
 	} while (tok != TokType::TOK_SOURCE_END && tok != TokType::FAILED);
 	printf(" : %llu", outputHash);
-	TEST(outputHash == 90);
+	TEST(outputHash == 33);
 }
 
 TEST_DEF(Tokenizer) {
+	testGeneral();
 	testSimple();
-	// testCovarage(); TODO : test environment for an error
 }
