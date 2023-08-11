@@ -41,7 +41,7 @@ namespace tp {
 
 	private:
 		tAllocator mAlloc;
-		Node** mTable;
+		Node** mTable = nullptr;
 		ualni mNSlots = 0;
 		ualni mNEntries = 0;
 
@@ -181,6 +181,10 @@ namespace tp {
 			mTable = newTable(mNSlots);
 		}
 
+		Map(const Map& in) {
+			this->operator=(in);
+		}
+
 		Node** buff() const {
 			return mTable;
 		}
@@ -202,8 +206,9 @@ namespace tp {
 			if (!mTable[idx] || isDeletedNode(mTable[idx])) {
 				mTable[idx] = newNode(key, val);
 				mNEntries++;
+			} else {
+				mTable[idx]->val = val;
 			}
-			mTable[idx]->val = val;
 			if ((halnf) mNEntries / mNSlots > maxLoadFactor()) {
 				rehash();
 			}
