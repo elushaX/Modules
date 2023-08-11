@@ -22,6 +22,9 @@ namespace tp {
 			struct Term {
 				String id;
 				bool terminal;
+				bool operator==(const Term& in) const {
+					return (id == in.id) && (terminal == in.terminal);
+				}
 			};
 			List<Term> terms;
 		};
