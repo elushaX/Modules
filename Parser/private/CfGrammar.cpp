@@ -2,7 +2,72 @@
 #include "NewPlacement.hpp"
 #include "CfGrammar.hpp"
 
+#include "Timing.hpp"
+
 using namespace tp;
+
+void CfGrammar::generateSentences(List<Sentence>& out) {
+	constexpr ualni maxTime = 1000;
+	constexpr ualni maxSentences = 40;
+	constexpr ualni maxQueue = 20000;
+
+	List<Sentence> queue;
+	Timer timer(maxTime);
+
+	// add start production
+	Sentence start;
+	start.terms.pushBack( { startTerminal, false } );
+	queue.pushBack(start);
+
+	PASS:
+
+	auto const sentential = &queue.first()->data;
+	bool isSentence = true;
+	ualni termIdx = 0;
+	for (auto term : sentential->terms) {
+		if (term->terminal) {
+			termIdx++;
+			continue;
+		}
+
+		auto nonTerminal = &mNonTerminals.get(term->id);
+		for (auto production : nonTerminal->rules) {
+			queue.pushBack(*sentential);
+			auto copy = &queue.last()->data;
+
+			auto appendTerm = copy->terms.findIdx(termIdx);
+			auto deleteTerm = appendTerm;
+			for (auto arg : production->args) {
+				auto newTerm = copy->terms.newNode({ arg->id, arg->isTerminal });
+				copy->terms.attach(newTerm, appendTerm);
+				appendTerm = newTerm;
+			}
+			copy->terms.removeNode(deleteTerm);
+		}
+
+		isSentence = false;
+		termIdx++;
+	}
+	if (isSentence) out.pushBack(*sentential);
+	queue.popFront();
+
+
+	bool stop = false;
+	stop |= !queue.length();
+	stop |= timer.isTimeout();
+	stop |= queue.length() > maxQueue;
+	stop |= out.length() > maxSentences;
+
+	if (!stop) goto PASS;
+}
+
+void CfGrammar::printSentence(Sentence& in) {
+	printf("Sentence:");
+	for (auto term : in.terms) {
+		printf(" %s", term->id.read());
+	}
+	printf("\n");
+}
 
 bool CfGrammar::compile() {
 

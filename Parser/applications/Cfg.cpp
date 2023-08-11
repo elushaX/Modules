@@ -23,7 +23,11 @@ void run(const String& source) {
 
 	printf("Grammar accepted.\n");
 
-	printf("Example text formed from grammar : TODO\n");
+	List<CfGrammar::Sentence> sentences;
+	grammar.generateSentences(sentences);
+
+	printf("Example sentences formed from grammar: \n");
+	for (auto sentence : sentences) tp::CfGrammar::printSentence(sentence.data());
 
 	CfGrammar::deinitializeCfGrammarParser(state);
 }
