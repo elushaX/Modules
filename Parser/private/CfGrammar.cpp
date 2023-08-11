@@ -38,6 +38,7 @@ void CfGrammar::generateSentences(List<Sentence>& out) {
 			auto appendTerm = copy->terms.findIdx(termIdx);
 			auto deleteTerm = appendTerm;
 			for (auto arg : production->args) {
+				if (arg->isEpsilon) continue;
 				auto newTerm = copy->terms.newNode({ arg->id, arg->isTerminal });
 				copy->terms.attach(newTerm, appendTerm);
 				appendTerm = newTerm;
@@ -62,11 +63,11 @@ void CfGrammar::generateSentences(List<Sentence>& out) {
 }
 
 void CfGrammar::printSentence(Sentence& in) {
-	printf("Sentence:");
+	printf("Sentence: [");
 	for (auto term : in.terms) {
 		printf(" %s", term->id.read());
 	}
-	printf("\n");
+	printf(" ]\n");
 }
 
 bool CfGrammar::compile() {
@@ -103,7 +104,7 @@ bool CfGrammar::compile() {
 
 				if (arg->isTerminal) {
 					mTerminals.put(rule->id, {});
-				} else {
+				} else if (!arg->isEpsilon) {
 					auto idx = mNonTerminals.presents(arg->id);
 					if (!idx) {
 						printf("Referenced non-terminal '%s' is not defined\n", arg->id.read());

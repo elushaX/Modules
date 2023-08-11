@@ -13,11 +13,13 @@ void run(const String& source) {
 
 	if (!grammar.parse(state, source)) {
 		printf("Parsing is failed\n");
+		CfGrammar::deinitializeCfGrammarParser(state);
 		return;
 	}
 
 	if (!grammar.compile()) {
 		printf("Compilation is failed\n");
+		CfGrammar::deinitializeCfGrammarParser(state);
 		return;
 	}
 
@@ -41,6 +43,12 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
+		printf("Arguments given: ");
+		for (auto idx = 0; idx < argc; idx++) {
+			printf("[%s]", argv[idx]);
+		}
+		printf("\n");
+
 		CommandLine cmd = {
 				{ "grammar", CommandLine::Arg::STR },
 		};
