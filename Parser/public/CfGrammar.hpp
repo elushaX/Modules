@@ -18,6 +18,14 @@ namespace tp {
 			List<Arg> args;
 		};
 
+		struct Sentence {
+			struct Term {
+				String id;
+				bool terminal;
+			};
+			List<Term> terms;
+		};
+
 		List<Rule> rules;
 		String startTerminal;
 
@@ -41,7 +49,10 @@ namespace tp {
 		bool parse(CfGrammarParserState* context, const String& source);
 		bool compile();
 
-		bool isAmbiguous();
+		void generateSentences(List<Sentence>& out);
+		static void printSentence(Sentence& in);
+
+	private:
 		void optimize();
 	};
 }

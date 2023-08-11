@@ -72,7 +72,7 @@ namespace tp {
 	public:
 
 		List() = default;
-
+		List(const List& in) { this->operator=(in);	}
 		List(const InitialierList<Type>& list) { operator=(list); }
 
 		[[nodiscard]] inline Node* first() const { return mFirst; }
@@ -146,7 +146,7 @@ namespace tp {
 		}
 
 		[[nodiscard]] Node* findIdx(Index idx) const {
-			DEBUG_ASSERT(!mFirst || idx > mLength - 1)
+			DEBUG_ASSERT(mFirst && idx < mLength && idx >= 0)
 			Node* found = mFirst;
 			for (int i = 0; i != idx; i++) {
 				found = found->next;
