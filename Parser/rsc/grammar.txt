@@ -8,5 +8,5 @@ This grammar wil produce text in the form: TODO
 Start A
 
 /* Production rule */
-A : [ ID ];
+A : [ ID ] [ IS ] [ IDs ];
 
