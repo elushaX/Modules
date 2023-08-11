@@ -26,6 +26,8 @@ bool ModuleManifest::isInitialized() const {
 
 bool ModuleManifest::initialize(const ModuleManifest* parent) {
 
+	if (!parent) std::cout << "===== Initialization Start =====\n";
+
 	mInitCount++;
 
 	if (isInitialized()) {
@@ -38,13 +40,15 @@ bool ModuleManifest::initialize(const ModuleManifest* parent) {
 		mInitialized &= (*module)->initialize(this);
 	}
 
-	std::cout << "=== Initializing \"" << mModuleName << "\" from \"" << (parent ? parent->mModuleName : mModuleName ) << "\"\n";
+	std::cout << " * Initializing \"" << mModuleName << "\" from \"" << (parent ? parent->mModuleName : mModuleName ) << "\"\n";
 
 	if (mInit) mInitialized &= mInit(this);
 
 	if (!mInitialized) {
 		std::cout << "Failed to Initialize.\n";
 	}
+
+	if (!parent) std::cout << "===== Initialization End =====\n\n";
 
 	return mInitialized;
 }
