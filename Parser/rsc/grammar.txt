@@ -5,8 +5,16 @@ This grammar wil produce text in the form: TODO
 */
 
 /* This is the starting production of the grammar */
+
+/* Simple Example
 Start A
+A : [ ID ] | &;
+*/
 
-/* Production rule */
-A : [ ID ] [ IS ] [ IDs ];
+/* Lists Example */
 
+Start List
+
+List : List Stm | Stm;
+Stm : StmBody [ END ];
+StmBody: [ Stm1 ] | [ Stm2 ] | [ Stm3 ];

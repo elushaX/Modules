@@ -243,7 +243,7 @@ namespace tp {
 		}
 
 		[[nodiscard]] bool operator==(const List& in) const {
-			if (in == *this) { return true; }
+			if (&in == this) { return true; }
 			if (in.length() != length()) {
 				return false;
 			}
@@ -253,6 +253,8 @@ namespace tp {
 				if (left->data != right->data) {
 					return false;
 				}
+				left = left->next;
+				right = right->next;
 			}
 			if (left != right) {
 				return false;

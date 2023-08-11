@@ -8,8 +8,8 @@ using namespace tp;
 
 void CfGrammar::generateSentences(List<Sentence>& out) {
 	constexpr ualni maxTime = 1000;
-	constexpr ualni maxSentences = 40;
-	constexpr ualni maxQueue = 20000;
+	constexpr ualni maxSentences = 200;
+	constexpr ualni maxQueue = 1000000;
 
 	List<Sentence> queue;
 	Timer timer(maxTime);
@@ -49,9 +49,19 @@ void CfGrammar::generateSentences(List<Sentence>& out) {
 		isSentence = false;
 		termIdx++;
 	}
-	if (isSentence) out.pushBack(*sentential);
-	queue.popFront();
 
+	if (isSentence) {
+		auto exists = false;
+		for (auto iter : out) {
+			if (iter->terms == sentential->terms) {
+				exists = true;
+				break;
+			}
+		}
+		if (!exists) out.pushBack(*sentential);
+	}
+
+	queue.popFront();
 
 	bool stop = false;
 	stop |= !queue.length();
@@ -63,7 +73,7 @@ void CfGrammar::generateSentences(List<Sentence>& out) {
 }
 
 void CfGrammar::printSentence(Sentence& in) {
-	printf("Sentence: [");
+	printf("[");
 	for (auto term : in.terms) {
 		printf(" %s", term->id.read());
 	}

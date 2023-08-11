@@ -1,11 +1,13 @@
 Testing !!
 
-Objects:
-  parsing:
-    make cf grammar
-    make lalr parser
-    test all
+Parser:
+  CF Grammar:
+    optimize generation of sentences
+    check sanity
 
+  impl parse machine
+
+Objects:
   features:
     add debug line information into bytecode
     implement Alloc Size queries
