@@ -24,6 +24,13 @@ namespace tp {
 			bool operator==(const Rule& in) const {
 				return (id == in.id) && (args == in.args);
 			}
+
+			[[nodiscard]] bool isProductive() const {
+				for (auto arg : args) {
+					if (arg->id == id) return false;
+				}
+				return true;
+			}
 		};
 
 		struct Sentence {
@@ -42,9 +49,28 @@ namespace tp {
 
 	private:
 		struct NonTerminal {
+
 			List<Rule*> rules;
 			Map<String, NonTerminal*> references;
 			Map<String, NonTerminal*> referencing;
+
+			[[nodiscard]] bool isProductive() const {
+				for (auto rule : rules) {
+					if (rule->isProductive()) return true;
+				}
+				return false;
+			}
+
+			[[nodiscard]] bool isLooped(Map<String, ualni>& processed, const String& id) const {
+				for (auto ref : referencing) {
+					if (processed.presents(ref->key)) return true;
+				}
+				processed.put(id, {});
+				for (auto ref : referencing) {
+					if (ref->val->isLooped(processed, ref->key)) return true;
+				}
+				return false;
+			}
 		};
 
 		struct Terminal {};
