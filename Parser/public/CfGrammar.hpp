@@ -12,10 +12,18 @@ namespace tp {
 				String id;
 				bool isTerminal = false;
 				bool isEpsilon = false;
+
+				bool operator==(const Arg& in) const {
+					return (id == in.id) && (isEpsilon == in.isEpsilon) && (isTerminal == in.isTerminal);
+				}
 			};
 
 			String id;
 			List<Arg> args;
+
+			bool operator==(const Rule& in) const {
+				return (id == in.id) && (args == in.args);
+			}
 		};
 
 		struct Sentence {

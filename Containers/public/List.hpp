@@ -157,6 +157,7 @@ namespace tp {
 		[[nodiscard]] Node* find(const TypeArg data) const {
 			Node* found = mFirst;
 			for (alni i = 0; data != found->data; i++) {
+				if (i == length()) return nullptr;
 				if (!found->next) {
 					return nullptr;
 				}

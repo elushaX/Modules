@@ -128,11 +128,22 @@ bool CfGrammar::compile() {
 		}
 	}
 
+	List<String> remove;
 	for (auto nonTerminal : mNonTerminals) {
 		if (!nonTerminal->val.references.size() && nonTerminal->key != startTerminal) {
 			printf("Non-terminal '%s' is defined but not used\n", nonTerminal->key.read());
+			remove.pushBack(nonTerminal->key);
 		}
 	}
 
+	for (auto rem : remove) {
+		auto nonTerminal = &mNonTerminals.get(rem.data());
+		for (auto referencing : nonTerminal->referencing) {
+			referencing->val->references.remove(nonTerminal->rules.first()->data->id);
+		}
+		for (auto rule : nonTerminal->rules) {
+			rules.removeNode(rules.find(*rule.data()));
+		}
+	}
 	return true;
 }
