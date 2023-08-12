@@ -145,5 +145,18 @@ bool CfGrammar::compile() {
 			rules.removeNode(rules.find(*rule.data()));
 		}
 	}
+
+	for (auto nonTerminal : mNonTerminals) {
+		if (!nonTerminal->val.isProductive()) {
+			printf("Non-terminal '%s' is not productive\n", nonTerminal->val.rules.first()->data->id.read());
+			return false;
+		}
+	}
+
+	Map<String, ualni> processed;
+	if (mNonTerminals.get(startTerminal).isLooped(processed, startTerminal)) {
+		printf("Note that grammar is looped.\n");
+	}
+
 	return true;
 }
