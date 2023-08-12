@@ -203,3 +203,7 @@ void CfGrammar::deinitializeCfGrammarParser(CfGrammarParserState* state) {
 bool CfGrammar::parse(CfGrammarParserState* context, const String& source) {
 	return ::parse(source.read(), &context->automata, &context->tokenizer, this);
 }
+
+bool CfGrammar::isLooped() const {
+	return mIsLooped;
+}

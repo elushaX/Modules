@@ -77,6 +77,7 @@ namespace tp {
 
 		Map<String, Terminal> mTerminals;
 		Map<String, NonTerminal> mNonTerminals;
+		bool mIsLooped = false;
 
 	public:
 		static struct CfGrammarParserState* initializeCfGrammarParser();
@@ -89,7 +90,6 @@ namespace tp {
 		void generateSentences(List<Sentence>& out);
 		static void printSentence(Sentence& in);
 
-	private:
-		void optimize();
+		[[nodiscard]] bool isLooped() const;
 	};
 }
