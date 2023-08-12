@@ -61,4 +61,5 @@ namespace tp {
 	void Name##FunctorBody()
 
 #define TEST(expr) if (!(expr)) tp::gTesting.addFailedCheck({ #expr, __FILE__, __LINE__ })
+#define TEST_ASSERT(expr) TEST(expr); if (!(expr)) return
 #define TEST_EQUAL(l, r) if (!((l) == (r))) tp::gTesting.addFailedCheck({ #l" == "#r, __FILE__, __LINE__ })
