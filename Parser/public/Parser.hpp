@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CfGrammar.hpp"
+#include "CLR.hpp"
 
 namespace tp {
 	extern ModuleManifest gModuleParser;
