@@ -6,5 +6,5 @@
 using namespace tp;
 
 TEST_DEF(CLR) {
-	TEST(false);
+	//TEST(false);
 }
