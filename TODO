@@ -1,5 +1,10 @@
 Testing !!
 
+Merge parser and tokenizer module into grammar module
+Make two grammars Regular and Context-free
+For each grammar make grammar rules parser, example sentence generation and sentence parsing
+Make automations itself a universal tool - NFA DFA conversions
+
 Parser:
   CF Grammar:
     optimize generation of sentences
