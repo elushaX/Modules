@@ -18,7 +18,7 @@ int main() {
 			while (!window->shouldClose()) {
 				window->processEvents();
 
-				ImGui::Text("Hello!");
+				window->getGraphics().getDebugGui().drawDebugInfoWindow();
 
 				window->draw();
 			}

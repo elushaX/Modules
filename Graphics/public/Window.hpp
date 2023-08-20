@@ -18,6 +18,12 @@ namespace tp {
 			};
 		};
 
+		struct Monitor {
+			ualni refreshRate = 60;
+			Vec2F pixelSize;
+			Vec2F mmSize;
+		};
+
 	private:
 		Window(int width, int height, const char* title);
 		~Window();
@@ -33,10 +39,14 @@ namespace tp {
 
 		auto getContext() -> Context*;
 
+		Graphics& getGraphics() { return mGraphics; }
+
+		[[nodiscard]] const Monitor& getMonitor() const { return mMonitor; }
+
 	private:
 		Context* mContext;
 		Graphics mGraphics;
-
 		Buffer<Event> mEvents;
+		Monitor mMonitor;
 	};
 }
