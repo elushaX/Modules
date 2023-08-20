@@ -38,8 +38,17 @@ namespace tp {
 			void proc();
 			void draw();
 
+			void setStyle();
+
 		public:
-			// TODO : API
+			void drawDebugInfoWindow();
+
+			halnf getFontSize() const;
+			halnf getUIScale() const;
+
+			void setDPMM(ualni);
+			void setFontSize(ualni);
+			void setUIScale(ualni);
 		};
 
 		class Canvas {
@@ -68,6 +77,9 @@ namespace tp {
 		void deinit();
 		void draw();
 		void proc();
+
+	public:
+		GUI& getDebugGui() { return mGui; }
 
 	private:
 		GUI mGui;

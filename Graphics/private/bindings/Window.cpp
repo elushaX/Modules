@@ -101,6 +101,16 @@ Window::Window(int width, int height, const char* title) {
 		return;
 	}
 
+	// get some common information. maybe call it in loop to pick up monitor changes
+	int width_mm, height_mm;
+	auto monitor = glfwGetPrimaryMonitor();
+	glfwGetMonitorPhysicalSize(monitor, &width_mm, &height_mm);
+	mMonitor.mmSize = { width_mm, height_mm };
+
+	const GLFWvidmode * mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+	mMonitor.pixelSize = { mode->width, mode->height };
+	mMonitor.refreshRate = mode->refreshRate;
+
 	mGraphics.init(this);
 }
 
