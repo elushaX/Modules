@@ -27,8 +27,11 @@ Graphics::GUI::~GUI() {
 
 void Graphics::GUI::init(Window* window) {
 	IMGUI_CHECKVERSION();
+
 	mContext->ctx = ImGui::CreateContext();
 	mContext->io = &ImGui::GetIO();
+
+	mContext->io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 	// Initialize ImGui with GLFW and OpenGL
 	ImGui_ImplGlfw_InitForOpenGL(window->getContext()->window, true);
