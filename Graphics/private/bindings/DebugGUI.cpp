@@ -99,6 +99,7 @@ void Graphics::GUI::drawDebugInfoWindow() {
 
 	ImGui::SliderFloat("UI Scale", &mContext->uiScale, 0, 10);
 	ImGui::SliderFloat("Font Size MM", &mContext->fontSizeMM, 3, 20);
+	ImGui::SliderFloat("DPMM", &mContext->dpmm, 2, 10);
 
 	setStyle();
 
@@ -110,8 +111,8 @@ void Graphics::GUI::setStyle() {
   auto font_size_mm = mContext->fontSizeMM;
 	auto ui_scale = mContext->uiScale;
 
-	#define VAL(val) (val * dpmm / 3 * ui_scale)
-	#define VEC(x, y) ImVec2(x * dpmm / 3, y * dpmm / 3 * ui_scale)
+	#define VAL(val) (val * dpmm * ui_scale)
+	#define VEC(x, y) ImVec2(x * dpmm, y * dpmm * ui_scale)
 
 	ImGuiStyle* style = &ImGui::GetStyle();
 	auto& io = *mContext->io;
@@ -160,38 +161,38 @@ void Graphics::GUI::setStyle() {
 	io.FontGlobalScale = font_size_mm / (font_size_mm_min + ((font_size_mm_max - font_size_mm_min) / font_quality_steps) * (idx + 1));
 	io.FontGlobalScale = pixels_required / font_sizes[idx];
 
-	auto rounding = VAL(5);
-	auto pudding = VEC(7, 7);
+	auto rounding = VAL(1);
+	auto pudding = VEC(1, 1);
 
-	style->WindowPadding = pudding;
+	// style->WindowPadding = pudding;
 	style->WindowRounding = rounding;
 	//style->WindowMinSize = VEC(11, 11);
 	style->ChildRounding = rounding;
 	style->PopupRounding = rounding;
 	style->FramePadding = pudding;
 	style->FrameRounding = rounding;
-	style->ItemSpacing = VEC(4, 11);
-	style->ItemInnerSpacing = VEC(9, 4);
+	style->ItemSpacing = VEC(1, 2);
+	style->ItemInnerSpacing = VEC(1, 1);
 	style->CellPadding = pudding;
 	style->TouchExtraPadding = pudding;
-	style->IndentSpacing = VAL(25);
-	style->ColumnsMinSpacing = VAL(5);
-	style->ScrollbarSize = VAL(16);
+	style->IndentSpacing = VAL(3);
+	style->ColumnsMinSpacing = VAL(1.2);
+	style->ScrollbarSize = VAL(5);
 	style->ScrollbarRounding = rounding;
-	style->GrabMinSize = VAL(2);
+	style->GrabMinSize = VAL(0.6);
 	style->GrabRounding = rounding;
-	style->LogSliderDeadzone = VAL(2);
+	style->LogSliderDeadzone = VAL(0.6);
 	style->TabRounding = rounding;
-	style->TabMinWidthForCloseButton = VAL(5);
+	style->TabMinWidthForCloseButton = VAL(1.3);
 	style->DisplayWindowPadding = pudding;
 	style->DisplaySafeAreaPadding = pudding;
-	style->MouseCursorScale = VAL(5);
+	// style->MouseCursorScale = VAL(1.3);
 
-	style->FrameBorderSize = VAL(0);
-	style->WindowBorderSize = VAL(1.5f);
-	style->ChildBorderSize = VAL(2);
+	// style->FrameBorderSize = VAL(0);
+	style->WindowBorderSize = VAL(0.5);
+	style->ChildBorderSize = VAL(0.6);
 
-	style->WindowTitleAlign = VEC(0.5f, 0.6f);
+	// style->WindowTitleAlign = VEC(0.1f, 0.2f);
 	style->WindowMenuButtonPosition = ImGuiDir_Right;
 
 	if (!first_init)
