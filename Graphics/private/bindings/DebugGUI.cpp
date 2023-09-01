@@ -88,9 +88,20 @@ void Graphics::GUI::draw() {
 halnf Graphics::GUI::getFontSize() const { return mContext->fontSizeMM; }
 halnf Graphics::GUI::getUIScale() const { return mContext->uiScale; }
 
-void Graphics::GUI::setDPMM(ualni dpmm) { mContext->dpmm = dpmm; }
-void Graphics::GUI::setFontSize(ualni size) { mContext->fontSizeMM = size; }
-void Graphics::GUI::setUIScale(ualni scale) { mContext->uiScale = scale; }
+void Graphics::GUI::setDPMM(ualni dpmm) {
+	mContext->dpmm = dpmm;
+	setStyle();
+}
+
+void Graphics::GUI::setFontSize(ualni size) {
+	mContext->fontSizeMM = size;
+	setStyle();
+}
+
+void Graphics::GUI::setUIScale(ualni scale) {
+	mContext->uiScale = scale;
+	setStyle();
+}
 
 void Graphics::GUI::drawDebugInfoWindow() {
 	ImGui::Begin("Debug Info");
