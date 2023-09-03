@@ -1,4 +1,6 @@
 
+#include "NewPlacement.hpp"
+
 #include "ClientGui.hpp"
 #include "Window.hpp"
 

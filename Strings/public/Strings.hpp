@@ -102,7 +102,7 @@ namespace tp {
 		// Creates new string data from raw data pointer.
 		// Does not own string buffer - string buffer will not be freed. Initializes as const memory.
 		StringTemplate(const tChar* raw) {
-			mData = new (sStringPool.allocate(0)) StringData(raw, true);
+			mData = 	new (sStringPool.allocate(0)) StringData(raw, true);
 			incReference(mData);
 		}
 
