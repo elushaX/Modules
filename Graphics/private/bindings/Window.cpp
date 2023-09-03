@@ -56,7 +56,9 @@ void Graphics::GL::proc() {
 }
 
 void Graphics::GL::draw() {
+  tp::HeapAllocGlobal::startIgnore();
 	glDrawArrays(GL_TRIANGLES, 0, 3);
+  tp::HeapAllocGlobal::stopIgnore();
 }
 
 void Graphics::init(Window* window) {
