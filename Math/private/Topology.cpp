@@ -73,19 +73,11 @@ const Vec3F& TrigCache::getNormal() const { return mNormal; }
 void Topology::addTrig(const Vec3F& v1, const Vec3F& v2, const Vec3F& v3) {
 	auto trigIdx = mPoints.size();
 
-	Buffer<Vec3F> newPoints(3);
-	newPoints[0] = v1;
-	newPoints[1] = v2;
-	newPoints[2] = v3;
-	mPoints.append(newPoints);
-
-	transformPoint(newPoints[0]);
-	transformPoint(newPoints[1]);
-	transformPoint(newPoints[2]);
-	mPointsTransformed.append(newPoints);
+	mPoints.append(v1);
+	mPoints.append(v2);
+	mPoints.append(v3);
 
 	TrigCache newTrig(trigIdx, trigIdx + 1, trigIdx + 2);
-	newTrig.updateCache(mPointsTransformed);
 	mTrigCaches.append(newTrig);
 }
 
