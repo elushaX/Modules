@@ -22,21 +22,21 @@ void loadScene(Scene& scene, const String& scenePath) {
   }
 
   for (auto& curMesh : Loader.LoadedMeshes) {
-    // Go through each vertex and print its number,
-    //  position, normal, and texture coordinate
-    for (int j = 0; j < curMesh.Vertices.size(); j++) {
-      // file << "V" << j << ": "
-      //     << "P(" << curMesh.Vertices[j].Position.X << ", " << curMesh.Vertices[j].Position.Y << ", " << curMesh.Vertices[j].Position.Z << ") "
-      //     << "N(" << curMesh.Vertices[j].Normal.X << ", " << curMesh.Vertices[j].Normal.Y << ", " << curMesh.Vertices[j].Normal.Z << ") "
-      //     << "TC(" << curMesh.Vertices[j].TextureCoordinate.X << ", " << curMesh.Vertices[j].TextureCoordinate.Y << ")\n";
-    }
+    scene.mObjects.append(Topology());
+    auto object = &scene.mObjects.last();
 
-    // Print Indices
-    // Go through every 3rd index and print the
-    //	triangle that these indices represent
     for (int j = 0; j < curMesh.Indices.size(); j += 3) {
-      // file << "T" << j / 3 << ": " << curMesh.Indices[j] << ", " << curMesh.Indices[j + 1] << ", " << curMesh.Indices[j + 2] << "\n";
+      unsigned int idx1 = curMesh.Indices[j];
+      unsigned int idx2 = curMesh.Indices[j + 1];
+      unsigned int idx3 = curMesh.Indices[j + 2];
+
+      Vec3F v1 = {curMesh.Vertices[idx1].Position.X, curMesh.Vertices[idx1].Position.Y, curMesh.Vertices[idx1].Position.Z};
+      Vec3F v2 = {curMesh.Vertices[idx2].Position.X, curMesh.Vertices[idx2].Position.Y, curMesh.Vertices[idx2].Position.Z};
+      Vec3F v3 = {curMesh.Vertices[idx3].Position.X, curMesh.Vertices[idx3].Position.Y, curMesh.Vertices[idx3].Position.Z};
+
+      object->addTrig(v1, v2, v3);
     }
+    object->updateTransformed();
   }
 }
 

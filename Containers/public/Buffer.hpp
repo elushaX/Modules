@@ -193,8 +193,9 @@ namespace tp {
 
 		Buffer& operator=(const Buffer& in) {
 			if (this == &in) return *this;
-			clear();
-			return *this;
+			this->~Buffer();
+      new (this) Buffer(in);
+      return *this;
 		}
 
 		~Buffer() {
