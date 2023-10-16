@@ -95,3 +95,6 @@ void Topology::updateTransformed() {
 		mTrigCaches[idx].updateCache(mPointsTransformed);
 	}
 }
+
+const Buffer<TrigCache>& Topology::getTrigs() const { return mTrigCaches; }
+

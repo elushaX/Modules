@@ -4,6 +4,7 @@
 #include "Buffer.hpp"
 #include "RayTracer.hpp"
 #include "Strings.hpp"
+#include "Timing.hpp"
 #include "Vec.hpp"
 
 #include "OBJ_Loader.h"
@@ -71,12 +72,23 @@ void renderCommand(const String& scenePath, RayTracer::RenderBuffer::Index2D siz
 
   loadScene(scene, scenePath);
 
+  scene.mCamera.lookAtPoint({0, 0, 0}, {-3, -3, 3}, {1, 1, 1});
+  scene.mCamera.setFOV(3.14 / 4);
+  scene.mCamera.setRatio((halnf) size.y / (halnf) size.x);
+  scene.mCamera.setFar(100);
+
   RayTracer::RenderBuffer output;
   output.reserve(size);
 
   RayTracer rayt;
 
+  auto start = get_time();
+
   rayt.render(scene, output);
+
+  auto end = get_time();
+
+  printf("\n Render finished with average render time per sample - %i (ms)\n", end - start);
 
   writeImage(output);
 }
@@ -86,7 +98,7 @@ int main() {
   tp::ModuleManifest module("Rayt", nullptr, nullptr, deps);
 
   if (module.initialize()) {
-    renderCommand("scene.obj", {1000, 1000});
+    renderCommand("scene.obj", {600, 600});
 
     module.deinitialize();
   }
