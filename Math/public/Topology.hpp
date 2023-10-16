@@ -44,5 +44,6 @@ namespace tp {
 		void addTrig(const Vec3F& v1, const Vec3F& v2, const Vec3F& v3);
 		void transformPoint(Vec3F& vert);
 		void updateTransformed();
+    [[nodiscard]] const Buffer<TrigCache>& getTrigs() const;
 	};
 }
