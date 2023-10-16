@@ -13,3 +13,6 @@
 [submodule "Externals/nanovg"]
 	path = Externals/nanovg
 	url = https://github.com/IlyaShurupov/nanovg.git
+[submodule "Externals/lua"]
+    path = Externals/lua
+    url = https://github.com/lua/lua.git
