@@ -31,6 +31,7 @@ namespace tp {
     struct RenderSettings {
       alni samplesiPerPixel = 1;
       alni rayBounces = 1;
+      Vec2I size;
     };
 
   public:

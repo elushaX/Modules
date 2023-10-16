@@ -15,15 +15,16 @@ target_include_directories(${PROJECT_NAME} PUBLIC ./public/)
 target_link_libraries(${PROJECT_NAME} PUBLIC Math CommandLine Connection)
 
 ### -------------------------- Applications  --------------------------  ###
-add_executable(rayt ./applications/Rayt.cpp )
+add_executable(rayt ./applications/Rayt.cpp applications/SceneLoad.cpp
+        applications/Rayt.hpp)
 
-target_link_libraries(rayt ${PROJECT_NAME})
+target_link_libraries(rayt ${PROJECT_NAME} Lua)
 
 ### -------------------------- Tests  --------------------------  ###
 enable_testing()
 file(GLOB TEST_SOURCES "./tests/*.cpp" "./tests/*/*.cpp")
 add_executable(${PROJECT_NAME}Tests ${TEST_SOURCES})
-target_link_libraries(${PROJECT_NAME}Tests  ${PROJECT_NAME} Utils)
+target_link_libraries(${PROJECT_NAME}Tests ${PROJECT_NAME} Utils)
 add_test(NAME ${PROJECT_NAME}Tests COMMAND ${PROJECT_NAME}Tests)
 
 install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/lib)
