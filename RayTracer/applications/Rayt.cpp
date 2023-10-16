@@ -2,6 +2,7 @@
 // #include "NewPlacement.hpp"
 
 #include "Buffer.hpp"
+#include "CommandLine.hpp"
 #include "RayTracer.hpp"
 #include "Strings.hpp"
 #include "Timing.hpp"
@@ -74,8 +75,8 @@ void renderCommand(const String& scenePath, RayTracer::RenderBuffer::Index2D siz
 
   scene.mCamera.lookAtPoint({0, 0, 0}, {-3, -3, 3}, {1, 1, 1});
   scene.mCamera.setFOV(3.14 / 4);
-  scene.mCamera.setRatio((halnf) size.y / (halnf) size.x);
   scene.mCamera.setFar(100);
+  scene.mCamera.setRatio((halnf) size.y / (halnf) size.x);
 
   RayTracer::RenderBuffer output;
   output.reserve(size);
@@ -93,7 +94,7 @@ void renderCommand(const String& scenePath, RayTracer::RenderBuffer::Index2D siz
   writeImage(output);
 }
 
-int main() {
+int main(int argc, const char** argv) {
   tp::ModuleManifest* deps[] = {&gModuleRayTracer, nullptr};
   tp::ModuleManifest module("Rayt", nullptr, nullptr, deps);
 
