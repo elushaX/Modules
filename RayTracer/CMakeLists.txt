@@ -20,6 +20,8 @@ add_executable(rayt ./applications/Rayt.cpp applications/SceneLoad.cpp
 
 target_link_libraries(rayt ${PROJECT_NAME} Lua)
 
+file(COPY "applications/rsc" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
+
 ### -------------------------- Tests  --------------------------  ###
 enable_testing()
 file(GLOB TEST_SOURCES "./tests/*.cpp" "./tests/*/*.cpp")

@@ -145,7 +145,7 @@ void loadScene(tp::Scene& scene, const tp::String& scenePath, tp::RayTracer::Ren
   scene.mCamera.lookAtPoint({0, 0, 0}, {pos[0], pos[1], pos[2]}, {0, 0, 1});
   scene.mCamera.setFOV(3.14 / 4);
   scene.mCamera.setFar(100);
-  scene.mCamera.setRatio((tp::halnf) size_x / (tp::halnf) size_y);
+  scene.mCamera.setRatio((tp::halnf) size_y / (tp::halnf) size_x);
 
   lua_close(L);
 }
