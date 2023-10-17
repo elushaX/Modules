@@ -5,6 +5,14 @@ Make two grammars Regular and Context-free
 For each grammar make grammar rules parser, example sentence generation and sentence parsing
 Make automations itself a universal tool - NFA DFA conversions
 
+RayTracer:
+    Core:
+        Normals
+    Lua:
+        Camera Settings
+        Light Sources Settings (Point, Direction, Spot)
+
+
 Parser:
   CF Grammar:
     optimize generation of sentences
