@@ -12,10 +12,16 @@ namespace tp {
 
   extern ModuleManifest gModuleRayTracer;
 
-  class Scene {
+  class Object {
   public:
-    typedef Topology Object;
+    Object() = default;
 
+  public:
+    Topology mTopology;
+    TopologyCache mCache;
+  };
+
+  class Scene {
   public:
     Scene() = default;
 
@@ -40,7 +46,7 @@ namespace tp {
 
   private:
     struct RayCastData {
-      const Scene::Object* obj = nullptr;
+      const Object* obj = nullptr;
       TrigCache* trig = nullptr;
       Vec3F hitPos = {0, 0, 0};
       bool hit = false;
