@@ -19,21 +19,28 @@ bool loadMeshes(tp::Scene& scene, const tp::String& objetsPath) {
   }
 
   for (auto& curMesh : Loader.LoadedMeshes) {
-    scene.mObjects.append(Topology());
+    scene.mObjects.append(Object());
+
     auto object = &scene.mObjects.last();
 
-    for (int j = 0; j < curMesh.Indices.size(); j += 3) {
-      unsigned int idx1 = curMesh.Indices[j];
-      unsigned int idx2 = curMesh.Indices[j + 1];
-      unsigned int idx3 = curMesh.Indices[j + 2];
-
-      Vec3F v1 = {curMesh.Vertices[idx1].Position.X, curMesh.Vertices[idx1].Position.Y, curMesh.Vertices[idx1].Position.Z};
-      Vec3F v2 = {curMesh.Vertices[idx2].Position.X, curMesh.Vertices[idx2].Position.Y, curMesh.Vertices[idx2].Position.Z};
-      Vec3F v3 = {curMesh.Vertices[idx3].Position.X, curMesh.Vertices[idx3].Position.Y, curMesh.Vertices[idx3].Position.Z};
-
-      object->addTrig(v1, v2, v3);
+    for (auto& vertex : curMesh.Vertices) {
+      object->mTopology.Points.append(Vec3F {vertex.Position.X, vertex.Position.Y, vertex.Position.Z});
+      object->mTopology.Normals.append(Vec3F {vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z});
     }
-    object->updateTransformed();
+
+    for (int j = 0; j < curMesh.Indices.size(); j += 3) {
+      int idx1 = (int) curMesh.Indices[j];
+      int idx2 = (int) curMesh.Indices[j + 1];
+      int idx3 = (int) curMesh.Indices[j + 2];
+      object->mTopology.Indexes.append(Vec3I {idx1, idx2, idx3});
+    }
+
+    if (object->mTopology.Normals.size() != object->mTopology.Points.size()) {
+      printf("Logic error loading normals\n");
+    }
+
+    object->mCache.Source = &object->mTopology;
+    object->mCache.updateCache();
   }
 
   return scene.mObjects.size();
