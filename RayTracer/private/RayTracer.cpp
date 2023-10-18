@@ -121,9 +121,12 @@ void RayTracer::cycle(const RayCastData& castData, LightData& out, uhalni depth)
   }
 }
 
-void RayTracer::render(const Scene& scene, RayTracer::RenderBuffer& buff, const RenderSettings& settings) {
+void RayTracer::render(const Scene& scene, OutputBuffers& out, const RenderSettings& settings) {
+  out.color.reserve({settings.size.x, settings.size.y});
+  out.normals.reserve({settings.size.x, settings.size.y});
+  out.depth.reserve({settings.size.x, settings.size.y});
+
   mScene = &scene;
-  mBuff = &buff;
   mSettings = settings;
 
   auto pos = mScene->mCamera.getPos();
@@ -146,14 +149,17 @@ void RayTracer::render(const Scene& scene, RayTracer::RenderBuffer& buff, const 
   };
 
   Vec3F iterPoint = {0, 0, 0};
-  Vec3F deltaX = right * halnf(width / (alnf) buff.size().x);
-  Vec3F deltaY = up * halnf(-height / (alnf) buff.size().y);
+  Vec3F deltaX = right * halnf(width / (alnf) mSettings.size.x);
+  Vec3F deltaY = up * halnf(-height / (alnf) mSettings.size.y);
 
-  ualni maxIterations = buff.size().x * buff.size().y;
+  ualni maxIterations = mSettings.size.x * mSettings.size.y;
   ualni currIter = 0;
 
-  for (RayTracer::RenderBuffer::Index i = 0; i < buff.size().x; i++) {
-    for (RayTracer::RenderBuffer::Index j = 0; j < buff.size().y; j++) {
+  halnf maxDepth = 0;
+  halnf minDepth = mScene->mCamera.getFar();
+
+  for (auto i = 0; i < mSettings.size.x; i++) {
+    for (auto j = 0; j < mSettings.size.y; j++) {
       iterPoint = planeLeftTop + ((deltaX * (halnf) i) + (deltaY * (halnf) j));
       ray.dir = (iterPoint - pos).unitV();
 
@@ -163,19 +169,43 @@ void RayTracer::render(const Scene& scene, RayTracer::RenderBuffer& buff, const 
         LightData lightData;
         cycle(castData, lightData, mSettings.depth);
 
+        const auto normal = castData.trig->getNormal();
+        const auto depth = (halnf) (castData.hitPos - ray.pos).length();
+
         lightData.intensity = clamp(lightData.intensity, 0.f, 1.f);
         RGBA col = {lightData.intensity, lightData.intensity, lightData.intensity, 1.f};
 
-        buff.set({i, j}, col);
+        out.color.set({i, j}, col);
+        out.normals.set({i, j}, {normal.x * 0.5f + 0.5f, normal.y * 0.5f + 0.5f, normal.z * 0.5f + 0.5f, 1.f});
+        out.depth.set({i, j}, {depth, depth, depth, 1.f});
+
+        if (maxDepth < depth) {
+          maxDepth = depth;
+        }
+        if (minDepth > depth) {
+          minDepth = depth;
+        }
+
       } else {
-        buff.set({i, j}, 0.f);
+        out.color.set({i, j}, 0.f);
+        out.normals.set({i, j}, 0.f);
+        out.depth.set({i, j}, 0.f);
       }
 
-      auto tmp = buff.get({i, j});
+      // auto tmp = buff.get({i, j});
       // printf(" %f, %f, %f, %f, ", tmp.r, tmp.g, tmp.b, tmp.a);
 
       mProgress.percentage = (halnf) currIter / (halnf) maxIterations;
       currIter++;
+    }
+  }
+
+  for (auto i = 0; i < mSettings.size.x * mSettings.size.y; i++) {
+    auto& col = out.depth.getBuff()[i];
+    if (col.a == 1.f) {
+      col.r = (col.r - minDepth) / (maxDepth - minDepth);
+      col.g = col.r;
+      col.b = col.r;
     }
   }
 }

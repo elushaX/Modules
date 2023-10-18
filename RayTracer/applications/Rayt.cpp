@@ -11,7 +11,7 @@
 
 using namespace tp;
 
-void writeImage(const RayTracer::RenderBuffer& output) {
+void writeImage(const RayTracer::RenderBuffer& output, const char* name) {
   // Save the data to a PNG file
   struct urgb {
     uint1 r, g, b, a;
@@ -29,7 +29,7 @@ void writeImage(const RayTracer::RenderBuffer& output) {
     }
   }
 
-  if (stbi_write_png("output.png", converted.size().x, converted.size().y, 4, converted.getBuff(), converted.size().x * 4) != 0) {
+  if (stbi_write_png(name, converted.size().x, converted.size().y, 4, converted.getBuff(), converted.size().x * 4) != 0) {
     // Image saved successfully
     printf("Image saved successfully.\n");
   } else {
@@ -57,9 +57,7 @@ void renderCommand(const String& scenePath) {
 
   loadScene(scene, scenePath, settings);
 
-  RayTracer::RenderBuffer output;
-  output.reserve(RayTracer::RenderBuffer::Index2D(settings.size.x, settings.size.y));
-
+  RayTracer::OutputBuffers output;
   RayTracer rayt;
 
   pthread_t my_thread;
@@ -83,7 +81,9 @@ void renderCommand(const String& scenePath) {
 
   printf("\nRender finished with average render time per sample - %i (ms)\n", end - start);
 
-  writeImage(output);
+  writeImage(output.normals, "normals.png");
+  writeImage(output.color, "color.png");
+  writeImage(output.depth, "depth.png");
 }
 
 int main(int argc, const char** argv) {
