@@ -149,6 +149,9 @@ void RayTracer::render(const Scene& scene, RayTracer::RenderBuffer& buff, const 
   Vec3F deltaX = right * halnf(width / (alnf) buff.size().x);
   Vec3F deltaY = up * halnf(-height / (alnf) buff.size().y);
 
+  ualni maxIterations = buff.size().x * buff.size().y;
+  ualni currIter = 0;
+
   for (RayTracer::RenderBuffer::Index i = 0; i < buff.size().x; i++) {
     for (RayTracer::RenderBuffer::Index j = 0; j < buff.size().y; j++) {
       iterPoint = planeLeftTop + ((deltaX * (halnf) i) + (deltaY * (halnf) j));
@@ -167,6 +170,9 @@ void RayTracer::render(const Scene& scene, RayTracer::RenderBuffer& buff, const 
       } else {
         buff.set({i, j}, 0.f);
       }
+
+      mProgress.percentage = (halnf) currIter / (halnf) maxIterations;
+      currIter++;
     }
   }
 }
