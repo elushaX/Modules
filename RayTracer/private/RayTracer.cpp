@@ -10,6 +10,38 @@
 
 #include <cstdio>
 
+/*
+ if (1) {
+ const auto& points = castData.obj->mCache.TransformedPoints;
+ const auto& normals = castData.obj->mCache.TransformedNormals;
+ const auto trig = castData.trig;
+
+const auto& n1 = normals[trig->mP1];
+const auto& n2 = normals[trig->mP2];
+const auto& n3 = normals[trig->mP3];
+
+auto v0 = points[trig->mP1];
+auto v1 = points[trig->mP2];
+auto v2 = points[trig->mP3];
+
+// Calculate barycentric coordinates
+Vec3F barycentric;
+
+// Calculate the area of the triangle
+auto areaABC = (halnf) (v1 - v0).cross(v2 - v0).length();
+auto areaPBC = (halnf) (v1 - castData.hitPos).cross(v2 - castData.hitPos).length();
+auto areaPCA = (halnf) (v2 - castData.hitPos).cross(v0 - castData.hitPos).length();
+
+// Calculate the barycentric coordinates
+barycentric.x = areaPBC / areaABC;
+barycentric.y = areaPCA / areaABC;
+barycentric.z = 1.0f - barycentric.x - barycentric.y;
+
+// Interpolate the normal using barycentric coordinates
+normal = n1 * barycentric.x + n2 * barycentric.y + n3 * barycentric.z;
+}
+*/
+
 using namespace tp;
 
 ModuleManifest* sDependencies[] = {&gModuleMath, &gModuleCommandLine, &gModuleConnection, nullptr};
@@ -28,7 +60,7 @@ void RayTracer::castRay(const Ray& ray, RayCastData& out, alnf far) {
 
         auto dist = (trig->getHitPos() - ray.pos).length2();
 
-        if (far > dist) {
+        if (far > dist && dist > EPSILON) {
           out.trig = &trig.data();
           out.hitPos = trig->getHitPos();
           out.obj = &obj.data();
@@ -41,9 +73,58 @@ void RayTracer::castRay(const Ray& ray, RayCastData& out, alnf far) {
   }
 }
 
-void RayTracer::render(const Scene& scene, RayTracer::RenderBuffer& buff) {
+void RayTracer::cycle(const RayCastData& castData, LightData& out, uhalni depth) {
+  if (depth) {
+    depth--;
+
+    Vec3F normal = castData.trig->getNormal();
+    normal.normalize();
+
+    const auto delta1 = castData.trig->mEdgeP1P2.unitV();
+    const auto delta2 = normal.cross(delta1);
+
+    for (auto idx : Range(mSettings.spray)) {
+      RayCastData materialCastData;
+      LightData lightData;
+
+      auto d1 = ((halnf) randomFloat() - 0.5f) * 2;
+      auto d2 = ((halnf) randomFloat() - 0.5f) * 2;
+
+      auto sprayNormal = (normal + delta1 * d1 + delta2 * d2).normalize();
+
+      castRay({sprayNormal, castData.hitPos}, materialCastData, mScene->mCamera.getFar());
+      if (materialCastData.hit) {
+        cycle(materialCastData, lightData, depth);
+        out.intensity += lightData.intensity * 0.2;
+      }
+    }
+  }
+
+  // cast for light
+  for (auto light : mScene->mLights) {
+    RayCastData lightCastData;
+    auto dir = light->pos - castData.hitPos;
+    auto length = (halnf) dir.length();
+
+    Ray lightRay = {dir.unitV(), castData.hitPos};
+
+    if (lightRay.dir.dot(castData.trig->mNormal) < 0) {
+      continue;
+    }
+    castRay(lightRay, lightCastData, length);
+
+    if (lightCastData.hit) {
+      continue;
+    }
+
+    out.intensity += light->intensity / (length * length);
+  }
+}
+
+void RayTracer::render(const Scene& scene, RayTracer::RenderBuffer& buff, const RenderSettings& settings) {
   mScene = &scene;
   mBuff = &buff;
+  mSettings = settings;
 
   auto pos = mScene->mCamera.getPos();
   auto fov = mScene->mCamera.getFOV();
@@ -71,54 +152,20 @@ void RayTracer::render(const Scene& scene, RayTracer::RenderBuffer& buff) {
   for (RayTracer::RenderBuffer::Index i = 0; i < buff.size().x; i++) {
     for (RayTracer::RenderBuffer::Index j = 0; j < buff.size().y; j++) {
       iterPoint = planeLeftTop + ((deltaX * (halnf) i) + (deltaY * (halnf) j));
-
       ray.dir = (iterPoint - pos).unitV();
 
       castRay(ray, castData, mScene->mCamera.getFar());
 
       if (castData.hit) {
-        Vec3F normal = castData.trig->getNormal();
+        LightData lightData;
+        cycle(castData, lightData, mSettings.depth);
 
-        if (1) {
-          const auto& points = castData.obj->mCache.TransformedPoints;
-          const auto& normals = castData.obj->mCache.TransformedNormals;
-          const auto trig = castData.trig;
+        lightData.intensity = clamp(lightData.intensity, 0.f, 1.f);
+        RGBA col = {lightData.intensity, lightData.intensity, lightData.intensity, 1.f};
 
-          const auto& n1 = normals[trig->mP1];
-          const auto& n2 = normals[trig->mP2];
-          const auto& n3 = normals[trig->mP3];
-
-          auto v0 = points[trig->mP1];
-          auto v1 = points[trig->mP2];
-          auto v2 = points[trig->mP3];
-
-          // Calculate barycentric coordinates
-          Vec3F barycentric;
-
-          // Calculate the area of the triangle
-          auto areaABC = (halnf) (v1 - v0).cross(v2 - v0).length();
-          auto areaPBC = (halnf) (v1 - castData.hitPos).cross(v2 - castData.hitPos).length();
-          auto areaPCA = (halnf) (v2 - castData.hitPos).cross(v0 - castData.hitPos).length();
-
-          // Calculate the barycentric coordinates
-          barycentric.x = areaPBC / areaABC;
-          barycentric.y = areaPCA / areaABC;
-          barycentric.z = 1.0f - barycentric.x - barycentric.y;
-
-          // Interpolate the normal using barycentric coordinates
-          normal = n1 * barycentric.x + n2 * barycentric.y + n3 * barycentric.z;
-        }
-
-        normal.normalize();
-
-        RGBA col = {normal.x * 0.5f + 0.5f, normal.y * 0.5f + 0.5f, normal.z * 0.5f + 0.5f, 1.f};
         buff.set({i, j}, col);
-
-        // auto depth = 1 - clamp((halnf) (castData.hitPos - ray.pos).length(), 0.f, mScene->mCamera.getFar()) / mScene->mCamera.getFar();
-        // buff.set({i, j}, {depth, depth, depth, 1.f});
-
       } else {
-        buff.set({i, j}, RGBA(0.f, 0.f, 0.f, 0.f));
+        buff.set({i, j}, 0.f);
       }
     }
   }

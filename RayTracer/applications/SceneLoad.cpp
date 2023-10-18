@@ -46,26 +46,68 @@ bool loadMeshes(tp::Scene& scene, const tp::String& objetsPath) {
   return scene.mObjects.size();
 }
 
-bool getVector(lua_State* L, const char* name, tp::Vec3F& out, const char* parent) {
-  lua_getglobal(L, name);
-
-  if (lua_istable(L, -1)) {
-    lua_pushstring(L, "x");
-    lua_gettable(L, -2);
-
-    if (lua_isnumber(L, -1)) {
-      out.x = lua_tonumber(L, -1);
-    } else {
-      printf("Component of vector '%s' is not found in %s\n\n", name, parent);
-      return false;
-    }
-
-    lua_pop(L, 1);
-
-  } else {
-    printf("Vector '%s' is not found in %s\n\n", name, parent);
-    return false;
+// Function to read a Lua table representing RenderSettings
+int readRenderSettings(lua_State* L, tp::RayTracer::RenderSettings& settings) {
+  lua_getglobal(L, "RenderSettings");
+  if (!lua_istable(L, -1)) {
+    printf("RenderSettings is not a table.\n");
+    return 0; // Error
   }
+
+  // Read depth field
+  lua_getfield(L, -1, "depth");
+  if (lua_isnumber(L, -1)) {
+    settings.depth = (int) lua_tonumber(L, -1);
+  } else {
+    printf("RenderSettings 'depth' field is missing or not a number.\n");
+    lua_pop(L, 1); // Pop the 'depth' field
+    return 0;      // Error
+  }
+  lua_pop(L, 1); // Pop the 'depth' field
+
+  // Read spray field
+  lua_getfield(L, -1, "spray");
+  if (lua_isnumber(L, -1)) {
+    settings.spray = (int) lua_tonumber(L, -1);
+  } else {
+    printf("RenderSettings 'spray' field is missing or not a number.\n");
+    lua_pop(L, 1); // Pop the 'spray' field
+    return 0;      // Error
+  }
+  lua_pop(L, 1); // Pop the 'spray' field
+
+  return 1; // Success
+}
+
+// Function to read a Lua table representing a light
+int readLight(lua_State* L, tp::PointLight* light) {
+  lua_getfield(L, -1, "pos"); // Get the "pos" field from the light table
+  if (!lua_istable(L, -1)) {
+    printf("Light is missing the 'pos' table.\n");
+    return 0; // Error
+  }
+  for (int i = 0; i < 3; i++) {
+    lua_rawgeti(L, -1, i + 1); // Index is 1-based in Lua
+    if (!lua_isnumber(L, -1)) {
+      printf("Light 'pos' field is not a number at index %d.\n", i);
+      lua_pop(L, 2); // Pop both the number and the 'pos' table
+      return 0;      // Error
+    }
+    light->pos[i] = lua_tonumber(L, -1);
+    lua_pop(L, 1); // Pop the number
+  }
+  lua_pop(L, 1); // Pop the 'pos' table
+
+  lua_getfield(L, -1, "intensity"); // Get the "intensity" field from the light table
+  if (!lua_isnumber(L, -1)) {
+    printf("Light is missing the 'intensity' field or it's not a number.\n");
+    lua_pop(L, 1); // Pop the 'intensity' field
+    return 0;      // Error
+  }
+  light->intensity = lua_tonumber(L, -1);
+  lua_pop(L, 1); // Pop the 'intensity' field
+
+  return 1; // Success
 }
 
 void loadScene(tp::Scene& scene, const tp::String& scenePath, tp::RayTracer::RenderSettings& settings) {
@@ -153,6 +195,39 @@ void loadScene(tp::Scene& scene, const tp::String& scenePath, tp::RayTracer::Ren
   scene.mCamera.setFOV(3.14 / 4);
   scene.mCamera.setFar(100);
   scene.mCamera.setRatio((tp::halnf) size_y / (tp::halnf) size_x);
+
+  // ---------- LIGHTS
+  {
+    lua_getglobal(L, "Lights");
+    if (!lua_istable(L, -1)) {
+      printf("Lights is not a table.\n");
+      lua_close(L);
+      return; // Error
+    }
+
+    // Read and process each light in the "Lights" table
+    int numLights = lua_rawlen(L, -1); // Get the number of lights in the table
+    for (int i = 1; i <= numLights; i++) {
+      lua_rawgeti(L, -1, i); // Get the i-th element (light) from the table
+      if (lua_istable(L, -1)) {
+        tp::PointLight light;
+        if (!readLight(L, &light)) {
+          printf("Cant read lights data\n");
+          lua_close(L);
+          return; // Error
+        }
+        scene.mLights.append(light);
+      }
+      lua_pop(L, 1); // Pop the i-th light table
+    }
+  }
+
+  // ----------- settings --------------
+  if (!readRenderSettings(L, settings)) {
+    printf("Cant Read Render Settings");
+    lua_close(L);
+    return; // Error
+  }
 
   lua_close(L);
 }
