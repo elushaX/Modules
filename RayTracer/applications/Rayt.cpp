@@ -37,6 +37,19 @@ void writeImage(const RayTracer::RenderBuffer& output) {
   }
 }
 
+static void* printStatus(void* arg) {
+  auto percentage = (const halnf*) arg;
+  auto old = *percentage;
+  while (*percentage < 0.99f) {
+    sleep(500);
+    if (old != *percentage && (*percentage - old) > 0.01) {
+      printf("Progress - %f\n", (*percentage) * 100);
+      old = *percentage;
+    }
+  }
+  pthread_exit(NULL);
+}
+
 void renderCommand(const String& scenePath) {
   Scene scene;
 
@@ -49,13 +62,26 @@ void renderCommand(const String& scenePath) {
 
   RayTracer rayt;
 
+  pthread_t my_thread;
+  int ret;
+
+  printf("\nStarting Render:\n\n");
+
+  ret = pthread_create(&my_thread, NULL, &printStatus, &rayt.mProgress.percentage);
+  if (ret != 0) {
+    printf("Error: pthread_create() failed\n");
+    exit(EXIT_FAILURE);
+  }
+
   auto start = get_time();
 
   rayt.render(scene, output, settings);
 
   auto end = get_time();
 
-  printf("\n Render finished with average render time per sample - %i (ms)\n", end - start);
+  pthread_join(my_thread, NULL);
+
+  printf("\nRender finished with average render time per sample - %i (ms)\n", end - start);
 
   writeImage(output);
 }

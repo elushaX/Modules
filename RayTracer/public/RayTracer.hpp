@@ -41,6 +41,10 @@ namespace tp {
   public:
     typedef Buffer2D<RGBA> RenderBuffer;
 
+    struct Progress {
+      halnf percentage = 0.f;
+    } mProgress;
+    
     struct RenderSettings {
       uhalni depth = 2;
       uhalni spray = 1;
