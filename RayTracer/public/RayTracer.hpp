@@ -21,12 +21,19 @@ namespace tp {
     TopologyCache mCache;
   };
 
+  struct PointLight {
+    Vec3F pos;
+    halnf fallOut = 1.f;
+    halnf intensity = 1.f;
+  };
+
   class Scene {
   public:
     Scene() = default;
 
   public:
     Buffer<Object> mObjects;
+    Buffer<PointLight> mLights;
     Camera mCamera;
   };
 
@@ -35,14 +42,14 @@ namespace tp {
     typedef Buffer2D<RGBA> RenderBuffer;
 
     struct RenderSettings {
-      alni samplesiPerPixel = 1;
-      alni rayBounces = 1;
+      uhalni depth = 2;
+      uhalni spray = 1;
       Vec2I size;
     };
 
   public:
     RayTracer() = default;
-    void render(const Scene& scene, RenderBuffer& buff);
+    void render(const Scene& scene, RenderBuffer& buff, const RenderSettings& settings);
 
   private:
     struct RayCastData {
@@ -52,7 +59,13 @@ namespace tp {
       bool hit = false;
     };
 
+    struct LightData {
+      halnf intensity = 0;
+    };
+
+  private:
     void castRay(const Ray& ray, RayCastData& out, alnf far);
+    void cycle(const RayCastData& ray, LightData& out, uhalni depth);
 
   private:
     RenderSettings mSettings;

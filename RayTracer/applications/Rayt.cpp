@@ -51,7 +51,7 @@ void renderCommand(const String& scenePath) {
 
   auto start = get_time();
 
-  rayt.render(scene, output);
+  rayt.render(scene, output, settings);
 
   auto end = get_time();
 

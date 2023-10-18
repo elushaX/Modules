@@ -35,6 +35,10 @@ bool TrigCache::castRay(const Ray& ray) const {
   static halnf a, f, u, v;
   static halnf t;
 
+  if (ray.dir.dot(mNormal) > 0) {
+    return false;
+  }
+  
   h = ray.dir.cross(mEdgeP1P3);
   a = mEdgeP1P2.dot(h);
 
