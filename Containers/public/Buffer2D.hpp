@@ -6,109 +6,120 @@
 
 namespace tp {
 
-	template< typename tType, ualni tSizeX, ualni tSizeY >
-	using ConstSizeBuffer2D = ConstSizeBuffer<ConstSizeBuffer<tType, tSizeX>, tSizeY>;
+  template <typename tType, ualni tSizeX, ualni tSizeY>
+  using ConstSizeBuffer2D = ConstSizeBuffer<ConstSizeBuffer<tType, tSizeX>, tSizeY>;
 
-	template <
-	    typename tType,
-			class tAllocator = DefaultAllocator
-			>
-	class Buffer2D {
-	public:
-		typedef ualni Index;
-		typedef Pair<Index, Index> Index2D;
-		typedef SelectValueOrReference<tType> tTypeArg;
+  template <typename tType, class tAllocator = DefaultAllocator>
+  class Buffer2D {
+  public:
+    typedef ualni Index;
+    typedef Pair<Index, Index> Index2D;
+    typedef SelectValueOrReference<tType> tTypeArg;
 
-	private:
-		tAllocator mAlloc;
-		tType* mBuff = nullptr;
-		Index2D mSize = { 0, 0 };
+  private:
+    tAllocator mAlloc;
+    tType* mBuff = nullptr;
+    Index2D mSize = {0, 0};
 
-		void deleteBuffer() {
-			if (!mBuff) return;
-			for (ualni i = 0; i < mSize.x * mSize.y; i++) mBuff[i].~tType();
-			mAlloc.deallocate(mBuff);
-		}
+    void deleteBuffer() {
+      if (!mBuff) {
+        return;
+      }
+      for (ualni i = 0; i < mSize.x * mSize.y; i++) {
+        mBuff[i].~tType();
+      }
+      mAlloc.deallocate(mBuff);
+    }
 
-		void allocateBuffer(Index2D size) {
-			deleteBuffer();
-			mBuff = (tType*) mAlloc.allocate(sizeof(tType) * size.x * size.y);
-			for (ualni i = 0; i < mSize.x * mSize.y; i++) new (mBuff + i) tType();
-		}
+    void allocateBuffer(Index2D size) {
+      deleteBuffer();
+      mBuff = (tType*) mAlloc.allocate(sizeof(tType) * size.x * size.y);
+      for (ualni i = 0; i < mSize.x * mSize.y; i++) {
+        new (mBuff + i) tType();
+      }
+    }
 
-	public:
+  public:
+    Buffer2D() = default;
 
-		Buffer2D() = default;
+    ~Buffer2D() {
+      deleteBuffer();
+      mSize = {0, 0};
+    }
 
-		~Buffer2D() {
-			deleteBuffer();
-			mSize = { 0, 0 };
-		}
+    explicit Buffer2D(Index2D aSize) { reserve(aSize); }
 
-		explicit Buffer2D(Index2D aSize) {
-			reserve(aSize);
-		}
+    [[nodiscard]] Index2D size() const { return {mSize.x, mSize.y}; }
 
-		[[nodiscard]] Index2D size() const {
-			return { mSize.x, mSize.y };
-		}
+    tType* getBuff() const { return mBuff; }
 
-		tType* getBuff() const {
-			return mBuff;
-		}
+    inline tType& get(const Index2D& at) {
+      DEBUG_ASSERT(mBuff && at.x < mSize.x && at.y < mSize.y && at.x >= 0 && at.y >= 0)
+      return *(mBuff + mSize.x * at.y + at.x);
+    }
 
-		inline tType& get(const Index2D& at) {
-			DEBUG_ASSERT(mBuff && at.x < mSize.x && at.y < mSize.y && at.x >= 0 && at.y >= 0)
-			return *(mBuff + mSize.x * at.y + at.x);
-		}
+    inline const tType& get(const Index2D& at) const {
+      DEBUG_ASSERT(mBuff && at.x < mSize.x && at.y < mSize.y && at.x >= 0 && at.y >= 0)
+      return *(mBuff + mSize.x * at.y + at.x);
+    }
 
-		inline const tType& get(const Index2D& at) const {
-			DEBUG_ASSERT(mBuff && at.x < mSize.x && at.y < mSize.y && at.x >= 0 && at.y >= 0)
-			return *(mBuff + mSize.x * at.y + at.x);
-		}
+    inline void set(const Index2D& at, tTypeArg value) {
+      DEBUG_ASSERT(mBuff && at.x < mSize.x && at.y < mSize.y && at.x >= 0 && at.y >= 0)
+      *(mBuff + mSize.x * at.y + at.x) = value;
+    }
 
-		inline void set(const Index2D& at, tTypeArg value) {
-			DEBUG_ASSERT(mBuff && at.x < mSize.x && at.y < mSize.y && at.x >= 0 && at.y >= 0)
-			*(mBuff + mSize.x * at.y + at.x) = value;
-		}
+    void reserve(const Index2D& newSize) {
+      if (mSize.x != newSize.x || mSize.y != newSize.y) {
+        allocateBuffer(newSize);
+        mSize = newSize;
+      }
+    }
 
-		void reserve(const Index2D& newSize) {
-			if (mSize.x != newSize.x || mSize.y != newSize.y) {
-				allocateBuffer(newSize);
-				mSize = newSize;
-			}
-		}
+    void assign(tType value) {
+      DEBUG_ASSERT(mBuff);
+      Index len = mSize.x * mSize.y;
+      for (Index i = 0; i < len; i++) {
+        mBuff[i] = value;
+      }
+    }
 
-		void assign(tType value) {
-			DEBUG_ASSERT(mBuff);
-			Index len = mSize.x * mSize.y;
-			for (Index i = 0; i < len; i++) {
-				mBuff[i] = value;
-			}
-		}
+    bool operator==(const Buffer2D& in) const {
+      if (&in == this) {
+        return true;
+      }
+      if (in.size() != size()) {
+        return false;
+      }
+      for (auto i = 0; i < mSize.x * mSize.y; i++) {
+        if (mBuff[i] != in.mBuff[i]) {
+          return false;
+        }
+      }
+      return true;
+    }
 
-	public:
-		template<class tArchiver>
-		void archiveWrite(tArchiver& ar) const {
-			ar << mSize;
-			for (auto i = 0; i < mSize.x; i++) {
-				for (auto j = 0; j < mSize.y; j++) {
-					ar << get(i, j);
-				}
-			}
-		}
+  public:
+    template <class tArchiver>
+    void archiveWrite(tArchiver& ar) const {
+      ar << mSize;
+      for (auto i = 0; i < mSize.x; i++) {
+        for (auto j = 0; j < mSize.y; j++) {
+          ar << get(i, j);
+        }
+      }
+    }
 
-		template<class tArchiver>
-		void archiveRead(tArchiver& ar) {
-			decltype(mSize) size;
-			deleteBuffer();
-			ar >> size;
-			reserve(size);
-			for (auto i = 0; i < mSize.x; i++) {
-				for (auto j = 0; j < mSize.y; j++) {
-					ar >> get(i, j);
-				}
-			}
-		}
-	};
+    template <class tArchiver>
+    void archiveRead(tArchiver& ar) {
+      decltype(mSize) size;
+      deleteBuffer();
+      ar >> size;
+      reserve(size);
+      for (auto i = 0; i < mSize.x; i++) {
+        for (auto j = 0; j < mSize.y; j++) {
+          ar >> get(i, j);
+        }
+      }
+    }
+  };
 }
