@@ -171,6 +171,9 @@ void RayTracer::render(const Scene& scene, RayTracer::RenderBuffer& buff, const 
         buff.set({i, j}, 0.f);
       }
 
+      auto tmp = buff.get({i, j});
+      // printf(" %f, %f, %f, %f, ", tmp.r, tmp.g, tmp.b, tmp.a);
+
       mProgress.percentage = (halnf) currIter / (halnf) maxIterations;
       currIter++;
     }

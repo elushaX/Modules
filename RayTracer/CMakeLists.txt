@@ -26,6 +26,9 @@ file(COPY "applications/rsc" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
 enable_testing()
 file(GLOB TEST_SOURCES "./tests/*.cpp" "./tests/*/*.cpp")
 add_executable(${PROJECT_NAME}Tests ${TEST_SOURCES})
+
+target_include_directories(${PROJECT_NAME}Tests PUBLIC ./applications/)
+
 target_link_libraries(${PROJECT_NAME}Tests ${PROJECT_NAME} Utils)
 add_test(NAME ${PROJECT_NAME}Tests COMMAND ${PROJECT_NAME}Tests)
 

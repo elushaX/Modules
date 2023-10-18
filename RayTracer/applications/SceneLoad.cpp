@@ -24,6 +24,7 @@ bool loadMeshes(tp::Scene& scene, const tp::String& objetsPath) {
     auto object = &scene.mObjects.last();
 
     for (auto& vertex : curMesh.Vertices) {
+      // printf("{ %f, %f, %f }, \n", vertex.Position.X, vertex.Position.Y, vertex.Position.Z);
       object->mTopology.Points.append(Vec3F {vertex.Position.X, vertex.Position.Y, vertex.Position.Z});
       object->mTopology.Normals.append(Vec3F {vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z});
     }
@@ -32,6 +33,7 @@ bool loadMeshes(tp::Scene& scene, const tp::String& objetsPath) {
       int idx1 = (int) curMesh.Indices[j];
       int idx2 = (int) curMesh.Indices[j + 1];
       int idx3 = (int) curMesh.Indices[j + 2];
+      // printf("{ %i, %i, %i },\n", idx1, idx2, idx3);
       object->mTopology.Indexes.append(Vec3I {idx1, idx2, idx3});
     }
 
