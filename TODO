@@ -1,5 +1,9 @@
 Testing !!
 
+Change clang format and apply to all files!!!
+rename Language module to FormalLanguage
+make more general structure for feature renders
+
 Merge parser and tokenizer module into grammar module
 Make two grammars Regular and Context-free
 For each grammar make grammar rules parser, example sentence generation and sentence parsing

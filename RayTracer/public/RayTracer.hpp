@@ -44,16 +44,23 @@ namespace tp {
     struct Progress {
       halnf percentage = 0.f;
     } mProgress;
-    
+
     struct RenderSettings {
       uhalni depth = 2;
       uhalni spray = 1;
       Vec2I size;
     };
 
+    struct OutputBuffers {
+      RenderBuffer normals;
+      RenderBuffer color;
+      RenderBuffer depth;
+      // albedo, reflectance ...
+    };
+
   public:
     RayTracer() = default;
-    void render(const Scene& scene, RenderBuffer& buff, const RenderSettings& settings);
+    void render(const Scene& scene, OutputBuffers& out, const RenderSettings& settings);
 
   private:
     struct RayCastData {
@@ -74,6 +81,5 @@ namespace tp {
   private:
     RenderSettings mSettings;
     const Scene* mScene = nullptr;
-    RenderBuffer* mBuff = nullptr;
   };
 }
