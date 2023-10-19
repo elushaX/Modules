@@ -78,6 +78,17 @@ int readRenderSettings(lua_State* L, tp::RayTracer::RenderSettings& settings) {
   }
   lua_pop(L, 1); // Pop the 'spray' field
 
+  // Read depth field
+  lua_getfield(L, -1, "multisampling");
+  if (lua_isnumber(L, -1)) {
+    settings.multisampling = (int) lua_tonumber(L, -1);
+  } else {
+    printf("RenderSettings 'depth' field is missing or not a number.\n");
+    lua_pop(L, 1); // Pop the 'depth' field
+    return 0;      // Error
+  }
+  lua_pop(L, 1); // Pop the 'depth' field
+
   return 1; // Success
 }
 

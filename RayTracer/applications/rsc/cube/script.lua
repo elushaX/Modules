@@ -9,7 +9,17 @@ Camera = {
 
 Lights = {
     {
-        pos = { 4, 2, 3 },
-        intensity = 5
-    }
+        pos = { -0.5, 3.5, 1 },
+        intensity = 1
+    },
+    {
+        pos = { 0, 0, 1 },
+        intensity = 0.5
+    },
+}
+
+RenderSettings = {
+    depth = 1,
+    spray = 10,
+    multisampling = 1,
 }

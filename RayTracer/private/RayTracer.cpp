@@ -156,47 +156,77 @@ void RayTracer::render(const Scene& scene, OutputBuffers& out, const RenderSetti
   ualni currIter = 0;
 
   halnf maxDepth = 0;
-  halnf minDepth = mScene->mCamera.getFar();
+  halnf minDepth = mScene->mCamera.getFar() * mSettings.multisampling;
+
+  auto accumulateColor = [](RGBA& col, const RGBA& in) {
+    col.r += in.r;
+    col.g += in.g;
+    col.b += in.b;
+    col.a = 1;
+  };
+
+  auto divideColor = [](RGBA& col, const halnf num) {
+    col.r /= num;
+    col.g /= num;
+    col.b /= num;
+  };
 
   for (auto i = 0; i < mSettings.size.x; i++) {
     for (auto j = 0; j < mSettings.size.y; j++) {
-      iterPoint = planeLeftTop + ((deltaX * (halnf) i) + (deltaY * (halnf) j));
-      ray.dir = (iterPoint - pos).unitV();
+      for (auto sample = 0; sample < mSettings.multisampling; sample++) {
+        auto randX = randomFloat();
+        auto randY = randomFloat();
 
-      castRay(ray, castData, mScene->mCamera.getFar());
+        iterPoint = planeLeftTop + ((deltaX * (halnf) (i + randX)) + (deltaY * (halnf) (j + randY)));
+        ray.dir = (iterPoint - pos).unitV();
 
-      if (castData.hit) {
-        LightData lightData;
-        cycle(castData, lightData, mSettings.depth);
+        castRay(ray, castData, mScene->mCamera.getFar());
 
-        const auto normal = castData.trig->getNormal();
-        const auto depth = (halnf) (castData.hitPos - ray.pos).length();
+        if (castData.hit) {
+          LightData lightData;
+          cycle(castData, lightData, mSettings.depth);
 
-        lightData.intensity = clamp(lightData.intensity, 0.f, 1.f);
-        RGBA col = {lightData.intensity, lightData.intensity, lightData.intensity, 1.f};
+          const auto normal = castData.trig->getNormal();
+          const auto depth = (halnf) (castData.hitPos - ray.pos).length();
 
-        out.color.set({i, j}, col);
-        out.normals.set({i, j}, {normal.x * 0.5f + 0.5f, normal.y * 0.5f + 0.5f, normal.z * 0.5f + 0.5f, 1.f});
-        out.depth.set({i, j}, {depth, depth, depth, 1.f});
+          lightData.intensity = clamp(lightData.intensity, 0.f, 1.f);
+          RGBA col = {lightData.intensity, lightData.intensity, lightData.intensity, 1.f};
 
-        if (maxDepth < depth) {
-          maxDepth = depth;
+          accumulateColor(out.color.get({i, j}), col);
+          accumulateColor(out.normals.get({i, j}), {normal.x * 0.5f + 0.5f, normal.y * 0.5f + 0.5f, normal.z * 0.5f + 0.5f, 1.f});
+          accumulateColor(out.depth.get({i, j}), {depth, depth, depth, 1.f});
+
+        } else {
+          out.color.set({i, j}, 0.f);
+          out.normals.set({i, j}, 0.f);
+          out.depth.set({i, j}, 0.f);
         }
-        if (minDepth > depth) {
-          minDepth = depth;
-        }
 
-      } else {
-        out.color.set({i, j}, 0.f);
-        out.normals.set({i, j}, 0.f);
-        out.depth.set({i, j}, 0.f);
+        // auto tmp = buff.get({i, j});
+        // printf(" %f, %f, %f, %f, ", tmp.r, tmp.g, tmp.b, tmp.a);
       }
-
-      // auto tmp = buff.get({i, j});
-      // printf(" %f, %f, %f, %f, ", tmp.r, tmp.g, tmp.b, tmp.a);
 
       mProgress.percentage = (halnf) currIter / (halnf) maxIterations;
       currIter++;
+    }
+  }
+
+  for (auto i = 0; i < mSettings.size.x * mSettings.size.y; i++) {
+    divideColor(out.color.getBuff()[i], (halnf) mSettings.multisampling);
+    divideColor(out.normals.getBuff()[i], (halnf) mSettings.multisampling);
+    divideColor(out.depth.getBuff()[i], (halnf) mSettings.multisampling);
+  }
+
+  for (auto i = 0; i < mSettings.size.x * mSettings.size.y; i++) {
+    if (!out.depth.getBuff()[i].a) {
+      continue;
+    }
+    const auto depth = out.depth.getBuff()[i].r;
+    if (maxDepth < depth) {
+      maxDepth = depth;
+    }
+    if (minDepth > depth) {
+      minDepth = depth;
     }
   }
 
