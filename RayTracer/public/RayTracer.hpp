@@ -48,6 +48,7 @@ namespace tp {
     struct RenderSettings {
       uhalni depth = 2;
       uhalni spray = 1;
+      ualni multisampling = 1;
       Vec2I size;
     };
 
