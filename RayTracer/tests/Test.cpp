@@ -85,26 +85,27 @@ void testRT() {
   RayTracer::RenderSettings settings = {
       0,
       0,
+      1,
       {10, 10},
   };
 
-  RayTracer::RenderBuffer output;
-  output.reserve(RayTracer::RenderBuffer::Index2D(settings.size.x, settings.size.y));
+  RayTracer::OutputBuffers output;
+  // output.reserve(RayTracer::RenderBuffer::Index2D(settings.size.x, settings.size.y));
 
   RayTracer rt;
   rt.render(scene, output, settings);
 
-  TEST(compareCols(output.get({6, 4}), RGBA {0.560100f, 0.560100f, 0.560100f, 1.000000f}));
-  TEST(compareCols(output.get({6, 5}), RGBA {0.353739f, 0.353739f, 0.353739f, 1.000000f}));
-  TEST(compareCols(output.get({6, 6}), RGBA {0.242577f, 0.242577f, 0.242577f, 1.000000f}));
-  TEST(compareCols(output.get({6, 7}), RGBA {0.176313f, 0.176313f, 0.176313f, 1.000000f}));
-  TEST(compareCols(output.get({6, 8}), RGBA {0.000000f, 0.000000f, 0.000000f, 0.000000f}));
+  TEST(compareCols(output.color.get({6, 4}), RGBA {0.560100f, 0.560100f, 0.560100f, 1.000000f}));
+  TEST(compareCols(output.color.get({6, 5}), RGBA {0.353739f, 0.353739f, 0.353739f, 1.000000f}));
+  TEST(compareCols(output.color.get({6, 6}), RGBA {0.242577f, 0.242577f, 0.242577f, 1.000000f}));
+  TEST(compareCols(output.color.get({6, 7}), RGBA {0.176313f, 0.176313f, 0.176313f, 1.000000f}));
+  TEST(compareCols(output.color.get({6, 8}), RGBA {0.000000f, 0.000000f, 0.000000f, 0.000000f}));
 
   if (0) {
-    writeImage(output);
-    for (auto i = 0; i < output.size().x; i++) {
-      for (auto j = 0; j < output.size().y; j++) {
-        auto tmp = output.get({i, j});
+    writeImage(output.color);
+    for (auto i = 0; i < output.color.size().x; i++) {
+      for (auto j = 0; j < output.color.size().y; j++) {
+        auto tmp = output.color.get({i, j});
         printf("TEST(compareCols(output.get({%i, %i}), RGBA{ %ff, %ff, %ff, %ff }));\n", i, j, tmp.r, tmp.g, tmp.b, tmp.a);
       }
     }
