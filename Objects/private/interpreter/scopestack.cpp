@@ -20,8 +20,7 @@ obj::Object* ScopeStack::getLocalUtil(Scope& scope, tp::String* id) {
 
 	if (idx) {
 		return scope.mLocals.getSlotVal(idx);
-	}
-	else {
+	} else {
 		mIterIdx--;
 		Scope& parent_scope = mBuff[mIterIdx];
 		ASSERT(parent_scope.mChildReachable && "Undefined Local Reference");
@@ -81,10 +80,6 @@ obj::Object* ScopeStack::getLocal(tp::String& str) {
 	return getLocalUtil(mBuff[mIdx - 1], &str);
 }
 
-Scope* ScopeStack::getCurrentScope() {
-	return &mBuff[mIdx - 1];
-}
+Scope* ScopeStack::getCurrentScope() { return &mBuff[mIdx - 1]; }
 
-ScopeStack::~ScopeStack() {
-	tp::HeapAllocGlobal::deallocate(mBuff);
-}
+ScopeStack::~ScopeStack() { tp::HeapAllocGlobal::deallocate(mBuff); }

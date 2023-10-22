@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Graphics.hpp"
 #include "Buffer.hpp"
+#include "Graphics.hpp"
 #include "Keycodes.hpp"
 
 namespace tp {

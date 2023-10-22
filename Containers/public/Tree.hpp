@@ -10,7 +10,8 @@ namespace tp {
 		NumericType val;
 
 		AvlNumericKey() = default;
-		AvlNumericKey(NumericType val) : val(val) {}
+		AvlNumericKey(NumericType val) :
+			val(val) {}
 
 		inline bool descentRight(AvlNumericKey in) const { return in.val > val; }
 		inline bool descentLeft(AvlNumericKey in) const { return in.val < val; }
@@ -33,7 +34,9 @@ namespace tp {
 			friend AvlTree;
 
 		private:
-			Node(KeyArg aKey, DataArg aData) : key(aKey), data(aData) {}
+			Node(KeyArg aKey, DataArg aData) :
+				key(aKey),
+				data(aData) {}
 
 		public:
 			Data data;
@@ -63,15 +66,12 @@ namespace tp {
 		Allocator mAlloc;
 
 	private:
-		
 		inline void deleteNode(Node* node) {
 			node->~Node();
 			mAlloc.deallocate(node);
 		}
 
-		inline Node* newNode(KeyArg key, DataArg data) {
-			return new (mAlloc.allocate(sizeof(Node))) Node(key, data);
-		}
+		inline Node* newNode(KeyArg key, DataArg data) { return new (mAlloc.allocate(sizeof(Node))) Node(key, data); }
 
 		inline void injectNodeInstead(Node* place, Node* inject) {
 			// TODO : swap instead of copy
@@ -79,9 +79,7 @@ namespace tp {
 			place->key = inject->key;
 		}
 
-		inline alni getNodeHeight(const Node* node) const {
-			return node ? node->mHeight : -1;
-		}
+		inline alni getNodeHeight(const Node* node) const { return node ? node->mHeight : -1; }
 
 		// returns new head
 		Node* rotateLeft(Node* pivot) {
@@ -150,16 +148,13 @@ namespace tp {
 				Node* out = newNode(key, data);
 				out->updateTreeCacheCallBack();
 				return out;
-			}
-			else if (head->exactNode(key)) {
+			} else if (head->exactNode(key)) {
 				return head;
-			}
-			else if (head->descentRight(key)) {
+			} else if (head->descentRight(key)) {
 				insertedNode = insertUtil(head->mRight, head->keyInRightSubtree(key), data);
 				head->mRight = insertedNode;
 				insertedNode->mParent = head;
-			}
-			else {
+			} else {
 				insertedNode = insertUtil(head->mLeft, head->keyInLeftSubtree(key), data);
 				head->mLeft = insertedNode;
 				insertedNode->mParent = head;
@@ -173,17 +168,14 @@ namespace tp {
 			if (balance > 1) {
 				if (head->mRight->descentRight(head->keyInRightSubtree(key))) {
 					return rotateLeft(head);
-				}
-				else {
+				} else {
 					head->mRight = rotateRight(head->mRight);
 					return rotateLeft(head);
 				}
-			}
-			else if (balance < -1) {
+			} else if (balance < -1) {
 				if (head->mLeft->descentLeft(head->keyInLeftSubtree(key))) {
 					return rotateRight(head);
-				}
-				else {
+				} else {
 					head->mLeft = rotateLeft(head->mLeft);
 					return rotateRight(head);
 				}
@@ -203,29 +195,24 @@ namespace tp {
 					auto const& newKey = min->getFindKey(head->mRight);
 					injectNodeInstead(head, min);
 					head->mRight = removeUtil(head->mRight, newKey);
-				}
-				else if (head->mRight) {
+				} else if (head->mRight) {
 					injectNodeInstead(head, head->mRight);
 					deleteNode(head->mRight);
 					head->mRight = nullptr;
 					mSize--;
-				}
-				else if (head->mLeft) {
+				} else if (head->mLeft) {
 					injectNodeInstead(head, head->mLeft);
 					deleteNode(head->mLeft);
 					head->mLeft = nullptr;
 					mSize--;
-				}
-				else {
+				} else {
 					deleteNode(head);
 					mSize--;
 					head = nullptr;
 				}
-			}
-			else if (head->descentRight(key)) {
+			} else if (head->descentRight(key)) {
 				head->mRight = removeUtil(head->mRight, head->keyInRightSubtree(key));
-			}
-			else if (head->descentLeft(key)) {
+			} else if (head->descentLeft(key)) {
 				head->mLeft = removeUtil(head->mLeft, head->keyInLeftSubtree(key));
 			}
 
@@ -237,17 +224,14 @@ namespace tp {
 			if (balance < -1) {
 				if (getNodeHeight(head->mLeft->mLeft) >= getNodeHeight(head->mLeft->mRight)) {
 					return rotateRight(head);
-				}
-				else {
+				} else {
 					head->mLeft = rotateLeft(head->mLeft);
 					return rotateRight(head);
 				}
-			}
-			else if (balance > 1) {
+			} else if (balance > 1) {
 				if (getNodeHeight(head->mRight->mRight) >= getNodeHeight(head->mRight->mLeft)) {
 					return rotateLeft(head);
-				}
-				else {
+				} else {
 					head->mRight = rotateRight(head->mRight);
 					return rotateLeft(head);
 				}
@@ -259,18 +243,11 @@ namespace tp {
 		}
 
 	public:
+		AvlTree() { MODULE_SANITY_CHECK(gModuleContainers) }
 
-		AvlTree() {
-			MODULE_SANITY_CHECK(gModuleContainers)
-		}
+		[[nodiscard]] ualni size() const { return mSize; }
 
-		[[nodiscard]] ualni size() const {
-			return mSize;
-		}
-
-		Node* head() const {
-			return this->mRoot;
-		}
+		Node* head() const { return this->mRoot; }
 
 		void insert(KeyArg key, DataArg data) {
 			mRoot = insertUtil(mRoot, key, data);
@@ -370,7 +347,7 @@ namespace tp {
 
 		bool isValid() { return findInvalidNode(head()) == nullptr; }
 
-		template<typename tFunctor>
+		template <typename tFunctor>
 		void traverse(Node* node, bool after, tFunctor functor) {
 			if (!after) functor(node);
 			if (node->mLeft) traverse(node->mLeft, after, functor);
@@ -379,20 +356,18 @@ namespace tp {
 		}
 
 		void removeAll() {
-			traverse(mRoot, true, [this](Node* node) {
-				deleteNode(node);
-			});
+			traverse(mRoot, true, [this](Node* node) { deleteNode(node); });
 			mRoot = nullptr;
 			mSize = 0;
 		}
 
 	public:
-		template<class tArchiver>
+		template <class tArchiver>
 		void archiveWrite(tArchiver& file) const {
 			FAIL("not implemented")
 		}
 
-		template<class tArchiver>
+		template <class tArchiver>
 		void archiveRead(tArchiver&) {
 			FAIL("not implemented")
 		}

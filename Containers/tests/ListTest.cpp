@@ -1,8 +1,8 @@
 #include "NewPlacement.hpp"
 
-#include "Tests.hpp"
-#include "Testing.hpp"
 #include "Archiver.hpp"
+#include "Testing.hpp"
+#include "Tests.hpp"
 
 using namespace tp;
 

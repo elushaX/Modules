@@ -1,9 +1,7 @@
 
-#include "Tests.hpp"
 #include "Logging.hpp"
+#include "Tests.hpp"
 
 using namespace tp;
 
-TEST_DEF(Logging) {
-
-}
+TEST_DEF(Logging) {}

@@ -89,7 +89,7 @@ HSV::operator RGB() const {
 		return out;
 	}
 
-	hh = h / (PI2) * 360;
+	hh = h / (PI2) *360;
 
 	if (hh >= 360.0) {
 		hh = 0.0;

@@ -17,8 +17,8 @@ namespace tp {
 
 		auto det = a2 * b1 - a1 * b2;
 
-		auto t1 = ( -b2 * c1 + b1 * c2 ) / det;
-		auto t2 = ( -a2 * c1 + a1 * c2 ) / det;
+		auto t1 = (-b2 * c1 + b1 * c2) / det;
+		auto t2 = (-a2 * c1 + a1 * c2) / det;
 
 		if (t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1) {
 			if (out != nullptr) {
@@ -31,4 +31,3 @@ namespace tp {
 	}
 
 }
-

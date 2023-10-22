@@ -10,6 +10,7 @@ namespace tp {
 		friend Graphics::GL;
 		friend Graphics::GUI;
 		friend Graphics::Canvas;
+
 	public:
 		GLFWwindow* window;
 	};

@@ -14,22 +14,18 @@ namespace tp {
 		GLuint vao{};
 		GLuint vbo{};
 		GLfloat vertices[9] = {
-				-0.0f, -0.0f, 0.0f, // Left vertex
-				1.0f, 0.0f, 0.0f,  // Right vertex
-				0.5f, 1.0f, 0.0f     // Top vertex
+			-0.0f, -0.0f, 0.0f, // Left vertex
+			1.0f,  0.0f,  0.0f, // Right vertex
+			0.5f,  1.0f,  0.0f  // Top vertex
 		};
 	};
 }
 
 using namespace tp;
 
-Graphics::GL::GL() {
-	mContext = new Context();
-}
+Graphics::GL::GL() { mContext = new Context(); }
 
-Graphics::GL::~GL() {
-	delete mContext;
-}
+Graphics::GL::~GL() { delete mContext; }
 
 void Graphics::GL::init() {
 	// Create a Vertex Array Object (VAO)
@@ -51,13 +47,9 @@ void Graphics::GL::deinit() {
 	glDeleteVertexArrays(1, &mContext->vao);
 }
 
-void Graphics::GL::proc() {
-	glClear(GL_COLOR_BUFFER_BIT);
-}
+void Graphics::GL::proc() { glClear(GL_COLOR_BUFFER_BIT); }
 
-void Graphics::GL::draw() {
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-}
+void Graphics::GL::draw() { glDrawArrays(GL_TRIANGLES, 0, 3); }
 
 void Graphics::init(Window* window) {
 	mGl.init();
@@ -110,7 +102,6 @@ Window::~Window() {
 	delete mContext;
 }
 
-
 Window* Window::createWindow(int width, int height, const char* title) {
 	tp::HeapAllocGlobal::startIgnore();
 
@@ -128,9 +119,7 @@ Window* Window::createWindow(int width, int height, const char* title) {
 	}
 
 	// Set the GLFW error callback
-	glfwSetErrorCallback([] (int error, const char* description) {
-		printf("GLFW Error: %i %s\n", error, description);
-	});
+	glfwSetErrorCallback([](int error, const char* description) { printf("GLFW Error: %i %s\n", error, description); });
 
 	auto out = new Window(width, height, title);
 
@@ -143,9 +132,7 @@ void Window::destroyWindow(Window* window) {
 	glfwTerminate();
 }
 
-bool Window::shouldClose() const {
-	return glfwWindowShouldClose(mContext->window);
-}
+bool Window::shouldClose() const { return glfwWindowShouldClose(mContext->window); }
 
 void Window::processEvents() {
 	glfwPollEvents();

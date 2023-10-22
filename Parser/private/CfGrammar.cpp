@@ -1,6 +1,6 @@
 
-#include "NewPlacement.hpp"
 #include "CfGrammar.hpp"
+#include "NewPlacement.hpp"
 
 #include "Timing.hpp"
 
@@ -16,10 +16,10 @@ void CfGrammar::generateSentences(List<Sentence>& out) {
 
 	// add start production
 	Sentence start;
-	start.terms.pushBack( { startTerminal, false } );
+	start.terms.pushBack({ startTerminal, false });
 	queue.pushBack(start);
 
-	PASS:
+PASS:
 
 	auto const sentential = &queue.first()->data;
 	bool isSentence = true;

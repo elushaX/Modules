@@ -7,11 +7,9 @@ namespace tp {
 
 	class CmdLineInterpreter {
 	public:
-
 		typedef bool (*CommandFunction)(void* customData, const CommandLine& args);
 
 	private:
-
 		struct Command {
 			CommandLine* args;
 			CommandFunction function;

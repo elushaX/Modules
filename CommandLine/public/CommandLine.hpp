@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Map.hpp"
 #include "LocalConnection.hpp"
+#include "Map.hpp"
 #include "Tokenizer.hpp"
 
 namespace tp {
@@ -86,7 +86,17 @@ namespace tp {
 		const CommandLine& operator=(const CommandLine&) = delete;
 
 	private:
-		enum class TokType { SPACE, INT, FLOAT, BOOL_FALSE, BOOL_TRUE, STR, NONE, FAILURE, END, };
+		enum class TokType {
+			SPACE,
+			INT,
+			FLOAT,
+			BOOL_FALSE,
+			BOOL_TRUE,
+			STR,
+			NONE,
+			FAILURE,
+			END,
+		};
 		typedef SimpleTokenizer<char, TokType, TokType::NONE, TokType::FAILURE, TokType::END> Tokenizer;
 
 		Tokenizer mTokenizer;
@@ -94,7 +104,13 @@ namespace tp {
 		List<Arg*> mArgsOrder;
 		ualni mOptionals = 0;
 
-		enum class ArgTokType { SPACE, ARG, NONE, FAILURE, END, };
+		enum class ArgTokType {
+			SPACE,
+			ARG,
+			NONE,
+			FAILURE,
+			END,
+		};
 		SimpleTokenizer<char, ArgTokType, ArgTokType::NONE, ArgTokType::FAILURE, ArgTokType::END> mArgumentTokenizer;
 
 		Arg& getArg(const String& id, Arg::Type type);

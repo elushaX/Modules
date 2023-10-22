@@ -12,14 +12,20 @@ namespace tp {
 	public:
 		struct HasFunc {
 			typedef ArchiverTemplate& ArchRef;
-			template <typename T, typename = void> struct Write : FalseType {};
-			template <typename T> struct Write<T, VoidType<decltype(DeclareValue<T>()().archiveWrite(DeclareValue<ArchRef>()()))>> : TrueType {};
+			template <typename T, typename = void>
+			struct Write : FalseType {};
+			template <typename T>
+			struct Write<T, VoidType<decltype(DeclareValue<T>()().archiveWrite(DeclareValue<ArchRef>()()))>> : TrueType {};
 
-			template <typename T, typename = void> struct Read : FalseType {};
-			template <typename T> struct Read<T, VoidType<decltype(DeclareValue<T>()().archiveRead(DeclareValue<ArchRef>()()))>> : TrueType {};
+			template <typename T, typename = void>
+			struct Read : FalseType {};
+			template <typename T>
+			struct Read<T, VoidType<decltype(DeclareValue<T>()().archiveRead(DeclareValue<ArchRef>()()))>> : TrueType {};
 
-			template <typename T, typename = void> struct Archive : FalseType {};
-			template <typename T> struct Archive<T, VoidType<decltype(DeclareValue<T>()().archive(DeclareValue<ArchRef>()()))>> : TrueType {};
+			template <typename T, typename = void>
+			struct Archive : FalseType {};
+			template <typename T>
+			struct Archive<T, VoidType<decltype(DeclareValue<T>()().archive(DeclareValue<ArchRef>()()))>> : TrueType {};
 
 			template <typename T>
 			struct AssertCombinations {
@@ -35,14 +41,14 @@ namespace tp {
 
 	public:
 		virtual void writeBytes(const int1* val, ualni size) = 0;
-		virtual void readBytes(int1* val, ualni size)  = 0;
+		virtual void readBytes(int1* val, ualni size) = 0;
 
 	public:
 		ArchiverTemplate() = default;
 
 		// check if type has explicit write method. if not write as bytes
-		template<typename Type>
-		void operator <<(const Type& val) {
+		template <typename Type>
+		void operator<<(const Type& val) {
 			static_assert(!tRead);
 			static_assert(HasFunc::template AssertCombinations<Type>::assert());
 			if constexpr (HasFunc::template Write<Type>::value) {
@@ -53,8 +59,8 @@ namespace tp {
 		}
 
 		// check if type has explicit read method. if not read as bytes
-		template<typename Type>
-		void operator >>(Type& val) {
+		template <typename Type>
+		void operator>>(Type& val) {
 			static_assert(tRead);
 			static_assert(HasFunc::template AssertCombinations<Type>::assert());
 			if constexpr (HasFunc::template Read<Type>::value) {
@@ -65,8 +71,8 @@ namespace tp {
 		}
 
 		// check if type has explicit archive method. if not read/write as bytes
-		template<typename Type>
-		void operator %(Type& val) {
+		template <typename Type>
+		void operator%(Type& val) {
 			static_assert(HasFunc::template AssertCombinations<Type>::assert());
 			if constexpr (HasFunc::template Archive<Type>::value) {
 				val.archive(*this);
@@ -79,11 +85,11 @@ namespace tp {
 			}
 		}
 
-		template<typename Type>
-		void operator %(const Type& val) {
+		template <typename Type>
+		void operator%(const Type& val) {
 			static_assert(HasFunc::template AssertCombinations<Type>::assert());
 			if constexpr (HasFunc::template Archive<Type>::value) {
-				((Type&)val).archive(*this);
+				((Type&) val).archive(*this);
 			} else {
 				if constexpr (tRead) {
 					operator>>(val);
@@ -94,7 +100,7 @@ namespace tp {
 		}
 	};
 
-	template<ualni tMaxMemory, bool tRead>
+	template <ualni tMaxMemory, bool tRead>
 	class ArchiverExample : public ArchiverTemplate<tRead> {
 	public:
 		ArchiverExample() = default;
@@ -106,12 +112,14 @@ namespace tp {
 		}
 
 		void writeBytes(const int1* val, ualni size) override {
-			for (auto i = 0; i < size; i++) mBuff[mAddress + i] = val[i];
+			for (auto i = 0; i < size; i++)
+				mBuff[mAddress + i] = val[i];
 			incrementAddresses(size);
 		}
 
 		void readBytes(int1* val, ualni size) override {
-			for (auto i = 0; i < size; i++) val[i] = mBuff[mAddress + i];
+			for (auto i = 0; i < size; i++)
+				val[i] = mBuff[mAddress + i];
 			incrementAddresses(size);
 		}
 

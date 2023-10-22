@@ -1,7 +1,7 @@
 
 #include "NewPlacement.hpp"
-#include "Testing.hpp"
 #include "Parser.hpp"
+#include "Testing.hpp"
 
 using namespace tp;
 

@@ -20,9 +20,7 @@ namespace ImGui {
 		bool ishovered = false;
 		tp::Vec2F p1;
 		tp::Vec2F p2;
-		operator bool() {
-			return opened;
-		}
+		operator bool() { return opened; }
 	};
 
 	PopupData HoverPopupBegin(const char* id, tp::Vec2F size, tp::Vec2F pos = tp::Vec2F(-1), int flags = 0);
@@ -40,8 +38,7 @@ ImGui::PopupData ImGui::HoverPopupBegin(const char* str_id, tp::Vec2F size, tp::
 
 		if (pos_p == tp::Vec2F(-1)) {
 			pos = GImGui->CurrentWindow->DC.CursorPos;
-		}
-		else {
+		} else {
 			pos.x = pos_p.x;
 			pos.y = pos_p.y;
 		}
@@ -62,7 +59,6 @@ ImGui::PopupData ImGui::HoverPopupBegin(const char* str_id, tp::Vec2F size, tp::
 		out.p1 = { pos.x, pos.y };
 		out.p2 = out.p1;
 		out.p2.x += ImGui::GetWindowWidth();
-
 	}
 	return out;
 }
@@ -87,7 +83,6 @@ void ImGui::HoverPopupEnd(ImGui::PopupData& in) {
 	EndPopup();
 }
 
-
 obj::ObjectsGUI::~ObjectsGUI() {
 	if (mClipboard) {
 		obj::NDO->destroy(mClipboard);
@@ -109,9 +104,7 @@ void obj::ObjectsGUI::setClipboard(obj::Object* obj) {
 	}
 }
 
-obj::Object* obj::ObjectsGUI::getClipboard() {
-	return mClipboard;
-}
+obj::Object* obj::ObjectsGUI::getClipboard() { return mClipboard; }
 
 obj::Object* imgui_object_create_menu(obj::TypeGroups* type_group = NULL) {
 
@@ -134,8 +127,7 @@ obj::Object* imgui_object_create_menu(obj::TypeGroups* type_group = NULL) {
 		if (ImGui::Button((childo->key).read(), { 100, 0 })) {
 			if (childo->key == "null") {
 				newo = NDO_NULL;
-			}
-			else {
+			} else {
 				newo = obj::NDO->create(childo->key);
 			}
 		}
@@ -144,9 +136,7 @@ obj::Object* imgui_object_create_menu(obj::TypeGroups* type_group = NULL) {
 	return newo;
 }
 
-obj::ObjectsGUI::ObjectsGUI() {
-	assert(obj::NDO && "Objects library is not initialized");
-}
+obj::ObjectsGUI::ObjectsGUI() { assert(obj::NDO && "Objects library is not initialized"); }
 
 void obj::ObjectsGUI::cd(obj::Object* child, tp::String name) {
 	mActive = child;
@@ -178,8 +168,7 @@ void obj::ObjectsGUI::preview(obj::Object* obj) {
 
 			if (link_lookup.presents(tp::alni(link_iter))) {
 				no_link_preview = true;
-			}
-			else {
+			} else {
 				link_lookup.put(tp::alni(link_iter), 0);
 			}
 			no_link_preview |= max_depth < depth_count;
@@ -190,22 +179,18 @@ void obj::ObjectsGUI::preview(obj::Object* obj) {
 				ImGui::Text("=> ");
 				ImGui::SameLine();
 				preview(linko->getLink());
-			}
-			else {
+			} else {
 				ImGui::Text("Max preview depth exceeded");
 			}
-		}
-		else {
+		} else {
 			ImGui::Text("Link Is Null");
 		}
-	}
-	else if (NDO_CAST(obj::IntObject, obj)) {
+	} else if (NDO_CAST(obj::IntObject, obj)) {
 		tp::alni& val = NDO_CAST(obj::IntObject, obj)->val;
 		int gui_val = int(val);
 		ImGui::InputInt(" ", &gui_val);
 		val = tp::alni(gui_val);
-	}
-	else if (NDO_CAST(obj::StringObject, obj)) {
+	} else if (NDO_CAST(obj::StringObject, obj)) {
 		NDO_CASTV(obj::StringObject, obj, stringo);
 		static char val[2048] = { " " };
 		if (stringo->val != val) {
@@ -216,25 +201,21 @@ void obj::ObjectsGUI::preview(obj::Object* obj) {
 		if (stringo->val != val) {
 			stringo->val = val;
 		}
-	}
-	else if (NDO_CAST(obj::BoolObject, obj)) {
-		boolView((obj::BoolObject*)obj);
-	}
-	else if (NDO_CAST(obj::FloatObject, obj)) {
+	} else if (NDO_CAST(obj::BoolObject, obj)) {
+		boolView((obj::BoolObject*) obj);
+	} else if (NDO_CAST(obj::FloatObject, obj)) {
 		tp::alnf& val = NDO_CAST(obj::FloatObject, obj)->val;
 		auto gui_val = float(val);
 		ImGui::InputFloat(" ", &gui_val);
 		val = tp::alnf(gui_val);
 
-	}
-	else if (NDO_CAST(obj::EnumObject, obj)) {
-		enumView((obj::EnumObject*)obj);
-	}
-	else if (NDO_CAST(obj::ColorObject, obj)) {
-		colorView((obj::ColorObject*)obj);
-	}
-	else {
-		ImGui::Text(obj->type->name); ImGui::SameLine();
+	} else if (NDO_CAST(obj::EnumObject, obj)) {
+		enumView((obj::EnumObject*) obj);
+	} else if (NDO_CAST(obj::ColorObject, obj)) {
+		colorView((obj::ColorObject*) obj);
+	} else {
+		ImGui::Text(obj->type->name);
+		ImGui::SameLine();
 		ImGui::Text(" (No Preview) ");
 	}
 }
@@ -261,12 +242,15 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::interpreterView(obj::Interpreter
 	}
 
 	// running state
-	BeginChild("dockable"); {
+	BeginChild("dockable");
+	{
 		auto id = ImGui::GetCurrentWindow()->ID;
 		DockSpace(id);
-	} EndChild();
+	}
+	EndChild();
 
-	Begin("ByteCodeView"); {
+	Begin("ByteCodeView");
+	{
 
 		if (Button("Step")) {
 			interp.stepBytecode();
@@ -299,21 +283,21 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::interpreterView(obj::Interpreter
 		const auto bytecode = interp.mCallStack.getBytecode();
 		tp::halni idx = 0;
 
-		for (auto ip = 0; ip < bytecode->mInstructions.size(); ) {
+		for (auto ip = 0; ip < bytecode->mInstructions.size();) {
 			auto opcode = bytecode->mInstructions[ip];
 			auto info = obj::gOpcodeInfos.fetch(opcode);
 			PushID(info.name);
 
-			TextColored(ImVec4(1.f, 1.f, 1.f, 0.5f), "%i", idx); SameLine();
+			TextColored(ImVec4(1.f, 1.f, 1.f, 0.5f), "%i", idx);
+			SameLine();
 			if (bytecode->mInstructionIdx == ip) {
 				TextColored(ImVec4(1.f, 0.5f, 0.5f, 1.f), info.name);
-			}
-			else {
+			} else {
 				Text(info.name);
 			}
 
 			// INFO
-			auto hd = HoverPopupBegin(tp::String((tp::alni)ip).read(), { 400, 250 });
+			auto hd = HoverPopupBegin(tp::String((tp::alni) ip).read(), { 400, 250 });
 			if (hd) {
 				Text(info.desc);
 				if (info.operands.len) {
@@ -339,43 +323,45 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::interpreterView(obj::Interpreter
 		}
 
 		EndChild();
-	} End();
+	}
+	End();
 
-	Begin("SourceCodeView"); {
-		stringView(interp.mCallStack.mStack.last().mMethod->mScript->mReadable);
-	} End();
+	Begin("SourceCodeView");
+	{ stringView(interp.mCallStack.mStack.last().mMethod->mScript->mReadable); }
+	End();
 
-	Begin("OperandStack"); {
+	Begin("OperandStack");
+	{
 		if (!interp.mOperandsStack.mIdx) {
 			Text("No Operands");
 		}
 		for (auto i = 0; i < interp.mOperandsStack.mIdx; i++) {
 			auto operand = interp.mOperandsStack.mBuff[i];
-			tp::alni operand_val = (tp::alni)operand;
+			tp::alni operand_val = (tp::alni) operand;
 
 			if (operand_val == NULL) {
 				Text("NULL");
-			}
-			else if (tp::uint2(operand_val) == NULL) {
+			} else if (tp::uint2(operand_val) == NULL) {
 				Text("2 BYTE VAL : %i", tp::uint2(operand_val));
-			}
-			else {
+			} else {
 				if (Selectable(operand->type->name, false, 0, ImVec2(100, 0))) {
 					End();
 					return { operand, "operand" };
 				}
 				SameLine();
 
-				PushID((tp::alni)operand);
+				PushID((tp::alni) operand);
 				preview(operand);
 				PopID();
 			}
 		}
-	} End();
+	}
+	End();
 
-	Begin("ScopeStack"); {
+	Begin("ScopeStack");
+	{
 		for (auto i = 0; i < interp.mScopeStack.mIdx; i++) {
-			if (TreeNode(tp::String((tp::alni)i).read())) {
+			if (TreeNode(tp::String((tp::alni) i).read())) {
 
 				auto& scope = interp.mScopeStack.mBuff[i];
 
@@ -412,9 +398,11 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::interpreterView(obj::Interpreter
 				TreePop();
 			}
 		}
-	} End();
+	}
+	End();
 
-	Begin("CallStack"); {
+	Begin("CallStack");
+	{
 		for (auto i = 0; i < interp.mCallStack.mStack.size(); i++) {
 			auto method = interp.mCallStack.mStack[i].mMethod;
 			PushID(i);
@@ -425,9 +413,11 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::interpreterView(obj::Interpreter
 			}
 			PopID();
 		}
-	} End();
+	}
+	End();
 
-	Begin("ConstPool"); {
+	Begin("ConstPool");
+	{
 		auto bc = interp.mCallStack.getBytecode();
 		tp::alni idx = 0;
 		for (auto const_obj : bc->mConstants) {
@@ -435,14 +425,15 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::interpreterView(obj::Interpreter
 			if (Button(const_obj.data()->type->name)) {
 				End();
 				PopID();
-				return {const_obj.data(), tp::String(idx)};
+				return { const_obj.data(), tp::String(idx) };
 			}
 			SameLine();
 			preview(const_obj.data());
 			PopID();
 			idx++;
 		}
-	} End();
+	}
+	End();
 
 	return {};
 }
@@ -451,7 +442,6 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::colorView(obj::ColorObject* in) 
 	ImGui::ColorEdit4(" ", &in->mCol.r);
 	return {};
 }
-
 
 obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::enumView(obj::EnumObject* obj) {
 
@@ -504,8 +494,7 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::linkoView(obj::LinkObject* obj) 
 		if (ImGui::Selectable("View")) {
 			return { obj->getLink(), "adress" };
 		}
-	}
-	else {
+	} else {
 		ImGui::Text("Link Is Null");
 	}
 
@@ -524,10 +513,11 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::linkoView(obj::LinkObject* obj) 
 }
 
 obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::intoView(obj::IntObject* obj) {
-	ImGui::Text("Int Value: "); ImGui::SameLine();
-	int val = (int)obj->val;
+	ImGui::Text("Int Value: ");
+	ImGui::SameLine();
+	int val = (int) obj->val;
 	ImGui::InputInt(" ", &val);
-	obj->val = (tp::alni)val;
+	obj->val = (tp::alni) val;
 	return {};
 }
 
@@ -581,20 +571,18 @@ void obj::ObjectsGUI::dictViewEdit(obj::DictObject* dict, tp::String key, obj::O
 
 		if (key.size() > 100) {
 			ImGui::Text("name is too large");
-		}
-		else {
+		} else {
 
 			if (mLastNameEditObject != obj) {
 				tp::memCopy(mNameEdit, key.read(), key.size() + 1);
 				mLastNameEditObject = obj;
 			}
 
-			if (ImGui::InputTextEx(" ", "new name", mNameEdit, 100, { 140 , 30 }, ImGuiInputTextFlags_EnterReturnsTrue)) {
+			if (ImGui::InputTextEx(" ", "new name", mNameEdit, 100, { 140, 30 }, ImGuiInputTextFlags_EnterReturnsTrue)) {
 				auto idx = dict->presents(mNameEdit);
 				if (bool(idx)) {
-					//Notify("Object with such name Already Exists");
-				}
-				else {
+					// Notify("Object with such name Already Exists");
+				} else {
 					obj::NDO->refinc(obj);
 					dict->remove(key);
 					auto id = tp::String(mNameEdit);
@@ -620,7 +608,8 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::dictView(obj::DictObject* obj) {
 	bool popup = false;
 	auto table_flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable;
 
-	ImGui::BeginChild("frame", { 0, 0 }, 0, ImGuiWindowFlags_NoBackground); {
+	ImGui::BeginChild("frame", { 0, 0 }, 0, ImGuiWindowFlags_NoBackground);
+	{
 		if (!obj->getItems().size()) {
 			ImGui::Text("Dictinary Is Empty. ");
 		}
@@ -629,27 +618,27 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::dictView(obj::DictObject* obj) {
 			ImGui::TableSetupColumn("name");
 			ImGui::TableSetupColumn("info");
 			for (auto childo : obj->getItems()) {
-				
+
 				ImGui::TableNextRow(0, 30);
 				ImGui::TableSetColumnIndex(0);
 
 				if (ImGui::Selectable(childo->key.read())) {
 					ImGui::EndTable();
 					ImGui::EndChild();
-					return { childo->val,  { tp::String(childo->val->type->name) + tp::String(" ") + childo->key } };
+					return { childo->val, { tp::String(childo->val->type->name) + tp::String(" ") + childo->key } };
 				}
-				
+
 				dictViewEdit(obj, childo->key, childo->val, popup);
-				
+
 				ImGui::TableSetColumnIndex(1);
-				ImGui::PushID((int)childo->key.read()[0]);
+				ImGui::PushID((int) childo->key.read()[0]);
 				preview(childo->val);
 				ImGui::PopID();
-
 			}
 			ImGui::EndTable();
 		}
-	} ImGui::EndChild();
+	}
+	ImGui::EndChild();
 
 	if (!popup) {
 		dictViewDrawCreate(obj);
@@ -678,7 +667,7 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::listView(obj::ListObject* obj) {
 
 			ImGui::TableSetColumnIndex(0);
 			if (ImGui::Selectable(tp::String(idx).read())) {
-				out = ViewStackNode(childo.data(), { tp::String(childo->type->name) + tp::String("at") + tp::String(idx) } );
+				out = ViewStackNode(childo.data(), { tp::String(childo->type->name) + tp::String("at") + tp::String(idx) });
 				break;
 			}
 
@@ -718,7 +707,7 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::listView(obj::ListObject* obj) {
 
 			ImGui::TableSetColumnIndex(1);
 
-			ImGui::PushID((int)idx);
+			ImGui::PushID((int) idx);
 			preview(childo.data());
 			ImGui::PopID();
 
@@ -758,7 +747,7 @@ void drawStrView(tp::String& in) {
 	}
 
 	ImGui::BeginChild("str_edit");
-	ImGui::InputTextMultiline(" ", val, 2048, { ImGui::GetWindowWidth() , ImGui::GetWindowHeight() });
+	ImGui::InputTextMultiline(" ", val, 2048, { ImGui::GetWindowWidth(), ImGui::GetWindowHeight() });
 	ImGui::EndChild();
 
 	if (in != val) {
@@ -811,16 +800,15 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::classView(obj::ClassObject* self
 					ImGui::EndTable();
 					ImGui::TreePop();
 					ImGui::EndChild();
-					return { childo->val,  { tp::String(childo->val->type->name) + childo->key } };
+					return { childo->val, { tp::String(childo->val->type->name) + childo->key } };
 				}
 
 				dictViewEdit(dict, childo->key, childo->val, popup);
 
 				ImGui::TableSetColumnIndex(1);
-				ImGui::PushID((int)idx);
+				ImGui::PushID((int) idx);
 				preview(childo->val);
 				ImGui::PopID();
-
 			}
 			ImGui::EndTable();
 
@@ -829,13 +817,13 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::classView(obj::ClassObject* self
 		ImGui::TreePop();
 	}
 
-	if (n_methods && ImGui::TreeNodeBehavior(window->GetID("Methods"), tree_flags, "Methods", 0) ) {
+	if (n_methods && ImGui::TreeNodeBehavior(window->GetID("Methods"), tree_flags, "Methods", 0)) {
 		for (auto childo : dict->getItems()) {
 			if (childo->val->type == &obj::MethodObject::TypeData) {
 				if (ImGui::Selectable(childo->key.read())) {
 					ImGui::TreePop();
 					ImGui::EndChild();
-					return { childo->val,  { tp::String(childo->val->type->name) + childo->key } };
+					return { childo->val, { tp::String(childo->val->type->name) + childo->key } };
 				}
 				dictViewEdit(dict, childo->key, childo->val, popup);
 			}
@@ -865,8 +853,7 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::methodView(obj::MethodObject* in
 			interp.execAll(in);
 		}
 
-	}
-	else {
+	} else {
 		if (ImGui::Button("Compile")) {
 			in->compile();
 		}
@@ -897,13 +884,14 @@ void obj::ObjectsGUI::explorer() {
 
 	tp::alni idx = 0;
 	for (auto childo = rev_path.last(); childo; childo = childo->prev) {
-		ImGui::PushID((int)idx);
+		ImGui::PushID((int) idx);
 		bool go_back = false;
 		if (childo == rev_path.last()) {
-			go_back = ImGui::Button(childo->data->id.read()); ImGui::SameLine();
-		}
-		else {
-			go_back = ImGui::Button((childo->data->id).read()); ImGui::SameLine();
+			go_back = ImGui::Button(childo->data->id.read());
+			ImGui::SameLine();
+		} else {
+			go_back = ImGui::Button((childo->data->id).read());
+			ImGui::SameLine();
 		}
 		ImGui::PopID();
 
@@ -919,7 +907,7 @@ void obj::ObjectsGUI::explorer() {
 
 			if (ImGui::Selectable("Instantiate  ")) {
 				setClipboard(obj::NDO->instatiate(curretn_object));
-				//Notify("Object copied to clipboard");
+				// Notify("Object copied to clipboard");
 			}
 
 			ImGui::Separator();
@@ -929,22 +917,22 @@ void obj::ObjectsGUI::explorer() {
 			ImGui::InputTextEx(" ", "save path", path_str, 100, { 100, 30 }, 0);
 
 			bool save_object = ImGui::Button("Save Object");
-			ImGui::SameLine(); ImGui::Checkbox("Compressed", &compressed);
+			ImGui::SameLine();
+			ImGui::Checkbox("Compressed", &compressed);
 			bool load_object = ImGui::Button("Load Object");
 
 			if (save_object) {
 				obj::NDO->save(curretn_object, path_str, compressed);
-				//Notify("Object saved");
+				// Notify("Object saved");
 			}
 
 			if (load_object) {
 				obj::Object* loadedo = obj::NDO->load(path_str);
 				if (loadedo) {
 					setClipboard(loadedo);
-					//Notify("Object copied to clipboard");
-				}
-				else {
-					//Notify("Can't load Object");
+					// Notify("Object copied to clipboard");
+				} else {
+					// Notify("Can't load Object");
 				}
 			}
 
@@ -968,45 +956,32 @@ void obj::ObjectsGUI::explorer() {
 
 	ViewStackNode new_active;
 	if (NDO_CAST(obj::NullObject, mActive)) {
-		new_active = nullView((obj::NullObject*)mActive);
-	}
-	else if (NDO_CAST(obj::LinkObject, mActive)) {
-		new_active = linkoView((obj::LinkObject*)mActive);
-	}
-	else if (NDO_CAST(obj::IntObject, mActive)) {
-		new_active = intoView((obj::IntObject*)mActive);
-	}
-	else if (NDO_CAST(obj::StringObject, mActive)) {
-		new_active = stringView((obj::StringObject*)mActive);
-	}
-	else if (NDO_CAST(obj::ListObject, mActive)) {
-		new_active = listView((obj::ListObject*)mActive);
-	}
-	else if (NDO_CAST(obj::DictObject, mActive)) {
-		new_active = dictView((obj::DictObject*)mActive);
-	}
-	else if (NDO_CAST(obj::InterpreterObject, mActive)) {
-		new_active = interpreterView((obj::InterpreterObject*)mActive);
-	}
-	else if (NDO_CAST(obj::ClassObject, mActive)) {
-		new_active = classView((obj::ClassObject*)mActive);
-	}
-	else if (NDO_CAST(obj::BoolObject, mActive)) {
-		new_active = boolView((obj::BoolObject*)mActive);
-	}
-	else if (NDO_CAST(obj::FloatObject, mActive)) {
-		new_active = floatView((obj::FloatObject*)mActive);
-	}
-	else if (NDO_CAST(obj::EnumObject, mActive)) {
-		new_active = enumView((obj::EnumObject*)mActive);
-	}
-	else if (NDO_CAST(obj::MethodObject, mActive)) {
-		new_active = methodView((obj::MethodObject*)mActive);
-	}
-	else if (NDO_CAST(obj::ColorObject, mActive)) {
-		new_active = colorView((obj::ColorObject*)mActive);
-	}
-	else {
+		new_active = nullView((obj::NullObject*) mActive);
+	} else if (NDO_CAST(obj::LinkObject, mActive)) {
+		new_active = linkoView((obj::LinkObject*) mActive);
+	} else if (NDO_CAST(obj::IntObject, mActive)) {
+		new_active = intoView((obj::IntObject*) mActive);
+	} else if (NDO_CAST(obj::StringObject, mActive)) {
+		new_active = stringView((obj::StringObject*) mActive);
+	} else if (NDO_CAST(obj::ListObject, mActive)) {
+		new_active = listView((obj::ListObject*) mActive);
+	} else if (NDO_CAST(obj::DictObject, mActive)) {
+		new_active = dictView((obj::DictObject*) mActive);
+	} else if (NDO_CAST(obj::InterpreterObject, mActive)) {
+		new_active = interpreterView((obj::InterpreterObject*) mActive);
+	} else if (NDO_CAST(obj::ClassObject, mActive)) {
+		new_active = classView((obj::ClassObject*) mActive);
+	} else if (NDO_CAST(obj::BoolObject, mActive)) {
+		new_active = boolView((obj::BoolObject*) mActive);
+	} else if (NDO_CAST(obj::FloatObject, mActive)) {
+		new_active = floatView((obj::FloatObject*) mActive);
+	} else if (NDO_CAST(obj::EnumObject, mActive)) {
+		new_active = enumView((obj::EnumObject*) mActive);
+	} else if (NDO_CAST(obj::MethodObject, mActive)) {
+		new_active = methodView((obj::MethodObject*) mActive);
+	} else if (NDO_CAST(obj::ColorObject, mActive)) {
+		new_active = colorView((obj::ColorObject*) mActive);
+	} else {
 		ImGui::Text("Preview is Unavaliable");
 	}
 
@@ -1028,8 +1003,7 @@ void obj::ObjectsGUI::properties(const obj::ObjectType* type, bool top_of_tree_v
 	if (ImGui::TreeNode("Description ")) {
 		if (type->description) {
 			ImGui::Text(type->description);
-		}
-		else {
+		} else {
 			ImGui::Text("Description is not given");
 		}
 		ImGui::TreePop();
@@ -1052,7 +1026,7 @@ void obj::ObjectsGUI::properties(const obj::ObjectType* type, bool top_of_tree_v
 
 			ImGui::TreePop();
 		}
-		//if (ImGui::TreeNode("Full Type Hierarchy")) {
+		// if (ImGui::TreeNode("Full Type Hierarchy")) {
 
 		ImGui::Text("RAM : ");
 		ImGui::Indent();
@@ -1067,16 +1041,15 @@ void obj::ObjectsGUI::properties(const obj::ObjectType* type, bool top_of_tree_v
 		ImGui::Text("With Object Links : %i bytes", obj::NDO->objsize_file_recursive(mActive));
 		ImGui::Unindent();
 
-		//ImGui::TreePop();
-	//}
+		// ImGui::TreePop();
+		//}
 		ImGui::TreePop();
 	}
 
 	if (ImGui::TreeNode("Base Type")) {
 		if (type->base) {
 			properties(type->base, false);
-		}
-		else {
+		} else {
 			ImGui::Text("No base type");
 		}
 		ImGui::TreePop();
@@ -1099,8 +1072,7 @@ void obj::ObjectsGUI::draw() {
 		}
 		ImGui::End();
 
-	}
-	else {
+	} else {
 		ImGui::Text("ViewStack is Empty");
 	}
 

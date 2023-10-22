@@ -6,10 +6,10 @@ using namespace tp;
 
 static CommandLine createCmdLine() {
 	CommandLine cmd({
-			{ "bool", CommandLine::Arg::BOOL },
-			{ "int", CommandLine::Arg::INT },
-			{ "string", CommandLine::Arg::STR },
-			{ "float", CommandLine::Arg::FLOAT },
+		{ "bool", CommandLine::Arg::BOOL },
+		{ "int", CommandLine::Arg::INT },
+		{ "string", CommandLine::Arg::STR },
+		{ "float", CommandLine::Arg::FLOAT },
 	});
 	return cmd;
 }
@@ -20,6 +20,4 @@ TEST_DEF_STATIC(Simple) {
 	cmd.parse(4, args, true, 0);
 }
 
-TEST_DEF(CommandLine) {
-	testSimple();
-}
+TEST_DEF(CommandLine) { testSimple(); }

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Strings.hpp"
 #include "List.hpp"
 #include "Map.hpp"
+#include "Strings.hpp"
 
 namespace tp {
 
@@ -13,17 +13,13 @@ namespace tp {
 				bool isTerminal = false;
 				bool isEpsilon = false;
 
-				bool operator==(const Arg& in) const {
-					return (id == in.id) && (isEpsilon == in.isEpsilon) && (isTerminal == in.isTerminal);
-				}
+				bool operator==(const Arg& in) const { return (id == in.id) && (isEpsilon == in.isEpsilon) && (isTerminal == in.isTerminal); }
 			};
 
 			String id;
 			List<Arg> args;
 
-			bool operator==(const Rule& in) const {
-				return (id == in.id) && (args == in.args);
-			}
+			bool operator==(const Rule& in) const { return (id == in.id) && (args == in.args); }
 
 			[[nodiscard]] bool isProductive() const {
 				for (auto arg : args) {
@@ -37,9 +33,7 @@ namespace tp {
 			struct Term {
 				String id;
 				bool terminal;
-				bool operator==(const Term& in) const {
-					return (id == in.id) && (terminal == in.terminal);
-				}
+				bool operator==(const Term& in) const { return (id == in.id) && (terminal == in.terminal); }
 			};
 			List<Term> terms;
 		};

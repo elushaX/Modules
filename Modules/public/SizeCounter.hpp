@@ -8,7 +8,7 @@ namespace tp {
 	public:
 		SaveSizeCounter() = default;
 
-		template < typename tType>
+		template <typename tType>
 		static ualni calc(const tType& val) {
 			SaveSizeCounter cnt;
 			cnt << val;
@@ -25,19 +25,19 @@ namespace tp {
 		ualni mSize = 0;
 	};
 
-
-
 	// TODO
 	template <bool tRecursive>
 	class SizeCounter {
 		typedef SizeCounter& ArchRef;
-		template <typename T, typename = void> struct HasSizeCounter : FalseType {};
-		template <typename T> struct HasSizeCounter<T, VoidType<decltype(DeclareValue<T>()().count(DeclareValue<ArchRef>()()))>> : TrueType {};
+		template <typename T, typename = void>
+		struct HasSizeCounter : FalseType {};
+		template <typename T>
+		struct HasSizeCounter<T, VoidType<decltype(DeclareValue<T>()().count(DeclareValue<ArchRef>()()))>> : TrueType {};
 
 	public:
 		SizeCounter() = default;
 
-		template<typename Type>
+		template <typename Type>
 		void count(const Type& val) {
 			if constexpr (HasSizeCounter<Type>::value) {
 				val.count(*this);
@@ -50,21 +50,13 @@ namespace tp {
 			}
 		}
 
-		void countSizeUnused(ualni size) {
-			mSizeUnused += size;
-		}
+		void countSizeUnused(ualni size) { mSizeUnused += size; }
 
-		void countSize(ualni size) {
-			mSize += size;
-		}
+		void countSize(ualni size) { mSize += size; }
 
-		[[nodiscard]] ualni getSizeUnused() const {
-			return mSizeUnused;
-		}
+		[[nodiscard]] ualni getSizeUnused() const { return mSizeUnused; }
 
-		[[nodiscard]] ualni getSize() const {
-			return mSize;
-		}
+		[[nodiscard]] ualni getSize() const { return mSize; }
 
 	private:
 		ualni mSize = 0;

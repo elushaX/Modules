@@ -30,6 +30,4 @@ TEST_DEF_STATIC(Dict) {
 	NDO->destroy(dictLoaded);
 }
 
-TEST_DEF(Primitives) {
-	testDict();
-}
+TEST_DEF(Primitives) { testDict(); }

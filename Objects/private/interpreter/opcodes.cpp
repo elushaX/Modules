@@ -11,8 +11,7 @@ using namespace obj;
 
 #define CONST_IDX_BYTES 2
 
-#define OP(opcode, name, desc, ops, params) \
-	add(opcode, { #name, #desc, ops, params } );
+#define OP(opcode, name, desc, ops, params) add(opcode, { #name, #desc, ops, params });
 
 OpcodeInfos::OperandsInfo::OperandsInfo() {}
 OpcodeInfos::OperandsInfo::OperandsInfo(tp::InitialierList<Operand> list) {
@@ -45,15 +44,7 @@ OpcodeInfos::OpcodeInfos() {
 	add(OpCode::NONE, { "NONE", "Does Nothing" });
 	add(OpCode::HALT, { "HALT", "Halts for 3 sec" });
 	add(OpCode::TERMINATE, { "TERMINATE", "Terminates the process" });
-	add(OpCode::DEF_LOCAL, {
-			.name = "DEF LOCAL",
-			.desc = "Adds object to the locals",
-			.operands = {
-				{ "str", "local id" },
-				{ "any", "object to be local" }
-			}
-		}
-	);
+	add(OpCode::DEF_LOCAL, { .name = "DEF LOCAL", .desc = "Adds object to the locals", .operands = { { "str", "local id" }, { "any", "object to be local" } } });
 	add(OpCode::LOAD_CONST, {
 			.name = "LOAD CONST",
 			.desc = "Loads const object from the const pool",
@@ -70,17 +61,23 @@ OpcodeInfos::OpcodeInfos() {
 			}
 		}
 	);
-	add(OpCode::IGNORE, {
+	add(
+		OpCode::IGNORE,
+		{
 			.name = "IGNORE",
 			.desc = "Ignores returned object by destroying it",
 		}
 	);
-	add(OpCode::SCOPE_IN, {
+	add(
+		OpCode::SCOPE_IN,
+		{
 			.name = "SCOPE IN",
 			.desc = "Enters new scope",
 		}
 	);
-	add(OpCode::SCOPE_OUT, {
+	add(
+		OpCode::SCOPE_OUT,
+		{
 			.name = "SCOPE OUT",
 			.desc = "Leaves current scope",
 		}
@@ -101,7 +98,9 @@ OpcodeInfos::OpcodeInfos() {
 			}
 		}
 	);
-	add(OpCode::RETURN, {
+	add(
+		OpCode::RETURN,
+		{
 			.name = "RETURN",
 			.desc = "Returns Null Object",
 		}
@@ -118,22 +117,8 @@ OpcodeInfos::OpcodeInfos() {
 			}
 		}
 	);
-	add(OpCode::PUSH_ARGS, {
-			.name = "PUSH ARGS",
-			.desc = "Pushes Separator on the OperandsStack",
-			.params = {
-				{ "length to chech number of args", 1 }
-			}
-		}
-	);
-	add(OpCode::SAVE_ARGS, {
-			.name = "SAVE ARGS",
-			.desc = "Pushes operands to locals",
-			.params = {
-				{ "number of arguments in function defenition", 1 }
-			}
-		}
-	);
+	add(OpCode::PUSH_ARGS, { .name = "PUSH ARGS", .desc = "Pushes Separator on the OperandsStack", .params = { { "length to chech number of args", 1 } } });
+	add(OpCode::SAVE_ARGS, { .name = "SAVE ARGS", .desc = "Pushes operands to locals", .params = { { "number of arguments in function defenition", 1 } } });
 	add(OpCode::OBJ_CREATE_LOCAL, {
 			.name = "CREATE LOCAL OBJ",
 			.desc = "creates object of given type and adds it to the locals",
@@ -362,12 +347,16 @@ OpcodeInfos::OpcodeInfos() {
 			}
 		}
 	);
-	add(OpCode::CLASS_CONSTRUCT, {
+	add(
+		OpCode::CLASS_CONSTRUCT,
+		{
 			.name = "CLASS CONSTRUCT",
 			.desc = "Creates class from the function execution state",
 		}
 	);
-	add(OpCode::SELF, {
+	add(
+		OpCode::SELF,
+		{
 			.name = "SELF",
 			.desc = "retrieves parent class of the current method",
 		}
@@ -375,10 +364,8 @@ OpcodeInfos::OpcodeInfos() {
 }
 
 OpcodeInfos::OpInfo OpcodeInfos::fetch(OpCode code) {
-	DEBUG_ASSERT((tp::alni)code >= 0 && (tp::alni)code < (tp::alni)OpCode::END_OPCODES);
-	return buff[(tp::alni)code];
+	DEBUG_ASSERT((tp::alni) code >= 0 && (tp::alni) code < (tp::alni) OpCode::END_OPCODES);
+	return buff[(tp::alni) code];
 }
 
-void OpcodeInfos::add(OpCode code, const OpInfo& info) {
-	buff[(tp::alni)code] = info;
-}
+void OpcodeInfos::add(OpCode code, const OpInfo& info) { buff[(tp::alni) code] = info; }

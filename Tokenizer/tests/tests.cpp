@@ -1,6 +1,6 @@
 
-#include "Tokenizer.hpp"
 #include "Testing.hpp"
+#include "Tokenizer.hpp"
 
 void testTokenizer();
 

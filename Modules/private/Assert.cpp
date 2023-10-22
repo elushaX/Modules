@@ -17,10 +17,6 @@ void tp::_assert_(const char* exp, const char* file, int line) {
 #else
 	exit(1);
 #endif
-
-
 }
 
-void tp::terminate(tp::alni code) {
-	exit((int)code);
-}
+void tp::terminate(tp::alni code) { exit((int) code); }

@@ -13,44 +13,46 @@ using namespace obj;
 void TestCompile(ByteCode& bytecode) {
 	using namespace BCgen;
 
-	Genereate(bytecode,
-	StmScope({
+	Genereate(
+		bytecode,
+		StmScope({
 
-		StmDefFunc("main", {}, {
-			StmDefLocal("i1", ExprConst(1)),
-			StmDefLocal("i2", ExprConst(2)),
+			StmDefFunc(
+				"main",
+				{},
+				{
+					StmDefLocal("i1", ExprConst(1)),
+					StmDefLocal("i2", ExprConst(2)),
 
-			//StmDefFunc("add", {"first", "second"}, {
-				// StmReturn(ExprAdd(ExprLocal("first"), ExprLocal("second")))
-			//}),
+					// StmDefFunc("add", {"first", "second"}, {
+					//  StmReturn(ExprAdd(ExprLocal("first"), ExprLocal("second")))
+					//}),
 
-			StmPrint(ExprLocal("i1")),
-			StmPrint(ExprConst(" + ")),
-			StmPrint(ExprLocal("i2")),
-			StmPrint(ExprConst(" = ")),
+					StmPrint(ExprLocal("i1")),
+					StmPrint(ExprConst(" + ")),
+					StmPrint(ExprLocal("i2")),
+					StmPrint(ExprConst(" = ")),
 
-			StmPrint(ExprFunc("add")->ExprCall({ ExprLocal("i1"), ExprLocal("i2") })),
+					StmPrint(ExprFunc("add")->ExprCall({ ExprLocal("i1"), ExprLocal("i2") })),
 
-			StmPrint(ExprConst("\n")),
-		}),
+					StmPrint(ExprConst("\n")),
+				}
+			),
 
-		StmPrint(ExprBoolNot(ExprConst(0))),
+			StmPrint(ExprBoolNot(ExprConst(0))),
 
-		StmWhile(ExprConst(false), StmScope({
-				StmIgnore(ExprFunc("main")->ExprCall({}))
-			})
-		),
+			StmWhile(ExprConst(false), StmScope({ StmIgnore(ExprFunc("main")->ExprCall({})) })),
 
-		StmIf(ExprConst(true),
-			StmScope({
-				//StmIgnore(ExprFunc("main")->ExprCall({})),
-				//StmPrint(ExprConst("true")),
-			}),
-			StmScope({
-				//StmPrint(ExprConst("false")),
-			})
-		)
-	})
+			StmIf(
+				ExprConst(true),
+				StmScope({
+					// StmIgnore(ExprFunc("main")->ExprCall({})),
+					// StmPrint(ExprConst("true")),
+				}),
+				StmScope({
+					// StmPrint(ExprConst("false")),
+				})
+			) })
 	);
 }
 

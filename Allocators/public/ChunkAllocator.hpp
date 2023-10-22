@@ -14,8 +14,8 @@
 * 2) updating list entry to that block.
 */
 
-#include "HeapAllocatorGlobal.hpp"
 #include "Environment.hpp"
+#include "HeapAllocatorGlobal.hpp"
 #include "PrivateConfig.hpp"
 
 namespace tp {
@@ -23,7 +23,7 @@ namespace tp {
 	// Chunk Allocator
 	// Constant time allocations and de-allocations in any order.
 	// Memory blocks are fixed in size and number of blocks can not exceed given parameter.
-	template<typename tType, ualni tNumBlocks>
+	template <typename tType, ualni tNumBlocks>
 	class ChunkAlloc {
 
 		enum : ualni {
@@ -76,24 +76,24 @@ namespace tp {
 
 			// 2) Find free block and update next free block
 			auto data = mNextBlock;
-			mNextBlock = (ualni*)(*data);
+			mNextBlock = (ualni*) (*data);
 			mNumFreeBlocks--;
 
-			#ifdef MEM_DEBUG
-				// 3) Fill Wrap and offset data
-				auto wrap_top = data;
-				auto wrap_bottom = data + WRAP_SIZE_ALN + dataSize();
+#ifdef MEM_DEBUG
+			// 3) Fill Wrap and offset data
+			auto wrap_top = data;
+			auto wrap_bottom = data + WRAP_SIZE_ALN + dataSize();
 
-				memSetVal(wrap_top, WRAP_SIZE, WRAP_VAL);
-				memSetVal(wrap_bottom, WRAP_SIZE, WRAP_VAL);
+			memSetVal(wrap_top, WRAP_SIZE, WRAP_VAL);
+			memSetVal(wrap_bottom, WRAP_SIZE, WRAP_VAL);
 
-				// 4) Clear data
-				#ifdef MEM_CLEAR_ON_ALLOC
-					memSetVal(data + WRAP_SIZE_ALN, dataSize() * ALIGNED_SIZE, CLEAR_ALLOC_VAL);
-				#endif
+// 4) Clear data
+#ifdef MEM_CLEAR_ON_ALLOC
+			memSetVal(data + WRAP_SIZE_ALN, dataSize() * ALIGNED_SIZE, CLEAR_ALLOC_VAL);
+#endif
 
-				data += WRAP_SIZE_ALN;
-			#endif
+			data += WRAP_SIZE_ALN;
+#endif
 
 			return data;
 		}
@@ -101,26 +101,26 @@ namespace tp {
 		void deallocate(void* aPtr) {
 			DEBUG_ASSERT(aPtr >= mBuff && aPtr < mBuff + tNumBlocks * blockSize())
 
-			auto block = (ualni*)aPtr;
+			auto block = (ualni*) aPtr;
 
-			#ifdef MEM_DEBUG
-				// 3) Check Wrap and offset data
-				auto wrap_bottom = block + dataSize();
-				auto wrap_top = block - WRAP_SIZE_ALN;
-				block = wrap_top;
+#ifdef MEM_DEBUG
+			// 3) Check Wrap and offset data
+			auto wrap_bottom = block + dataSize();
+			auto wrap_top = block - WRAP_SIZE_ALN;
+			block = wrap_top;
 
-				// 3) Check the wrap
-				ASSERT(!memCompareVal(wrap_top, WRAP_SIZE, WRAP_VAL) && "Allocated Block Wrap Corrupted!")
-				ASSERT(!memCompareVal(wrap_bottom, WRAP_SIZE, WRAP_VAL) && "Allocated Block Wrap Corrupted!")
+			// 3) Check the wrap
+			ASSERT(!memCompareVal(wrap_top, WRAP_SIZE, WRAP_VAL) && "Allocated Block Wrap Corrupted!")
+			ASSERT(!memCompareVal(wrap_bottom, WRAP_SIZE, WRAP_VAL) && "Allocated Block Wrap Corrupted!")
 
-				// 4) Clear data
-				#ifdef MEM_CLEAR_ON_ALLOC
-					memSetVal(block, blockSize() * ALIGNED_SIZE, CLEAR_DEALLOC_VAL);
-				#endif
+// 4) Clear data
+#ifdef MEM_CLEAR_ON_ALLOC
+			memSetVal(block, blockSize() * ALIGNED_SIZE, CLEAR_DEALLOC_VAL);
+#endif
 
-			#endif
+#endif
 
-			(*block) = (ualni)mNextBlock;
+			(*block) = (ualni) mNextBlock;
 			mNextBlock = block;
 			mNumFreeBlocks++;
 		}

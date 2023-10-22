@@ -30,6 +30,4 @@ TEST_DEF_STATIC(Simple) {
 	}
 }
 
-TEST_DEF(LocalConnection) {
-	testSimple();
-}
+TEST_DEF(LocalConnection) { testSimple(); }

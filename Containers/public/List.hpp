@@ -14,19 +14,20 @@ namespace tp {
 		typedef ualni Index;
 
 	public:
-
 		struct Node {
 			Type data;
 			Node* next = nullptr;
 			Node* prev = nullptr;
 			Node() = default;
-			explicit Node(TypeArg p_data) : data(p_data) {}
+			explicit Node(TypeArg p_data) :
+				data(p_data) {}
 			Type& operator->() { return data; }
 		};
 
 		class IteratorPointer {
 		protected:
 			Node* mIter;
+
 		public:
 			IteratorPointer() = default;
 			Type& operator->() { return (mIter->data); }
@@ -36,6 +37,7 @@ namespace tp {
 		class IteratorReference {
 		protected:
 			Node* mIter;
+
 		public:
 			IteratorReference() = default;
 			Type* operator->() { return &(mIter->data); }
@@ -44,7 +46,6 @@ namespace tp {
 
 		class Iterator : public TypeSelect<TypeTraits<Type>::isPointer, IteratorPointer, IteratorReference>::Result {
 		public:
-
 			explicit Iterator(Node* iter) { this->mIter = iter; }
 
 			Node* node() { return this->mIter; }
@@ -70,9 +71,8 @@ namespace tp {
 		Allocator mAlloc;
 
 	public:
-
 		List() = default;
-		List(const List& in) { this->operator=(in);	}
+		List(const List& in) { this->operator=(in); }
 		List(const InitialierList<Type>& list) { operator=(list); }
 
 		[[nodiscard]] inline Node* first() const { return mFirst; }
@@ -200,9 +200,7 @@ namespace tp {
 			}
 		}
 
-		void insert(TypeArg data, Index idx) {
-			insert(newNode(data), idx);
-		}
+		void insert(TypeArg data, Index idx) { insert(newNode(data), idx); }
 
 		void removeNode(Node* node) {
 			detach(node);
@@ -231,7 +229,9 @@ namespace tp {
 		}
 
 		List& operator=(const List& in) {
-			if (this == &in) { return *this; }
+			if (this == &in) {
+				return *this;
+			}
 			removeAll();
 			(*this) += in;
 			return *this;
@@ -244,7 +244,9 @@ namespace tp {
 		}
 
 		[[nodiscard]] bool operator==(const List& in) const {
-			if (&in == this) { return true; }
+			if (&in == this) {
+				return true;
+			}
 			if (in.length() != length()) {
 				return false;
 			}
@@ -278,9 +280,7 @@ namespace tp {
 			return out;
 		}
 
-		[[nodiscard]] Iterator end() const {
-			return Iterator(nullptr);
-		}
+		[[nodiscard]] Iterator end() const { return Iterator(nullptr); }
 
 		void invert() {
 			Node* iter = mFirst;
@@ -300,7 +300,7 @@ namespace tp {
 		}
 
 	public:
-		template<class tArchiver>
+		template <class tArchiver>
 		void archiveWrite(tArchiver& ar) const {
 			ar << mLength;
 			for (auto item : *this) {
@@ -308,7 +308,7 @@ namespace tp {
 			}
 		}
 
-		template<class tArchiver>
+		template <class tArchiver>
 		void archiveRead(tArchiver& ar) {
 			removeAll();
 			decltype(mLength) len;
@@ -320,8 +320,6 @@ namespace tp {
 			}
 		}
 
-		~List() {
-			removeAll();
-		}
+		~List() { removeAll(); }
 	};
 }

@@ -1,9 +1,9 @@
 
 #include "Compiler/Compiler.h"
 
-#include "primitives/primitives.h"
 #include "MethodObject/MethodObject.h"
 #include "log.h"
+#include "primitives/primitives.h"
 
 using namespace osc;
 using namespace tp;
@@ -42,8 +42,7 @@ int main(int argc, char* argv[]) {
 		string::UnInitialize();
 		tp::alloc_uninit();
 
-	}
-	catch (...) {
+	} catch (...) {
 		tp::terminate();
 	}
 }

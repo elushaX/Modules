@@ -3,12 +3,12 @@
 
 #include "Testing.hpp"
 
+#include "compiler/function.h"
 #include "core/object.h"
-#include "primitives/methodobject.h"
+#include "interpreter/interpreter.h"
 #include "primitives/interpreterobject.h"
 #include "primitives/linkobject.h"
-#include "compiler/function.h"
-#include "interpreter/interpreter.h"
+#include "primitives/methodobject.h"
 
 using namespace tp;
 using namespace obj;
@@ -57,7 +57,6 @@ TEST_DEF_STATIC(Complex) {
 
 	interpreter->exec();
 
-
 	NDO->destroy(interpreter);
 }
 
@@ -84,5 +83,5 @@ TEST_DEF_STATIC(Simple) {
 
 TEST_DEF(Interpreter) {
 	testSimple();
-	//testComplex();
+	// testComplex();
 }

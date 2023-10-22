@@ -1,6 +1,6 @@
 
-#include "NewPlacement.hpp"
 #include "HeapAllocatorGlobal.hpp"
+#include "NewPlacement.hpp"
 
 #include "core/scriptsection.h"
 
@@ -13,17 +13,13 @@ struct script_data_head {
 	tp::alni store_adress = 0;
 };
 
-void set_script_head_store_adress(Script* in, tp::alni address) {
-	((script_data_head*)in - 1)->store_adress = address;
-}
+void set_script_head_store_adress(Script* in, tp::alni address) { ((script_data_head*) in - 1)->store_adress = address; }
 
-tp::alni get_script_head_store_adress(Script* in) {
-	return ((script_data_head*)in - 1)->store_adress;
-}
+tp::alni get_script_head_store_adress(Script* in) { return ((script_data_head*) in - 1)->store_adress; }
 
 Script* ScriptSection::createScript() {
-	auto sdhead = (script_data_head*)tp::HeapAllocGlobal::allocate(sizeof(script_data_head) + sizeof(Script));
-	auto out = (Script*)(sdhead + 1);
+	auto sdhead = (script_data_head*) tp::HeapAllocGlobal::allocate(sizeof(script_data_head) + sizeof(Script));
+	auto out = (Script*) (sdhead + 1);
 
 	if (!sdhead) {
 		return NULL;
@@ -44,22 +40,19 @@ void ScriptSection::delete_script(Script* script) {
 	script->~Script();
 	obj::NDO->destroy(script->mReadable);
 
-	tp::HeapAllocGlobal::deallocate((((script_data_head*)script) - 1));
+	tp::HeapAllocGlobal::deallocate((((script_data_head*) script) - 1));
 }
 
-void ScriptSection::reference_script(Script* script) {
-	(((script_data_head*)script) - 1)->refc++;
-}
+void ScriptSection::reference_script(Script* script) { (((script_data_head*) script) - 1)->refc++; }
 
 void ScriptSection::abandonScript(Script* script) {
-	if ((((script_data_head*)script) - 1)->refc > 1) {
-		(((script_data_head*)script) - 1)->refc--;
-	}
-	else {
+	if ((((script_data_head*) script) - 1)->refc > 1) {
+		(((script_data_head*) script) - 1)->refc--;
+	} else {
 		// ISSUE : on delete list structure is outdated
 		// FIXME : use pool alloc with ref count
 		// forwarding to global destruction
-		//delete_script(script);
+		// delete_script(script);
 	}
 }
 
@@ -70,13 +63,11 @@ void ScriptSection::changeScript(Script** current_script, Script** new_script) {
 	*current_script = *new_script;
 }
 
-tp::alni ScriptSection::get_script_file_adress(Script* in) {
-	return  get_script_head_store_adress(in);
-}
+tp::alni ScriptSection::get_script_file_adress(Script* in) { return get_script_head_store_adress(in); }
 
 tp::alni ScriptSection::save_script_table_to_file_size(ScriptSection* self, ArchiverOut& file) {
 	tp::alni size = 0;
-	size += 5; // header
+	size += 5;                // header
 	size += sizeof(tp::alni); // scripts length
 
 	for (auto iter : self->mScripts) {
@@ -95,7 +86,7 @@ tp::alni ScriptSection::save_script_table_to_file_size(ScriptSection* self, Arch
 	}
 
 	size += sizeof(tp::alni); // objects mem offset
-	size += 5; // header
+	size += 5;                // header
 	return size;
 }
 
@@ -104,11 +95,11 @@ void ScriptSection::save_script_table_to_file(ScriptSection* self, ArchiverOut& 
 	file.writeBytes("/scr/", 5);
 
 	// scripts length
-	tp::alni scripts_count = self->mScripts.length(); 
+	tp::alni scripts_count = self->mScripts.length();
 	file << scripts_count;
 
 	for (auto iter : self->mScripts) {
-		
+
 		// scripts string obj ref
 		auto obj_addres = obj::NDO->save(file, iter->mReadable);
 		file << obj_addres;
@@ -138,13 +129,13 @@ void load_constants(ScriptSection* self, ArchiverIn& file, tp::alni start_addr) 
 	auto addres = file.getAddress();
 
 	file.setAddress(start_addr);
-	file.setAddress( start_addr + 5); // header
-	
+	file.setAddress(start_addr + 5); // header
+
 	tp::alni scripts_count;
 	file >> scripts_count;
 
 	for (tp::alni i = 0; i < scripts_count; i++) {
-		
+
 		auto script = self->get_scritp_from_file_adress(file.getAddress());
 
 		// script text
@@ -203,7 +194,7 @@ void ScriptSection::load_script_table_from_file(ScriptSection* self, ArchiverIn&
 			file >> consts_addr;
 
 			// skiping
-			//new_script->mBytecode.mConstants[j] = obj::NDO->load(file, consts_addr);
+			// new_script->mBytecode.mConstants[j] = obj::NDO->load(file, consts_addr);
 		}
 
 		// mInstructions
@@ -238,13 +229,12 @@ ScriptSection::~ScriptSection() {
 
 obj::save_load_callbacks ScriptSection::slcb_script_section = {
 	.self = gScriptSection,
-	.pre_save = (obj::pre_save_callback*)ScriptSection::save_script_table_to_file,
-	.size = (obj::slcb_size_callback*)ScriptSection::save_script_table_to_file_size,
-	.pre_load = (obj::pre_load_callback*)ScriptSection::load_script_table_from_file,
+	.pre_save = (obj::pre_save_callback*) ScriptSection::save_script_table_to_file,
+	.size = (obj::slcb_size_callback*) ScriptSection::save_script_table_to_file_size,
+	.pre_load = (obj::pre_load_callback*) ScriptSection::load_script_table_from_file,
 	.post_save = NULL,
 	.post_load = NULL,
 };
-
 
 void ScriptSection::initialize() {
 	ASSERT(!gScriptSection);
@@ -262,7 +252,4 @@ void ScriptSection::uninitialize() {
 	gScriptSection = nullptr;
 }
 
-ScriptSection* ScriptSection::globalHandle() {
-	return gScriptSection;
-}
-
+ScriptSection* ScriptSection::globalHandle() { return gScriptSection; }

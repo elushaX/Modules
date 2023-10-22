@@ -20,9 +20,7 @@ ModuleManifest::ModuleManifest(const char* aModuleName, ModuleInit aInit, Module
 	mModuleName = aModuleName;
 }
 
-bool ModuleManifest::isInitialized() const {
-	return mInitialized;
-}
+bool ModuleManifest::isInitialized() const { return mInitialized; }
 
 bool ModuleManifest::initialize(const ModuleManifest* parent) {
 
@@ -40,7 +38,7 @@ bool ModuleManifest::initialize(const ModuleManifest* parent) {
 		mInitialized &= (*module)->initialize(this);
 	}
 
-	std::cout << " * Initializing \"" << mModuleName << "\" from \"" << (parent ? parent->mModuleName : mModuleName ) << "\"\n";
+	std::cout << " * Initializing \"" << mModuleName << "\" from \"" << (parent ? parent->mModuleName : mModuleName) << "\"\n";
 
 	if (mInit) mInitialized &= mInit(this);
 
@@ -80,6 +78,4 @@ void ModuleManifest::deinitialize() {
 	}
 }
 
-const char *ModuleManifest::getName() const {
-	return mModuleName;
-}
+const char* ModuleManifest::getName() const { return mModuleName; }

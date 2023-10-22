@@ -3,5 +3,5 @@
 #include "Module.hpp"
 
 namespace tp {
-  extern ModuleManifest gModuleDataAnalysis;
+	extern ModuleManifest gModuleDataAnalysis;
 }

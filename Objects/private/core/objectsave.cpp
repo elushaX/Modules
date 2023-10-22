@@ -14,8 +14,8 @@ namespace obj {
 	ObjectMemHead* bottom = nullptr;
 
 	struct ObjectsFileHeader {
-		char name[10] = {0};
-		char version[10] = {0};
+		char name[10] = { 0 };
+		char version[10] = { 0 };
 
 		ObjectsFileHeader(bool default_val = true) {
 			if (default_val) {
@@ -24,7 +24,6 @@ namespace obj {
 			}
 		}
 	};
-
 
 	Object* ObjectMemAllocate(const ObjectType* type) {
 		ObjectMemHead* memh = (ObjectMemHead*) tp::HeapAllocGlobal::allocate(type->size + sizeof(ObjectMemHead));
@@ -35,9 +34,9 @@ namespace obj {
 		memh->down = NULL;
 		memh->flags = 0;
 
-		#ifdef OBJECT_REF_COUNT
+#ifdef OBJECT_REF_COUNT
 		memh->refc = (tp::alni) 1;
-		#endif
+#endif
 
 		if (bottom) {
 			bottom->down = memh;
@@ -85,14 +84,12 @@ namespace obj {
 		}
 	}
 
-
 	struct ObjectFileHead {
 		Object* load_head_adress = 0;
 		tp::halni refc = 0;
 	};
 
 	tp::int1* loaded_file = nullptr;
-
 
 	void objects_api::clear_object_flags() {
 		// clear all object flags
@@ -101,9 +98,7 @@ namespace obj {
 		}
 	}
 
-	tp::alni& getObjectFlags(Object* in) {
-		return NDO_MEMH_FROM_NDO(in)->flags;
-	}
+	tp::alni& getObjectFlags(Object* in) { return NDO_MEMH_FROM_NDO(in)->flags; }
 
 	tp::alni objsize_ram_util(Object* self, const ObjectType* type) {
 		tp::alni out = 0;
@@ -123,9 +118,7 @@ namespace obj {
 		return out;
 	}
 
-	tp::alni objects_api::objsize_ram(Object* self) {
-		return objsize_ram_util(self, self->type);
-	}
+	tp::alni objects_api::objsize_ram(Object* self) { return objsize_ram_util(self, self->type); }
 
 	tp::alni objects_api::objsize_ram_recursive_util(Object* self, const ObjectType* type, bool different_object) {
 		tp::alni out = 0;
@@ -136,8 +129,8 @@ namespace obj {
 			}
 
 			getObjectFlags(self) = 1;
-		}		
-		
+		}
+
 		if (type->allocated_size_recursive) {
 			out += type->allocated_size_recursive(self);
 		} else {
@@ -153,7 +146,7 @@ namespace obj {
 		} else {
 			out += sizeof(ObjectType*);
 		}
-		
+
 		return out;
 	}
 
@@ -175,9 +168,7 @@ namespace obj {
 		return out;
 	}
 
-	tp::alni objects_api::objsize_file(Object* self) {
-		return objsize_file_util(self, self->type);
-	}
+	tp::alni objects_api::objsize_file(Object* self) { return objsize_file_util(self, self->type); }
 
 	tp::alni objsize_file_recursive_util(Object* self, const ObjectType* type) {
 		tp::alni out = 0;
@@ -226,7 +217,7 @@ namespace obj {
 			return NDO_MEMH_FROM_NDO(in)->flags;
 		}
 
-		// save write adress for parent save function call 
+		// save write adress for parent save function call
 		tp::alni tmp_adress = ndf.getAddress();
 
 		// save requested object to first available adress
@@ -381,7 +372,7 @@ namespace obj {
 		}
 
 		File ndf(temp_file_name.cstr(), tp::osfile_openflags::LOAD);
-	 	*/
+		*/
 
 		ArchiverIn ndf(path.read());
 

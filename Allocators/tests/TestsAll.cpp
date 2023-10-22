@@ -1,10 +1,10 @@
 
-#include "Utils.hpp"
 #include "Testing.hpp"
+#include "Utils.hpp"
 
-#include "HeapAllocatorGlobal.hpp"
-#include "HeapAllocator.hpp"
 #include "ChunkAllocator.hpp"
+#include "HeapAllocator.hpp"
+#include "HeapAllocatorGlobal.hpp"
 #include "PoolAllocator.hpp"
 
 #include <cmath>
@@ -14,15 +14,16 @@ using namespace tp;
 struct TestStruct {
 	alni val = 0;
 
-	TestStruct() : val(0) {}
-	explicit TestStruct(alni val) : val(val) {}
-	TestStruct(const TestStruct& in) : val(in.val) {}
+	TestStruct() :
+		val(0) {}
+	explicit TestStruct(alni val) :
+		val(val) {}
+	TestStruct(const TestStruct& in) :
+		val(in.val) {}
 
 	~TestStruct() { val = -1; }
 
-	bool operator==(const TestStruct& in) const {
-		return in.val == val;
-	}
+	bool operator==(const TestStruct& in) const { return in.val == val; }
 };
 
 template <alni tSize, class tAllocator>
@@ -58,7 +59,7 @@ public:
 
 private:
 	alni randomIdx(bool state, Range<alni> range = { 0, tSize }) {
-		RAND:
+	RAND:
 		auto idx = alni(alnf(range.idxBegin()) + randomFloat() * alnf(range.idxDiff() + 1));
 		idx = clamp(idx, alni(0), tSize - 1);
 		if (state == mIsLoaded[idx]) goto RAND;
@@ -115,14 +116,14 @@ private:
 
 	// full down-up load then down-up unload
 	void test2() {
-		changeStates({0, tSize}, true);
-		changeStates({0, tSize}, false);
+		changeStates({ 0, tSize }, true);
+		changeStates({ 0, tSize }, false);
 	}
 
 	// full random load then random unload
 	void test3() {
-		changeStates({0, tSize}, true, false, true);
-		changeStates({0, tSize}, false, false, true);
+		changeStates({ 0, tSize }, true, false, true);
+		changeStates({ 0, tSize }, false, false, true);
 	}
 
 	// combo tests 1-3
@@ -175,7 +176,7 @@ private:
 
 		TestStruct* ts = mLoaded[randomIdx(0)];
 		ualni shift = (sizeof(TestStruct) * after) + (offset - 1) * after - offset * (!after);
-		uint1* address = (((uint1*)ts) + shift);
+		uint1* address = (((uint1*) ts) + shift);
 
 		uint1 val = *address;
 		*address = 5;
@@ -187,21 +188,21 @@ private:
 
 	// mem guards test
 	void test6() {
-		changeStates({0, tSize}, 1);
-		#ifdef MEM_DEBUG
-			for (alni after = 0; after < 2; after++) {
-				for (alni offset = 1; offset <= MEM_WRAP_SIZE; offset++) {
-					checkWrap(offset, after);
-				}
+		changeStates({ 0, tSize }, 1);
+#ifdef MEM_DEBUG
+		for (alni after = 0; after < 2; after++) {
+			for (alni offset = 1; offset <= MEM_WRAP_SIZE; offset++) {
+				checkWrap(offset, after);
 			}
-		#endif
-		changeStates({0, tSize}, 0);
+		}
+#endif
+		changeStates({ 0, tSize }, 0);
 	}
 };
 
 const ualni size = 1000;
 
-template<typename Alloc>
+template <typename Alloc>
 void testAlloc() {
 	try {
 		TestBenches<size, Alloc> heapTests{};
@@ -211,13 +212,9 @@ void testAlloc() {
 	}
 }
 
-TEST_DEF_STATIC(GlobalHeap) {
-	testAlloc<HeapAllocGlobal>();
-}
+TEST_DEF_STATIC(GlobalHeap) { testAlloc<HeapAllocGlobal>(); }
 
-TEST_DEF_STATIC(Heap) {
-	testAlloc<HeapAlloc>();
-}
+TEST_DEF_STATIC(Heap) { testAlloc<HeapAlloc>(); }
 
 TEST_DEF_STATIC(Chunk) {
 	testAlloc<ChunkAlloc<TestStruct, size>>();

@@ -9,7 +9,6 @@ namespace tp {
 
 	class Logger {
 	public:
-
 		class Report {
 			String mData;
 			Buffer<String::Index> mLineOffsets;

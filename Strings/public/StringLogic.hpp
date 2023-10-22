@@ -8,10 +8,9 @@
 
 namespace tp {
 
-	template<typename tChar = uint1>
+	template <typename tChar = uint1>
 	class StringLogic {
 	public:
-
 		typedef halni Index;
 		typedef Index LineId;
 		typedef Index ColumnId;
@@ -22,7 +21,8 @@ namespace tp {
 
 		static Index calcLength(const tChar* in) {
 			const tChar* iter = in;
-			while (*iter != '\0') iter++;
+			while (*iter != '\0')
+				iter++;
 			return iter - in;
 		}
 
@@ -99,7 +99,6 @@ namespace tp {
 			aOut[0] = 0;
 			aOut[lines + 1] = aLength;
 		}
-		
 
 		static bool convertStringToValue(const tChar* input, alni& output) {
 			char* endPtr;
@@ -115,14 +114,14 @@ namespace tp {
 
 		static bool convertStringToValue(const tChar* input, bool& output) {
 			output = !(isEqualLogic(input, "False") || isEqualLogic(input, "false") || isEqualLogic(input, "0"));
-      return true;
+			return true;
 		}
 
 		static bool convertValueToString(alni input, tChar* output, Index bufferSize) {
 			int result = std::snprintf(output, bufferSize, "%lld", input);
 			return result >= 0;
 		}
-		
+
 		static bool convertValueToString(alnf input, tChar* output, Index bufferSize) {
 			int result = std::snprintf(output, bufferSize, "%f", input);
 			return result >= 0;
@@ -131,8 +130,7 @@ namespace tp {
 		static bool convertValueToString(bool input, tChar* output, Index bufferSize) {
 			const char* str = (input ? "true" : "false");
 			Index length = calcLength(str);
-			if (length >= bufferSize)
-				return false;
+			if (length >= bufferSize) return false;
 			memCopy(output, str, length + 1);
 			return true;
 		}

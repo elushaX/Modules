@@ -8,11 +8,11 @@ namespace tp {
 
 		/* Printable keys */
 		SPACE = 32,
-		APOSTROPHE = 39,  /* ' */
-		COMMA = 44,  /* , */
-		MINUS = 45,  /* - */
-		PERIOD = 46,  /* . */
-		SLASH = 0xBF,  /* \ */
+		APOSTROPHE = 39, /* ' */
+		COMMA = 44,      /* , */
+		MINUS = 45,      /* - */
+		PERIOD = 46,     /* . */
+		SLASH = 0xBF,    /* \ */
 		N0 = 48,
 		N1 = 49,
 		N2 = 50,
@@ -23,8 +23,8 @@ namespace tp {
 		N7 = 55,
 		N8 = 56,
 		N9 = 57,
-		SEMICOLON = 59,  /* ; */
-		EQUAL = 61,  /* = */
+		SEMICOLON = 59, /* ; */
+		EQUAL = 61,     /* = */
 		A = 65,
 		B = 66,
 		C = 67,
@@ -52,11 +52,11 @@ namespace tp {
 		Y = 89,
 		Z = 90,
 		LEFT_BRACKET = 91,  /* [ */
-		BACKSLASH = 92,  /* \ */
-		RIGHT_BRACKET = 93,  /* ] */
+		BACKSLASH = 92,     /* \ */
+		RIGHT_BRACKET = 93, /* ] */
 		GRAVE_ACCENT = 96,  /* ` */
-		WORLD_1 = 161, /* non-US #1 */
-		WORLD_2 = 162, /* non-US #2 */
+		WORLD_1 = 161,      /* non-US #1 */
+		WORLD_2 = 162,      /* non-US #2 */
 
 		/* function keys */
 

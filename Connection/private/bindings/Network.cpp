@@ -13,7 +13,8 @@ class tp::ServerContext {
 	asio::ip::tcp::acceptor socket;
 	typedef asio::ip::tcp::socket Socket;
 
-	ServerContext() : socket(context) {}
+	ServerContext() :
+		socket(context) {}
 
 	~ServerContext() {
 		context.stop();
@@ -28,7 +29,8 @@ class tp::ClientContext {
 	asio::ip::tcp::socket socket;
 
 public:
-	ClientContext() : socket(context) {}
+	ClientContext() :
+		socket(context) {}
 
 	~ClientContext() {
 		context.stop();
@@ -38,11 +40,9 @@ public:
 
 // --------------------------------------------------------------------------------------- //
 
-Server::Server()  {
-	mContext = new ServerContext();
-}
+Server::Server() { mContext = new ServerContext(); }
 
-Server::~Server()  {
+Server::~Server() {
 	delete mContext;
 	assert(0);
 }
@@ -57,20 +57,20 @@ void Server::start(ualni port) {
 Server::Socket Server::accept() {
 	auto clientSocket = new asio::ip::tcp::socket(mContext->context);
 	mContext->socket.accept(*clientSocket);
-	std::cout << "New client accepted "<< std::endl;
+	std::cout << "New client accepted " << std::endl;
 	return clientSocket;
 }
 
 int1* Server::read(Socket client) {
 	short messageSize;
-	if (asio::read(*(ServerContext::Socket*)client, asio::buffer(&messageSize, 2)) == -1) {
+	if (asio::read(*(ServerContext::Socket*) client, asio::buffer(&messageSize, 2)) == -1) {
 		std::cerr << "Failed to read from socket" << std::endl;
-		((ServerContext::Socket*)client)->close();
+		((ServerContext::Socket*) client)->close();
 		return nullptr;
 	}
 	auto message = new char[messageSize + 1];
 	message[messageSize] = '\0';
-	if (asio::read(*(ServerContext::Socket*)client, asio::buffer(message, messageSize)) == -1) {
+	if (asio::read(*(ServerContext::Socket*) client, asio::buffer(message, messageSize)) == -1) {
 		std::cerr << "Failed to read from socket" << std::endl;
 		memcpy(message, "Client wanna say something but i cant read", 100);
 	}
@@ -79,19 +79,17 @@ int1* Server::read(Socket client) {
 
 void Server::write(Socket client, const char* message) {
 	auto messageSize = (short) strlen(message);
-	if (asio::write(*(ServerContext::Socket*)client, asio::buffer(&messageSize, 2)) == -1) {
+	if (asio::write(*(ServerContext::Socket*) client, asio::buffer(&messageSize, 2)) == -1) {
 		std::cerr << "Failed to write to socket" << std::endl;
 	}
-	if (asio::write(*(ServerContext::Socket*)client, asio::buffer(message, messageSize)) == -1) {
+	if (asio::write(*(ServerContext::Socket*) client, asio::buffer(message, messageSize)) == -1) {
 		std::cerr << "Failed to write to socket" << std::endl;
 	}
 }
 
 // --------------------------------------------------------------------------------------- //
 
-Client::Client()  {
-	mContext = new ClientContext();
-}
+Client::Client() { mContext = new ClientContext(); }
 
 Client::~Client() {
 	delete mContext;
@@ -118,7 +116,7 @@ char* Client::read() {
 	return message;
 }
 
-void Client::write( const char* message ) {
+void Client::write(const char* message) {
 	auto messageSize = (short) strlen(message);
 	if (asio::write(mContext->socket, asio::buffer(&messageSize, 2)) == -1) {
 		std::cerr << "Failed to write to socket" << std::endl;
@@ -127,4 +125,3 @@ void Client::write( const char* message ) {
 		std::cerr << "Failed to write to socket" << std::endl;
 	}
 }
-

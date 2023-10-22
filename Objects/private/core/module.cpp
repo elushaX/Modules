@@ -40,20 +40,19 @@ static void defineTypes() {
 }
 
 static void defineGroups() {
-	NDO->type_groups.addType(&DictObject::TypeData, {"Primitives"});
-	NDO->type_groups.addType(&IntObject::TypeData, {"Primitives"});
-	NDO->type_groups.addType(&LinkObject::TypeData, {"Primitives"});
-	NDO->type_groups.addType(&ListObject::TypeData, {"Primitives"});
-	NDO->type_groups.addType(&NullObject::TypeData, {"Primitives"});
-	NDO->type_groups.addType(&StringObject::TypeData, {"Primitives"});
-	NDO->type_groups.addType(&BoolObject::TypeData, {"Primitives"});
-	NDO->type_groups.addType(&FloatObject::TypeData, {"Primitives"});
-	NDO->type_groups.addType(&EnumObject::TypeData, {"Primitives"});
-	NDO->type_groups.addType(&ClassObject::TypeData, {"Primitives"});
-	NDO->type_groups.addType(&ColorObject::TypeData, {"Primitives"});
+	NDO->type_groups.addType(&DictObject::TypeData, { "Primitives" });
+	NDO->type_groups.addType(&IntObject::TypeData, { "Primitives" });
+	NDO->type_groups.addType(&LinkObject::TypeData, { "Primitives" });
+	NDO->type_groups.addType(&ListObject::TypeData, { "Primitives" });
+	NDO->type_groups.addType(&NullObject::TypeData, { "Primitives" });
+	NDO->type_groups.addType(&StringObject::TypeData, { "Primitives" });
+	NDO->type_groups.addType(&BoolObject::TypeData, { "Primitives" });
+	NDO->type_groups.addType(&FloatObject::TypeData, { "Primitives" });
+	NDO->type_groups.addType(&EnumObject::TypeData, { "Primitives" });
+	NDO->type_groups.addType(&ClassObject::TypeData, { "Primitives" });
+	NDO->type_groups.addType(&ColorObject::TypeData, { "Primitives" });
 	NDO->type_groups.addType(&InterpreterObject::TypeData, { "scripting" });
 }
-
 
 static bool init(const tp::ModuleManifest*) {
 	if (!NDO) NDO = new objects_api();
@@ -82,7 +81,7 @@ static void deinit(const tp::ModuleManifest*) {
 
 static tp::ModuleManifest* sModuleDependencies[] = {
 	// &tp::gModuleCompressor,
-	&tp::gModuleMath, 
+	&tp::gModuleMath,
 	&tp::gModuleStrings,
 	&tp::gModuleTokenizer,
 	&tp::gModuleConnection,

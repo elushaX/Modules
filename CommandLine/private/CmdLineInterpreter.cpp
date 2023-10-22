@@ -38,13 +38,10 @@ void CmdLineInterpreter::help(const CommandLine& args) const {
 }
 
 CmdLineInterpreter::CmdLineInterpreter() {
-	auto helpArgs = new CommandLine{
-		{ "CommandName", "_none_" }
-	};
+	auto helpArgs = new CommandLine{ { "CommandName", "_none_" } };
 
 	addCommand("help", helpArgs, (CommandFunction) helpFunction, this);
 }
-
 
 void CmdLineInterpreter::addCommand(const String& id, CommandLine* args, CommandFunction function, void* customData) {
 	ASSERT(!mCommands.presents(id))

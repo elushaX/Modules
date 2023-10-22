@@ -1,9 +1,9 @@
 #include "NewPlacement.hpp"
 
-#include "Tests.hpp"
-#include "Testing.hpp"
-#include "Map.hpp"
 #include "Archiver.hpp"
+#include "Map.hpp"
+#include "Testing.hpp"
+#include "Tests.hpp"
 
 using namespace tp;
 

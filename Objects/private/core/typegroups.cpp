@@ -7,11 +7,13 @@
 
 using namespace obj;
 
-obj::TypeGroups::TypeGroups() : is_group(true) {
+obj::TypeGroups::TypeGroups() :
+	is_group(true) {
 	new (&childs) Dict();
 }
 
-obj::TypeGroups::TypeGroups(bool is_group) : is_group(is_group) {
+obj::TypeGroups::TypeGroups(bool is_group) :
+	is_group(is_group) {
 	if (is_group) {
 		new (&childs) Dict();
 	} else {
@@ -41,7 +43,7 @@ void obj::TypeGroups::addType(ObjectType* type, tp::InitialierList<const char*> 
 		type_ref->setType(type);
 		childs.put(type->name, type_ref);
 		return;
-	} 
+	}
 
 	TypeGroups* group = NULL;
 	tp::alni index = 0;

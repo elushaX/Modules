@@ -1,10 +1,10 @@
 
 #include "NewPlacement.hpp"
-#include "Testing.hpp"
 #include "Parser.hpp"
+#include "Testing.hpp"
 
 using namespace tp;
 
 TEST_DEF(CLR) {
-	//TEST(false);
+	// TEST(false);
 }

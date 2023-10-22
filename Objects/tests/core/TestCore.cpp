@@ -26,11 +26,8 @@ TEST_DEF_STATIC(BasicAPI) {
 	TEST(NDO_CAST(IntObject, savedInt));
 	TEST(integer->val == NDO_CAST(IntObject, savedInt)->val);
 
-
 	NDO->destroy(integer);
 	NDO->destroy(savedInt);
 }
 
-TEST_DEF(Core) {
-	testBasicAPI();
-}
+TEST_DEF(Core) { testBasicAPI(); }

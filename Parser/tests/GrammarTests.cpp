@@ -1,7 +1,7 @@
 
 #include "NewPlacement.hpp"
-#include "Testing.hpp"
 #include "Parser.hpp"
+#include "Testing.hpp"
 
 using namespace tp;
 
@@ -40,9 +40,10 @@ List : [ LIST ];
 	TEST_ASSERT(sentences.first()->data.terms.length() == 1);
 	TEST_ASSERT(sentences.last()->data.terms.length() == 1);
 
-	TEST(sentences.first()->data.terms.first()->data.id ==  "Function");
+	TEST(sentences.first()->data.terms.first()->data.id == "Function");
 	TEST(sentences.last()->data.terms.first()->data.id == "LIST");
 
 	printf("Example sentences formed from grammar: \n");
-	for (auto sentence : sentences) tp::CfGrammar::printSentence(sentence.data());
+	for (auto sentence : sentences)
+		tp::CfGrammar::printSentence(sentence.data());
 }

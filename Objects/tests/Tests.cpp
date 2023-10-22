@@ -7,7 +7,6 @@
 using namespace tp;
 using namespace obj;
 
-
 void testCore();
 void testPrimitives();
 void testInterpreter();

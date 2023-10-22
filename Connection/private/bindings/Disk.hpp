@@ -3,6 +3,7 @@
 namespace tp {
 	class LocalConnectionContext {
 		void* stream;
+
 	public:
 		LocalConnectionContext();
 		~LocalConnectionContext();

@@ -4,23 +4,23 @@
 #include "Utils.hpp"
 
 static bool init(const tp::ModuleManifest* self) {
-  tp::gTesting.setRootName(self->getName());
-  return true;
+	tp::gTesting.setRootName(self->getName());
+	return true;
 }
 
 void test() {}
 
 int main() {
-  tp::ModuleManifest* deps[] = {&tp::gModuleDataAnalysis, &tp::gModuleUtils, nullptr};
-  tp::ModuleManifest testModule("DataAnalysisTest", init, nullptr, deps);
+	tp::ModuleManifest* deps[] = { &tp::gModuleDataAnalysis, &tp::gModuleUtils, nullptr };
+	tp::ModuleManifest testModule("DataAnalysisTest", init, nullptr, deps);
 
-  if (!testModule.initialize()) {
-    return 1;
-  }
+	if (!testModule.initialize()) {
+		return 1;
+	}
 
-  test();
+	test();
 
-  testModule.deinitialize();
+	testModule.deinitialize();
 
-  return 0;
+	return 0;
 }

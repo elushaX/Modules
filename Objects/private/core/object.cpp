@@ -4,12 +4,12 @@
 
 #include "core/object.h"
 
-#include "primitives/nullobject.h"
 #include "primitives/classobject.h"
 #include "primitives/methodobject.h"
+#include "primitives/nullobject.h"
 
-#include "interpreter/interpreter.h"
 #include "compiler/function.h"
+#include "interpreter/interpreter.h"
 
 namespace obj {
 
@@ -26,9 +26,7 @@ namespace obj {
 		interp = new Interpreter();
 	}
 
-	objects_api::~objects_api() {
-		delete interp;
-	}
+	objects_api::~objects_api() { delete interp; }
 
 	void objects_api::define(ObjectType* type) {
 		MODULE_SANITY_CHECK(gModuleObjects);
@@ -85,8 +83,8 @@ namespace obj {
 		if (first->type == second->type) {
 			if (first->type->comparison) {
 				return first->type->comparison(first, second);
-			} 
-			
+			}
+
 			// raw data comparison
 			return tp::memCompare(first, second, first->type->size) == 0;
 		}
@@ -149,13 +147,13 @@ namespace obj {
 			return;
 		}
 
-		#ifdef OBJECT_REF_COUNT
+#ifdef OBJECT_REF_COUNT
 		ObjectMemHead* mh = NDO_MEMH_FROM_NDO(in);
 		if (mh->refc > 1) {
 			mh->refc--;
 			return;
 		}
-		#endif
+#endif
 
 		NDO_CASTV(ClassObject, in, classobj);
 		if (classobj) {
@@ -179,10 +177,10 @@ namespace obj {
 		ObjectMemDeallocate(in);
 	}
 
-	#ifdef OBJECT_REF_COUNT
+#ifdef OBJECT_REF_COUNT
 	tp::halni objects_api::getrefc(Object* in) {
 		ObjectMemHead* mh = NDO_MEMH_FROM_NDO(in);
-		return (tp::halni)mh->refc;
+		return (tp::halni) mh->refc;
 	}
 
 	void objects_api::refinc(Object* in) {
@@ -194,8 +192,7 @@ namespace obj {
 		ObjectMemHead* mh = NDO_MEMH_FROM_NDO(in);
 		mh->refc = refc;
 	}
-	#endif
-
+#endif
 
 	void hierarchy_copy(Object* self, const Object* in, const ObjectType* type) {
 		if (type->base) {
