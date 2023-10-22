@@ -10,6 +10,7 @@ namespace tp {
 		class GL {
 			class Context;
 			Context* mContext;
+
 		private:
 			friend Graphics;
 
@@ -20,6 +21,7 @@ namespace tp {
 			void deinit();
 			static void proc();
 			static void draw();
+
 		public:
 			// TODO : API
 		};
@@ -27,6 +29,7 @@ namespace tp {
 		class GUI {
 			class Context;
 			Context* mContext;
+
 		private:
 			friend Graphics;
 
@@ -45,6 +48,7 @@ namespace tp {
 		class Canvas {
 			class Context;
 			Context* mContext;
+
 		private:
 			friend Graphics;
 

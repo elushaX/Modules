@@ -8,54 +8,32 @@
 using namespace obj;
 using namespace tp;
 
-void IntObject::constructor(Object* self) {
-	NDO_CAST(IntObject, self)->val = 0;
-}
+void IntObject::constructor(Object* self) { NDO_CAST(IntObject, self)->val = 0; }
 
-void IntObject::copy(IntObject* self, const IntObject* in) {
-	self->val = in->val;
-}
+void IntObject::copy(IntObject* self, const IntObject* in) { self->val = in->val; }
 
 IntObject* IntObject::create(alni in) {
 	NDO_CASTV(IntObject, NDO->create("int"), out)->val = in;
 	return out;
 }
 
-void IntObject::from_int(Object* self, alni in) {
-	NDO_CAST(IntObject, self)->val = in;
-}
+void IntObject::from_int(Object* self, alni in) { NDO_CAST(IntObject, self)->val = in; }
 
-void IntObject::from_float(Object* self, alnf in) {
-	NDO_CAST(IntObject, self)->val = (alni)in;
-}
+void IntObject::from_float(Object* self, alnf in) { NDO_CAST(IntObject, self)->val = (alni) in; }
 
-void IntObject::from_string(Object* self, String in) {
-	NDO_CAST(IntObject, self)->val = alni(in);
-}
+void IntObject::from_string(Object* self, String in) { NDO_CAST(IntObject, self)->val = alni(in); }
 
-String IntObject::to_string(Object* self) {
-	return String(NDO_CAST(IntObject, self)->val);
-}
+String IntObject::to_string(Object* self) { return String(NDO_CAST(IntObject, self)->val); }
 
-alni IntObject::to_int(Object* self) {
-	return alni(NDO_CAST(IntObject, self)->val);
-}
+alni IntObject::to_int(Object* self) { return alni(NDO_CAST(IntObject, self)->val); }
 
-alnf IntObject::to_float(Object* self) {
-	return alnf(NDO_CAST(IntObject, self)->val);
-}
+alnf IntObject::to_float(Object* self) { return alnf(NDO_CAST(IntObject, self)->val); }
 
-static alni save_size(IntObject* self) {
-	return sizeof(alni);
-}
+static alni save_size(IntObject* self) { return sizeof(alni); }
 
-static void save(IntObject* self, ArchiverOut& file_self) {
-	file_self << self->val;
-}
+static void save(IntObject* self, ArchiverOut& file_self) { file_self << self->val; }
 
-static void load(ArchiverIn& file_self, IntObject* self) {
-	file_self >> self->val;
-}
+static void load(ArchiverIn& file_self, IntObject* self) { file_self >> self->val; }
 
 struct ObjectTypeConversions IntObjectTypeConversions = {
 	.from_int = IntObject::from_int,
@@ -66,21 +44,13 @@ struct ObjectTypeConversions IntObjectTypeConversions = {
 	.to_float = IntObject::to_float,
 };
 
-void divide(IntObject* self, IntObject* in) {
-	self->val /= in->val;
-}
+void divide(IntObject* self, IntObject* in) { self->val /= in->val; }
 
-void mul(IntObject* self, IntObject* in) {
-	self->val *= in->val;
-}
+void mul(IntObject* self, IntObject* in) { self->val *= in->val; }
 
-void sub(IntObject* self, IntObject* in) {
-	self->val -= in->val;
-}
+void sub(IntObject* self, IntObject* in) { self->val -= in->val; }
 
-void add(IntObject* self, IntObject* in) {
-	self->val += in->val;
-}
+void add(IntObject* self, IntObject* in) { self->val += in->val; }
 
 struct ObjectTypeAriphmetics IntObject::TypeAriphm = {
 	.add = (object_add) add,
@@ -98,7 +68,7 @@ struct obj::ObjectType obj::IntObject::TypeData = {
 	.name = "int",
 	.convesions = &IntObjectTypeConversions,
 	.ariphmetics = &IntObject::TypeAriphm,
-	.save_size = (object_save_size)save_size,
-	.save = (object_save)save,
-	.load = (object_load)load,
+	.save_size = (object_save_size) save_size,
+	.save = (object_save) save,
+	.load = (object_load) load,
 };

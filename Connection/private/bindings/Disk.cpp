@@ -14,9 +14,7 @@ ualni tp::LocalConnectionContext::size() {
 	return out;
 }
 
-LocalConnectionContext::LocalConnectionContext() {
-	stream = new std::fstream();
-}
+LocalConnectionContext::LocalConnectionContext() { stream = new std::fstream(); }
 
 LocalConnectionContext::~LocalConnectionContext() {
 	auto strm = (std::fstream*) stream;
@@ -50,8 +48,6 @@ void LocalConnectionContext::write(const int1* in, ualni size) {
 
 void LocalConnectionContext::open(const char* path, bool read) {
 	auto strm = (std::fstream*) stream;
-	if (read)
-		strm->open(path, std::ios::in | std::ios::binary | std::ios::app);
-	else
-		strm->open(path, std::ios::out | std::ios::binary | std::ios::trunc);
+	if (read) strm->open(path, std::ios::in | std::ios::binary | std::ios::app);
+	else strm->open(path, std::ios::out | std::ios::binary | std::ios::trunc);
 }

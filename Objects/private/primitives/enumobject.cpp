@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "NewPlacement.hpp"
 #include "primitives/enumobject.h"
+#include "NewPlacement.hpp"
 
 #include <malloc.h>
 
@@ -24,7 +24,7 @@ void EnumObject::copy(EnumObject* self, const EnumObject* in) {
 	self->active = in->active;
 	self->nentries = in->nentries;
 
-	self->entries = (alni*)malloc(self->nentries * ENV_ALNI_SIZE_B);
+	self->entries = (alni*) malloc(self->nentries * ENV_ALNI_SIZE_B);
 	tp::memCopy(self->entries, in->entries, self->nentries * ENV_ALNI_SIZE_B);
 }
 
@@ -49,19 +49,16 @@ void obj::EnumObject::init(tp::InitialierList<const char*> list) {
 			DEBUG_ASSERT(tp::memCompare(chech_entry, entry, ENV_ALNI_SIZE_B) != 0);
 		}
 
-		entry++; 
+		entry++;
 	}
 }
 
-const char* obj::EnumObject::getActiveName() {
-	return getItemName(active);
-}
+const char* obj::EnumObject::getActiveName() { return getItemName(active); }
 
 const char* obj::EnumObject::getItemName(tp::uhalni idx) {
 	DEBUG_ASSERT(entries && idx >= 0 && idx < nentries);
 	return (const char*) (entries + idx);
 }
-
 
 void EnumObject::from_int(EnumObject* self, alni in) {
 	if (self->entries && in >= 0 && in < self->nentries) {
@@ -79,7 +76,7 @@ void EnumObject::from_string(EnumObject* self, String in) {
 	if (self->entries) {
 		alni* entry = self->entries;
 		for (uhalni i = 0; i < self->nentries; i++) {
-			if (tp::String::Logic::isEqualLogic((const char*)entry, in.read())) {
+			if (tp::String::Logic::isEqualLogic((const char*) entry, in.read())) {
 				self->active = i;
 			}
 			entry += 1;
@@ -91,7 +88,7 @@ String EnumObject::to_string(EnumObject* self) {
 	if (!self->entries) {
 		return tp::String();
 	}
-	auto val = (const char*)(&self->entries[self->active]);
+	auto val = (const char*) (&self->entries[self->active]);
 	return String(val);
 }
 
@@ -139,12 +136,10 @@ static void load(ArchiverIn& file_self, EnumObject* self) {
 	file_self.readBytes((tp::int1*) self->entries, self->nentries * ENV_ALNI_SIZE_B);
 }
 
-bool obj::EnumObject::compare(EnumObject* first, EnumObject* second) {
-	return first->entries != NULL && second->entries != NULL && first->active == second->active;
-}
+bool obj::EnumObject::compare(EnumObject* first, EnumObject* second) { return first->entries != NULL && second->entries != NULL && first->active == second->active; }
 
 EnumObject* obj::EnumObject::create(tp::InitialierList<const char*> list) {
-	auto enum_object = (EnumObject*)obj::NDO->create("enum");
+	auto enum_object = (EnumObject*) obj::NDO->create("enum");
 	enum_object->init(list);
 	return enum_object;
 }
@@ -174,9 +169,9 @@ struct obj::ObjectType obj::EnumObject::TypeData = {
 	.size = sizeof(EnumObject),
 	.name = "enum",
 	.convesions = &EnumObjectTypeConversions,
-	.save_size = (object_save_size)save_size,
-	.save = (object_save)save,
-	.load = (object_load)load,
+	.save_size = (object_save_size) save_size,
+	.save = (object_save) save,
+	.load = (object_load) load,
 	.comparison = (object_compare) EnumObject::compare,
 	.allocated_size = (object_allocated_size) allocated_size,
 };

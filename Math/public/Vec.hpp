@@ -16,14 +16,9 @@ namespace tp {
 		inline Type& set(ualni i, TypeArg arg) { return mBuff[i] = arg; }
 
 	public:
+		Vec() { MODULE_SANITY_CHECK(gModuleMath) }
 
-		Vec() {
-			MODULE_SANITY_CHECK(gModuleMath)
-		}
-
-		explicit Vec(TypeArg val) {
-			assign(val);
-		}
+		explicit Vec(TypeArg val) { assign(val); }
 
 		Vec(TypeArg val1, TypeArg val2, TypeArg val3, TypeArg val4) {
 			static_assert(tSize == 4);
@@ -52,9 +47,7 @@ namespace tp {
 			mBuff[5] = val6;
 		}
 
-		Vec(const Vec& in) {
-			memCopy(mBuff, in.mBuff, sizeof(Type) * tSize);
-		}
+		Vec(const Vec& in) { memCopy(mBuff, in.mBuff, sizeof(Type) * tSize); }
 
 		Type& operator[](ualni i) {
 			DEBUG_ASSERT(i < tSize && i >= 0)
@@ -181,9 +174,7 @@ namespace tp {
 			return out;
 		}
 
-		Type operator*(const Vec& in) const {
-			return dot(in);
-		}
+		Type operator*(const Vec& in) const { return dot(in); }
 
 		[[nodiscard]] alnf length2() const {
 			alnf sum = 0;
@@ -194,18 +185,14 @@ namespace tp {
 			return sum;
 		}
 
-		[[nodiscard]] alnf length() const {
-			return sqrt(length2());
-		}
+		[[nodiscard]] alnf length() const { return sqrt(length2()); }
 
 		Vec& normalize() {
 			operator/=((Type) length());
 			return *this;
 		}
 
-		Vec unitV() {
-			return Vec(*this).normalize();
-		}
+		Vec unitV() { return Vec(*this).normalize(); }
 
 		// Comparisons
 		bool operator>(const Vec& in) const { return this->length2() > in.length2(); }
@@ -222,9 +209,7 @@ namespace tp {
 			return true;
 		}
 
-		bool operator!=(const Vec& in) const {
-			return !operator==(in);
-		}
+		bool operator!=(const Vec& in) const { return !operator==(in); }
 	};
 
 	template <typename Type>
@@ -240,7 +225,9 @@ namespace tp {
 		Type x;
 		Type y;
 
-		Vec() : x(0), y(0) {}
+		Vec() :
+			x(0),
+			y(0) {}
 
 		// Initialization
 		template <typename TypeIn>
@@ -361,29 +348,17 @@ namespace tp {
 		const Type& operator[](bool axes) const { return (&x)[axes]; }
 
 		// Vector Properties
-		alnf operator*(const Vec& in) const {
-			return dot(in);
-		}
+		alnf operator*(const Vec& in) const { return dot(in); }
 
-		alnf dot(const Vec& in) const {
-			return (x * in.x + y * in.y);
-		}
+		alnf dot(const Vec& in) const { return (x * in.x + y * in.y); }
 
-		Vec unitV() const {
-			return Vec(*this / (Type) this->length());
-		}
+		Vec unitV() const { return Vec(*this / (Type) this->length()); }
 
-		void normalize() {
-			*this /= (Type) length();
-		}
+		void normalize() { *this /= (Type) length(); }
 
-		Vec normal() {
-			return { -y, x };
-		}
+		Vec normal() { return { -y, x }; }
 
-		[[nodiscard]] alnf length2() const {
-			return (x * x + y * y);
-		}
+		[[nodiscard]] alnf length2() const { return (x * x + y * y); }
 
 		[[nodiscard]] alnf length() const {
 			Type const tmp = (Type) (x * x + y * y);
@@ -412,8 +387,7 @@ namespace tp {
 	template <typename Type>
 	class Vec<Type, 3> {
 
-		public:
-
+	public:
 		Type x;
 		Type y;
 		Type z;
@@ -439,9 +413,7 @@ namespace tp {
 			z = Vec[2];
 		}
 
-		explicit Vec(Type x) {
-			assign(x);
-		}
+		explicit Vec(Type x) { assign(x); }
 
 		Vec(const Vec& Vec) {
 			x = Vec.x;
@@ -492,126 +464,85 @@ namespace tp {
 		}
 
 		//  create on stack
-		Vec operator+(const Vec& in) const {
-			return Vec(x + in.x, y + in.y, z + in.z);
-		}
+		Vec operator+(const Vec& in) const { return Vec(x + in.x, y + in.y, z + in.z); }
 
-		Vec operator-(const Vec& in) const {
-			return Vec(x - in.x, y - in.y, z - in.z);
-		}
+		Vec operator-(const Vec& in) const { return Vec(x - in.x, y - in.y, z - in.z); }
 
-		Vec operator+(Type val) const {
-			return Vec(x + val, y + val, z + val);
-		}
+		Vec operator+(Type val) const { return Vec(x + val, y + val, z + val); }
 
-		Vec operator-(Type val) const {
-			return Vec(x - val, y - val, z - val);
-		}
+		Vec operator-(Type val) const { return Vec(x - val, y - val, z - val); }
 
-		Vec operator*(Type val) const {
-			return Vec(x * val, y * val, z * val);
-		}
+		Vec operator*(Type val) const { return Vec(x * val, y * val, z * val); }
 
-		Vec operator/(Type val) const {
-			return Vec(x / val, y / val, z / val);
-		}
+		Vec operator/(Type val) const { return Vec(x / val, y / val, z / val); }
 
+		// compare
+		bool operator>(const Vec& Vec) const { return length2() > Vec.length2(); }
 
-	 // compare
-		bool operator>(const Vec& Vec) const {
-			return length2() > Vec.length2();
-		}
+		bool operator<(const Vec& Vec) const { return length2() < Vec.length2(); }
 
-		bool operator<(const Vec& Vec) const {
-			return length2() < Vec.length2();
-		}
+		bool operator>=(const Vec& Vec) const { return length2() >= Vec.length2(); }
 
-		bool operator>=(const Vec& Vec) const {
-			return length2() >= Vec.length2();
-		}
+		bool operator<=(const Vec& Vec) const { return length2() <= Vec.length2(); }
 
-		bool operator<=(const Vec& Vec) const {
-			return length2() <= Vec.length2();
-		}
-
-		bool operator==(const Vec& Vec) const {
-			return (x == Vec.x && y == Vec.y && z == Vec.z);
-		}
+		bool operator==(const Vec& Vec) const { return (x == Vec.x && y == Vec.y && z == Vec.z); }
 
 		//  write
-		Vec operator-() {
-			return Vec(-x, -y, -z);
-		}
+		Vec operator-() { return Vec(-x, -y, -z); }
 
-		void operator -= (Type val) {
+		void operator-=(Type val) {
 			x -= val;
 			y -= val;
 			z -= val;
 		}
 
-		void operator += (Type val) {
+		void operator+=(Type val) {
 			x += val;
 			y += val;
 			z += val;
 		}
 
-		void operator -= (const Vec& in) {
+		void operator-=(const Vec& in) {
 			x -= in.x;
 			y -= in.y;
 			z -= in.z;
 		}
 
-		void operator += (const Vec& in) {
+		void operator+=(const Vec& in) {
 			x += in.x;
 			y += in.y;
 			z += in.z;
 		}
 
-		void operator *= (Type val) {
+		void operator*=(Type val) {
 			x *= val;
 			y *= val;
 			z *= val;
 		}
 
-		void operator /= (Type val) {
+		void operator/=(Type val) {
 			x /= val;
 			y /= val;
 			z /= val;
 		}
 
 		// Vector Properties
-		Type dot(const Vec& in) const {
-			return (x * in.x + y * in.y + z * in.z);
-		}
+		Type dot(const Vec& in) const { return (x * in.x + y * in.y + z * in.z); }
 
-		[[nodiscard]] alnf length() const {
-			return sqrt((halnf) (x * x + y * y + z * z));
-		}
+		[[nodiscard]] alnf length() const { return sqrt((halnf) (x * x + y * y + z * z)); }
 
-		Type length2() const {
-			return (x * x + y * y + z * z);
-		}
+		Type length2() const { return (x * x + y * y + z * z); }
 
-		Vec unitV() const {
-			return *this / (Type) this->length();
-		}
+		Vec unitV() const { return *this / (Type) this->length(); }
 
 		Vec& normalize() {
 			*this /= (Type) this->length();
 			return *this;
 		}
 
-		Vec cross(const Vec& in) const {
-			return Vec(
-				y * in.z - z * in.y,
-				z * in.x - x * in.z,
-				x * in.y - y * in.x
-			);
-		}
+		Vec cross(const Vec& in) const { return Vec(y * in.z - z * in.y, z * in.x - x * in.z, x * in.y - y * in.x); }
 
-		Vec operator*(const Vec& in) const {
-			return cross(in);
-		}
+		Vec operator*(const Vec& in) const { return cross(in); }
 
 		// Vector Transformation
 		void rotZ(alnf cosA, alnf sinA) {
@@ -632,13 +563,9 @@ namespace tp {
 			z = (Type) (tmp * sinA + z * cosA);
 		}
 
-		[[nodiscard]] halnf angelX() const {
-			return (halnf) atan2(y, z);
-		}
+		[[nodiscard]] halnf angelX() const { return (halnf) atan2(y, z); }
 
-		[[nodiscard]] halnf angelY() const {
-			return (halnf) atan2(x, z);
-		}
+		[[nodiscard]] halnf angelY() const { return (halnf) atan2(x, z); }
 	};
 
 	template <typename Type>

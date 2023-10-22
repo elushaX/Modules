@@ -7,7 +7,8 @@
 
 namespace tp {
 
-	template <typename Type> class Rect;
+	template <typename Type>
+	class Rect;
 	using RectF = Rect<halnf>;
 	using RectI = Rect<halni>;
 
@@ -61,18 +62,15 @@ namespace tp {
 			return *this;
 		}
 
-		bool operator==(Rect<Type>& rect) const {
-			return (pos == rect.pos && size == rect.size);
-		}
+		bool operator==(Rect<Type>& rect) const { return (pos == rect.pos && size == rect.size); }
 
 		bool isEnclosedIn(const Rect<Type>& rect, bool aParent = false) const {
 			if (aParent) {
-				return (pos.x + size.x <= rect.size.x && pos.y + size.y <= rect.size.y &&
-					pos.x >= 0 && pos.y >= 0);
+				return (pos.x + size.x <= rect.size.x && pos.y + size.y <= rect.size.y && pos.x >= 0 && pos.y >= 0);
 			}
-			*(Vec2<Type>*)(&pos) -= rect.pos;
+			*(Vec2<Type>*) (&pos) -= rect.pos;
 			bool ret = this->isEnclosedIn(rect, true);
-			*(Vec2<Type>*)(&pos) += rect.pos;
+			*(Vec2<Type>*) (&pos) += rect.pos;
 			return ret;
 		}
 
@@ -85,33 +83,22 @@ namespace tp {
 					clamp(p2, in.pos[i], in.pos[i] + in.size[i]);
 					out.size[i] = p2 - out.pos[i];
 				}
-			}
-			else {
+			} else {
 				out.size.assign(0, 0);
 				out.pos.assign(0, 0);
 			}
 		}
 
 		// argument isInside
-		bool isInside(const Vec2<Type>& p) const {
-			return isInside(p.x, p.y);
-		}
+		bool isInside(const Vec2<Type>& p) const { return isInside(p.x, p.y); }
 
-		bool isInside(Type x, Type y) const {
-			return (pos.x < x&& pos.y < y&& pos.x + size.x > x&& pos.y + size.y > y);
-		}
+		bool isInside(Type x, Type y) const { return (pos.x < x && pos.y < y && pos.x + size.x > x && pos.y + size.y > y); }
 
-		inline Vec2<Type> sizeVec() const {
-			return Vec2<Type>(size.x, size.y);
-		}
+		inline Vec2<Type> sizeVec() const { return Vec2<Type>(size.x, size.y); }
 
-		inline Vec2<Type> sizeVecW() const {
-			return Vec2<Type>(size.x + pos.x, size.y + pos.y);
-		}
+		inline Vec2<Type> sizeVecW() const { return Vec2<Type>(size.x + pos.x, size.y + pos.y); }
 
-		void invertY(Type scr_y) {
-			pos.y = scr_y - pos.y - size.y;
-		}
+		void invertY(Type scr_y) { pos.y = scr_y - pos.y - size.y; }
 
 		void move(Type dx, Type dy) {
 			pos.x += dx;
@@ -122,8 +109,7 @@ namespace tp {
 			if (add) {
 				pos += fac;
 				size -= fac * 2;
-			}
-			else {
+			} else {
 				auto new_size = size * fac;
 				pos = pos - (new_size - size) / 2;
 				size = new_size;
@@ -131,37 +117,21 @@ namespace tp {
 			return *this;
 		}
 
-		Vec2<Type> p1() {
-			return pos;
-		}
+		Vec2<Type> p1() { return pos; }
 
-		Vec2<Type> p3() {
-			return pos + size;
-		}
+		Vec2<Type> p3() { return pos + size; }
 
-		Vec2<Type> p2() {
-			return { pos.x, pos.y + size.y };
-		}
+		Vec2<Type> p2() { return { pos.x, pos.y + size.y }; }
 
-		Vec2<Type> p4() {
-			return { pos.x + size.x, pos.y };
-		}
+		Vec2<Type> p4() { return { pos.x + size.x, pos.y }; }
 
-		inline bool isAbove(const Rect<Type>& rect) const {
-			return (pos.y + size.y < rect.pos.y);
-		}
+		inline bool isAbove(const Rect<Type>& rect) const { return (pos.y + size.y < rect.pos.y); }
 
-		inline bool isBellow(const Rect<Type>& rect) const {
-			return (rect.pos.y + rect.size.y < pos.y);
-		}
+		inline bool isBellow(const Rect<Type>& rect) const { return (rect.pos.y + rect.size.y < pos.y); }
 
-		inline bool isRight(const Rect<Type>& rect) const {
-			return (pos.x + size.x < rect.pos.x);
-		}
+		inline bool isRight(const Rect<Type>& rect) const { return (pos.x + size.x < rect.pos.x); }
 
-		inline bool isLeft(const Rect<Type>& rect) const {
-			return (rect.pos.x + rect.size.x < pos.x);
-		}
+		inline bool isLeft(const Rect<Type>& rect) const { return (rect.pos.x + rect.size.x < pos.x); }
 
 		inline bool isIntersectsY(const Rect<Type>& in) const {
 			if (INRANGE(in.pos.x, pos.x, pos.x + size.x)) return true;
@@ -175,9 +145,7 @@ namespace tp {
 			return false;
 		}
 
-		bool isOverlap(const Rect<Type>& rect) const {
-			return (isIntersectX(rect) && isIntersectsY(rect));
-		}
+		bool isOverlap(const Rect<Type>& rect) const { return (isIntersectX(rect) && isIntersectsY(rect)); }
 
 		void clamp(const Rect<Type>& bounds) {
 			Vec2<Type> p3(pos + size);
@@ -248,10 +216,8 @@ namespace tp {
 			return out;
 		}
 
-		Vec2<Type> center() {
-			return pos + size / 2.f;
-		}
-	
+		Vec2<Type> center() { return pos + size / 2.f; }
+
 	public:
 		union {
 			Vec2<Type> v1;

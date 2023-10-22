@@ -1,17 +1,31 @@
 
-#include "Logging.hpp"
 #include "List.hpp"
+#include "Logging.hpp"
 
-#include "parser/parser.h"
 #include "compiler/function.h"
+#include "parser/parser.h"
 
 #include <cstdlib>
 
 #define MAX_STREAM_LENGTH 1024 * 8 * 200
 
-#define REQUIRE(expr, desc, on_catch) DEBUG_BREAK(mRes.err); if (!(expr)) { mRes.err = new Error(desc, mTok.getCursorPrev().mAdvancedOffset); on_catch; return NULL; }
-#define CHECK(expr, on_catch) if (!(expr)) { on_catch; return NULL; }
-#define CHECK_ERROR(value, on_catch) if (mRes.err || !value) { on_catch; return NULL; }
+#define REQUIRE(expr, desc, on_catch)                                 \
+	DEBUG_BREAK(mRes.err);                                              \
+	if (!(expr)) {                                                      \
+		mRes.err = new Error(desc, mTok.getCursorPrev().mAdvancedOffset); \
+		on_catch;                                                         \
+		return NULL;                                                      \
+	}
+#define CHECK(expr, on_catch) \
+	if (!(expr)) {              \
+		on_catch;                 \
+		return NULL;              \
+	}
+#define CHECK_ERROR(value, on_catch) \
+	if (mRes.err || !value) {          \
+		on_catch;                        \
+		return NULL;                     \
+	}
 
 using namespace tp;
 using namespace obj;
@@ -19,29 +33,25 @@ using namespace BCgen;
 
 bool Parser::Token::isAriphm() {
 	switch (type) {
-	case Token::ADD:
-	case Token::SUB:
-	case Token::DIV:
-	case Token::MUL:
-		return true;
-	default:
-		return false;
+		case Token::ADD:
+		case Token::SUB:
+		case Token::DIV:
+		case Token::MUL: return true;
+		default: return false;
 	}
 }
 
 bool Parser::Token::isBoolean() {
 	switch (type) {
-	case Token::EQUAL:
-	case Token::NOT_EQUAL:
-	case Token::BOOL_AND:
-	case Token::BOOL_OR:
-	case Token::MORE:
-	case Token::LESS:
-	case Token::QE_OR_MORE:
-	case Token::QE_OR_LESS:
-		return true;
-	default:
-		return false;
+		case Token::EQUAL:
+		case Token::NOT_EQUAL:
+		case Token::BOOL_AND:
+		case Token::BOOL_OR:
+		case Token::MORE:
+		case Token::LESS:
+		case Token::QE_OR_MORE:
+		case Token::QE_OR_LESS: return true;
+		default: return false;
 	}
 }
 
@@ -50,43 +60,43 @@ Parser::Parser() {
 		{ "\n|\t| |\r", Token::SPACE },
 		{ "var", Token::VAR },
 		{ "class", Token::CLASS_DEF },
-		{ "self",	 Token::SELF },
+		{ "self", Token::SELF },
 		{ "\\{", Token::SCOPE_IN },
 		{ "\\}", Token::SCOPE_OUT },
 		{ "=", Token::ASSIGN },
 		{ "def", Token::DEF_FUNC },
-		{ "<<",	 Token::PRINT },
-		{ "if",	 Token::IF },
-		{ "else",	 Token::ELSE },
+		{ "<<", Token::PRINT },
+		{ "if", Token::IF },
+		{ "else", Token::ELSE },
 		{ "while", Token::WHILE },
 		{ "\\(", Token::BRACKET_IN },
 		{ "\\)", Token::BRACKET_OUT },
 		{ ",", Token::COMMA },
 		{ "new", Token::NEW },
-		{ "\\.",	 Token::CHILD },
-		{ "return",	 Token::RETURN },
-		{ "==",	 Token::EQUAL },
-		{ "!=",	 Token::NOT_EQUAL },
+		{ "\\.", Token::CHILD },
+		{ "return", Token::RETURN },
+		{ "==", Token::EQUAL },
+		{ "!=", Token::NOT_EQUAL },
 		{ ">", Token::MORE },
 		{ "<", Token::LESS },
-		{ ">=",	 Token::QE_OR_MORE },
-		{ "<=",	 Token::QE_OR_LESS },
+		{ ">=", Token::QE_OR_MORE },
+		{ "<=", Token::QE_OR_LESS },
 		{ "!", Token::BOOL_NOT },
-		{ "&&",	 Token::BOOL_AND },
-		{ "\\|\\|",	 Token::BOOL_OR },
+		{ "&&", Token::BOOL_AND },
+		{ "\\|\\|", Token::BOOL_OR },
 		{ "\\+", Token::ADD },
 		{ "\\*", Token::MUL },
 		{ "\\-", Token::SUB },
 		{ "/", Token::DIV },
 		{ ";", Token::STM_END },
-		{ "true",	 Token::CONST_TRUE },
+		{ "true", Token::CONST_TRUE },
 		{ "false", Token::CONST_FALSE },
-		{ "((\\-)|(\\+))?[0-9]+i?",	 Token::CONST_INT },
-		{ R"(((\-)|(\+))?([0-9]+)(\.)([0-9]*)?f?)",	 Token::CONST_FLOAT },
-		{ R"((/\*){\*-\*}*(\*/))",	 Token::COMMENT_BLOCK },
-		{ R"("{"-"}*")",	 Token::CONST_STRING },
+		{ "((\\-)|(\\+))?[0-9]+i?", Token::CONST_INT },
+		{ R"(((\-)|(\+))?([0-9]+)(\.)([0-9]*)?f?)", Token::CONST_FLOAT },
+		{ R"((/\*){\*-\*}*(\*/))", Token::COMMENT_BLOCK },
+		{ R"("{"-"}*")", Token::CONST_STRING },
 
-		{ "([a-z]|[A-Z]|_)+([a-z]|[A-Z]|[0-9]|_)*",	 Token::ID },
+		{ "([a-z]|[A-Z]|_)+([a-z]|[A-Z]|[0-9]|_)*", Token::ID },
 	});
 }
 
@@ -111,28 +121,27 @@ Parser::Token Parser::tokRead() {
 	out.token = to_string(crs_start.str(), mTok.lastTokLEn());
 
 	switch (out.type) {
-		case Token::CONST_FALSE:
-			out.boolean = false;
-			break;
-		case Token::CONST_TRUE:
-			out.boolean = true;
-			break;
-		case Token::CONST_INT: {
-			char* p_end;
-			out.integer = std::strtol(out.token.read(), &p_end, 10);
-			DEBUG_ASSERT(out.token.read() != p_end);
-			break;
-		}
-		case Token::CONST_FLOAT: {
-			char* p_end;
-			out.floating = std::strtod(out.token.read(), &p_end);
-			DEBUG_ASSERT(out.token.read() != p_end);
-			break;
-		}
-		case Token::CONST_STRING: {
-			out.str = to_string(crs_start.str() + 1, mTok.lastTokLEn() - 2);
-			break;
-		}
+		case Token::CONST_FALSE: out.boolean = false; break;
+		case Token::CONST_TRUE: out.boolean = true; break;
+		case Token::CONST_INT:
+			{
+				char* p_end;
+				out.integer = std::strtol(out.token.read(), &p_end, 10);
+				DEBUG_ASSERT(out.token.read() != p_end);
+				break;
+			}
+		case Token::CONST_FLOAT:
+			{
+				char* p_end;
+				out.floating = std::strtod(out.token.read(), &p_end);
+				DEBUG_ASSERT(out.token.read() != p_end);
+				break;
+			}
+		case Token::CONST_STRING:
+			{
+				out.str = to_string(crs_start.str() + 1, mTok.lastTokLEn() - 2);
+				break;
+			}
 	}
 
 	return out;
@@ -163,7 +172,7 @@ void Parser::tokSkip() {
 	mTok.skipTok();
 }
 
-Parser::Tokenizer::Cursor Parser::tokGetCursor() { return mTok.getCursor();}
+Parser::Tokenizer::Cursor Parser::tokGetCursor() { return mTok.getCursor(); }
 void Parser::tokSetCursor(Tokenizer::Cursor crs) { mTok.setCursor(crs); }
 
 Expression* Parser::parseExprCompound() {
@@ -189,8 +198,7 @@ Expression* Parser::parseExprLOCAL() {
 	auto local_id_tok = tokRead();
 	if (local_id_tok == Token::ID) {
 		return ExprLocal(local_id_tok.token);
-	}
-	else if (local_id_tok == Token::SELF) {
+	} else if (local_id_tok == Token::SELF) {
 		return ExprSelf();
 	}
 	return NULL;
@@ -199,18 +207,12 @@ Expression* Parser::parseExprLOCAL() {
 Expression* Parser::parseExprCONST() {
 	auto tok = tokRead();
 	switch (tok) {
-	case Token::CONST_FALSE:
-		return ExprConst(false);
-	case Token::CONST_TRUE:
-		return ExprConst(true);
-	case Token::CONST_INT:
-		return ExprConst(tok.integer);
-	case Token::CONST_FLOAT:
-		return ExprConst(tok.floating);
-	case Token::CONST_STRING:
-		return ExprConst(tok.str);
-	default:
-		REQUIRE(0, "not a const Expr", {});
+		case Token::CONST_FALSE: return ExprConst(false);
+		case Token::CONST_TRUE: return ExprConst(true);
+		case Token::CONST_INT: return ExprConst(tok.integer);
+		case Token::CONST_FLOAT: return ExprConst(tok.floating);
+		case Token::CONST_STRING: return ExprConst(tok.str);
+		default: REQUIRE(0, "not a const Expr", {});
 	}
 }
 
@@ -246,8 +248,7 @@ READ_ARG:
 		if (tok == Token::COMMA) {
 			tokSkip();
 			goto READ_ARG;
-		}
-		else if (tok != Token::BRACKET_OUT) {
+		} else if (tok != Token::BRACKET_OUT) {
 			for (auto arg : args) {
 				delete arg.data();
 			}
@@ -290,7 +291,6 @@ PARSE:
 	if (tok.isAriphm()) {
 		tokSkip();
 
-			
 		right = parseExpr(expessions);
 
 		if (mRes.err) {
@@ -302,26 +302,16 @@ PARSE:
 			return NULL;
 		}
 
-	}
-	else {
-		CHECK(ret, {
-			delete left;
-		});
+	} else {
+		CHECK(ret, { delete left; });
 		goto PRECEDENCE;
 	}
 
 	switch (tok) {
-	case Token::ADD:
-		ret = ExprAriphm(left, right, OpCode::OBJ_ADD);
-		break;
-	case Token::SUB:
-		ret = ExprAriphm(left, right, OpCode::OBJ_SUB);
-		break;
-	case Token::DIV:
-		ret = ExprAriphm(left, right, OpCode::OBJ_DIV);
-		break;
-	case Token::MUL:
-		ret = ExprAriphm(left, right, OpCode::OBJ_MUL);
+		case Token::ADD: ret = ExprAriphm(left, right, OpCode::OBJ_ADD); break;
+		case Token::SUB: ret = ExprAriphm(left, right, OpCode::OBJ_SUB); break;
+		case Token::DIV: ret = ExprAriphm(left, right, OpCode::OBJ_DIV); break;
+		case Token::MUL: ret = ExprAriphm(left, right, OpCode::OBJ_MUL);
 	}
 
 	left = ret;
@@ -336,13 +326,8 @@ PRECEDENCE:
 Expression* Parser::parseExprBOOLEAN() {
 
 	tp::InitialierList<ExprType> expessions = {
-		ExprType::Compound,
-		ExprType::NEW,
-		ExprType::LOCAL,
-		ExprType::CONST,
-		ExprType::BOOLEAN_NOT,
+		ExprType::Compound, ExprType::NEW, ExprType::LOCAL, ExprType::CONST, ExprType::BOOLEAN_NOT,
 	};
-
 
 	Expression* left = parseExpr(expessions);
 	CHECK_ERROR(left, {});
@@ -368,38 +353,20 @@ PARSE:
 			return NULL;
 		}
 
-	}
-	else {
-		CHECK(ret, {
-			delete left;
-		});
+	} else {
+		CHECK(ret, { delete left; });
 		goto PRECEDENCE;
 	}
 
 	switch (tok) {
-	case Token::EQUAL:
-		ret = ExprBool(left, right, OpCode::EQUAL);
-		break;
-	case Token::NOT_EQUAL:
-		ret = ExprBool(left, right, OpCode::NOT_EQUAL);
-		break;
-	case Token::BOOL_AND:
-		ret = ExprBool(left, right, OpCode::AND);
-		break;
-	case Token::BOOL_OR:
-		ret = ExprBool(left, right, OpCode::OR);
-		break;
-	case Token::MORE:
-		ret = ExprBool(left, right, OpCode::MORE);
-		break;
-	case Token::LESS:
-		ret = ExprBool(left, right, OpCode::LESS);
-		break;
-	case Token::QE_OR_MORE:
-		ret = ExprBool(left, right, OpCode::EQUAL_OR_MORE);
-		break;
-	case Token::QE_OR_LESS:
-		ret = ExprBool(left, right, OpCode::EQUAL_OR_LESS);
+		case Token::EQUAL: ret = ExprBool(left, right, OpCode::EQUAL); break;
+		case Token::NOT_EQUAL: ret = ExprBool(left, right, OpCode::NOT_EQUAL); break;
+		case Token::BOOL_AND: ret = ExprBool(left, right, OpCode::AND); break;
+		case Token::BOOL_OR: ret = ExprBool(left, right, OpCode::OR); break;
+		case Token::MORE: ret = ExprBool(left, right, OpCode::MORE); break;
+		case Token::LESS: ret = ExprBool(left, right, OpCode::LESS); break;
+		case Token::QE_OR_MORE: ret = ExprBool(left, right, OpCode::EQUAL_OR_MORE); break;
+		case Token::QE_OR_LESS: ret = ExprBool(left, right, OpCode::EQUAL_OR_LESS);
 	}
 
 	left = ret;
@@ -415,12 +382,7 @@ Expression* Parser::parseExprBOOLEAN_NOT() {
 	CHECK(tokRead() == Token::BOOL_NOT, {});
 
 	tp::InitialierList<ExprType> exprs = {
-		ExprType::Compound,
-		ExprType::BOOLEAN,
-		ExprType::Ariphm,
-		ExprType::NEW,
-		ExprType::LOCAL,
-		ExprType::CONST,
+		ExprType::Compound, ExprType::BOOLEAN, ExprType::Ariphm, ExprType::NEW, ExprType::LOCAL, ExprType::CONST,
 	};
 
 	auto out = parseExpr(exprs);
@@ -439,37 +401,35 @@ Expression* Parser::parseExprFUNC() {
 // suc : returns top level parent
 // err : returns NULL
 Expression* Parser::parseExprChain(Expression* prnt) {
-		
-	PARSE_CHAIN:
+
+PARSE_CHAIN:
 	auto tok = tokLookup();
 
 	switch (tok) {
-		case Token::CHILD: {
-			tokRead();
-					
-			auto child_id = tokRead();
-			REQUIRE(child_id == Token::ID, "expected an id", {
-				delete prnt;
-			});
+		case Token::CHILD:
+			{
+				tokRead();
 
-			prnt = prnt->ExprChild(child_id.token);
-			goto PARSE_CHAIN;
-		}
+				auto child_id = tokRead();
+				REQUIRE(child_id == Token::ID, "expected an id", { delete prnt; });
 
-		case Token::BRACKET_IN: {
-
-			auto new_prnt = parseExprCALL(prnt);
-			CHECK_ERROR(new_prnt, { 
-				delete prnt;
-			});
-
-			if (prnt->mType == Expression::Type::CHILD) {
-				((ExpressionChild*)prnt)->mMethod = true;
+				prnt = prnt->ExprChild(child_id.token);
+				goto PARSE_CHAIN;
 			}
 
-			prnt = new_prnt;
-			goto PARSE_CHAIN;
-		}
+		case Token::BRACKET_IN:
+			{
+
+				auto new_prnt = parseExprCALL(prnt);
+				CHECK_ERROR(new_prnt, { delete prnt; });
+
+				if (prnt->mType == Expression::Type::CHILD) {
+					((ExpressionChild*) prnt)->mMethod = true;
+				}
+
+				prnt = new_prnt;
+				goto PARSE_CHAIN;
+			}
 	}
 
 	return prnt;
@@ -484,27 +444,13 @@ Expression* Parser::parseExpr(tp::InitialierList<ExprType> expressions) {
 	for (auto expr_type : expressions) {
 		auto crs = tokGetCursor();
 		switch (expr_type) {
-			case Parser::ExprType::BOOLEAN_NOT:
-				out = parseExprBOOLEAN_NOT();
-				break;
-			case Parser::ExprType::BOOLEAN:
-				out = parseExprBOOLEAN();
-				break;
-			case Parser::ExprType::Ariphm:
-				out = parseExprAriphm();
-				break;
-			case Parser::ExprType::NEW:
-				out = parseExprNEW();
-				break;
-			case Parser::ExprType::LOCAL:
-				out = parseExprLOCAL();
-				break;
-			case Parser::ExprType::CONST:
-				out = parseExprCONST();
-				break;
-			case Parser::ExprType::Compound:
-				out = parseExprCompound();
-				break;
+			case Parser::ExprType::BOOLEAN_NOT: out = parseExprBOOLEAN_NOT(); break;
+			case Parser::ExprType::BOOLEAN: out = parseExprBOOLEAN(); break;
+			case Parser::ExprType::Ariphm: out = parseExprAriphm(); break;
+			case Parser::ExprType::NEW: out = parseExprNEW(); break;
+			case Parser::ExprType::LOCAL: out = parseExprLOCAL(); break;
+			case Parser::ExprType::CONST: out = parseExprCONST(); break;
+			case Parser::ExprType::Compound: out = parseExprCompound(); break;
 		}
 
 		if (out) {
@@ -536,7 +482,7 @@ Expression* Parser::parseExpr(tp::InitialierList<ExprType> expressions) {
 		return out;
 	}
 
-	ERRORS:
+ERRORS:
 	Error* error = NULL;
 	tp::alni max_advanced = 0;
 	for (auto err : errors) {
@@ -559,14 +505,11 @@ Expression* Parser::parseExpr(tp::InitialierList<ExprType> expressions) {
 }
 
 Statement* Parser::parseStmCall() {
-		
+
 	Expression* expr = parseExpr();
 	CHECK_ERROR(expr, {});
 
-	REQUIRE(expr->mType == Expression::Type::CALL, 
-		"expression statement can only be function call", { 
-		delete expr; 
-	});
+	REQUIRE(expr->mType == Expression::Type::CALL, "expression statement can only be function call", { delete expr; });
 
 	if (tokRead() != Token::STM_END) {
 		delete expr;
@@ -614,9 +557,7 @@ READ_ARG:
 	}
 
 	StatementScope* scope = parseScope(true);
-	CHECK_ERROR(scope, {
-		delete func_def;
-	});
+	CHECK_ERROR(scope, { delete func_def; });
 
 	func_def->mStatements.reserve(scope->mStatements.size());
 
@@ -736,9 +677,7 @@ Statement* Parser::parseStmCopy() {
 	CHECK(tokRead() == Token::ASSIGN, {});
 
 	auto right = parseExpr();
-	CHECK_ERROR(right, {
-		delete left;
-	});
+	CHECK_ERROR(right, { delete left; });
 
 	if (tokRead() != Token::STM_END) {
 		delete left;
@@ -751,7 +690,7 @@ Statement* Parser::parseStmCopy() {
 
 Statement* Parser::parseStmClassDef() {
 	CHECK(tokRead() == Token::CLASS_DEF, {});
-		
+
 	auto id = tokRead();
 	REQUIRE(id == Token::ID, "Expected an Identifier", {});
 
@@ -769,33 +708,15 @@ Statement* Parser::parseStm(tp::InitialierList<StmType> stm_types) {
 	for (auto stm_type : stm_types) {
 		auto crs = tokGetCursor();
 		switch (stm_type) {
-			case StmType::DefFunc:
-				out = parseStmDefFunc();
-				break;
-			case StmType::DefLocal:
-				out = parseStmDefLocal();
-				break;
-			case StmType::Return:
-				out = parseStmReturn();
-				break;
-			case StmType::Print:
-				out = parseStmPrint();
-				break;
-			case StmType::If:
-				out = parseStmIf();
-				break;
-			case StmType::While:
-				out = parseStmWhile();
-				break;
-			case StmType::Copy:
-				out = parseStmCopy();
-				break;
-			case StmType::Call:
-				out = parseStmCall();
-				break;
-			case StmType::CLASS_DEF:
-				out = parseStmClassDef();
-				break;
+			case StmType::DefFunc: out = parseStmDefFunc(); break;
+			case StmType::DefLocal: out = parseStmDefLocal(); break;
+			case StmType::Return: out = parseStmReturn(); break;
+			case StmType::Print: out = parseStmPrint(); break;
+			case StmType::If: out = parseStmIf(); break;
+			case StmType::While: out = parseStmWhile(); break;
+			case StmType::Copy: out = parseStmCopy(); break;
+			case StmType::Call: out = parseStmCall(); break;
+			case StmType::CLASS_DEF: out = parseStmClassDef(); break;
 		}
 
 		if (out) {
@@ -834,7 +755,7 @@ Statement* Parser::parseStm(tp::InitialierList<StmType> stm_types) {
 
 		return NULL;
 	}
-		
+
 	REQUIRE(0, "Exprected A Statement", {});
 }
 
@@ -858,7 +779,7 @@ READ_STM:
 
 	if (tok != Token::SCOPE_OUT) {
 		tokSetCursor(crs);
-			
+
 		auto stm = parseStm();
 		CHECK_ERROR(stm, {
 			delete out;
@@ -868,7 +789,7 @@ READ_STM:
 		});
 
 		stms.pushBack(stm);
-			
+
 		goto READ_STM;
 	}
 
@@ -886,7 +807,7 @@ READ_STM:
 Parser::Resault Parser::parse(const tp::String& oscript) {
 	mTok.bindSource(oscript.read());
 	mTok.reset();
-	
+
 	mRes.scope = new StatementScope({}, true);
 
 	List<Statement*> stms;

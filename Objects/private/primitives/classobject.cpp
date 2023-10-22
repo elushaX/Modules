@@ -16,17 +16,11 @@ void ClassObject::constructor(ClassObject* self) {
 	self->addMember(NDO_NULL, "__del__");
 }
 
-void ClassObject::copy(ClassObject* self, const ClassObject* blueprint) {
-	NDO->copy(self->members, blueprint->members);
-}
+void ClassObject::copy(ClassObject* self, const ClassObject* blueprint) { NDO->copy(self->members, blueprint->members); }
 
-void ClassObject::destructor(ClassObject* self) {
-	NDO->destroy(self->members);
-}
+void ClassObject::destructor(ClassObject* self) { NDO->destroy(self->members); }
 
-void ClassObject::addMember(Object* obj, tp::String id) {
-	members->put(id, obj);
-}
+void ClassObject::addMember(Object* obj, tp::String id) { members->put(id, obj); }
 
 void ClassObject::createMember(tp::String type, tp::String id) {
 	auto newo = NDO->create(type);
@@ -56,9 +50,7 @@ tp::Buffer<Object*> childs_retrival(ClassObject* self) {
 	return out;
 }
 
-alni allocated_size(ClassObject* self) {
-	return sizeof(DictObject*);
-}
+alni allocated_size(ClassObject* self) { return sizeof(DictObject*); }
 
 alni allocated_size_recursive(ClassObject* self) {
 	alni out = sizeof(DictObject*);
@@ -66,17 +58,15 @@ alni allocated_size_recursive(ClassObject* self) {
 	return out;
 }
 
-struct ObjectType ClassObject::TypeData = {
-	.base = NULL,
-	.constructor = (object_constructor) ClassObject::constructor,
-	.destructor = (object_destructor) ClassObject::destructor,
-	.copy = (object_copy) ClassObject::copy,
-	.size = sizeof(ClassObject),
-	.name = "class",
-	.save_size = (object_save_size)save_size,
-	.save = (object_save)save,
-  .load = (object_load)load,
-	.childs_retrival = (object_debug_all_childs_retrival) childs_retrival,
-	.allocated_size = (object_allocated_size) allocated_size,
-	.allocated_size_recursive = (object_allocated_size_recursive) allocated_size_recursive
-};
+struct ObjectType ClassObject::TypeData = { .base = NULL,
+																						.constructor = (object_constructor) ClassObject::constructor,
+																						.destructor = (object_destructor) ClassObject::destructor,
+																						.copy = (object_copy) ClassObject::copy,
+																						.size = sizeof(ClassObject),
+																						.name = "class",
+																						.save_size = (object_save_size) save_size,
+																						.save = (object_save) save,
+																						.load = (object_load) load,
+																						.childs_retrival = (object_debug_all_childs_retrival) childs_retrival,
+																						.allocated_size = (object_allocated_size) allocated_size,
+																						.allocated_size_recursive = (object_allocated_size_recursive) allocated_size_recursive };

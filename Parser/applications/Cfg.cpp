@@ -1,8 +1,8 @@
 
 #include "NewPlacement.hpp"
 
-#include "Parser.hpp"
 #include "CommandLine.hpp"
+#include "Parser.hpp"
 
 using namespace tp;
 
@@ -29,7 +29,8 @@ void run(const String& source) {
 	grammar.generateSentences(sentences);
 
 	printf("Example sentences formed from grammar: \n");
-	for (auto sentence : sentences) tp::CfGrammar::printSentence(sentence.data());
+	for (auto sentence : sentences)
+		tp::CfGrammar::printSentence(sentence.data());
 
 	CfGrammar::deinitializeCfGrammarParser(state);
 }
@@ -50,7 +51,7 @@ int main(int argc, const char* argv[]) {
 		printf("\n");
 
 		CommandLine cmd = {
-				{ "grammar", CommandLine::Arg::STR },
+			{ "grammar", CommandLine::Arg::STR },
 		};
 
 		if (!cmd.parse((char) argc, argv, true, 1)) {
@@ -72,7 +73,6 @@ int main(int argc, const char* argv[]) {
 		auto size = file.size();
 		grammar.resize((String::Index) size);
 		file.readBytes(grammar.write(), size);
-
 
 		run(grammar);
 

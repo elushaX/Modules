@@ -12,14 +12,13 @@ namespace tp {
 
 		class Automation {
 		public:
-			class State {
-
-			};
+			class State {};
 		};
 
 		class TerminalStream {
 		public:
 			typedef ualni TerminalID;
+
 		public:
 			TerminalStream() = default;
 			virtual TerminalID getNextTerminal() = 0;
@@ -36,9 +35,7 @@ namespace tp {
 		};
 
 	private:
-		class SententialStack {
-
-		};
+		class SententialStack {};
 
 	public:
 		CLR() = default;

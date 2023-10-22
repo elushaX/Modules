@@ -3,8 +3,8 @@
 #include "HeapAllocatorGlobal.hpp"
 #include "PrivateConfig.hpp"
 
-#include "Utils.hpp"
 #include "Debugging.hpp"
+#include "Utils.hpp"
 
 #include <cstdio>
 #include <cstdlib>
@@ -43,9 +43,9 @@ namespace tp {
 		MemHead* mNext;
 		uhalni mBlockSize;
 		uhalni mIgnored;
-		#ifdef MEM_STACK_TRACE
+#ifdef MEM_STACK_TRACE
 		const CallStackCapture::CallStack* mCallStack;
-		#endif
+#endif
 	};
 }
 
@@ -66,15 +66,15 @@ void* HeapAllocGlobal::allocate(ualni aBlockSize) {
 		aBlockSize = (aBlockSize / ALIGNED_SIZE + 1) * ALIGNED_SIZE;
 	}
 
-	// 1) Allocate the block
-	ALLOCATE:
-	auto head = (MemHead*)malloc(aBlockSize + WRAP_SIZE * 2 + HEAD_SIZE);
+// 1) Allocate the block
+ALLOCATE:
+	auto head = (MemHead*) malloc(aBlockSize + WRAP_SIZE * 2 + HEAD_SIZE);
 	if (!head) {
 		printf("WARNING : Cant allocate memory. Trying again\n");
 		goto ALLOCATE; // Just freeze if no memory is available
 	}
 
-	auto wrap_top = (int1*)(head + 1);
+	auto wrap_top = (int1*) (head + 1);
 	auto data = wrap_top + WRAP_SIZE;
 	auto wrap_bottom = data + aBlockSize;
 
@@ -95,11 +95,10 @@ void* HeapAllocGlobal::allocate(ualni aBlockSize) {
 	}
 	mEntry = head;
 
-
-	// 3) Trace the stack
-	#ifdef MEM_STACK_TRACE
+// 3) Trace the stack
+#ifdef MEM_STACK_TRACE
 	head->mCallStack = gCSCapture->getSnapshot();
-	#endif
+#endif
 
 	mMutex.unlock();
 
@@ -119,8 +118,8 @@ void HeapAllocGlobal::deallocate(void* aPtr) {
 	if (!aPtr) return;
 
 	// 1) Restore the pointers
-	auto head = ((MemHead*)((int1*)aPtr - WRAP_SIZE)) - 1;
-	auto wrap_top = (int1*)(head + 1);
+	auto head = ((MemHead*) ((int1*) aPtr - WRAP_SIZE)) - 1;
+	auto wrap_top = (int1*) (head + 1);
 	auto data = wrap_top + WRAP_SIZE;
 	auto wrap_bottom = data + head->mBlockSize;
 
@@ -147,10 +146,10 @@ void HeapAllocGlobal::deallocate(void* aPtr) {
 			ASSERT(!"Allocated Block Wrap Corrupted!")
 		}
 
-		// 4) clear data
-		#ifdef MEM_CLEAR_ON_ALLOC
+// 4) clear data
+#ifdef MEM_CLEAR_ON_ALLOC
 		memSetVal(data, head->mBlockSize, CLEAR_DEALLOC_VAL);
-		#endif
+#endif
 	}
 
 	// 5) free the block
@@ -166,11 +165,11 @@ bool HeapAllocGlobal::checkLeaks() {
 	// 1) Check for not deallocated memory
 	if (mNumAllocations && ignoredCount < mNumAllocations) {
 
-		#ifdef MEM_STACK_TRACE
+#ifdef MEM_STACK_TRACE
 		for (auto iter = mEntry; iter; iter = iter->mPrev) {
 			if (!iter->mIgnored) CallStackCapture::printSnapshot(iter->mCallStack);
 		}
-		#endif
+#endif
 
 		printf(" Count : %llu", mNumAllocations - ignoredCount);
 
@@ -195,4 +194,3 @@ void HeapAllocGlobal::stopIgnore() {
 HeapAllocGlobal::~HeapAllocGlobal() = default;
 
 #endif
-

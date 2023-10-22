@@ -15,7 +15,6 @@ namespace tp {
 		time_ms mDuration;
 
 	public:
-
 		Timer();
 		explicit Timer(time_ms time);
 
@@ -41,7 +40,8 @@ namespace tp {
 		Timer time;
 		halni fps = 0;
 
-		FpsCounter() : time(1000) {}
+		FpsCounter() :
+			time(1000) {}
 
 		void update(bool log = true) {
 			frames++;

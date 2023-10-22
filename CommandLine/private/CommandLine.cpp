@@ -17,13 +17,29 @@ const char* regexString = "'{'-'}*'";
 CommandLine::Arg::Arg(const Arg& arg) {
 	mId = arg.mId;
 	switch (arg.mType) {
-		case CommandLine::Arg::INT: mType = INT;	mInt = arg.mInt; break;
-		case CommandLine::Arg::FLOAT: mType = FLOAT; mFloat = arg.mFloat; break;
-		case CommandLine::Arg::BOOL: mType = BOOL; mBool = arg.mBool; break;
-		case CommandLine::Arg::STR: mType = STR; new (&mStr) StringArg(); mStr = arg.mStr; break;
-		case CommandLine::Arg::FILE_IN: mType = FILE_IN;	new (&mFile) FileInputArg(); mFile = arg.mFile; break;
-		default:
-			ASSERT(false)
+		case CommandLine::Arg::INT:
+			mType = INT;
+			mInt = arg.mInt;
+			break;
+		case CommandLine::Arg::FLOAT:
+			mType = FLOAT;
+			mFloat = arg.mFloat;
+			break;
+		case CommandLine::Arg::BOOL:
+			mType = BOOL;
+			mBool = arg.mBool;
+			break;
+		case CommandLine::Arg::STR:
+			mType = STR;
+			new (&mStr) StringArg();
+			mStr = arg.mStr;
+			break;
+		case CommandLine::Arg::FILE_IN:
+			mType = FILE_IN;
+			new (&mFile) FileInputArg();
+			mFile = arg.mFile;
+			break;
+		default: ASSERT(false)
 	}
 	mOptional = arg.mOptional;
 }
@@ -31,11 +47,26 @@ CommandLine::Arg::Arg(const Arg& arg) {
 CommandLine::Arg::Arg(const String& id, Type type) {
 	mId = id;
 	switch (type) {
-		case CommandLine::Arg::INT: mType = INT; new (&mInt) IntArg(); break;
-		case CommandLine::Arg::FLOAT: mType = FLOAT; new (&mFloat) FloatArg(); break;
-		case CommandLine::Arg::BOOL: mType = BOOL; new (&mBool) BoolArg(); break;
-		case CommandLine::Arg::STR: mType = STR; new (&mStr) StringArg(); break;
-		case CommandLine::Arg::FILE_IN: mType = FILE_IN;	new (&mFile) FileInputArg(); break;
+		case CommandLine::Arg::INT:
+			mType = INT;
+			new (&mInt) IntArg();
+			break;
+		case CommandLine::Arg::FLOAT:
+			mType = FLOAT;
+			new (&mFloat) FloatArg();
+			break;
+		case CommandLine::Arg::BOOL:
+			mType = BOOL;
+			new (&mBool) BoolArg();
+			break;
+		case CommandLine::Arg::STR:
+			mType = STR;
+			new (&mStr) StringArg();
+			break;
+		case CommandLine::Arg::FILE_IN:
+			mType = FILE_IN;
+			new (&mFile) FileInputArg();
+			break;
 		default: ASSERT(false)
 	}
 	mOptional = false;
@@ -82,14 +113,9 @@ CommandLine::Arg::Arg(const String& id, const char* aDefault) {
 
 CommandLine::Arg::~Arg() {
 	switch (mType) {
-		case CommandLine::Arg::STR:
-			mStr.~StringArg();
-			break;
-		case CommandLine::Arg::FILE_IN:
-			mFile.~FileInputArg();
-			break;
-		default:
-			break;
+		case CommandLine::Arg::STR: mStr.~StringArg(); break;
+		case CommandLine::Arg::FILE_IN: mFile.~FileInputArg(); break;
+		default: break;
 	}
 }
 
@@ -110,8 +136,7 @@ CommandLine::CommandLine(const InitialierList<Arg>& args) {
 
 		if (optional_start) {
 			ASSERT(arg.mOptional && "Not Optional Argument After Optionals")
-		}
-		else if (arg.mOptional) {
+		} else if (arg.mOptional) {
 			optional_start = true;
 		}
 	}
@@ -123,14 +148,11 @@ CommandLine::CommandLine(const InitialierList<Arg>& args) {
 		{ regexInt, TokType::INT },
 		{ regexFloat, TokType::FLOAT },
 		{ regexString, TokType::STR },
-		});
+	});
 
 	ASSERT(mTokenizer.isBuild() && "Internal Error")
 
-	mArgumentTokenizer.build({
-			{ regexSpace, ArgTokType::SPACE },
-			{ "{ - }*", ArgTokType::ARG }
-		});
+	mArgumentTokenizer.build({ { regexSpace, ArgTokType::SPACE }, { "{ - }*", ArgTokType::ARG } });
 
 	ASSERT(mTokenizer.isBuild() && "Internal Error")
 }
@@ -216,12 +238,26 @@ bool CommandLine::parse(const char* args, bool logError) {
 	return true;
 }
 
-alni CommandLine::getInt(const String& id) const { auto& arg = getArg(id, Arg::INT); return arg.mInt.mVal; }
-alnf CommandLine::getFloat(const String& id) const { auto& arg = getArg(id, Arg::FLOAT); return arg.mFloat.mVal; }
-bool CommandLine::getBool(const String& id) const { auto& arg = getArg(id, Arg::BOOL); return arg.mBool.mFlag; }
-const String& CommandLine::getString(const String& id) const { auto& arg = getArg(id, Arg::STR); return arg.mStr.mStr; }
-const LocalConnection::Location& CommandLine::getFile(const String& id) const { auto& arg = getArg(id, Arg::FILE_IN); return arg.mFile.mFileLocation; }
-
+alni CommandLine::getInt(const String& id) const {
+	auto& arg = getArg(id, Arg::INT);
+	return arg.mInt.mVal;
+}
+alnf CommandLine::getFloat(const String& id) const {
+	auto& arg = getArg(id, Arg::FLOAT);
+	return arg.mFloat.mVal;
+}
+bool CommandLine::getBool(const String& id) const {
+	auto& arg = getArg(id, Arg::BOOL);
+	return arg.mBool.mFlag;
+}
+const String& CommandLine::getString(const String& id) const {
+	auto& arg = getArg(id, Arg::STR);
+	return arg.mStr.mStr;
+}
+const LocalConnection::Location& CommandLine::getFile(const String& id) const {
+	auto& arg = getArg(id, Arg::FILE_IN);
+	return arg.mFile.mFileLocation;
+}
 
 CommandLine::Arg& CommandLine::getArg(const String& id, Arg::Type type) {
 	auto idx = mArgs.presents(id);
@@ -281,40 +317,50 @@ void CommandLine::ErrLog() {
 
 void CommandLine::logArg(const Arg& arg) {
 	switch (arg.mType) {
-		case Arg::INT: {
-			printf("Type    : Int\n");
-			printf("Range   : %lli - %lli\n", arg.mInt.mAcceptingRange.mBegin, arg.mInt.mAcceptingRange.mEnd);
-			if (arg.mOptional) {
-				printf("Default : %lli\n", arg.mInt.mDefault);
+		case Arg::INT:
+			{
+				printf("Type    : Int\n");
+				printf("Range   : %lli - %lli\n", arg.mInt.mAcceptingRange.mBegin, arg.mInt.mAcceptingRange.mEnd);
+				if (arg.mOptional) {
+					printf("Default : %lli\n", arg.mInt.mDefault);
+				}
+				printf("Value   : %lli\n", arg.mInt.mVal);
 			}
-			printf("Value   : %lli\n", arg.mInt.mVal);
-		} break;
-		case Arg::FLOAT: {
-			printf("Type    : Float\n");
-			printf("Range   : %f - %f\n", (halnf) arg.mFloat.mAcceptingRange.mBegin, (halnf) arg.mFloat.mAcceptingRange.mEnd);
-			if (arg.mOptional) {
-				printf("Default : %f\n", arg.mFloat.mDefault);
+			break;
+		case Arg::FLOAT:
+			{
+				printf("Type    : Float\n");
+				printf("Range   : %f - %f\n", (halnf) arg.mFloat.mAcceptingRange.mBegin, (halnf) arg.mFloat.mAcceptingRange.mEnd);
+				if (arg.mOptional) {
+					printf("Default : %f\n", arg.mFloat.mDefault);
+				}
+				printf("Value   : %f\n", arg.mFloat.mVal);
 			}
-			printf("Value   : %f\n", arg.mFloat.mVal);
-		} break;
-		case Arg::BOOL: {
-			printf("Type    : Bool\n");
-			if (arg.mOptional) {
-				printf("Default : %s\n", arg.mBool.mDefault ? "True" : "False");
+			break;
+		case Arg::BOOL:
+			{
+				printf("Type    : Bool\n");
+				if (arg.mOptional) {
+					printf("Default : %s\n", arg.mBool.mDefault ? "True" : "False");
+				}
+				printf("Value   : %s\n", arg.mBool.mFlag ? "True" : "False");
 			}
-			printf("Value   : %s\n", arg.mBool.mFlag ? "True" : "False");
-		} break;
-		case Arg::STR: {
-			printf("Type    : String\n");
-			if (arg.mOptional) {
-				printf("Default : %s\n", arg.mStr.mDefault.read());
+			break;
+		case Arg::STR:
+			{
+				printf("Type    : String\n");
+				if (arg.mOptional) {
+					printf("Default : %s\n", arg.mStr.mDefault.read());
+				}
+				printf("Value   : %s\n", arg.mStr.mStr.read());
 			}
-			printf("Value   : %s\n", arg.mStr.mStr.read());
-		} break;
-		case Arg::FILE_IN: {
-			printf("Type : File Input\n");
-			printf("Value Path : %s\n", arg.mFile.mFileLocation.getLocation().read());
-		} break;
+			break;
+		case Arg::FILE_IN:
+			{
+				printf("Type : File Input\n");
+				printf("Value Path : %s\n", arg.mFile.mFileLocation.getLocation().read());
+			}
+			break;
 		default: ASSERT(false)
 	}
 }
@@ -325,8 +371,7 @@ void CommandLine::initDefault(Arg& arg) {
 		case Arg::FLOAT: arg.mFloat.mVal = arg.mFloat.mDefault; break;
 		case Arg::BOOL: arg.mBool.mFlag = arg.mBool.mDefault; break;
 		case Arg::STR: arg.mStr.mStr = arg.mStr.mDefault; break;
-		default:
-			break;
+		default: break;
 	}
 }
 
@@ -343,61 +388,70 @@ void CommandLine::parseArg(Arg& arg, const char* src) {
 	auto val = mTokenizer.extractVal();
 
 	switch (arg.mType) {
-		case Arg::INT: {
-			if (tok != TokType::INT) {
-				ErrInvalidArgType(&arg);
-				return;
+		case Arg::INT:
+			{
+				if (tok != TokType::INT) {
+					ErrInvalidArgType(&arg);
+					return;
+				}
+				auto converted = String::Logic::convertStringToValue(val.read(), arg.mInt.mVal);
+				if (converted && arg.mInt.mVal < arg.mInt.mAcceptingRange.mBegin || arg.mInt.mVal > arg.mInt.mAcceptingRange.mEnd) {
+					ErrValNotinRange(&arg);
+					return;
+				}
 			}
-			auto converted = String::Logic::convertStringToValue(val.read(), arg.mInt.mVal);
-			if (converted && arg.mInt.mVal < arg.mInt.mAcceptingRange.mBegin || arg.mInt.mVal > arg.mInt.mAcceptingRange.mEnd) {
-				ErrValNotinRange(&arg);
-				return;
-			}
-		} break;
+			break;
 
-		case Arg::FLOAT: {
-			if (tok != TokType::FLOAT) {
-				ErrInvalidArgType(&arg);
-				return;
+		case Arg::FLOAT:
+			{
+				if (tok != TokType::FLOAT) {
+					ErrInvalidArgType(&arg);
+					return;
+				}
+				auto converted = String::Logic::convertStringToValue(val.read(), arg.mFloat.mVal);
+				if (converted && arg.mFloat.mVal < arg.mFloat.mAcceptingRange.mBegin || arg.mFloat.mVal > arg.mFloat.mAcceptingRange.mEnd) {
+					ErrValNotinRange(&arg);
+					return;
+				}
 			}
-			auto converted = String::Logic::convertStringToValue(val.read(), arg.mFloat.mVal);
-			if (converted && arg.mFloat.mVal < arg.mFloat.mAcceptingRange.mBegin || arg.mFloat.mVal > arg.mFloat.mAcceptingRange.mEnd) {
-				ErrValNotinRange(&arg);
-				return;
+			break;
+
+		case Arg::STR:
+			{
+				if (tok != TokType::STR) {
+					ErrInvalidArgType(&arg);
+					return;
+				}
+				arg.mStr.mStr.resize(val.size() - 2);
+				memCopy(arg.mStr.mStr.write(), val.read() + 1, val.size() - 2);
 			}
-		} break;
+			break;
 
-		case Arg::STR: {
-			if (tok != TokType::STR) {
-				ErrInvalidArgType(&arg);
-				return;
+		case Arg::BOOL:
+			{
+				if (tok != TokType::BOOL_FALSE && tok != TokType::BOOL_TRUE) {
+					ErrInvalidArgType(&arg);
+					return;
+				}
+				arg.mBool.mFlag = tok == TokType::BOOL_TRUE;
 			}
-			arg.mStr.mStr.resize(val.size() - 2);
-			memCopy(arg.mStr.mStr.write(), val.read() + 1, val.size() - 2);
-		} break;
+			break;
 
-		case Arg::BOOL: {
-			if (tok != TokType::BOOL_FALSE && tok != TokType::BOOL_TRUE) {
-				ErrInvalidArgType(&arg);
-				return;
+		case Arg::FILE_IN:
+			{
+				if (tok != TokType::STR) {
+					ErrInvalidArgType(&arg);
+					return;
+				}
+
+				arg.mFile.mFileLocation.setLocation(val);
+
+				if (!arg.mFile.mFileLocation.exists()) {
+					ErrFileNotExists(&arg);
+					return;
+				}
 			}
-			arg.mBool.mFlag = tok == TokType::BOOL_TRUE;
-		} break;
-
-		case Arg::FILE_IN: {
-			if (tok != TokType::STR) {
-				ErrInvalidArgType(&arg);
-				return;
-			}
-
-			arg.mFile.mFileLocation.setLocation(val);
-
-			if (!arg.mFile.mFileLocation.exists()) {
-				ErrFileNotExists(&arg);
-				return;
-			}
-
-		} break;
+			break;
 		default: ASSERT(false)
 	}
 

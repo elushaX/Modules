@@ -31,10 +31,6 @@ void CallStack::leave() {
 	}
 }
 
-ByteCode* CallStack::getBytecode() {
-	return &mStack.last().mMethod->mScript->mBytecode;
-}
+ByteCode* CallStack::getBytecode() { return &mStack.last().mMethod->mScript->mBytecode; }
 
-tp::halni CallStack::len() const {
-	return mStack.size();
-}
+tp::halni CallStack::len() const { return mStack.size(); }

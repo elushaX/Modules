@@ -9,18 +9,19 @@ namespace tp {
 	public:
 		class Location {
 			String mLocation;
+
 		public:
-			Location() : mLocation("tmp") {};
-			explicit Location(const String& location) : mLocation(location) {}
+			Location() :
+				mLocation("tmp"){};
+			explicit Location(const String& location) :
+				mLocation(location) {}
 			void setLocation(const String& location) { mLocation = location; }
 			[[nodiscard]] const String& getLocation() const { return mLocation; }
 			[[nodiscard]] bool exists() const;
 		};
 
 	public:
-		LocalConnection() {
-			MODULE_SANITY_CHECK(gModuleConnection)
-		};
+		LocalConnection(){ MODULE_SANITY_CHECK(gModuleConnection) };
 
 		virtual ~LocalConnection() {
 			if (mStatus.isOpened()) LocalConnection::disconnect();

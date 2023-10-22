@@ -43,16 +43,16 @@ typedef Buffer<State> Automata;
 
 void initializeTokenizer(CFGTokenizer* tok) {
 	tok->build({
-			{ CFGTokenizer::tTokenizer::etherRE, Token::IGNORED },
-			{ "Start", Token::START },
-			{ ":", Token::EQUAL },
-			{ "\\[", Token::TERMINAL_START },
-			{ "\\]", Token::TERMINAL_END },
-			{ "\\|", Token::ALTERNATION },
-			{ ";", Token::RULE_END },
-			{ "&", Token::EPSILON },
-			{ CFGTokenizer::tTokenizer::idRE, Token::ID },
-			{ CFGTokenizer::tTokenizer::commentBlockRE, Token::COMMENT },
+		{ CFGTokenizer::tTokenizer::etherRE, Token::IGNORED },
+		{ "Start", Token::START },
+		{ ":", Token::EQUAL },
+		{ "\\[", Token::TERMINAL_START },
+		{ "\\]", Token::TERMINAL_END },
+		{ "\\|", Token::ALTERNATION },
+		{ ";", Token::RULE_END },
+		{ "&", Token::EPSILON },
+		{ CFGTokenizer::tTokenizer::idRE, Token::ID },
+		{ CFGTokenizer::tTokenizer::commentBlockRE, Token::COMMENT },
 	});
 
 	ASSERT(tok->isBuild())
@@ -71,54 +71,54 @@ void initAutomata(Automata& automata) {
 	auto terminalEnd = states;
 
 	root->transitions = {
-			{ Token::END, end },
-			{ Token::START, start },
-			{ Token::ID, rule, [](CfGrammar* grammar, const String& tok) {
-				 grammar->rules.pushBack({ tok, {} });
-			 }
-			},
+		{ Token::END, end },
+		{ Token::START, start },
+		{ Token::ID,
+			rule,
+			[](CfGrammar* grammar, const String& tok) {
+				grammar->rules.pushBack({ tok, {} });
+			} },
 	};
 
 	start->transitions = {
-			{ Token::ID,
-			 root,
-			 [](CfGrammar* grammar, const String& tok) {
-				 grammar->startTerminal = tok;
-			 }
-			},
+		{ Token::ID, root, [](CfGrammar* grammar, const String& tok) { grammar->startTerminal = tok; } },
 	};
 
 	rule->transitions = {
-			{ Token::EQUAL, rhs },
+		{ Token::EQUAL, rhs },
 	};
 
 	rhs->transitions = {
-			{ Token::ALTERNATION, rhs, [](CfGrammar* grammar, const String& tok) {
-				 auto const& id = grammar->rules.last()->data.id;
-				 grammar->rules.pushBack({ id, {} });
-			 }
-			},
-			{ Token::ID, rhs, [](CfGrammar* grammar, const String& tok) {
-				 grammar->rules.last()->data.args.pushBack({ tok, false, false });
-			 }
-			},
-			{ Token::EPSILON, rhs, [](CfGrammar* grammar, const String& tok) {
-				 grammar->rules.last()->data.args.pushBack({ tok, false, true });
-			 }
-			},
-			{ Token::TERMINAL_START, terminalStart },
-			{ Token::RULE_END, root },
+		{ Token::ALTERNATION,
+			rhs,
+			[](CfGrammar* grammar, const String& tok) {
+				auto const& id = grammar->rules.last()->data.id;
+				grammar->rules.pushBack({ id, {} });
+			} },
+		{ Token::ID,
+			rhs,
+			[](CfGrammar* grammar, const String& tok) {
+				grammar->rules.last()->data.args.pushBack({ tok, false, false });
+			} },
+		{ Token::EPSILON,
+			rhs,
+			[](CfGrammar* grammar, const String& tok) {
+				grammar->rules.last()->data.args.pushBack({ tok, false, true });
+			} },
+		{ Token::TERMINAL_START, terminalStart },
+		{ Token::RULE_END, root },
 	};
 
 	terminalStart->transitions = {
-			{ Token::ID, terminalEnd, [](CfGrammar* grammar, const String& tok) {
-				 grammar->rules.last()->data.args.pushBack({ tok, true, false });
-			 }
-			},
+		{ Token::ID,
+			terminalEnd,
+			[](CfGrammar* grammar, const String& tok) {
+				grammar->rules.last()->data.args.pushBack({ tok, true, false });
+			} },
 	};
 
 	terminalEnd->transitions = {
-			{ Token::TERMINAL_END, rhs },
+		{ Token::TERMINAL_END, rhs },
 	};
 
 	auto idError = "Expected an identifier";
@@ -196,14 +196,8 @@ CfGrammarParserState* CfGrammar::initializeCfGrammarParser() {
 	return state;
 }
 
-void CfGrammar::deinitializeCfGrammarParser(CfGrammarParserState* state) {
-	delete state;
-}
+void CfGrammar::deinitializeCfGrammarParser(CfGrammarParserState* state) { delete state; }
 
-bool CfGrammar::parse(CfGrammarParserState* context, const String& source) {
-	return ::parse(source.read(), &context->automata, &context->tokenizer, this);
-}
+bool CfGrammar::parse(CfGrammarParserState* context, const String& source) { return ::parse(source.read(), &context->automata, &context->tokenizer, this); }
 
-bool CfGrammar::isLooped() const {
-	return mIsLooped;
-}
+bool CfGrammar::isLooped() const { return mIsLooped; }

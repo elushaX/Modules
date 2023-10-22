@@ -21,14 +21,14 @@ namespace tp {
 
 	// Pool Allocator
 	// Overcomes chunk allocator fixed number of max allocations
-	template<typename tType, ualni tNumBlocks>
+	template <typename tType, ualni tNumBlocks>
 	class PoolAlloc {
 
 		typedef ChunkAlloc<tType, tNumBlocks> Chunk;
 
 		struct Chunks {
 
-			void add(Chunk* aChunk){
+			void add(Chunk* aChunk) {
 
 				if (!mBuff) {
 					mLen = 16;
@@ -57,7 +57,7 @@ namespace tp {
 				}
 			}
 
-			void remove(Chunk** del_address){
+			void remove(Chunk** del_address) {
 				if (mUsedLen == 1) {
 					mLen = 0;
 					mUsedLen = 0;
@@ -74,18 +74,16 @@ namespace tp {
 				mUsedLen--;
 
 				// check for buff low usage
-				if ((halnf)mUsedLen / (halnf)mLen < 0.25f) {
+				if ((halnf) mUsedLen / (halnf) mLen < 0.25f) {
 					auto prevBuff = mBuff;
-					mBuff = (Chunk**)HeapAllocGlobal::allocate(sizeof(Chunk*) * mLen / 2);
+					mBuff = (Chunk**) HeapAllocGlobal::allocate(sizeof(Chunk*) * mLen / 2);
 					memCopy(mBuff, prevBuff, sizeof(Chunk*) * mUsedLen);
 					mLen /= 2;
 					HeapAllocGlobal::deallocate(prevBuff);
 				}
 			}
 
-			[[nodiscard]] Chunk** find(void* aPtr) {
-				return findUtil(mBuff, mBuff + mUsedLen, aPtr) - 1;
-			}
+			[[nodiscard]] Chunk** find(void* aPtr) { return findUtil(mBuff, mBuff + mUsedLen, aPtr) - 1; }
 
 			[[nodiscard]] Chunk* findNotFull() const {
 				for (ualni idx = 0; idx < mUsedLen; idx++) {
@@ -137,9 +135,9 @@ namespace tp {
 			auto chunk = mChunks.find(aPtr);
 			(*chunk)->deallocate(aPtr);
 			if ((*chunk)->isEmpty()) {
-        if (mFreeChunk == *chunk) mFreeChunk = nullptr;
-        HeapAllocGlobal::deallocate(*chunk);
-        mChunks.remove(chunk);
+				if (mFreeChunk == *chunk) mFreeChunk = nullptr;
+				HeapAllocGlobal::deallocate(*chunk);
+				mChunks.remove(chunk);
 			}
 		}
 
@@ -153,7 +151,7 @@ namespace tp {
 					if (i > j) {
 						ASSERT(mChunks.mBuff[i] > mChunks.mBuff[j])
 					} else if (i < j) {
-					  ASSERT(mChunks.mBuff[i] < mChunks.mBuff[j])
+						ASSERT(mChunks.mBuff[i] < mChunks.mBuff[j])
 					}
 				}
 			}

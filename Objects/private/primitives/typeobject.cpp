@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "NewPlacement.hpp"
 #include "primitives/typeobject.h"
+#include "NewPlacement.hpp"
 #include "primitives/nullobject.h"
 
 using namespace obj;
@@ -32,34 +32,26 @@ static void load(ArchiverIn& file_self, TypeObject* self) {
 
 	if (idx) {
 		self->mTypeRef = NDO->types.getSlotVal(idx);
-	}
-	else {
+	} else {
 		self->mTypeRef = &NullObject::TypeData;
 	}
 }
 
-static alni allocated_size(TypeObject* self) {
-	return sizeof(alni);
-}
+static alni allocated_size(TypeObject* self) { return sizeof(alni); }
 
 static void from_string(TypeObject* self, tp::String in) {
 	auto idx = NDO->types.presents(in);
 
 	if (idx) {
 		self->mTypeRef = NDO->types.getSlotVal(idx);
-	}
-	else {
+	} else {
 		self->mTypeRef = &NullObject::TypeData;
 	}
 }
 
-static String to_string(TypeObject* self) {
-	return self->mTypeRef->name;
-}
+static String to_string(TypeObject* self) { return self->mTypeRef->name; }
 
-bool comparator(TypeObject* left, TypeObject* right) {
-	return left->mTypeRef == right->mTypeRef;
-}
+bool comparator(TypeObject* left, TypeObject* right) { return left->mTypeRef == right->mTypeRef; }
 
 static struct ObjectTypeConversions conversions = {
 	.from_string = (object_from_string) from_string,

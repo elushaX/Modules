@@ -18,7 +18,9 @@ static bool initialize(const tp::ModuleManifest*) {
 static void deinitialize(const tp::ModuleManifest*) {
 	deinitializeCallStackCapture();
 	tp::gTesting.reportState();
-	if (tp::gTesting.hasFailed()) { exit(1); }
+	if (tp::gTesting.hasFailed()) {
+		exit(1);
+	}
 }
 
 namespace tp {
@@ -87,9 +89,7 @@ namespace tp {
 		return 0;
 	}
 
-	bool memEqual(const void* left, const void* right, uhalni len) {
-		return memCompare(left, right, len) == 0;
-	}
+	bool memEqual(const void* left, const void* right, uhalni len) { return memCompare(left, right, len) == 0; }
 
 	int1 memCompareVal(const void* left, uhalni len, uint1 val) {
 		MODULE_SANITY_CHECK(gModuleBase)

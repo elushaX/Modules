@@ -17,13 +17,9 @@ namespace tp {
 
 using namespace tp;
 
-Graphics::GUI::GUI() {
-	mContext = new Context();
-}
+Graphics::GUI::GUI() { mContext = new Context(); }
 
-Graphics::GUI::~GUI() {
-	delete mContext;
-}
+Graphics::GUI::~GUI() { delete mContext; }
 
 void Graphics::GUI::init(Window* window) {
 	IMGUI_CHECKVERSION();

@@ -1,7 +1,7 @@
 
-#include "Utils.hpp"
 #include "Debugging.hpp"
 #include "Testing.hpp"
+#include "Utils.hpp"
 
 #include <cstdio>
 
@@ -16,9 +16,7 @@ void printSnapshot(const tp::CallStackCapture::CallStack* snapshot) {
 	printf("\n");
 }
 
-void common() {
-	auto tmp = gCSCapture->getSnapshot();
-}
+void common() { auto tmp = gCSCapture->getSnapshot(); }
 
 void first() {
 	common();

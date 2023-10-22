@@ -1,59 +1,37 @@
 
 
-#include "NewPlacement.hpp"
 #include "primitives/boolobject.h"
+#include "NewPlacement.hpp"
 
 using namespace obj;
 using namespace tp;
 
-void BoolObject::constructor(BoolObject* self) {
-	self->val = false;
-}
+void BoolObject::constructor(BoolObject* self) { self->val = false; }
 
-void BoolObject::copy(BoolObject* self, const BoolObject* in) {
-	self->val = in->val;
-}
+void BoolObject::copy(BoolObject* self, const BoolObject* in) { self->val = in->val; }
 
 BoolObject* BoolObject::create(bool in) {
 	NDO_CASTV(BoolObject, NDO->create("bool"), out)->val = alni(in);
 	return out;
 }
 
-void BoolObject::from_int(BoolObject* self, alni in) {
-	self->val = in;
-}
+void BoolObject::from_int(BoolObject* self, alni in) { self->val = in; }
 
-void BoolObject::from_float(BoolObject* self, alnf in) {
-	self->val = alni(bool(in));
-}
+void BoolObject::from_float(BoolObject* self, alnf in) { self->val = alni(bool(in)); }
 
-void BoolObject::from_string(BoolObject* self, String in) {
-	self->val = alni(bool(in));
-}
+void BoolObject::from_string(BoolObject* self, String in) { self->val = alni(bool(in)); }
 
-String BoolObject::to_string(BoolObject* self) {
-	return String(bool(self->val));
-}
+String BoolObject::to_string(BoolObject* self) { return String(bool(self->val)); }
 
-alni BoolObject::to_int(BoolObject* self) {
-	return self->val;
-}
+alni BoolObject::to_int(BoolObject* self) { return self->val; }
 
-alnf BoolObject::to_float(BoolObject* self) {
-	return alnf(bool(self->val));
-}
+alnf BoolObject::to_float(BoolObject* self) { return alnf(bool(self->val)); }
 
-static alni save_size(BoolObject* self) {
-	return sizeof(alni);
-}
+static alni save_size(BoolObject* self) { return sizeof(alni); }
 
-static void save(BoolObject* self, ArchiverOut& file_self) {
-	file_self << self->val;
-}
+static void save(BoolObject* self, ArchiverOut& file_self) { file_self << self->val; }
 
-static void load(ArchiverIn& file_self, BoolObject* self) {
-	file_self >> self->val;
-}
+static void load(ArchiverIn& file_self, BoolObject* self) { file_self >> self->val; }
 
 struct ObjectTypeConversions BoolObjectTypeConversions = {
 	.from_int = (object_from_int) BoolObject::from_int,
@@ -72,7 +50,7 @@ struct obj::ObjectType obj::BoolObject::TypeData = {
 	.size = sizeof(BoolObject),
 	.name = "bool",
 	.convesions = &BoolObjectTypeConversions,
-	.save_size = (object_save_size)save_size,
-	.save = (object_save)save,
-	.load = (object_load)load,
+	.save_size = (object_save_size) save_size,
+	.save = (object_save) save,
+	.load = (object_load) load,
 };

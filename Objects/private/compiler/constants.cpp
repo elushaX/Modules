@@ -1,14 +1,15 @@
-#include "NewPlacement.hpp"
 #include "compiler/constants.h"
-#include "primitives/primitives.h"
+#include "NewPlacement.hpp"
 #include "primitives/methodobject.h"
+#include "primitives/primitives.h"
 
 using namespace obj;
 using namespace tp;
 using namespace BCgen;
 
 ConstObject::ConstObject() {}
-ConstObject::ConstObject(obj::Object* mObj) : mObj(mObj) {}
+ConstObject::ConstObject(obj::Object* mObj) :
+	mObj(mObj) {}
 
 ConstObjectsPool::~ConstObjectsPool() {
 	if (mDelete) {
@@ -53,8 +54,7 @@ ConstObject* ConstObjectsPool::get(tp::alni val) {
 	ConstObject* const_obj = NULL;
 	if (idx) {
 		const_obj = mIntegers.getSlotVal(idx);
-	}
-	else {
+	} else {
 		const_obj = registerObject(IntObject::create(val));
 		mIntegers.put(val, const_obj);
 	}
@@ -66,8 +66,7 @@ ConstObject* ConstObjectsPool::get(tp::String val) {
 	ConstObject* const_obj = NULL;
 	if (idx) {
 		const_obj = mStrings.getSlotVal(idx);
-	}
-	else {
+	} else {
 		const_obj = registerObject(StringObject::create(val));
 		mStrings.put(val, const_obj);
 	}
@@ -79,8 +78,7 @@ ConstObject* ConstObjectsPool::get(tp::alnf val) {
 	ConstObject* const_obj = NULL;
 	if (idx) {
 		const_obj = mFloats.getSlotVal(idx);
-	}
-	else {
+	} else {
 		const_obj = registerObject(FloatObject::create(val));
 		mFloats.put(val, const_obj);
 	}
@@ -94,8 +92,7 @@ ConstObject* ConstObjectsPool::get(bool val) {
 			mTotalObjects++;
 		}
 		return &mBoolTrue;
-	}
-	else {
+	} else {
 		if (!mBoolFalse.mObj) {
 			mBoolFalse.mObj = BoolObject::create(val);
 			mTotalObjects++;

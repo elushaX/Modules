@@ -27,6 +27,4 @@ Operand OperandStack::getOperand() {
 	return ret;
 }
 
-OperandStack::~OperandStack() {
-	delete[] mBuff;
-}
+OperandStack::~OperandStack() { delete[] mBuff; }

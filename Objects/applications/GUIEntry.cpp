@@ -28,9 +28,7 @@ public:
 		}
 	}
 
-	~GUIWindow() {
-		Window::destroyWindow(window);
-	}
+	~GUIWindow() { Window::destroyWindow(window); }
 };
 
 int main() {

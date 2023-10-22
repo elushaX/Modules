@@ -1,7 +1,7 @@
 #include "NewPlacement.hpp"
 
-#include "Tests.hpp"
 #include "Strings.hpp"
+#include "Tests.hpp"
 
 using namespace tp;
 
@@ -12,9 +12,7 @@ struct TestStruct {
 TEST_DEF_STATIC(Addition) {
 	String str1 = "abc";
 	String str2 = "def";
-	{
-		str1 + str2;
-	}
+	{ str1 + str2; }
 	{
 		TEST(str1 + str2 == "abcdef");
 		TEST(str1 + "aaaccc" == "abcaaaccc");

@@ -15,13 +15,9 @@ void InterpreterObject::constructor(InterpreterObject* self) {
 	self->createMember("link", "target method");
 }
 
-void InterpreterObject::destructor(InterpreterObject* self) {
-	self->mInterpreter.~Interpreter();
-}
+void InterpreterObject::destructor(InterpreterObject* self) { self->mInterpreter.~Interpreter(); }
 
-void InterpreterObject::load(ArchiverIn& file_self, InterpreterObject* self) {
-	new (&self->mInterpreter) Interpreter();
-}
+void InterpreterObject::load(ArchiverIn& file_self, InterpreterObject* self) { new (&self->mInterpreter) Interpreter(); }
 
 bool InterpreterObject::running() { return !mInterpreter.finished(); }
 
@@ -68,15 +64,15 @@ void InterpreterObject::debug() {
 	if (!method || !method->mScript->mBytecode.mInstructions.size()) {
 		return;
 	}
-	
+
 	mInterpreter.exec(method, this, getMember<obj::DictObject>("globals"));
 }
 
 struct obj::ObjectType InterpreterObject::TypeData = {
 	.base = &ClassObject::TypeData,
-	.constructor = (object_constructor)InterpreterObject::constructor,
-	.destructor = (object_destructor)InterpreterObject::destructor,
+	.constructor = (object_constructor) InterpreterObject::constructor,
+	.destructor = (object_destructor) InterpreterObject::destructor,
 	.size = sizeof(InterpreterObject),
 	.name = "interpreter",
-	.load = (object_load)InterpreterObject::load,
+	.load = (object_load) InterpreterObject::load,
 };

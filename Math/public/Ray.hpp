@@ -6,7 +6,7 @@ namespace tp {
 
 	class Ray {
 	public:
-		Ray(const Vec3F& Dir, const  Vec3F& Pos);
+		Ray(const Vec3F& Dir, const Vec3F& Pos);
 		Ray() = default;
 
 	public:

@@ -46,6 +46,7 @@ namespace tp {
 
 	class AnimColor {
 		AnimRect mColor;
+
 	public:
 		[[nodiscard]] RGBA get() const;
 		void set(const RGBA&);

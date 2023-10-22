@@ -17,8 +17,7 @@ namespace tp {
 			mergeSort(buff, 0, length - 1, grater);
 		}
 
-		private:
-
+	private:
 		template <typename Type>
 		static void merge(Type* buff, int left, int middle, int right, bool (*grater)(const Type& obj1, const Type& obj2)) {
 			int n1 = middle - left + 1;
@@ -79,7 +78,6 @@ namespace tp {
 			mergeSort(buff, middle + 1, right, grater);
 			merge(buff, left, middle, right, grater);
 		}
-
 	};
 
 	struct SortInsert {

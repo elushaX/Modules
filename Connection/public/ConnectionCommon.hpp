@@ -45,8 +45,10 @@ namespace tp {
 
 		public:
 			Type() = default;
-			explicit Type(bool read) : mHandleType((State) read) {}
-			explicit Type(State handleType) : mHandleType(handleType) {}
+			explicit Type(bool read) :
+				mHandleType((State) read) {}
+			explicit Type(State handleType) :
+				mHandleType(handleType) {}
 			[[nodiscard]] State getType() const { return mHandleType; }
 			[[nodiscard]] bool isRead() const { return mHandleType == READ; }
 			[[nodiscard]] bool isWrite() const { return mHandleType == WRITE; }

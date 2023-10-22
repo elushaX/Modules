@@ -12,12 +12,12 @@ file(GLOB HEADERS "./public/*.hpp" "./public/*/*.hpp" "./applications/*.hpp")
 add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ./public/)
-target_link_libraries(${PROJECT_NAME} PUBLIC Math Containers)
+target_link_libraries(${PROJECT_NAME} PUBLIC Math Containers Allocators)
 
 ### -------------------------- Applications  --------------------------  ###
 add_executable(NumberRec ./applications/NumberRecognition.cpp)
-target_link_libraries(NumberRec ${PROJECT_NAME})
-#file(COPY "applications/rsc" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
+target_link_libraries(NumberRec ${PROJECT_NAME} Connection)
+file(COPY "applications/rsc" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
 
 ### -------------------------- Tests  --------------------------  ###
 enable_testing()

@@ -1,17 +1,17 @@
 
 #pragma once
 
-#include "ContainersCommon.hpp"
 #include "Common.hpp"
+#include "ContainersCommon.hpp"
 
 namespace tp {
 
-	template<typename Key>
+	template <typename Key>
 	ualni DefaultHashFunc(SelectValueOrReference<Key> key) {
 		return hash(key);
 	}
 
-	template<typename tKey, typename tVal, class tAllocator = DefaultAllocator, ualni(*tHashFunc)(SelectValueOrReference<tKey>) = DefaultHashFunc<tKey>, int tTableInitialSize = 4>
+	template <typename tKey, typename tVal, class tAllocator = DefaultAllocator, ualni (*tHashFunc)(SelectValueOrReference<tKey>) = DefaultHashFunc<tKey>, int tTableInitialSize = 4>
 	class Map {
 
 		enum {
@@ -24,10 +24,12 @@ namespace tp {
 		typedef SelectValueOrReference<tVal> ValArg;
 
 	public:
-
 		class Node {
 			friend Map;
-			Node(KeyArg aKey, ValArg aVal) : key(aKey), val(aVal) {}
+			Node(KeyArg aKey, ValArg aVal) :
+				key(aKey),
+				val(aVal) {}
+
 		public:
 			tKey key;
 			tVal val;
@@ -46,43 +48,30 @@ namespace tp {
 		ualni mNEntries = 0;
 
 	private:
-
 		constexpr halnf maxLoadFactor() { return halnf(MAP_MAX_LOAD_PERCENTAGE) / 100.f; }
 
-		inline Node** newTable(const ualni len) {
-			return new(mAlloc.allocate(sizeof(Node*) * len)) Node*[len]();
-		}
+		inline Node** newTable(const ualni len) { return new (mAlloc.allocate(sizeof(Node*) * len)) Node*[len](); }
 
-		inline Node* newNode(KeyArg key, ValArg val) {
-			return new(mAlloc.allocate(sizeof(Node))) Node(key, val);
-		}
+		inline Node* newNode(KeyArg key, ValArg val) { return new (mAlloc.allocate(sizeof(Node))) Node(key, val); }
 
-		inline Node* newNodeNotConstructed() {
-			return (Node*) mAlloc.allocate(sizeof(Node));
-		}
+		inline Node* newNodeNotConstructed() { return (Node*) mAlloc.allocate(sizeof(Node)); }
 
-		inline void deleteTable(Node** table) {
-			mAlloc.deallocate(table);
-		}
+		inline void deleteTable(Node** table) { mAlloc.deallocate(table); }
 
 		inline void deleteNode(Node* p) {
 			p->~Node();
 			mAlloc.deallocate(p);
 		}
 
-		void markDeletedSlot(ualni idx) const {
-			mTable[idx] = (Node*)-1;
-		}
+		void markDeletedSlot(ualni idx) const { mTable[idx] = (Node*) -1; }
 
-		static bool isDeletedNode(Node* node) {
-			return node == (Node*)-1;
-		}
+		static bool isDeletedNode(Node* node) { return node == (Node*) -1; }
 
 		void rehash() {
 			alni nSlotsOld = mNSlots;
 			Node** tableOld = mTable;
 
-			mNSlots = next2pow((uhalni)((1.f / (maxLoadFactor())) * mNEntries + 1));
+			mNSlots = next2pow((uhalni) ((1.f / (maxLoadFactor())) * mNEntries + 1));
 			mTable = newTable(mNSlots);
 			mNEntries = 0;
 
@@ -104,7 +93,7 @@ namespace tp {
 			ualni const mask = mNSlots - 1;
 			ualni const shift = (hashed_key >> MAP_PERTURB_SHIFT) & ~1;
 			alni idx = hashed_key & mask;
-			NEXT:
+		NEXT:
 			if (isDeletedNode(mTable[idx])) {
 				goto SKIP;
 			}
@@ -114,7 +103,7 @@ namespace tp {
 			if (mTable[idx]->key == key) {
 				return idx;
 			}
-			SKIP:
+		SKIP:
 			idx = ((5 * idx) + 1 + shift) & mask;
 			goto NEXT;
 		}
@@ -125,7 +114,7 @@ namespace tp {
 			ualni const mask = mNSlots - 1;
 			ualni const shift = (hashed_key >> MAP_PERTURB_SHIFT) & ~1;
 			alni idx = hashed_key & mask;
-			NEXT:
+		NEXT:
 			if (isDeletedNode(mTable[idx])) {
 				goto SKIP;
 			}
@@ -138,7 +127,7 @@ namespace tp {
 			if (mTable[idx]->key == key) {
 				return idx;
 			}
-			SKIP:
+		SKIP:
 			idx = ((5 * idx) + 1 + shift) & mask;
 			goto NEXT;
 		}
@@ -148,7 +137,7 @@ namespace tp {
 			ualni const mask = mNSlots - 1;
 			ualni const shift = (hashed_key >> MAP_PERTURB_SHIFT) & ~1;
 			ualni idx = hashed_key & mask;
-			NEXT:
+		NEXT:
 			if (isDeletedNode(mTable[idx]) || !mTable[idx]) {
 				return idx;
 			}
@@ -168,38 +157,27 @@ namespace tp {
 
 			mTable[idx] = node;
 
-			if ((halnf)mNEntries / mNSlots > maxLoadFactor()) {
+			if ((halnf) mNEntries / mNSlots > maxLoadFactor()) {
 				rehash();
 			}
 		}
 
 	public:
-
 		Map() {
 			MODULE_SANITY_CHECK(gModuleContainers)
 			mNSlots = next2pow(uhalni(tTableInitialSize - 1));
 			mTable = newTable(mNSlots);
 		}
 
-		Map(const Map& in) {
-			this->operator=(in);
-		}
+		Map(const Map& in) { this->operator=(in); }
 
-		Node** buff() const {
-			return mTable;
-		}
+		Node** buff() const { return mTable; }
 
-		[[nodiscard]] ualni size() const {
-			return mNEntries;
-		}
+		[[nodiscard]] ualni size() const { return mNEntries; }
 
-		[[nodiscard]] ualni slotsSize() const {
-			return mNEntries;
-		}
+		[[nodiscard]] ualni slotsSize() const { return mNEntries; }
 
-		[[nodiscard]] const tAllocator& getAllocator() const {
-			return mAlloc;
-		}
+		[[nodiscard]] const tAllocator& getAllocator() const { return mAlloc; }
 
 		void put(KeyArg key, ValArg val) {
 			const ualni idx = findSlotWrite(key);
@@ -245,7 +223,7 @@ namespace tp {
 			DEBUG_ASSERT(slot < mNSlots && (mTable[slot] && !isDeletedNode(mTable[slot])) && "Key Error")
 			return mTable[slot]->val;
 		}
-		
+
 		tVal& getSlotVal(ualni slot) {
 			DEBUG_ASSERT(slot < mNSlots && (mTable[slot] && !isDeletedNode(mTable[slot])) && "Key Error")
 			return mTable[slot]->val;
@@ -316,20 +294,19 @@ namespace tp {
 			return -1;
 		}
 
-		Node* GetEntry(ualni idx) { 
+		Node* GetEntry(ualni idx) {
 			auto slot = slotIdx(idx);
 			DEBUG_ASSERT(slot != -1 && "Key error")
-			return mTable[slot];	
+			return mTable[slot];
 		}
 
-		const Node* GetEntry(ualni idx) const { 
+		const Node* GetEntry(ualni idx) const {
 			auto slot = slotIdx(idx);
 			DEBUG_ASSERT(slot != -1 && "Key error")
 			return mTable[slot];
 		}
 
 	public:
-
 		class Iterator {
 			const Map* map;
 			Node* mIter;
@@ -363,15 +340,11 @@ namespace tp {
 			}
 		};
 
-		[[nodiscard]] Iterator begin() const {
-			return Iterator(this);
-		}
+		[[nodiscard]] Iterator begin() const { return Iterator(this); }
 
-		[[nodiscard]] ualni end() const {
-			return mNSlots;
-		}
+		[[nodiscard]] ualni end() const { return mNSlots; }
 
-		template<class Archiver>
+		template <class Archiver>
 		void archiveWrite(Archiver& ar) const {
 			ar << mNEntries;
 			for (auto item : *this) {
@@ -380,7 +353,7 @@ namespace tp {
 			}
 		}
 
-		template<class Archiver>
+		template <class Archiver>
 		void archiveRead(Archiver& ar) {
 			removeAll();
 			decltype(mNSlots) len;

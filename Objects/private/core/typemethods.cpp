@@ -3,12 +3,11 @@
 
 #include "core/typemethods.h"
 
+#include "primitives/floatobject.h"
 #include "primitives/nullobject.h"
 #include "primitives/typeobject.h"
-#include "primitives/floatobject.h"
 
 #include "interpreter/interpreter.h"
-
 
 using namespace obj;
 
@@ -16,29 +15,29 @@ TypeMethod obj::gDefaultTypeMethods[] = {
 	{
 		.nameid = "type",
 		.descr = "retrieves typeobject",
-		.exec = [](const TypeMethod* tm) {
-			tm->ret.obj = TypeObject::create(tm->self->type);
-		},
+		.exec = [](const TypeMethod* tm) { tm->ret.obj = TypeObject::create(tm->self->type); },
 		.ret = { "typeobject", NULL },
 	},
 	{
 		.nameid = "to_str",
 		.descr = "converts to string",
-		.exec = [](const TypeMethod* tm) {
-			if (tm->self->type->convesions && tm->self->type->convesions->to_string) {
-				tm->ret.obj = StringObject::create(NDO->toString(tm->self));
-			}
-		},
+		.exec =
+			[](const TypeMethod* tm) {
+				if (tm->self->type->convesions && tm->self->type->convesions->to_string) {
+					tm->ret.obj = StringObject::create(NDO->toString(tm->self));
+				}
+			},
 		.ret = { "string object", NULL },
 	},
 	{
 		.nameid = "to_float",
 		.descr = "converts to float",
-		.exec = [](const TypeMethod* tm) {
-			if (tm->self->type->convesions && tm->self->type->convesions->to_float) {
-				tm->ret.obj = FloatObject::create(NDO->toFloat(tm->self));
-			}
-		},
+		.exec =
+			[](const TypeMethod* tm) {
+				if (tm->self->type->convesions && tm->self->type->convesions->to_float) {
+					tm->ret.obj = FloatObject::create(NDO->toFloat(tm->self));
+				}
+			},
 		.ret = { "string object", NULL },
 	},
 };
@@ -62,7 +61,7 @@ tp::int2 TypeMethods::presents(tp::String id) const {
 }
 
 TypeMethods::LookupKey TypeMethods::presents(const ObjectType* type, tp::String id) {
-	
+
 	tp::int2 depth = 0;
 	tp::int2 idx = 0;
 
@@ -74,7 +73,7 @@ TypeMethods::LookupKey TypeMethods::presents(const ObjectType* type, tp::String 
 		depth++;
 	}
 
-	return { idx, depth};
+	return { idx, depth };
 }
 
 const TypeMethod* TypeMethods::getMethod(tp::int2 key) const {
@@ -104,14 +103,12 @@ void TypeMethods::init() {
 	// initialize and use finate state automata to lookup methods
 }
 
-tp::halni TypeMethods::nMethods() const {
-	return mNMethods;
-}
+tp::halni TypeMethods::nMethods() const { return mNMethods; }
 
-void TypeMethod::operator()(Interpreter* interp) const{
+void TypeMethod::operator()(Interpreter* interp) const {
 	for (auto i = 1; i <= mNargs; i++) {
 		args[mNargs - i].obj = interp->mOperandsStack.getOperand();
-		//NDO->refinc(args[i].obj);
+		// NDO->refinc(args[i].obj);
 		ASSERT(args[mNargs - i].obj && "expected an argument");
 	}
 
@@ -125,8 +122,7 @@ void TypeMethod::operator()(Interpreter* interp) const{
 	if (ret.obj) {
 		interp->mOperandsStack.push(ret.obj);
 		interp->mScopeStack.addTempReturn(ret.obj);
-	}
-	else {
+	} else {
 		interp->mOperandsStack.push(NDO_NULL_REF);
 	}
 }

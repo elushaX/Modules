@@ -5,8 +5,7 @@
 #include "Timing.hpp"
 #include "Utils.hpp"
 
-#define GETTIMEMSC() (time_ms)\
-	(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()).time_since_epoch()).count())
+#define GETTIMEMSC() (time_ms)(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()).time_since_epoch()).count())
 
 #define THREAD_SLEEP(time_ms) std::this_thread::sleep_for(std::chrono::milliseconds(time_ms))
 
@@ -18,10 +17,7 @@ namespace tp {
 		return gCurrentTime;
 	}
 
-	void sleep(time_ms mDuration) {
-		THREAD_SLEEP(mDuration);
-	}
-
+	void sleep(time_ms mDuration) { THREAD_SLEEP(mDuration); }
 
 	Timer::Timer() {
 		mDuration = 0;
@@ -33,21 +29,13 @@ namespace tp {
 		this->mDuration = mDuration;
 	}
 
-	bool Timer::isTimeout() {
-		return mDuration < GETTIMEMSC() - mStart;
-	}
+	bool Timer::isTimeout() { return mDuration < GETTIMEMSC() - mStart; }
 
-	void Timer::reset() {
-		mStart = GETTIMEMSC();
-	}
+	void Timer::reset() { mStart = GETTIMEMSC(); }
 
-	time_ms Timer::timePassed() {
-		return GETTIMEMSC() - mStart;
-	}
+	time_ms Timer::timePassed() { return GETTIMEMSC() - mStart; }
 
-	time_ms Timer::remainder() {
-		return mDuration - (GETTIMEMSC() - mStart);
-	}
+	time_ms Timer::remainder() { return mDuration - (GETTIMEMSC() - mStart); }
 
 	time_ms Timer::start() { return mStart; }
 	time_ms Timer::duration() { return mDuration; }

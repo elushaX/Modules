@@ -44,9 +44,7 @@ bool Testing::hasFailed() {
 	return mRootTest.mHasFailed;
 }
 
-void Testing::setRootName(const char* name) {
-	mRootTest.mName = name;
-}
+void Testing::setRootName(const char* name) { mRootTest.mName = name; }
 
 void Testing::TestingNode::updateState() {
 	for (auto child : mSubTests) {

@@ -19,17 +19,11 @@ namespace tp {
 
 using namespace tp;
 
-Graphics::Canvas::Canvas() {
-	mContext = new Context();
-}
+Graphics::Canvas::Canvas() { mContext = new Context(); }
 
-Graphics::Canvas::~Canvas() {
-	delete mContext;
-}
+Graphics::Canvas::~Canvas() { delete mContext; }
 
-void Graphics::Canvas::init() {
-	mContext->vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
-}
+void Graphics::Canvas::init() { mContext->vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES); }
 
 void Graphics::Canvas::deinit() {
 	// Cleanup

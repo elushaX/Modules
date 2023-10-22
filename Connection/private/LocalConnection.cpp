@@ -25,16 +25,11 @@ bool LocalConnection::connect(const Location& location, const Type& connectionIn
 	auto handle = new LocalConnectionContext();
 
 	switch (connectionInfo.getType()) {
-		case Type::READ:
-			handle->open(location.getLocation().read(), true);
-			break;
+		case Type::READ: handle->open(location.getLocation().read(), true); break;
 
-		case Type::WRITE:
-			handle->open(location.getLocation().read(), false);
-			break;
+		case Type::WRITE: handle->open(location.getLocation().read(), false); break;
 
-		default:
-			break;
+		default: break;
 	};
 
 	if (!handle->isOpen()) {

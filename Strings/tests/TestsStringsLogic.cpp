@@ -1,12 +1,11 @@
 #include "NewPlacement.hpp"
 
-#include "Tests.hpp"
 #include "StringLogic.hpp"
+#include "Tests.hpp"
 
 using namespace tp;
 
 typedef StringLogic<char> Logic;
-
 
 TEST_DEF(isNewLineChar) {
 	// Test isNewLineChar function
@@ -106,7 +105,6 @@ TEST_DEF(removeLogicGood) {
 	Logic::removeLogic(removed, 40, cur, 3, 8);
 	TEST(Logic::isEqualLogic(removed, result));
 }
-
 
 TEST_DEF(insertLogic) {
 	// Test insertLogic function
@@ -231,7 +229,6 @@ TEST_DEF(calcLineOffsets) {
 	TEST(offsets[5] == 15);
 	TEST(offsets[6] == 16);
 }
-
 
 TEST_DEF(StringLogic) {
 	testisNewLineChar();

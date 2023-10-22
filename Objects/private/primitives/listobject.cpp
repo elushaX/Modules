@@ -3,8 +3,8 @@
 
 #include "NewPlacement.hpp"
 
-#include "primitives/listobject.h"
 #include "primitives/intobject.h"
+#include "primitives/listobject.h"
 
 using namespace obj;
 using namespace tp;
@@ -79,9 +79,9 @@ alni ListObject::allocated_size(ListObject* self) {
 
 alni ListObject::allocated_size_recursive(ListObject* self) {
 	ASSERT(false)
-	//alni out = self->items.sizeAllocatedMem();
+	// alni out = self->items.sizeAllocatedMem();
 	for (auto item : self->items) {
-		//out += NDO->objsize_ram_recursive_util(item.data(), item->type);
+		// out += NDO->objsize_ram_recursive_util(item.data(), item->type);
 	}
 	// return out;
 	return 0;
@@ -116,22 +116,18 @@ void ListObject::popBack() {
 	items.popBack();
 }
 
-const tp::List<Object*>& ListObject::getItems() const {
-	return items;
-}
+const tp::List<Object*>& ListObject::getItems() const { return items; }
 
-struct obj::ObjectType obj::ListObject::TypeData = {
-	.base = NULL,
-	.constructor = ListObject::constructor,
-	.destructor = ListObject::destructor,
-	.copy = ListObject::copy,
-	.size = sizeof(ListObject),
-	.name = "list",
-	.convesions = NULL,
-	.save_size = (object_save_size)save_size,
-	.save = (object_save)save,
-	.load = (object_load)load,
-	.childs_retrival = (object_debug_all_childs_retrival) childs_retrival,
-	.allocated_size = (object_allocated_size) allocated_size,
-	.allocated_size_recursive = (object_allocated_size_recursive) allocated_size_recursive
-};
+struct obj::ObjectType obj::ListObject::TypeData = { .base = NULL,
+																										 .constructor = ListObject::constructor,
+																										 .destructor = ListObject::destructor,
+																										 .copy = ListObject::copy,
+																										 .size = sizeof(ListObject),
+																										 .name = "list",
+																										 .convesions = NULL,
+																										 .save_size = (object_save_size) save_size,
+																										 .save = (object_save) save,
+																										 .load = (object_load) load,
+																										 .childs_retrival = (object_debug_all_childs_retrival) childs_retrival,
+																										 .allocated_size = (object_allocated_size) allocated_size,
+																										 .allocated_size_recursive = (object_allocated_size_recursive) allocated_size_recursive };

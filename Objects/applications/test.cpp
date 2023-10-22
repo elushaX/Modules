@@ -7,10 +7,7 @@
 #include "CmdArgParser.h"
 
 void compile(char argc, const char* argv[]) {
-	tp::CmdArgParser args = {
-		{ "script", tp::CmdArgParser::Arg::FILE_IN },
-		{ "out", "out.mo" }
-	};
+	tp::CmdArgParser args = { { "script", tp::CmdArgParser::Arg::FILE_IN }, { "out", "out.mo" } };
 
 	if (!args.parse(argc, argv, true)) {
 		return;
@@ -28,10 +25,7 @@ void compile(char argc, const char* argv[]) {
 }
 
 void execute(char argc, const char* argv[]) {
-	tp::CmdArgParser args = {
-		{ "object_path", tp::CmdArgParser::Arg::STR },
-		{ "debug", false }
-	};
+	tp::CmdArgParser args = { { "object_path", tp::CmdArgParser::Arg::STR }, { "debug", false } };
 
 	if (!args.parse(argc, argv, true)) {
 		return;
@@ -55,7 +49,6 @@ void execute(char argc, const char* argv[]) {
 	obj::Interpreter interpreter;
 	interpreter.execAll(method);
 }
-
 
 int main(char argc, const char* argv[]) {
 

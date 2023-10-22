@@ -15,9 +15,7 @@ namespace tp {
 
 		RegEx::CompileError<tTokType> mError;
 
-		bool scanFailed() {
-			return mTransitionMatrix.isTrapped();
-		}
+		bool scanFailed() { return mTransitionMatrix.isTrapped(); }
 
 	public:
 		// Some useful RE to be reused
@@ -26,17 +24,14 @@ namespace tp {
 		static constexpr const tAlphabetType* floatRE = R"(((\-)|(\+))?([0-9]+)(\.)([0-9]*)?f?)";
 		static constexpr const tAlphabetType* commentBlockRE = R"((/\*){\*-\*}*(\*/))";
 		static constexpr const tAlphabetType* stringRE = R"("{"-"}*")";
-		static constexpr const tAlphabetType* idRE =  "([a-z]|[A-Z]|_)+([a-z]|[A-Z]|[0-9]|_)*";
+		static constexpr const tAlphabetType* idRE = "([a-z]|[A-Z]|_)+([a-z]|[A-Z]|[0-9]|_)*";
 
 	public:
-
-		Tokenizer() {
-			MODULE_SANITY_CHECK(gModuleTokenizer)
-		}
+		Tokenizer() { MODULE_SANITY_CHECK(gModuleTokenizer) }
 
 		void build(const InitialierList<Pair<const tAlphabetType*, tTokType>>& rules) {
 			NFA<tAlphabetType, tTokType, tNoTokVal, tFailedTokVal> nfa;
-			
+
 			mError = RegEx::compile(nfa, rules);
 			if (mError.isError()) {
 				return;
@@ -46,23 +41,15 @@ namespace tp {
 			mTransitionMatrix.construct(dfa);
 		}
 
-		[[nodiscard]] bool isBuild() const {
-			return !mError.isError();
-		}
+		[[nodiscard]] bool isBuild() const { return !mError.isError(); }
 
 		auto getMatrix() const { return &mTransitionMatrix; }
 
-		const RegEx::CompileError<tTokType>& getBuildError() {
-			return mError;
-		}
+		const RegEx::CompileError<tTokType>& getBuildError() { return mError; }
 
-		void resetMatrix() {
-			mTransitionMatrix.reset();
-		}
+		void resetMatrix() { mTransitionMatrix.reset(); }
 
-		tTokType advanceSymbol(tAlphabetType symbol) {
-			return mTransitionMatrix.move(symbol);
-		}
+		tTokType advanceSymbol(tAlphabetType symbol) { return mTransitionMatrix.move(symbol); }
 
 		tTokType advanceToken(const tAlphabetType* source, ualni source_len, ualni* token_len) {
 			tTokType out = tNoTokVal;
@@ -94,7 +81,6 @@ namespace tp {
 		ualni mAdvancedOffset = 0;
 
 	public:
-
 		struct Cursor {
 			const tAlphabetType* mSource = nullptr;
 			ualni mAdvancedOffset = 0;
@@ -124,21 +110,16 @@ namespace tp {
 		SimpleTokenizer() = default;
 		auto getTokenizer() const { return &mTokenizer; }
 
-		void build(const InitialierList<Pair<const tAlphabetType*, tTokType>>& rules) {
-			mTokenizer.build(rules);
-		}
+		void build(const InitialierList<Pair<const tAlphabetType*, tTokType>>& rules) { mTokenizer.build(rules); }
 
-		[[nodiscard]] bool isBuild() const {
-			return mTokenizer.isBuild();
-		}
+		[[nodiscard]] bool isBuild() const { return mTokenizer.isBuild(); }
 
-		const RegEx::CompileError<tTokType>& getBuildError() {
-			return mTokenizer.getBuildError();
-		}
+		const RegEx::CompileError<tTokType>& getBuildError() { return mTokenizer.getBuildError(); }
 
 		void bindSource(const tAlphabetType* source) {
 			mSource = source;
-			while (mSource[mSourceLen]) mSourceLen++;
+			while (mSource[mSourceLen])
+				mSourceLen++;
 			mSourceLen++;
 		}
 
@@ -152,13 +133,9 @@ namespace tp {
 			return true;
 		}
 
-		Cursor getCursor() const {
-			return { mSource, mAdvancedOffset };
-		}
+		Cursor getCursor() const { return { mSource, mAdvancedOffset }; }
 
-		Cursor getCursorPrev() const {
-			return { mSource, mAdvancedOffset - mLastTokLen };
-		}
+		Cursor getCursorPrev() const { return { mSource, mAdvancedOffset - mLastTokLen }; }
 
 		void setCursor(const Cursor& crs) {
 			mAdvancedOffset = crs.mAdvancedOffset;
@@ -187,18 +164,14 @@ namespace tp {
 			mLastTokLen = 0;
 		}
 
-		void skipTok() {
-			readTok();
-		}
+		void skipTok() { readTok(); }
 
 		void reset() {
 			mAdvancedOffset = mLastTokLen = 0;
 			mTokenizer.resetMatrix();
 		}
 
-		[[nodiscard]] ualni lastTokLEn() const {
-			return mLastTokLen;
-		}
+		[[nodiscard]] ualni lastTokLEn() const { return mLastTokLen; }
 
 		String extractVal() {
 			auto crs = getCursorPrev();

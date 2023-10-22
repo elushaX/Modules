@@ -1,7 +1,7 @@
 #include "NewPlacement.hpp"
 
-#include "Tests.hpp"
 #include "CmdLineInterpreter.hpp"
+#include "Tests.hpp"
 
 using namespace tp;
 
@@ -14,7 +14,6 @@ TEST_DEF_STATIC(Simple) {
 			printf("Test Val - %i\n", (int) args.getBool("bool"));
 			return false;
 		}
-
 	};
 
 	TestStruct self;
@@ -32,5 +31,5 @@ TEST_DEF_STATIC(Simple) {
 }
 
 TEST_DEF(Interpreter) {
-	//testSimple();
+	// testSimple();
 }

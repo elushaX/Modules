@@ -8,27 +8,22 @@ namespace tp {
 
 	Logger* gLogger = nullptr;
 
-	ualni Logger::Report::getLineCount() const {
-		return (ualni)(mLineOffsets.size() - 1);
-	}
+	ualni Logger::Report::getLineCount() const { return (ualni) (mLineOffsets.size() - 1); }
 
-	String Logger::Report::getString() const {
-		return mData;
-	}
+	String Logger::Report::getString() const { return mData; }
 
-	void Logger::Report::calcLineCount() {
-		mData.calcLineOffsets(mLineOffsets);
-	}
+	void Logger::Report::calcLineCount() { mData.calcLineOffsets(mLineOffsets); }
 
-	Logger::Report::Report() {
-		mData = " - ";
-	}
+	Logger::Report::Report() { mData = " - "; }
 
-	Logger::Report::Report(const String& text) : mData(text) {
+	Logger::Report::Report(const String& text) :
+		mData(text) {
 		calcLineCount();
 	}
 
-	Logger::Report::Report(const String& text, Type type) : mType(type), mData(text) {
+	Logger::Report::Report(const String& text, Type type) :
+		mType(type),
+		mData(text) {
 		calcLineCount();
 	}
 
@@ -41,9 +36,9 @@ namespace tp {
 
 	String Logger::read() {
 		if (!mCursor) return {};
-    const Report& out = mCursor->data;
-    mCursor = mCursor->next;
-    return out.getString();
+		const Report& out = mCursor->data;
+		mCursor = mCursor->next;
+		return out.getString();
 	}
 
 	void Logger::initializeGlobal() {

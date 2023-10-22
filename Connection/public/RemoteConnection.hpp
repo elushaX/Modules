@@ -11,14 +11,13 @@ namespace tp {
 	public:
 		class Location {
 			ualni mId = 0;
+
 		public:
 			Location() = default;
 		};
 
 	public:
-		RemoteConnection() {
-				MODULE_SANITY_CHECK(gModuleConnection)
-		};
+		RemoteConnection(){ MODULE_SANITY_CHECK(gModuleConnection) };
 
 		virtual ~RemoteConnection() {
 			if (mStatus.isOpened()) RemoteConnection::disconnect();

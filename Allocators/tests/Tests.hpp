@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utils.hpp"
 #include "Testing.hpp"
+#include "Utils.hpp"
 
 void testAll();

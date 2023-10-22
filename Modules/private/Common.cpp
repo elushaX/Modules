@@ -39,7 +39,7 @@ namespace tp {
 	}
 
 	ualni hash(alni bytes) { return abs(bytes); }
-	ualni hash(alnf bytes) { return (alni)(abs(bytes)); 	}
+	ualni hash(alnf bytes) { return (alni) (abs(bytes)); }
 	ualni hash(halni bytes) { return hash(alni(bytes)); }
 	ualni hash(uhalni bytes) { return hash(alni(bytes)); }
 	ualni hash(ualni bytes) { return hash(alni(bytes)); }

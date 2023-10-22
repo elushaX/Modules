@@ -1,8 +1,8 @@
 #include "NewPlacement.hpp"
 
+#include "Testing.hpp"
 #include "Tests.hpp"
 #include "Tree.hpp"
-#include "Testing.hpp"
 
 using namespace tp;
 
@@ -29,7 +29,8 @@ TEST_DEF_STATIC(Persistance) {
 	const auto size = 1000;
 
 	struct Item {
-		Item() : data(0) {}
+		Item() :
+			data(0) {}
 		bool presents = false;
 		TestClass data;
 	};

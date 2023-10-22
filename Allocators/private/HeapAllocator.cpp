@@ -43,8 +43,8 @@ void* HeapAlloc::allocate(ualni aBlockSize) {
 }
 
 void HeapAlloc::deallocate(void* aPtr) {
-	auto head = ((MemHeadLocal*)(aPtr)) - 1;
-	
+	auto head = ((MemHeadLocal*) (aPtr)) - 1;
+
 	mNumAllocations--;
 	DEBUG_ASSERT(!mEntry->mNext)
 	if (head->mNext) head->mNext->mPrev = head->mPrev;
@@ -60,11 +60,10 @@ HeapAlloc::~HeapAlloc() {
 	if (mNumAllocations) {
 		DEBUG_BREAK("Destruction of not freed Allocator")
 
-		#ifdef MEM_STACK_TRACE
-		// TODO : log leaks and free them up
-		#endif
+#ifdef MEM_STACK_TRACE
+// TODO : log leaks and free them up
+#endif
 	}
 }
 
 #endif
-

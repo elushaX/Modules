@@ -24,8 +24,10 @@ namespace tp {
 
 			class Iterator {
 				const FramePointer* mFrame;
+
 			public:
-				explicit Iterator(const FramePointer* frame) : mFrame(frame) {};
+				explicit Iterator(const FramePointer* frame) :
+					mFrame(frame){};
 				FramePointer getFrame() { return *mFrame; }
 				bool operator==(const Iterator& in) const { return in.mFrame == mFrame; }
 				void operator++() { mFrame++; }
@@ -41,6 +43,7 @@ namespace tp {
 			char function[MAX_DEBUG_INFO_LEN + 1] = { 0 };
 			char file[MAX_DEBUG_INFO_LEN + 1] = { 0 };
 			ualni line = 0;
+
 		public:
 			[[nodiscard]] const char* getFunc() const { return function; }
 			[[nodiscard]] const char* getFile() const { return file; }
@@ -58,8 +61,7 @@ namespace tp {
 		void logAll();
 
 	public:
-
-		template<class Saver>
+		template <class Saver>
 		void write(Saver& file) {
 			file.write(mBuffLoad);
 			for (auto cs : *this) {
@@ -72,7 +74,7 @@ namespace tp {
 		}
 
 		// independent of the configuration
-		template<class Loader>
+		template <class Loader>
 		void read(Loader& file) {
 			clear();
 			ualni loadLen;
@@ -89,8 +91,10 @@ namespace tp {
 	public:
 		class Iterator {
 			const CallStack* mSnapshot;
+
 		public:
-			explicit Iterator(const CallStack* start) : mSnapshot(start) {};
+			explicit Iterator(const CallStack* start) :
+				mSnapshot(start){};
 			const CallStack* getCallStack() { return mSnapshot; }
 			bool operator==(const Iterator& in) const { return in.mSnapshot == mSnapshot; }
 			void operator++() { mSnapshot++; }
@@ -98,10 +102,9 @@ namespace tp {
 		};
 
 		[[nodiscard]] Iterator begin() const { return Iterator(mBuff); }
-		[[nodiscard]] Iterator end() const { return  Iterator(mBuff + mBuffLoad); }
+		[[nodiscard]] Iterator end() const { return Iterator(mBuff + mBuffLoad); }
 
 	private:
-
 		struct CallStackKey {
 			CallStack* cs;
 			bool operator==(const CallStackKey& in) const;

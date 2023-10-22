@@ -8,9 +8,7 @@ using namespace tp;
 
 CallStackCapture* tp::gCSCapture = nullptr;
 
-void initializeCallStackCapture() {
-	gCSCapture = new (malloc(sizeof(CallStackCapture))) CallStackCapture();
-}
+void initializeCallStackCapture() { gCSCapture = new (malloc(sizeof(CallStackCapture))) CallStackCapture(); }
 
 void deinitializeCallStackCapture() {
 	gCSCapture->~CallStackCapture();
@@ -20,12 +18,16 @@ void deinitializeCallStackCapture() {
 ualni CallStackCapture::CallStack::getDepth() const {
 	ualni len = 0;
 	for (long long frame : frames) {
-		if (!frame) { break; }
+		if (!frame) {
+			break;
+		}
 		len++;
 	}
 	ualni stripedLen = 0;
 	for (auto i = FRAMES_TO_SKIP_START; i < len - FRAMES_TO_SKIP_END; i++) {
-		if (!frames[i]) { break; }
+		if (!frames[i]) {
+			break;
+		}
 		stripedLen++;
 	}
 	return stripedLen;
@@ -34,11 +36,13 @@ ualni CallStackCapture::CallStack::getDepth() const {
 ualni CallStackCapture::hashCallStack(CallStackKey key) {
 	auto const cs = key.cs;
 	ualni out = 0;
-	for (ualni i = 0; cs->frames[i]; i++) { out += cs->frames[i]; }
+	for (ualni i = 0; cs->frames[i]; i++) {
+		out += cs->frames[i];
+	}
 	return out;
 }
 
-bool CallStackCapture::CallStackKey::operator==(const CallStackCapture::CallStackKey &in) const {
+bool CallStackCapture::CallStackKey::operator==(const CallStackCapture::CallStackKey& in) const {
 	for (auto i : Range(MAX_CALL_DEPTH_CAPTURE)) {
 		if (cs->frames[i] != in.cs->frames[i]) {
 			return false;
@@ -105,21 +109,19 @@ void CallStackCapture::clear() {
 	mSymbols.removeAll();
 }
 
-CallStackCapture::~CallStackCapture() {
-	free(mBuff);
-}
+CallStackCapture::~CallStackCapture() { free(mBuff); }
 
 // ---------------------------------- Platform Depended ---------------------------------- //
 
 #if defined(ENV_OS_LINUX)
 
-#include <malloc.h>
-#include <execinfo.h>
 #include <cstring>
 #include <cxxabi.h>
+#include <execinfo.h>
+#include <malloc.h>
 
 void CallStackCapture::platformWriteStackTrace(CallStack* stack) {
-	auto depth = backtrace((void**)stack->frames, (int) MAX_CALL_DEPTH_CAPTURE - 1);
+	auto depth = backtrace((void**) stack->frames, (int) MAX_CALL_DEPTH_CAPTURE - 1);
 	stack->frames[depth] = 0;
 }
 
@@ -139,20 +141,20 @@ static void getGetSourceFromBinaryAddress(const char* binary, const char* addres
 		if (linePtr != nullptr && buff[0] != '?' && buff[1] != '?' && buff[2] != ':') {
 			*linePtr = '\0';
 			auto sourceLen = std::strlen(buff);
-			std::strcpy(file,  buff + ((sourceLen > MAX_DEBUG_INFO_LEN) ? (sourceLen - MAX_DEBUG_INFO_LEN) : 0));
+			std::strcpy(file, buff + ((sourceLen > MAX_DEBUG_INFO_LEN) ? (sourceLen - MAX_DEBUG_INFO_LEN) : 0));
 			*line = strtoul(linePtr + 1, nullptr, 10);
 			return;
 		}
 	}
 
-	std::strcpy(file,  "unresolved");
+	std::strcpy(file, "unresolved");
 	*line = 0;
 }
 
 static void getDemangledName(const char* func, char* out) {
 	int status;
 	size_t funcDemangledSize = MAX_DEBUG_INFO_LEN;
-	char* funcDemangled = (char*)malloc(funcDemangledSize);
+	char* funcDemangled = (char*) malloc(funcDemangledSize);
 	char* ret = abi::__cxa_demangle(func, funcDemangled, &funcDemangledSize, &status);
 	if (status == 0) {
 		funcDemangled = ret;
@@ -176,10 +178,15 @@ void CallStackCapture::platformWriteDebugSymbols(FramePointer frame, DebugSymbol
 	char* offset = nullptr;
 
 	// 'bin fun+addr'
-	for (char *p = bin; *p; ++p) {
-		if (*p == '(') { *p = 0; func = p + 1; }
-		else if (*p == '+') { offset = p; }
-		else if (*p == ')' && offset) { *p = 0; }
+	for (char* p = bin; *p; ++p) {
+		if (*p == '(') {
+			*p = 0;
+			func = p + 1;
+		} else if (*p == '+') {
+			offset = p;
+		} else if (*p == ')' && offset) {
+			*p = 0;
+		}
 	}
 
 	if (func && offset) {
@@ -189,11 +196,11 @@ void CallStackCapture::platformWriteDebugSymbols(FramePointer frame, DebugSymbol
 			*offset = 0;
 			getDemangledName(func, out->function);
 		} else {
-			std::strcpy(out->function,  "unresolved");
+			std::strcpy(out->function, "unresolved");
 		}
 	} else {
-		std::strcpy(out->file,  "unresolved");
-		std::strcpy(out->function,  "unresolved");
+		std::strcpy(out->file, "unresolved");
+		std::strcpy(out->function, "unresolved");
 	}
 
 	free(symbolsArray);
@@ -217,7 +224,7 @@ void CallStackCapture::logAll() {
 #else
 void CallStackCapture::platformWriteStackTrace(CallStack* stack) { stack->frames[0] = 0; }
 void CallStackCapture::platformWriteDebugSymbols(FramePointer frame, DebugSymbols* out) {
-	std::strcpy(out->file,  "unresolved");
-	std::strcpy(out->function,  "unresolved");
+	std::strcpy(out->file, "unresolved");
+	std::strcpy(out->function, "unresolved");
 }
 #endif

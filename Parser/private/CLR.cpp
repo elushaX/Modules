@@ -13,14 +13,8 @@ void CLR::setGrammar(const tp::CfGrammar& grammar) {
 	mState = ParserState::FAILED;
 }
 
-void CLR::setTerminal(const String& name, TerminalStream::TerminalID id) {
+void CLR::setTerminal(const String& name, TerminalStream::TerminalID id) {}
 
-}
+void CLR::build() {}
 
-void CLR::build() {
-
-}
-
-void CLR::parse(TerminalStream* source, List<ASTNode>& out, ASTNode** root) {
-	*root = nullptr;
-}
+void CLR::parse(TerminalStream* source, List<ASTNode>& out, ASTNode** root) { *root = nullptr; }

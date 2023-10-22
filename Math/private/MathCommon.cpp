@@ -3,10 +3,7 @@
 
 #include "ContainersCommon.hpp"
 
-static tp::ModuleManifest* sModuleDependencies[] = {
-	&tp::gModuleContainers,
-	nullptr
-};
+static tp::ModuleManifest* sModuleDependencies[] = { &tp::gModuleContainers, nullptr };
 
 tp::ModuleManifest tp::gModuleMath = ModuleManifest("Math", nullptr, nullptr, sModuleDependencies);
 
@@ -32,12 +29,12 @@ tp::alnf tp::atan(const tp::alnf val) { return std_atan((halnf) val); }
 
 #include <cmath>
 
-tp::alnf std_sin(const tp::alnf radians) { return sinf((tp::halnf)radians); }
-tp::alnf std_tan(const tp::alnf radians) { return tanf((tp::halnf)radians); }
-tp::alnf std_cos(const tp::alnf radians) { return cosf((tp::halnf)radians); }
-tp::alnf std_acos(const tp::alnf val) { return acos((tp::halnf)val); }
-tp::alnf std_sqrt(const tp::alnf val) { return sqrt((tp::halnf)val); }
+tp::alnf std_sin(const tp::alnf radians) { return sinf((tp::halnf) radians); }
+tp::alnf std_tan(const tp::alnf radians) { return tanf((tp::halnf) radians); }
+tp::alnf std_cos(const tp::alnf radians) { return cosf((tp::halnf) radians); }
+tp::alnf std_acos(const tp::alnf val) { return acos((tp::halnf) val); }
+tp::alnf std_sqrt(const tp::alnf val) { return sqrt((tp::halnf) val); }
 tp::alnf std_rad(const tp::alnf val) { return val * (PI / 180.f); }
 tp::alnf std_deg(const tp::alnf val) { return val * (180.f / PI); }
-tp::alnf std_atan2(const tp::alnf X, const tp::alnf Y) { return atan2((tp::halnf)X, (tp::halnf)Y); }
-tp::alnf std_atan(const tp::alnf val) { return atan((tp::halnf)val); }
+tp::alnf std_atan2(const tp::alnf X, const tp::alnf Y) { return atan2((tp::halnf) X, (tp::halnf) Y); }
+tp::alnf std_atan(const tp::alnf val) { return atan((tp::halnf) val); }

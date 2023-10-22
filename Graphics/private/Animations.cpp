@@ -12,8 +12,8 @@ halnf AnimValue::interpolate() const {
 
 	auto dt = gCurrentTime - mTimeStart;
 	if (dt > mTimeAnim) dt = mTimeAnim;
-	auto t = (halnf)dt / (halnf)mTimeAnim;
-	t = (halnf)(0.511 + atan((t - 0.36) * 28) / 2.9);
+	auto t = (halnf) dt / (halnf) mTimeAnim;
+	t = (halnf) (0.511 + atan((t - 0.36) * 28) / 2.9);
 	t = clamp(t, 0.f, 1.f);
 	auto out = mValPrev + (mVal - mValPrev) * t;
 	return out;
@@ -21,9 +21,7 @@ halnf AnimValue::interpolate() const {
 
 AnimValue::AnimValue() = default;
 
-void AnimValue::setAnimTime(halni time) {
-	mTimeAnim = time;
-}
+void AnimValue::setAnimTime(halni time) { mTimeAnim = time; }
 
 AnimValue::AnimValue(halnf val) {
 	mVal = val;
@@ -41,12 +39,10 @@ void AnimValue::set(halnf val) {
 	if (val == mVal) return;
 	mValPrev = get();
 	mVal = val;
-	if (!inTransition()) mTimeStart = (halni)gCurrentTime;
+	if (!inTransition()) mTimeStart = (halni) gCurrentTime;
 }
 
-halnf AnimValue::getTarget() const {
-	return mVal;
-}
+halnf AnimValue::getTarget() const { return mVal; }
 
 void AnimValue::setNoTransition(halnf val) {
 	mValPrev = val;
@@ -61,17 +57,11 @@ halnf AnimValue::get() const {
 	return interpolate();
 }
 
-AnimValue::operator halnf() const {
-	return get();
-}
+AnimValue::operator halnf() const { return get(); }
 
-RectF AnimRect::get() const {
-	return { x.get(), y.get() , z.get(), w.get() };
-}
+RectF AnimRect::get() const { return { x.get(), y.get(), z.get(), w.get() }; }
 
-RectF AnimRect::getTarget() const {
-	return { x.getTarget(), y.getTarget() , z.getTarget(), w.getTarget() };
-}
+RectF AnimRect::getTarget() const { return { x.getTarget(), y.getTarget(), z.getTarget(), w.getTarget() }; }
 
 void AnimRect::setNoTransition(RectF rec) {
 	x.setNoTransition(rec.x);
@@ -96,9 +86,7 @@ void AnimRect::set(const RectF& in) {
 
 RGBA AnimColor::get() const {
 	auto col = mColor.get();
-	return {col.x, col.y, col.z, col.w};
+	return { col.x, col.y, col.z, col.w };
 }
 
-void AnimColor::set(const RGBA& col) {
-	mColor.set(RectF(col.r, col.g, col.b, col.a));
-}
+void AnimColor::set(const RGBA& col) { mColor.set(RectF(col.r, col.g, col.b, col.a)); }
