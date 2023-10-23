@@ -80,23 +80,79 @@ halnf test(const Dataset& dataset, FullyConnectedNN& nn, Range<ualni> range) {
 	return (halnf) numFailed / (halnf) range.idxDiff();
 }
 
+void testTraining(const Dataset& dataset, FullyConnectedNN& nn) {
+
+	auto propagate = [&](ualni idx) {
+		auto& image = dataset.images[idx];
+		auto label = dataset.labels[idx];
+
+		Buffer<halnf> results;
+		Buffer<halnf> input;
+
+		results.reserve(10);
+		input.reserve(image.size());
+
+		for (auto pixelIdx : Range(image.size())) {
+			input[pixelIdx] = (halnf) image[pixelIdx] / 255.f;
+		}
+
+		nn.evaluate(input, results);
+
+		ualni resultNumber = 0;
+		for (auto resIdx : Range(results.size())) {
+			if (results[resIdx] > results[resultNumber]) {
+				resultNumber = resIdx;
+			}
+		}
+
+		Buffer<halnf> resultsExpected;
+		resultsExpected.reserve(10);
+		for (auto resIdx : Range(results.size())) {
+			resultsExpected[resIdx] = (resIdx == label) ? 1 : 0;
+		}
+
+		nn.calcGrad(resultsExpected);
+
+		return resultNumber;
+	};
+
+	nn.clearGrad();
+
+	propagate(0);
+	nn.applyGrad();
+
+	propagate(0);
+	nn.applyGrad();
+
+	propagate(0);
+	nn.applyGrad();
+
+	auto errorPercentage = test(dataset, nn, { 0, 1 });
+	printf("Percentage error Trained on first image: %f\n", errorPercentage);
+}
+
 void numRec() {
 	Dataset dataset;
 	FullyConnectedNN nn;
 
+	// settings
 	Buffer<halni> layers;
 	layers = { 784, 128, 10 };
-
-	nn.initializeRandom(layers);
+	halnf trainBatchPercentage = 0.1f;
+	halnf testSizePercentage = 0.1f;
 
 	if (!loadDataset(dataset, "rsc/mnist")) {
 		printf("Cant Load Mnist Dataset\n");
 		return;
 	}
 
+	nn.initializeRandom(layers);
+
 	auto errorPercentage = test(dataset, nn, { 0, 100 });
 
 	printf("Percentage error : %f\n", errorPercentage);
+
+	testTraining(dataset, nn);
 }
 
 int main() {
