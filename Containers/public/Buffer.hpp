@@ -320,6 +320,7 @@ namespace tp {
 		}
 
 		void reserve(ualni aSize) {
+			if (aSize == mSize) return;
 			for (ualni i = 0; i < mLoad; i++) {
 				mBuff[i].~tType();
 			}
