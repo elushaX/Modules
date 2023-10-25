@@ -8,6 +8,8 @@ class TestClass {
 	tp::ualni val1;
 
 public:
+	TestClass() { val1 = 0; }
+
 	explicit TestClass(tp::ualni val) :
 		val1(val) {}
 

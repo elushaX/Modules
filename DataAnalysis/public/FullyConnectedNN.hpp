@@ -7,40 +7,42 @@ namespace tp {
 	class FullyConnectedNN {
 
 		struct Layer {
+
 			struct Neuron {
-				halnf mBias = 0;
-				Buffer<halnf> mWeights;
-				halnf mActivationValue = 0;
-				halnf mActivationValueLinear = 0;
+				struct Parameter {
+					Parameter() = default;
+
+					Parameter(halnf in) :
+						val(in) {}
+
+					halnf val = 0;
+					halnf grad = 0;
+				};
+
+				Parameter bias;
+				Buffer<Parameter> weights;
+
+				halnf activationValue = 0;
+				halnf activationValueLinear = 0;
+
+				halnf cache;
 			};
 
-			Buffer<Neuron> mNeurons;
-		};
-
-		struct LayerCache {
-			struct NeuronCache {
-				halnf mBiasGrad = 0;
-				Buffer<halnf> mWeightsGrad;
-			};
-
-			halnf mCache = 0;
-			Buffer<NeuronCache> mNeurons;
+			Buffer<Neuron> neurons;
 		};
 
 	public:
 		FullyConnectedNN() = default;
 
-		void initializeRandom(Buffer<halni> description);
+		void initializeRandom(const Buffer<halni>& description);
 		void evaluate(const Buffer<halnf>& input, Buffer<halnf>& output);
 
-		void clearGrad();
 		halnf calcCost(const Buffer<halnf>& output);
 		void calcGrad(const Buffer<halnf>& output);
-		void applyGrad();
+		void applyGrad(halnf step);
 
-	private:
+	public:
 		Buffer<Layer> mLayers;
-		Buffer<LayerCache> mLayersCache;
 		halni mAvgCount = 0;
 	};
 };

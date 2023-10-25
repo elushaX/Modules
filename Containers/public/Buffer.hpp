@@ -182,10 +182,26 @@ namespace tp {
 			mBuff = (tType*) mAllocator.allocate(sizeof(tType) * tMinSize);
 		}
 
-		explicit Buffer(ualni size) :
-			mSize(size),
-			mLoad(0) {
+		Buffer(const InitialierList<tType>& input) {
+			mSize = 0;
+			for (const auto& val : input) {
+				mSize++;
+			}
+			mBuff = (tType*) mAllocator.allocate(sizeof(tType) * mSize);
+			mLoad = 0;
+			for (const auto& val : input) {
+				mBuff[mLoad] = val;
+				mLoad++;
+			}
+		}
+
+		explicit Buffer(ualni size) {
 			mBuff = (tType*) mAllocator.allocate(sizeof(tType) * size);
+			mSize = size;
+			mLoad = size;
+			for (ualni i = 0; i < mLoad; i++) {
+				new (mBuff + i) tType();
+			}
 		}
 
 		Buffer(const Buffer& in) :
@@ -274,11 +290,25 @@ namespace tp {
 		}
 
 	public:
-		Buffer& operator=(const tp::InitialierList<tType>& init) {
+		Buffer& operator=(const tp::InitialierList<tType>& input) {
 			// TODO : optimize
-			for (auto arg : init) {
-				append(arg);
+			for (ualni i = 0; i < mLoad; i++) {
+				mBuff[i].~tType();
 			}
+			mAllocator.deallocate(mBuff);
+
+			mSize = 0;
+			for (const auto& val : input) {
+				mSize++;
+			}
+
+			mBuff = (tType*) mAllocator.allocate(sizeof(tType) * mSize);
+			mLoad = 0;
+			for (const auto& val : input) {
+				mBuff[mLoad] = val;
+				mLoad++;
+			}
+
 			return *this;
 		}
 
@@ -320,10 +350,10 @@ namespace tp {
 		}
 
 		void reserve(ualni aSize) {
-			if (aSize == mSize) return;
 			for (ualni i = 0; i < mLoad; i++) {
 				mBuff[i].~tType();
 			}
+			mAllocator.deallocate(mBuff);
 			mBuff = (tType*) mAllocator.allocate(sizeof(tType) * aSize);
 			mSize = aSize;
 			mLoad = aSize;
