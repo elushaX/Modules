@@ -48,7 +48,7 @@ bool loadDataset(Dataset& out, const String& location) {
 
 struct NumberRec {
 	NumberRec() {
-		Buffer<halni> layers = { 784, 128, 10 };
+		Buffer<halni> layers = { 784, 10 };
 		nn.initializeRandom(layers);
 
 		Dataset dataset;
@@ -159,7 +159,7 @@ public:
 	FCNN nn;
 	Buffer<halnf> output;
 
-	halnf step = 0.01f;
+	halnf step = 1.f;
 };
 
 int main() {
@@ -173,14 +173,26 @@ int main() {
 	{
 		NumberRec app;
 
-		auto trainRange = Range(0, 100);
-		auto testRange = Range(0, 100);
+		auto numBatches = 10;
+		auto trainRange = Range(0, 50000);
+		auto testRange = Range(50000, 70000);
 
-		halnf cost = 100;
-		while (cost > 0.1f) {
-			cost = app.test(trainRange);
-			app.trainStep(trainRange);
-			printf("Cost - %f\n", cost);
+		auto batchSize = trainRange.idxDiff() / numBatches;
+
+		for (auto epoch : Range(10)) {
+			printf("Epoch %i\n", epoch.index());
+
+			for (auto batchIdx : Range(trainRange.idxDiff() / batchSize)) {
+				printf(" - Batch :%i \n", batchIdx.index());
+
+				auto batchRange = Range(trainRange.idxBegin() + batchSize * batchIdx, trainRange.idxBegin() + batchSize * (batchIdx + 1));
+
+				app.trainStep(batchRange);
+
+				printf("Cost on batch data : %f\n", app.test(batchRange));
+			}
+
+			printf("Cost on test data : %f\n\n", app.test(testRange));
 		}
 
 		auto errors = 0;
@@ -192,7 +204,7 @@ int main() {
 			// app.displayImage(i);
 		}
 
-		printf("\n\nIncorrect - %i out of %i\n\n", errors, testRange.idxDiff());
+		printf("\n\nIncorrect - %i out of %i (%f)\n\n", errors, testRange.idxDiff(), (halnf) errors / (halnf) testRange.idxDiff() );
 	}
 
 	module.deinitialize();
