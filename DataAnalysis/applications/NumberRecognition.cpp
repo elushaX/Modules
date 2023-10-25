@@ -1,4 +1,4 @@
-#include "FullyConnectedNN.hpp"
+#include "FCNN.hpp"
 #include "LocalConnection.hpp"
 #include "NewPlacement.hpp"
 
@@ -10,19 +10,6 @@ struct Dataset {
 	Buffer<uint1> labels;
 	Buffer<Buffer<uint1>> images;
 };
-
-void displayImage(const Dataset& dataset, ualni idx) {
-	auto& image = dataset.images[idx];
-	auto label = dataset.labels[idx];
-
-	printf("Image : %i\n", int(label));
-	for (auto i : Range(dataset.imageSize.x)) {
-		for (auto j : Range(dataset.imageSize.y)) {
-			printf("%c", image[j * dataset.imageSize.x + i]);
-		}
-		printf("\n");
-	}
-}
 
 bool loadDataset(Dataset& out, const String& location) {
 	LocalConnection dataset;
@@ -59,114 +46,121 @@ bool loadDataset(Dataset& out, const String& location) {
 	return true;
 }
 
-halnf test(const Dataset& dataset, FullyConnectedNN& nn, Range<ualni> range) {
-	ualni numFailed = 0;
+struct NumberRec {
+	NumberRec() {
+		Buffer<halni> layers = { 784, 128, 10 };
+		nn.initializeRandom(layers);
 
-	for (auto i : range) {
-		auto& image = dataset.images[i];
-		auto label = dataset.labels[i];
+		Dataset dataset;
 
-		Buffer<halnf> results;
-		Buffer<halnf> input;
-
-		results.reserve(10);
-		input.reserve(image.size());
-
-		for (auto pixelIdx : Range(image.size())) {
-			input[pixelIdx] = (halnf) image[pixelIdx] / 255.f;
+		if (!loadDataset(dataset, "rsc/mnist")) {
+			printf("Cant Load Mnist Dataset\n");
+			return;
 		}
 
-		nn.evaluate(input, results);
+		mTestcases.reserve(dataset.images.size());
+		for (auto i : Range(dataset.images.size())) {
+			auto& image = dataset.images[i];
+			auto label = dataset.labels[i];
 
-		ualni resultNumber = 0;
-		for (auto resIdx : Range(results.size())) {
-			if (results[resIdx] > results[resultNumber]) {
-				resultNumber = resIdx;
+			auto& testcase = mTestcases[i];
+
+			testcase.output.reserve(10);
+
+			for (auto dig : Range(10)) {
+				testcase.output[dig] = label == dig ? 1 : 0;
+			}
+
+			testcase.input.reserve(image.size());
+
+			for (auto pxl : Range(image.size())) {
+				testcase.input[pxl] = (halnf) image[pxl] / 255.f;
 			}
 		}
 
-		if (resultNumber != label) {
-			numFailed++;
+		output.reserve(10);
+	}
+
+	halnf eval(ualni idx) {
+		nn.evaluate(mTestcases[idx].input, output);
+		return nn.calcCost(mTestcases[idx].output);
+	}
+
+	void applyGrad(ualni idx) {
+		nn.calcGrad(mTestcases[idx].output);
+		nn.applyGrad(step);
+	}
+
+	static halni getMaxIdx(const Buffer<halnf>& in) {
+		halni out = 0;
+		for (auto i : Range(in.size())) {
+			if (in[i] > in[out]) {
+				out = i;
+			}
+		}
+		return out;
+	}
+
+	bool testIncorrect(ualni idx) {
+		nn.evaluate(mTestcases[idx].input, output);
+		return getMaxIdx(mTestcases[idx].output) != getMaxIdx(output);
+	}
+
+	void debLog(halni idx) {
+		printf("\n Got      %i - ", getMaxIdx(output));
+		for (auto val : output) {
+			printf("%f ", val.data());
+		}
+		printf("\n Expected %i - ", getMaxIdx(mTestcases[idx].output));
+		for (auto val : mTestcases[idx].output) {
+			printf("%f ", val.data());
+		}
+		printf("\n\n");
+	}
+
+	void displayImage(ualni idx) {
+		auto& testcase = mTestcases[idx];
+		printf("Image : %i\n", int(getMaxIdx(testcase.output)));
+		for (auto i : Range(28)) {
+			for (auto j : Range(28)) {
+				printf("%c", char(testcase.input[j * 28 + i] * 255));
+			}
+			printf("\n");
 		}
 	}
 
-	return (halnf) numFailed / (halnf) range.idxDiff();
-}
+	halnf test(const Range<halni>& range) {
+		halnf avgCost = 0;
+		for (auto i : range) {
+			avgCost += eval(i);
+		}
+		avgCost /= (halnf) range.idxDiff();
+		return avgCost;
+	}
 
-void testTraining(const Dataset& dataset, FullyConnectedNN& nn) {
+	void trainStep(const Range<halni>& range) {
+		nn.clearGrad();
+		for (auto i : range) {
+			nn.evaluate(mTestcases[i].input, output);
+			nn.calcGrad(mTestcases[i].output);
+		}
+		nn.applyGrad(step);
+	}
 
-	auto propagate = [&](ualni idx) {
-		auto& image = dataset.images[idx];
-		auto label = dataset.labels[idx];
-
-		Buffer<halnf> results;
+public:
+	struct Image {
 		Buffer<halnf> input;
-
-		results.reserve(10);
-		input.reserve(image.size());
-
-		for (auto pixelIdx : Range(image.size())) {
-			input[pixelIdx] = (halnf) image[pixelIdx] / 255.f;
-		}
-
-		nn.evaluate(input, results);
-
-		ualni resultNumber = 0;
-		for (auto resIdx : Range(results.size())) {
-			if (results[resIdx] > results[resultNumber]) {
-				resultNumber = resIdx;
-			}
-		}
-
-		Buffer<halnf> resultsExpected;
-		resultsExpected.reserve(10);
-		for (auto resIdx : Range(results.size())) {
-			resultsExpected[resIdx] = (resIdx == label) ? 1 : 0;
-		}
-
-		nn.calcGrad(resultsExpected);
-
-		return resultNumber;
+		Buffer<halnf> output;
 	};
 
-	displayImage(dataset, 2);
+public:
+	Buffer<Image> mTestcases;
 
-	propagate(0);
-	// nn.applyGrad();
+	FCNN nn;
+	Buffer<halnf> output;
 
-	propagate(0);
-	// nn.applyGrad();
-
-	propagate(0);
-	// nn.applyGrad();
-
-	auto errorPercentage = test(dataset, nn, { 0, 1 });
-	printf("Percentage error Trained on first image: %f\n", errorPercentage);
-}
-
-void numRec() {
-	Dataset dataset;
-	FullyConnectedNN nn;
-
-	// settings
-	Buffer<halni> layers;
-	layers = { 784, 128, 10 };
-	halnf trainBatchPercentage = 0.1f;
-	halnf testSizePercentage = 0.1f;
-
-	if (!loadDataset(dataset, "rsc/mnist")) {
-		printf("Cant Load Mnist Dataset\n");
-		return;
-	}
-
-	nn.initializeRandom(layers);
-
-	auto errorPercentage = test(dataset, nn, { 0, 100 });
-
-	printf("Percentage error : %f\n", errorPercentage);
-
-	testTraining(dataset, nn);
-}
+	halnf step = 0.01f;
+};
 
 int main() {
 	ModuleManifest* deps[] = { &gModuleDataAnalysis, &gModuleConnection, nullptr };
@@ -176,7 +170,30 @@ int main() {
 		return 1;
 	}
 
-	numRec();
+	{
+		NumberRec app;
+
+		auto trainRange = Range(0, 100);
+		auto testRange = Range(0, 100);
+
+		halnf cost = 100;
+		while (cost > 0.1f) {
+			cost = app.test(trainRange);
+			app.trainStep(trainRange);
+			printf("Cost - %f\n", cost);
+		}
+
+		auto errors = 0;
+		for (auto i : testRange) {
+			if (app.testIncorrect(i)) {
+				errors++;
+			}
+			// app.debLog(i);
+			// app.displayImage(i);
+		}
+
+		printf("\n\nIncorrect - %i out of %i\n\n", errors, testRange.idxDiff());
+	}
 
 	module.deinitialize();
 

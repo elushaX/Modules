@@ -1,49 +1,45 @@
 
 #include "NewPlacement.hpp"
 
-#include "FullyConnectedNN.hpp"
+#include "FCNN.hpp"
 #include "Testing.hpp"
 #include "Utils.hpp"
 
-#include <stdio.h>
+#include <cstdio>
 
-static bool init(const tp::ModuleManifest* self) {
-	tp::gTesting.setRootName(self->getName());
-	return true;
-}
+using namespace tp;
 
 void test() {
-	using namespace tp;
+	Buffer<halni> layers = { 100, 70, 50, 30, 20 };
+	Buffer<halnf> input(layers.first());
+	Buffer<halnf> outputExpected(layers.last());
+	Buffer<halnf> output(layers.last());
 
-	Buffer<halni> layers = { 4, 4, 3, 2 };
-	Buffer<halnf> input = { (halnf) randomFloat() * 100, (halnf) randomFloat() * 100, (halnf) randomFloat() * 100, (halnf) randomFloat() * 100 };
-	Buffer<halnf> outputExpected = { (halnf) randomFloat(), (halnf) randomFloat() };
+	for (auto inputVal : Range(layers.first())) {
+		input[inputVal] = (halnf) randomFloat() * 100;
+	}
 
-	FullyConnectedNN nn;
-	Buffer<halnf> output(2);
+	for (auto outIdx : Range(layers.last())) {
+		outputExpected[outIdx] = (halnf) randomFloat();
+	}
 
-	nn.initializeRandom(layers);
-
-	// nn.mLayers.last().neurons.first().weights = { 0.35, 0.35, 0.35, 0.35 };
-	// nn.mLayers.last().neurons.first().bias = 0.9;
-
-	// nn.mLayers.last().neurons.last().weights = { -0.35, -0.35, -0.35, -0.35 };
-	// nn.mLayers.last().neurons.last().bias = -3.9;
+	FCNN nn(layers);
+	halnf steppingValue = 100;
 
 	for (auto i : Range(50)) {
+
 		nn.evaluate(input, output);
-
-		auto lossBefore = nn.calcCost(outputExpected);
-
+		
 		nn.calcGrad(outputExpected);
-		nn.applyGrad(0.1);
-		printf("Loss %f \n", lossBefore);
+		nn.applyGrad(steppingValue);
+
+		printf("Loss %f \n", nn.calcCost(outputExpected));
 	}
 }
 
 int main() {
 	tp::ModuleManifest* deps[] = { &tp::gModuleDataAnalysis, &tp::gModuleUtils, nullptr };
-	tp::ModuleManifest testModule("DataAnalysisTest", init, nullptr, deps);
+	tp::ModuleManifest testModule("DataAnalysisTest", nullptr, nullptr, deps);
 
 	if (!testModule.initialize()) {
 		return 1;

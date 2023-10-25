@@ -111,7 +111,7 @@ namespace tp {
 			mBegin(pStartIndex),
 			mEnd(pEndIndex) {}
 
-		bool valid() { return mBegin < mEnd; }
+		bool valid() const { return mBegin < mEnd; }
 
 		tType idxBegin() const { return mBegin; }
 
@@ -119,8 +119,8 @@ namespace tp {
 
 		tType idxDiff() const { return mEnd - mBegin; }
 
-		Iterator begin() { return Iterator(mBegin); }
+		Iterator begin() const { return Iterator(mBegin); }
 
-		Iterator end() { return Iterator(mEnd); }
+		Iterator end() const { return Iterator(mEnd); }
 	};
 }
