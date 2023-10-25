@@ -4,7 +4,8 @@
 #include "DataAnalysisCommon.hpp"
 
 namespace tp {
-	class FullyConnectedNN {
+	// Fully connected neural network
+	class FCNN {
 
 		struct Layer {
 
@@ -32,12 +33,15 @@ namespace tp {
 		};
 
 	public:
-		FullyConnectedNN() = default;
+		FCNN() = default;
+		explicit FCNN(const Buffer<halni>& description);
 
 		void initializeRandom(const Buffer<halni>& description);
 		void evaluate(const Buffer<halnf>& input, Buffer<halnf>& output);
 
 		halnf calcCost(const Buffer<halnf>& output);
+
+		void clearGrad();
 		void calcGrad(const Buffer<halnf>& output);
 		void applyGrad(halnf step);
 
