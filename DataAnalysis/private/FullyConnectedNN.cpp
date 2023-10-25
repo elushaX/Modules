@@ -22,9 +22,9 @@ static halnf relu(halnf val) { return val < 0 ? 0 : val; }
 
 static halnf reluDerivative(halnf val) { return val < 0 ? 0 : 1; }
 
-static halnf activationFunction(halnf val) { return relu(val); }
+static halnf activationFunction(halnf val) { return sigmoid(val); }
 
-static halnf activationFunctionDerivative(halnf val) { return reluDerivative(val); }
+static halnf activationFunctionDerivative(halnf val) { return sigmoidDerivative(val); }
 
 FCNN::FCNN(const Buffer<halni>& description) { initializeRandom(description); }
 
