@@ -20,12 +20,12 @@ RayTracer:
 
 	Quality:
 		Render eq
-		Materials
 		Lenses
 		Exposure
 
 	Efficiency:
 		Casting Accelerators
+		MIS (DMIS CMIS)
 		Important sampling
 		Threading
 

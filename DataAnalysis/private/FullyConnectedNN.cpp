@@ -1,139 +1,142 @@
+// #include "NewPlacement.hpp"
+
 #include "FullyConnectedNN.hpp"
-#include "NewPlacement.hpp"
 #include "Utils.hpp"
+
+#include <cmath>
 
 using namespace tp;
 
-static halnf sigmoid(halnf val) { return 0; }
+static halnf linearFun(halnf val) { return val; }
+
+static halnf linearFunDerivative(halnf val) { return 1; }
+
+static halnf sigmoid(double val) { return 1.0f / (1.0f + (halnf) exp(-val)); }
+
+static halnf sigmoidDerivative(double val) {
+	halnf sigmoid_val = sigmoid(val);
+	return sigmoid_val * (1.0f - sigmoid_val);
+}
 
 static halnf relu(halnf val) { return val < 0 ? 0 : val; }
 
 static halnf reluDerivative(halnf val) { return val < 0 ? 0 : 1; }
 
-void FullyConnectedNN::initializeRandom(Buffer<halni> description) {
+static halnf activationFunction(halnf val) { return sigmoid(val); }
+
+static halnf activationFunctionDerivative(halnf val) { return sigmoidDerivative(val); }
+
+void FullyConnectedNN::initializeRandom(const Buffer<halni>& description) {
+	ASSERT(description.size() > 1);
+
 	mLayers.reserve(description.size());
 
 	for (auto i : Range<halni>(0, (halni) description.size())) {
-		mLayers[i].mNeurons.reserve(description[i]);
+		mLayers[i].neurons.reserve(description[i]);
 		if (i == 0) {
 			continue;
 		}
-		for (auto neuron : mLayers[i].mNeurons) {
-			neuron->mWeights.reserve(description[i - 1]);
-			for (auto weight : neuron->mWeights) {
-				weight.data() = (halnf) (randomFloat() - 0.5) * 2;
+		for (auto neuron : mLayers[i].neurons) {
+			neuron->weights.reserve(description[i - 1]);
+			for (auto weight : neuron->weights) {
+				weight->val = (halnf) (randomFloat() - 0) * 2;
 			}
-			neuron->mBias = (halnf) (randomFloat() - 0.5) * 2;
+			neuron->bias.val = (halnf) (randomFloat() - 0) * 2;
 		}
 	}
 }
 
 void FullyConnectedNN::evaluate(const Buffer<halnf>& input, Buffer<halnf>& output) {
-	ASSERT(output.size() == mLayers.last().mNeurons.size() && input.size() == mLayers.first().mNeurons.size())
+	ASSERT(output.size() == mLayers.last().neurons.size() && input.size() == mLayers.first().neurons.size())
 
 	for (auto idx : Range(input.size())) {
-		mLayers.first().mNeurons[idx].mActivationValue = input[idx];
+		mLayers.first().neurons[idx].activationValue = input[idx];
 	}
 
 	for (auto layerIdx : Range<halni>(1, (halni) mLayers.size())) {
 		auto& layer = mLayers[layerIdx];
 		auto& layerPrev = mLayers[layerIdx - 1];
 
-		for (auto neuron : layer.mNeurons) {
-			neuron->mActivationValue = 0;
-			for (auto connectionIdx : Range(neuron->mWeights.size())) {
-				neuron->mActivationValue += neuron->mWeights[connectionIdx] * layerPrev.mNeurons[connectionIdx].mActivationValue;
+		for (auto neuron : layer.neurons) {
+			neuron->activationValue = 0;
+			for (auto connectionIdx : Range(neuron->weights.size())) {
+				neuron->activationValue += neuron->weights[connectionIdx].val * layerPrev.neurons[connectionIdx].activationValue;
 			}
-			neuron->mActivationValue += neuron->mBias;
-			neuron->mActivationValueLinear = neuron->mActivationValue;
-			neuron->mActivationValue = relu(neuron->mActivationValue);
+			neuron->activationValue += neuron->bias.val;
+			neuron->activationValueLinear = neuron->activationValue;
+			neuron->activationValue = activationFunction(neuron->activationValue);
 		}
 	}
 
 	for (auto idx : Range(output.size())) {
-		output[idx] = mLayers.last().mNeurons[idx].mActivationValue;
+		output[idx] = mLayers.last().neurons[idx].activationValue;
 	}
 }
 
 halnf FullyConnectedNN::calcCost(const Buffer<halnf>& output) {
 	halnf out = 0;
-	for (auto neuronIdx : Range(mLayers.last().mNeurons.size())) {
-		out += pow(output[neuronIdx] - mLayers.last().mNeurons[neuronIdx].mActivationValue, 2);
+	for (auto neuronIdx : Range(mLayers.last().neurons.size())) {
+		out += pow(output[neuronIdx] - mLayers.last().neurons[neuronIdx].activationValue, 2);
 	}
 	return out;
 }
 
-void FullyConnectedNN::clearGrad() {
-	mLayersCache.reserve(mLayers.size());
-	for (auto layIdx : Range<halni>(0, (halni) mLayers.size())) {
-		mLayersCache[layIdx].mNeurons.reserve(mLayers[layIdx].mNeurons.size());
-		mLayersCache[layIdx].mCache = 1;
-
-		for (auto weightIdx : Range(mLayersCache[layIdx].mNeurons.size())) {
-			mLayersCache[layIdx].mNeurons[weightIdx].mBiasGrad = 0;
-			mLayersCache[layIdx].mNeurons[weightIdx].mWeightsGrad.reserve(mLayers[layIdx].mNeurons[weightIdx].mWeights.size());
-			for (auto weight : mLayersCache[layIdx].mNeurons[weightIdx].mWeightsGrad) {
-				weight.data() = 0;
-			}
-		}
-	}
-	mAvgCount = 0;
-}
-
 void FullyConnectedNN::calcGrad(const Buffer<halnf>& output) {
-	ASSERT(mLayers.last().mNeurons.size() == output.size())
+	ASSERT(mLayers.last().neurons.size() == output.size())
 
 	auto& lastLayer = mLayers.last();
-	auto& lastCache = mLayersCache.last();
 
-	lastCache.mCache = 1;
-
-	for (auto neuronIdx : Range(lastLayer.mNeurons.size())) {
-		auto& neuronCache = lastCache.mNeurons[neuronIdx];
-		auto& neuron = lastLayer.mNeurons[neuronIdx];
-		lastCache.mCache += 2 * pow(output[neuronIdx] - neuron.mActivationValue, 2);
+	// calculate chaining cache value for each neuron in last layer
+	for (auto neuronIdx : Range(lastLayer.neurons.size())) {
+		auto& neuron = lastLayer.neurons[neuronIdx];
+		neuron.cache = 2 * (neuron.activationValue - output[neuronIdx]);
 	}
 
+	// calculate rest of the layers
 	for (auto layerIdx = mLayers.size() - 1; layerIdx > 0; layerIdx--) {
-		auto& layer = mLayers[layerIdx];
-		auto& cache = mLayersCache[layerIdx];
 
-		auto& layerNext = mLayers[layerIdx - 1];
-		auto& cacheNext = mLayersCache[layerIdx - 1];
+		auto& currentLayer = mLayers[layerIdx];
+		auto& inputLayer = mLayers[layerIdx - 1];
 
-		cacheNext.mCache = 1;
+		for (auto currentNeuronIdx : Range(currentLayer.neurons.size())) {
+			auto& currentNeuron = currentLayer.neurons[currentNeuronIdx];
 
-		for (auto neuronIdx : Range(layer.mNeurons.size())) {
-			auto& neuron = layer.mNeurons[neuronIdx];
-			auto& neuronCache = cache.mNeurons[neuronIdx];
+			// calculate cache value (chaining)
+			if (layerIdx != mLayers.size() - 1) {
+				auto& userLayer = mLayers[layerIdx + 1];
 
-			auto tmp = cache.mCache * reluDerivative(neuron.mActivationValueLinear);
-
-			neuronCache.mBiasGrad = tmp;
-
-			for (auto weightIdx : Range(neuron.mWeights.size())) {
-				neuronCache.mWeightsGrad[weightIdx] = tmp * layerNext.mNeurons[weightIdx].mActivationValue;
+				currentNeuron.cache = 0;
+				for (auto userNeuron : userLayer.neurons) {
+					currentNeuron.cache += userNeuron->weights[currentNeuronIdx].val * userNeuron->cache;
+				}
+				currentNeuron.cache *= activationFunctionDerivative(currentNeuron.activationValueLinear);
 			}
 
-			cacheNext.mCache += tmp;
+			// gradient for current neuron bias
+			currentNeuron.bias.grad = currentNeuron.cache;
+
+			// calculate gradient for weights of current neuron
+			for (auto weightIdx : Range(currentNeuron.weights.size())) {
+				currentNeuron.weights[weightIdx].grad = inputLayer.neurons[weightIdx].activationValue * currentNeuron.cache;
+			}
 		}
 	}
+
+	mAvgCount++;
 }
 
-void FullyConnectedNN::applyGrad() {
+void FullyConnectedNN::applyGrad(halnf step) {
+
 	for (auto layIdx : Range<halni>(1, (halni) mLayers.size())) {
-		auto& layerCache = mLayersCache[layIdx];
 		auto& layer = mLayers[layIdx];
 
-		for (auto neuronIdx : Range(layer.mNeurons.size())) {
-			auto& neuron = layer.mNeurons[neuronIdx];
-			auto& neuronCache = layerCache.mNeurons[neuronIdx];
-
-			neuron.mBias += neuronCache.mBiasGrad / (halnf) mAvgCount;
-
-			for (auto weightIdx : Range(neuron.mWeights.size())) {
-				neuron.mWeights[weightIdx] += neuronCache.mWeightsGrad[weightIdx] / (halnf) mAvgCount;
+		for (auto neuron : layer.neurons) {
+			neuron->bias.val -= neuron->bias.grad / (halnf) mAvgCount * step;
+			for (auto weightIdx : Range(neuron->weights.size())) {
+				neuron->weights[weightIdx].val -= (neuron->weights[weightIdx].grad / (halnf) mAvgCount) * step;
 			}
 		}
 	}
+
+	mAvgCount = 0;
 }

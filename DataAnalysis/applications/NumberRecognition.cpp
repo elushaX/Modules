@@ -11,6 +11,19 @@ struct Dataset {
 	Buffer<Buffer<uint1>> images;
 };
 
+void displayImage(const Dataset& dataset, ualni idx) {
+	auto& image = dataset.images[idx];
+	auto label = dataset.labels[idx];
+
+	printf("Image : %i\n", int(label));
+	for (auto i : Range(dataset.imageSize.x)) {
+		for (auto j : Range(dataset.imageSize.y)) {
+			printf("%c", image[j * dataset.imageSize.x + i]);
+		}
+		printf("\n");
+	}
+}
+
 bool loadDataset(Dataset& out, const String& location) {
 	LocalConnection dataset;
 	dataset.connect(LocalConnection::Location(location), LocalConnection::Type(true));
@@ -116,16 +129,16 @@ void testTraining(const Dataset& dataset, FullyConnectedNN& nn) {
 		return resultNumber;
 	};
 
-	nn.clearGrad();
+	displayImage(dataset, 2);
 
 	propagate(0);
-	nn.applyGrad();
+	// nn.applyGrad();
 
 	propagate(0);
-	nn.applyGrad();
+	// nn.applyGrad();
 
 	propagate(0);
-	nn.applyGrad();
+	// nn.applyGrad();
 
 	auto errorPercentage = test(dataset, nn, { 0, 1 });
 	printf("Percentage error Trained on first image: %f\n", errorPercentage);

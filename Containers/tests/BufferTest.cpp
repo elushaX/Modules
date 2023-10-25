@@ -22,10 +22,10 @@ TEST_DEF_STATIC(Simple1) {
 
 TEST_DEF_STATIC(Simple2) {
 	Buffer<TestClass, HeapAlloc> buff(size);
-	TEST(buff.size() == 0);
+	TEST(buff.size() == size);
 	for (auto i : Range(size * 10))
 		buff.append(TestClass(i));
-	TEST(buff.size() == size * 10);
+	TEST(buff.size() == size + size * 10);
 	while (buff.size())
 		buff.pop();
 	TEST(buff.size() == 0);
