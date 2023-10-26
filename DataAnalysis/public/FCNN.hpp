@@ -18,6 +18,12 @@ namespace tp {
 
 					halnf val = 0;
 					halnf grad = 0;
+
+				public:
+					template <class tArchiver>
+					void archive(tArchiver& ar) {
+						ar % val;
+					}
 				};
 
 				Parameter bias;
@@ -27,9 +33,22 @@ namespace tp {
 				halnf activationValueLinear = 0;
 
 				halnf cache;
+
+			public:
+				template <class tArchiver>
+				void archive(tArchiver& ar) {
+					ar % bias;
+					ar % weights;
+				}
 			};
 
 			Buffer<Neuron> neurons;
+
+		public:
+			template <class tArchiver>
+			void archive(tArchiver& ar) {
+				ar % neurons;
+			}
 		};
 
 	public:
@@ -44,6 +63,12 @@ namespace tp {
 		void clearGrad();
 		void calcGrad(const Buffer<halnf>& output);
 		void applyGrad(halnf step);
+
+	public:
+		template <class tArchiver>
+		void archive(tArchiver& ar) {
+			ar % mLayers;
+		}
 
 	public:
 		Buffer<Layer> mLayers;

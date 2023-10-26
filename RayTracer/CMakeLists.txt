@@ -18,7 +18,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Math CommandLine Connection)
 add_executable(rayt ./applications/Rayt.cpp applications/SceneLoad.cpp
         applications/Rayt.hpp)
 
-target_link_libraries(rayt ${PROJECT_NAME} Lua)
+target_link_libraries(rayt ${PROJECT_NAME} Lua ImageIO)
 
 file(COPY "applications/rsc" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
 
@@ -29,7 +29,7 @@ add_executable(${PROJECT_NAME}Tests ${TEST_SOURCES})
 
 target_include_directories(${PROJECT_NAME}Tests PUBLIC ./applications/)
 
-target_link_libraries(${PROJECT_NAME}Tests ${PROJECT_NAME} Utils)
+target_link_libraries(${PROJECT_NAME}Tests ${PROJECT_NAME} Utils ImageIO)
 add_test(NAME ${PROJECT_NAME}Tests COMMAND ${PROJECT_NAME}Tests)
 
 install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/lib)

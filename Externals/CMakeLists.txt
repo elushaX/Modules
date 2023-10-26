@@ -46,3 +46,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
         C_STANDARD 99
         C_STANDARD_REQUIRED ON
 )
+
+project(ImageIO)
+add_library(${PROJECT_NAME} INTERFACE)
+target_include_directories(${PROJECT_NAME} INTERFACE ./imageIO/)
