@@ -414,7 +414,7 @@ namespace tp {
 		void archiveWrite(tArchiver& ar) const {
 			ar << mLoad;
 			for (auto item : *this) {
-				ar << item.data();
+				ar % item.data();
 			}
 		}
 
@@ -428,7 +428,8 @@ namespace tp {
 				if (mLoad == mSize) {
 					resizeBuffer(tResizePolicy(mSize));
 				}
-				ar >> mBuff[mLoad];
+				new (mBuff + mLoad) tType();
+				ar % mBuff[mLoad];
 				mLoad++;
 			}
 		}
