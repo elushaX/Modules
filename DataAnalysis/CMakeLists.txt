@@ -1,8 +1,3 @@
-
-cmake_minimum_required(VERSION 3.2)
-
-set(CMAKE_CXX_STANDARD 23)
-
 project(DataAnalysis)
 
 ### ---------------------- Externals  ---------------------  ###
@@ -35,5 +30,3 @@ target_include_directories(${PROJECT_NAME}Tests PUBLIC ./applications/)
 
 target_link_libraries(${PROJECT_NAME}Tests ${PROJECT_NAME} Utils)
 add_test(NAME ${PROJECT_NAME}Tests COMMAND ${PROJECT_NAME}Tests)
-
-install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}/lib)

@@ -1,16 +1,15 @@
-cmake_minimum_required(VERSION 3.2)
 
-set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/install)
+cmake_minimum_required(VERSION 3.5)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -gdwarf-4")
+set(CMAKE_CXX_STANDARD 20)
 
-enable_testing()
+# set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/./tmp/install)
+# set(CMAKE_CXX_FLAGS "-fuse-ld=lld-15 ${CMAKE_CXX_FLAGS} -gdwarf-4 ")
+# add_compile_definitions(MEM_DEBUG)
 
-project(Types)
+project(ModulesRoot)
 
-add_compile_definitions(MEM_DEBUG)
-
-set(EXTERNALS ../Externals)
+include(CMakeOptions.txt)
 
 add_subdirectory(Modules)
 add_subdirectory(Utils)
