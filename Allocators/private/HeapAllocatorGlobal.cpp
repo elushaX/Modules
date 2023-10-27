@@ -18,6 +18,9 @@ using namespace tp;
 void* HeapAllocGlobal::allocate(ualni aBlockSize) { return malloc(aBlockSize); }
 void HeapAllocGlobal::deallocate(void* aPtr) { free(aPtr); }
 HeapAllocGlobal::~HeapAllocGlobal() = default;
+bool HeapAllocGlobal::checkLeaks() { return false; }
+void HeapAllocGlobal::startIgnore() {}
+void HeapAllocGlobal::stopIgnore() {}
 
 #else
 
@@ -95,7 +98,7 @@ ALLOCATE:
 	}
 	mEntry = head;
 
-// 3) Trace the stack
+	// 3) Trace the stack
 #ifdef MEM_STACK_TRACE
 	head->mCallStack = gCSCapture->getSnapshot();
 #endif
@@ -146,7 +149,7 @@ void HeapAllocGlobal::deallocate(void* aPtr) {
 			ASSERT(!"Allocated Block Wrap Corrupted!")
 		}
 
-// 4) clear data
+		// 4) clear data
 #ifdef MEM_CLEAR_ON_ALLOC
 		memSetVal(data, head->mBlockSize, CLEAR_DEALLOC_VAL);
 #endif

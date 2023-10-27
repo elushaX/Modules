@@ -1,0 +1,7 @@
+option(MODULES_MEMORY_DEBUG "Debug memory" OFF)
+
+if (MODULES_MEMORY_DEBUG)
+    add_compile_definitions(MEM_DEBUG)
+endif ()
+
+enable_testing()
