@@ -9,6 +9,7 @@ SimpleParser::SimpleParser() {
 	// Define Context-Free grammar
 	ContextFreeGrammar contextFreeGrammar;
 	{
+		// use existing CF grammar interface
 		auto term = contextFreeGrammar.createTerminal();
 
 		auto nonTerm = contextFreeGrammar.createNonTerminal();
@@ -23,6 +24,7 @@ SimpleParser::SimpleParser() {
 	// Define Regular grammar
 	RegularGrammar regularGrammar;
 	{
+		// this is basically ast from existing tokenizer
 		regularGrammar.addRule(regularGrammar.alternate(regularGrammar.repeat(regularGrammar.symbols("asd")), regularGrammar.symbol("a")));
 		regularGrammar.addRule(regularGrammar.alternate(regularGrammar.repeat(regularGrammar.symbols("asd")), regularGrammar.symbol("a")));
 	}
@@ -37,12 +39,14 @@ void SimpleParser::compileTables(const Sentence& grammar) {
 	// compile each ast into RegularGrammar and ContextFree Grammar api instructions
 	ContextFreeGrammar userContextFreeGrammar;
 	RegularGrammar userRegularGrammar;
+
 	// ...
 	// split ast into RE and CF part
 	// generate and execute grammar api commands
+	// use existing tokenizer code to create RE transition matrix
 	// ...
-
 	// compile tables from user grammar
+
 	mUserParser.compileTables(userContextFreeGrammar, userRegularGrammar);
 }
 
