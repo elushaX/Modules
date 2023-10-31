@@ -1,4 +1,6 @@
 
+#include "NewPlacement.hpp"
+
 #include "SimpleParser.hpp"
 
 using namespace tp;
@@ -22,14 +24,13 @@ SimpleParser::SimpleParser() {
 	}
 
 	// Define Regular grammar
-	RegularGrammar regularGrammar;
+	RegularGrammar<uint1, int1> rg;
 	{
 		// this is basically ast from existing tokenizer
-		regularGrammar.addRule(regularGrammar.alternate(regularGrammar.repeat(regularGrammar.symbols("asd")), regularGrammar.symbol("a")));
-		regularGrammar.addRule(regularGrammar.alternate(regularGrammar.repeat(regularGrammar.symbols("asd")), regularGrammar.symbol("a")));
+		rg.addRule(rg.seq({ rg.val('a'), rg.val('b') }), 0);
 	}
 
-	mUnifiedGrammarParser.compileTables(contextFreeGrammar, regularGrammar);
+	mUnifiedGrammarParser.compileTables(contextFreeGrammar, rg);
 }
 
 void SimpleParser::compileTables(const Sentence& grammar) {
@@ -38,7 +39,7 @@ void SimpleParser::compileTables(const Sentence& grammar) {
 
 	// compile each ast into RegularGrammar and ContextFree Grammar api instructions
 	ContextFreeGrammar userContextFreeGrammar;
-	RegularGrammar userRegularGrammar;
+	RegularGrammar<uint1, int1> userRegularGrammar;
 
 	// ...
 	// split ast into RE and CF part
