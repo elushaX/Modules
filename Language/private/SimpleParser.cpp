@@ -12,15 +12,8 @@ SimpleParser::SimpleParser() {
 	ContextFreeGrammar contextFreeGrammar;
 	{
 		// use existing CF grammar interface
-		auto term = contextFreeGrammar.createTerminal();
-
-		auto nonTerm = contextFreeGrammar.createNonTerminal();
-		auto nonTerm2 = contextFreeGrammar.createNonTerminal();
-
-		contextFreeGrammar.addRule(nonTerm, { term, nonTerm2 });
-		contextFreeGrammar.addRule();
-
-		contextFreeGrammar.setStart(nonTerm);
+		contextFreeGrammar.addRule("a", { ContextFreeGrammar::Arg("") });
+		contextFreeGrammar.setStart("a");
 	}
 
 	// Define Regular grammar

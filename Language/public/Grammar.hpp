@@ -3,11 +3,70 @@
 
 #include "Buffer.hpp"
 #include "LanguageCommon.hpp"
-#include "Utils.hpp"
+#include "Map.hpp"
+#include "Strings.hpp"
 
 namespace tp {
 
-	class ContextFreeGrammar {};
+	class ContextFreeGrammar {
+	public:
+		struct Arg {
+			friend class Rule;
+
+		public:
+			Arg() = default;
+			explicit Arg(const String& id, bool terminal = true, bool epsilon = false);
+
+		public:
+			bool operator==(const Arg& in) const;
+			[[nodiscard]] const String& getId() const;
+
+		private:
+			String mId;
+			bool mIsTerminal = false;
+			bool mIsEpsilon = false;
+		};
+
+		class Rule {
+		public:
+			Rule() = default;
+			Rule(const String& id, const InitialierList<Arg>& args);
+
+		public:
+			bool operator==(const Rule& in) const;
+			[[nodiscard]] bool isProductive() const;
+
+		private:
+			String mId;
+			Buffer<Arg> mArgs;
+		};
+
+	private:
+		// cache data
+		struct NonTerminal {
+			Buffer<Rule*> rules;
+			Map<String, NonTerminal*> references;
+			Map<String, NonTerminal*> referencing;
+
+		public:
+			[[nodiscard]] bool isProductive() const;
+			[[nodiscard]] bool isLooped(Map<String, ualni>& processed, const String& id) const;
+		};
+
+	public:
+		ContextFreeGrammar() = default;
+
+	public:
+		void addRule(const Rule& rule);
+		void addRule(const String& id, const InitialierList<Arg>& args);
+		void setStart(const String& startRule);
+
+	private:
+		Map<String, NonTerminal> mNonTerminals;
+		Buffer<Rule> mRules;
+		String mStartTerminal;
+		bool mIsLooped = false;
+	};
 
 	template <typename tAlphabetType, typename tTokType>
 	class RegularGrammar {
