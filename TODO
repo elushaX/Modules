@@ -3,6 +3,9 @@ All:
 	make more general structure for feature renders
 
 Language:
+	Grammar:
+		Store all RE Grammar API nodes in one buffer
+
 	rename Language module to FormalLanguage
 	Merge parser and tokenizer module into grammar module
 
