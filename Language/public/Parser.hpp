@@ -3,16 +3,17 @@
 
 #include "AST.hpp"
 #include "GrammarCompiler.hpp"
-#include "Sentence.hpp"
 
 namespace tp {
+
+	template <typename tAlphabetType>
 	class Parser {
 	public:
 		Parser() = default;
 
 	public:
-		void compileTables(const ContextFreeGrammar& cfGrammar, const RegularGrammar& reGrammar);
-		void parse(const Sentence& sentence, AST& out);
+		void compileTables(const ContextFreeGrammar& cfGrammar, const RegularGrammar<tAlphabetType, ualni>& reGrammar) {}
+		void parse(const tAlphabetType* sentence, ualni sentenceLength, AST& out) {}
 
 	public:
 		// save load compiled tables
