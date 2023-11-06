@@ -1,17 +1,15 @@
 
+#include "NewPlacement.hpp"
 #include "Test.hpp"
 
 using namespace tp;
 
 void test() {
-	auto parser = SimpleParser();
-	auto grammar = Sentence(gGrammar);
-
-	auto sentence = Sentence(gSentence);
+	auto parser = SimpleParser<int1>();
 	auto ast = AST();
 
-	parser.compileTables(grammar);
-	parser.parse(sentence, ast);
+	parser.compileTables(gGrammar, String::Logic::calcLength(gGrammar));
+	parser.parse(gSentence, String::Logic::calcLength(gSentence), ast);
 }
 
 int main() {
