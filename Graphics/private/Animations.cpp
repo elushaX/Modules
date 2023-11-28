@@ -19,7 +19,9 @@ halnf AnimValue::interpolate() const {
 	return out;
 }
 
-AnimValue::AnimValue() = default;
+AnimValue::AnimValue() {
+	mTimeStart = gCurrentTime;
+}
 
 void AnimValue::setAnimTime(halni time) { mTimeAnim = time; }
 
@@ -39,7 +41,9 @@ void AnimValue::set(halnf val) {
 	if (val == mVal) return;
 	mValPrev = get();
 	mVal = val;
-	if (!inTransition()) mTimeStart = (halni) gCurrentTime;
+	if (!inTransition()) {
+		mTimeStart = gCurrentTime;
+	}
 }
 
 halnf AnimValue::getTarget() const { return mVal; }
@@ -47,14 +51,19 @@ halnf AnimValue::getTarget() const { return mVal; }
 void AnimValue::setNoTransition(halnf val) {
 	mValPrev = val;
 	mVal = val;
-	mTimeStart -= mTimeStart;
+	mTimeStart = gCurrentTime - mTimeAnim;
 }
 
 halnf AnimValue::get() const {
 	if (inTransition()) {
 		gInTransition = true;
+		return interpolate();
 	}
-	return interpolate();
+	return mVal;
+}
+
+void AnimValue::operator=(halnf val) {
+	setNoTransition(val);
 }
 
 AnimValue::operator halnf() const { return get(); }
@@ -83,6 +92,8 @@ void AnimRect::set(const RectF& in) {
 	z.set(in.z);
 	w.set(in.w);
 }
+
+AnimColor::AnimColor() : mColor() {}
 
 RGBA AnimColor::get() const {
 	auto col = mColor.get();

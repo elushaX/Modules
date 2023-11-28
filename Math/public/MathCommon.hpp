@@ -25,4 +25,5 @@ namespace tp {
 	alnf sqrt(alnf val);
 	alnf rad(alnf val);
 	alnf deg(alnf val);
+	alnf log2(alnf val);
 }

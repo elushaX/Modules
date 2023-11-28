@@ -32,9 +32,9 @@ namespace tp {
 
 	class AnimRect : Rect<AnimValue> {
 	public:
-		AnimRect() {
-			set({ 0, 0, 0, 0 });
+		AnimRect() {	
 			setAnimTime(450);
+			setNoTransition({ 0, 0, 0, 0 });
 		}
 
 		[[nodiscard]] RectF get() const;
@@ -45,9 +45,10 @@ namespace tp {
 	};
 
 	class AnimColor {
+	public:
+		AnimColor();
 		AnimRect mColor;
 
-	public:
 		[[nodiscard]] RGBA get() const;
 		void set(const RGBA&);
 	};

@@ -1,5 +1,6 @@
 
 #include "Window.hpp"
+#include "Timing.hpp"
 
 #include "imgui.h"
 
@@ -11,6 +12,10 @@ int main() {
 		return 1;
 	}
 
+	int frames = 0;
+	int fps = 0;
+	tp::Timer timer(1000);
+
 	{
 		auto window = tp::Window::createWindow(800, 600, "Window 1");
 
@@ -18,9 +23,17 @@ int main() {
 			while (!window->shouldClose()) {
 				window->processEvents();
 
-				ImGui::Text("Hello!");
+				ImGui::Text("fps: %i", fps);
 
 				window->draw();
+
+				if (timer.isTimeout()) {
+					fps = frames;
+					frames = 0;
+					timer.reset();
+				}
+
+				frames++;
 			}
 		}
 

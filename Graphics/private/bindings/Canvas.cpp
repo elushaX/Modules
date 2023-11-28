@@ -23,31 +23,78 @@ Graphics::Canvas::Canvas() { mContext = new Context(); }
 
 Graphics::Canvas::~Canvas() { delete mContext; }
 
-void Graphics::Canvas::init() { mContext->vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES); }
+void Graphics::Canvas::init() { 
+	mContext->vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES); 
+	
+	if (nvgCreateFont(mContext->vg, "default", "Font.ttf") == -1) {
+		// TODO	
+	}
+}
 
 void Graphics::Canvas::deinit() {
-	// Cleanup
 	nvgDeleteGL3(mContext->vg);
 }
 
-void Graphics::Canvas::proc() {
-	auto width = 600;
-	auto height = 600;
+RectF Graphics::Canvas::getAvaliableArea() {
+	return { (halnf) 0, (halnf) 0, mWidth, mHeight };
+}
 
-	// Start NanoVG rendering
-	nvgBeginFrame(mContext->vg, width, height, 1.0);
-
-	// Draw a rectangle
+void Graphics::Canvas::rect(const RectF& rec, const RGBA& col, halnf round) {
 	nvgBeginPath(mContext->vg);
-	nvgRect(mContext->vg, 50, 50, 50, 50);
-	nvgFillColor(mContext->vg, nvgRGBf(0.8f, 0.4f, 0.1f));
-	nvgFill(mContext->vg);
+	
+	if (round == 0) {
+		nvgRect(mContext->vg, rec.x, rec.y, rec.z, rec.w);
+	} else {
+		nvgRoundedRect(mContext->vg, rec.x, rec.y, rec.z, rec.w, round);
+	}
 
-	// End NanoVG rendering
-	nvgEndFrame(mContext->vg);
+	nvgFillColor(mContext->vg, { col.r, col.g, col.b, col.a });
+	nvgFill(mContext->vg);
+}
+
+void Graphics::Canvas::text(const String& string, const RectF& aRec, halnf size, Align align, halnf marging, const RGBA& col) {
+	RectF rec = { aRec.x + marging, aRec.y + marging, aRec.z - marging * 2, aRec.w - marging * 2 };
+
+	nvgScissor(mContext->vg, rec.x, rec.y, rec.z, rec.w);
+
+	nvgFontSize(mContext->vg, size);
+	nvgFontFace(mContext->vg, "default");
+	nvgFillColor(mContext->vg, { col.r, col.g, col.b, col.a } );
+
+	float centerX = rec.x;
+	float centerY = rec.y;
+	int alignNVG = 0;
+
+	if (((int1*)&align)[1] == 0x00) { // center x
+		alignNVG |= NVG_ALIGN_CENTER;
+		centerX += rec.z * 0.5f;
+	} else if (((int1*)&align)[1] == 0x01) { // left x
+		alignNVG |= NVG_ALIGN_LEFT;
+	} else if (((int1*)&align)[1] == 0x02) { // right x
+		alignNVG |= NVG_ALIGN_RIGHT;
+		centerX += rec.z;
+	}
+
+	if (((int1*)&align)[0] == 0x00) { // center y
+		alignNVG |= NVG_ALIGN_MIDDLE;
+		centerY += rec.w * 0.5f;
+	} else if (((int1*)&align)[0] == 0x01) { // top y
+		alignNVG |= NVG_ALIGN_TOP;
+		centerY += rec.w;
+	} else if (((int1*)&align)[0] == 0x02) { // bottom y
+		alignNVG |= NVG_ALIGN_BOTTOM;
+	}
+
+	nvgTextAlign(mContext->vg, alignNVG);
+
+	nvgText(mContext->vg, centerX, centerY, string.read(), nullptr);
+	nvgResetScissor(mContext->vg);
+}
+
+void Graphics::Canvas::proc() {
+	nvgBeginFrame(mContext->vg, mWidth, mHeight, 1.0);
 }
 
 void Graphics::Canvas::draw() {
-	// End NanoVG rendering
 	nvgEndFrame(mContext->vg);
 }

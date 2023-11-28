@@ -1,5 +1,7 @@
 #pragma once
 
+// TODO : fix this ugly shit
+
 #include "Buffer.hpp"
 #include "Graphics.hpp"
 #include "Keycodes.hpp"
@@ -14,8 +16,21 @@ namespace tp {
 			enum Type {
 				KEY,
 				MOUSE,
-
 			};
+		};
+
+		struct Events {
+			Vec2F mPointer;
+			
+			const Vec2F& getPos() const;
+			bool isPressed() const;
+			bool isDown() const;
+			halnf getScrollY() const;
+
+		private:
+			friend Window;
+			Buffer<Event> mQueu;
+			Context* mContext;
 		};
 
 	private:
@@ -33,10 +48,12 @@ namespace tp {
 
 		auto getContext() -> Context*;
 
+		Graphics::Canvas& getCanvas();
+		const Events& getEvents();
+
 	private:
 		Context* mContext;
 		Graphics mGraphics;
-
-		Buffer<Event> mEvents;
+		Events mEvents;
 	};
 }
