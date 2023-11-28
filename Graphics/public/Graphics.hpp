@@ -2,6 +2,8 @@
 
 #include "GraphicsCommon.hpp"
 
+// TODO : fix this ugly shit
+
 namespace tp {
 	class Window;
 
@@ -13,17 +15,22 @@ namespace tp {
 
 		private:
 			friend Graphics;
+			friend Window;
 
 			GL();
 			~GL();
 
 			void init();
 			void deinit();
-			static void proc();
-			static void draw();
+			void proc();
+			void draw();
 
 		public:
 			// TODO : API
+
+		private:
+			halnf mWidth = 100;
+			halnf mHeight = 100;
 		};
 
 		class GUI {
@@ -51,6 +58,7 @@ namespace tp {
 
 		private:
 			friend Graphics;
+			friend Window;
 
 			Canvas();
 			~Canvas();
@@ -61,7 +69,27 @@ namespace tp {
 			void draw();
 
 		public:
+			enum Align : int2 { 
+				CC = 0x0000, 
+				CT = 0x0001, 
+				CB = 0x0002, 
+				LC = 0x0100, 
+				LT = 0x0101, 
+				LB = 0x0102, 
+				RC = 0x0200, 
+				RT = 0x0201, 
+				RB = 0x0202,
+			};
+
+			RectF getAvaliableArea();
+			void rect(const RectF& rec, const RGBA& col, halnf round = 0);
+			void text(const String&, const RectF&, halnf size, Align, halnf marging, const RGBA&);
+
 			// TODO : API
+
+		private:
+			halnf mWidth = 600;
+			halnf mHeight = 600;
 		};
 
 	private:

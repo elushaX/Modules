@@ -5,6 +5,8 @@
 
 #include "Intersections.hpp"
 
+#define INRANGE(v, l, u) (v >= l && v <= u)
+
 namespace tp {
 
 	template <typename Type>

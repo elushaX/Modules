@@ -47,36 +47,44 @@ void Graphics::GL::deinit() {
 	glDeleteVertexArrays(1, &mContext->vao);
 }
 
-void Graphics::GL::proc() { glClear(GL_COLOR_BUFFER_BIT); }
+void Graphics::GL::proc() {
+}
 
-void Graphics::GL::draw() { glDrawArrays(GL_TRIANGLES, 0, 3); }
+void Graphics::GL::draw() {
+	glClearColor(0.f, 0.f, 0.f, 0.f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	glViewport(0, 0, mWidth, mHeight);
+	// glDrawArrays(GL_TRIANGLES, 0, 3);
+}
 
 void Graphics::init(Window* window) {
 	mGl.init();
-	mGui.init(window);
+	//mGui.init(window);
 	mCanvas.init();
 }
 
 void Graphics::deinit() {
 	mCanvas.deinit();
-	mGui.deinit();
+	// mGui.deinit();
 	mGl.deinit();
 }
 
 void Graphics::proc() {
 	mGl.proc();
 	mCanvas.proc();
-	mGui.proc();
+	// mGui.proc();
 }
 
 void Graphics::draw() {
 	mGl.draw();
 	mCanvas.draw();
-	mGui.draw();
+	// mGui.draw();
 }
 
 Window::Window(int width, int height, const char* title) {
 	mContext = new Context();
+
+	glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
 
 	// Create a window and OpenGL context
 	mContext->window = glfwCreateWindow(width, height, title, nullptr, nullptr);
@@ -94,6 +102,11 @@ Window::Window(int width, int height, const char* title) {
 	}
 
 	mGraphics.init(this);
+
+	mContext->inputManager.init(mContext->window);
+	glfwSetWindowUserPointer(mContext->window, &mContext->inputManager);
+
+	mEvents.mContext = mContext;
 }
 
 Window::~Window() {
@@ -136,12 +149,44 @@ bool Window::shouldClose() const { return glfwWindowShouldClose(mContext->window
 
 void Window::processEvents() {
 	glfwPollEvents();
+	
+	int w, h;
+	glfwGetWindowSize(mContext->window, &w, &h);
+
+	mGraphics.mCanvas.mWidth = w;
+	mGraphics.mCanvas.mHeight = h;
+
+	mGraphics.mGl.mWidth = w;
+	mGraphics.mGl.mHeight = h;
+
 	mGraphics.proc();
+
+	mContext->inputManager.update();
+	get_time();
 }
 
 void Window::draw() {
 	mGraphics.draw();
 	glfwSwapBuffers(mContext->window);
+	mContext->inputManager.resetScroll();
 }
 
 auto Window::getContext() -> Context* { return mContext; }
+Graphics::Canvas& Window::getCanvas() { return mGraphics.mCanvas; }
+const Window::Events& Window::getEvents() { return mEvents; }
+
+const Vec2F& Window::Events::getPos() const {
+	return mContext->inputManager.getPos();
+}
+
+bool Window::Events::isPressed() const {
+	return mContext->inputManager.isPressed();
+}
+
+bool Window::Events::isDown() const {
+	return mContext->inputManager.isDown();
+}
+
+halnf Window::Events::getScrollY() const {
+	return mContext->inputManager.getScrollY();
+}

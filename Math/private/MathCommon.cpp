@@ -1,4 +1,6 @@
 
+/// whoaoao wtf
+
 #include "MathCommon.hpp"
 
 #include "ContainersCommon.hpp"
@@ -16,6 +18,7 @@ tp::alnf std_rad(tp::alnf val);
 tp::alnf std_deg(tp::alnf val);
 tp::alnf std_atan2(tp::alnf X, tp::alnf Y);
 tp::alnf std_atan(tp::alnf val);
+tp::alnf std_log2(tp::alnf val);
 
 tp::alnf tp::sin(const tp::alnf radians) { return std_sin((halnf) radians); }
 tp::alnf tp::tan(const tp::alnf radians) { return std_tan((halnf) radians); }
@@ -26,6 +29,7 @@ tp::alnf tp::rad(const tp::alnf val) { return val * (PI / 180.f); }
 tp::alnf tp::deg(const tp::alnf val) { return val * (180.f / PI); }
 tp::alnf tp::atan2(const tp::alnf X, const tp::alnf Y) { return std_atan2((halnf) X, (halnf) Y); }
 tp::alnf tp::atan(const tp::alnf val) { return std_atan((halnf) val); }
+tp::alnf tp::log2(alnf val) { return std_log2(val); }
 
 #include <cmath>
 
@@ -38,3 +42,4 @@ tp::alnf std_rad(const tp::alnf val) { return val * (PI / 180.f); }
 tp::alnf std_deg(const tp::alnf val) { return val * (180.f / PI); }
 tp::alnf std_atan2(const tp::alnf X, const tp::alnf Y) { return atan2((tp::halnf) X, (tp::halnf) Y); }
 tp::alnf std_atan(const tp::alnf val) { return atan((tp::halnf) val); }
+tp::alnf std_log2(const tp::alnf val) { return log2((tp::halnf) val); }
