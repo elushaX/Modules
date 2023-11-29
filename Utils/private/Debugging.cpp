@@ -208,9 +208,11 @@ void CallStackCapture::platformWriteDebugSymbols(FramePointer frame, DebugSymbol
 
 void CallStackCapture::printSnapshot(const CallStack* snapshot) {
 	printf("CallStack: \n");
-	for (auto frame : *snapshot) {
-		auto symbols = gCSCapture->getSymbols(frame.getFrame());
-		printf("  %s   -----   %s:%llu\n", symbols->getFunc(), symbols->getFile(), symbols->getLine());
+	if (snapshot) {
+		for (auto frame : *snapshot) {
+			auto symbols = gCSCapture->getSymbols(frame.getFrame());
+			printf("  %s   -----   %s:%llu\n", symbols->getFunc(), symbols->getFile(), symbols->getLine());
+		}
 	}
 	printf("\n");
 }

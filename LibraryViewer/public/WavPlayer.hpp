@@ -1,29 +1,29 @@
 #pragma once
 
-#include <iostream>
-#include <thread>
-#include <alsa/asoundlib.h>
+#include "Common.hpp"
 
-class WavPlayer {
+class MusicPlayerContext;
+typedef tp::ualni SongId;
+
+class TrackPlayer {
 public:
-    WavPlayer();
-    ~WavPlayer();
+	TrackPlayer();
+	~TrackPlayer();
 
-    void loadSong(const char* filePath);
-    void playSong();
-    void stopSong();
-    void setVolume(float volume);
-    float getProgress() const;
-    float getDurationSec() const;
-    void setProgress(float newProgress);
+	void startStreamTrack(SongId id);
+
+	void playSong();
+
+	void stopSong();
+
+	void setVolume(float volume);
+
+	float getProgress() const;
+
+	float getDurationSec() const;
+
+	void setProgress(float newProgress);
 
 private:
-    void playbackThreadFunction();
-
-    snd_pcm_t* handle;
-    std::thread* playbackThread;
-    bool isPlaying;
-    float progress;
+	MusicPlayerContext* mContext;
 };
-
-void example();

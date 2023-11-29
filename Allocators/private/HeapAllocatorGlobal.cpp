@@ -21,13 +21,14 @@ HeapAllocGlobal::~HeapAllocGlobal() = default;
 bool HeapAllocGlobal::checkLeaks() { return false; }
 void HeapAllocGlobal::startIgnore() {}
 void HeapAllocGlobal::stopIgnore() {}
+ualni HeapAllocGlobal::getNAllocations() { return 0; }
 
 #else
 
 tp::MemHead* tp::HeapAllocGlobal::mEntry = nullptr;
 tp::ualni tp::HeapAllocGlobal::mNumAllocations = 0;
 tp::Mutex tp::HeapAllocGlobal::mMutex;
-bool tp::HeapAllocGlobal::mIgnore;
+bool tp::HeapAllocGlobal::mIgnore = true;
 
 // ----------------------- Debug Implementation ---------------------------- //
 // |----------------|
@@ -100,7 +101,9 @@ ALLOCATE:
 
 	// 3) Trace the stack
 #ifdef MEM_STACK_TRACE
-	head->mCallStack = gCSCapture->getSnapshot();
+	// check if somewhat decides to call new within static variable initialization
+	if (gCSCapture) head->mCallStack = gCSCapture->getSnapshot();
+	else head->mCallStack = nullptr;
 #endif
 
 	mMutex.unlock();
@@ -192,6 +195,10 @@ void HeapAllocGlobal::stopIgnore() {
 	mMutex.lock();
 	mIgnore = false;
 	mMutex.unlock();
+}
+
+ualni HeapAllocGlobal::getNAllocations() { 
+	return mNumAllocations;
 }
 
 HeapAllocGlobal::~HeapAllocGlobal() = default;

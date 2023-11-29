@@ -1,12 +1,22 @@
 
 #include "Allocators.hpp"
+#include "HeapAllocatorGlobal.hpp"
 
 #include <cstdlib>
+#include <stdio.h>
+
+static bool init(const tp::ModuleManifest* self) { 
+  tp::HeapAllocGlobal::stopIgnore();
+  if (tp::HeapAllocGlobal::getNAllocations()) {
+    printf("Warning : Operator new was called outside module initialization!!\n\n");
+  }
+  return true;
+}
 
 static void deinit(const tp::ModuleManifest* self) { tp::HeapAllocGlobal::checkLeaks(); }
 
 static tp::ModuleManifest* sModuleDependencies[] = { &tp::gModuleUtils, nullptr };
-tp::ModuleManifest tp::gModuleAllocators = ModuleManifest("Allocators", nullptr, deinit, sModuleDependencies);
+tp::ModuleManifest tp::gModuleAllocators = ModuleManifest("Allocators", init, deinit, sModuleDependencies);
 
 void* operator new(size_t aSize) { return tp::HeapAllocGlobal::allocate(aSize); }
 void* operator new[](size_t aSize) { return tp::HeapAllocGlobal::allocate(aSize); }
