@@ -31,7 +31,7 @@ namespace tp {
 	ModuleManifest gModuleUtils = ModuleManifest("Utils", initialize, deinitialize, sModuleUtilsDeps);
 
 	void memSetVal(void* p, uhalni byteSize, uint1 val) {
-		MODULE_SANITY_CHECK(gModuleBase)
+		// MODULE_SANITY_CHECK(gModuleBase)
 
 		alni alignedVal = val;
 		alignedVal = (alignedVal << 8) | alignedVal;

@@ -1,138 +1,217 @@
-
 #include "WavPlayer.hpp"
-#include <chrono>
-#include <fstream>
-#include <iostream>
+
 #include <math.h>
+#include <stdio.h>
 
-WavPlayer::WavPlayer() :
-	handle(nullptr),
-	playbackThread(nullptr),
-	isPlaying(false),
-	progress(0.0f) {
-	if (snd_pcm_open(&handle, "default", SND_PCM_STREAM_PLAYBACK, 0) < 0) {
-		std::cerr << "Error: Couldn't open ALSA PCM device." << std::endl;
-	}
-}
+#include "portaudio.h"
+#include "Buffer.hpp"
 
-WavPlayer::~WavPlayer() {
-	stopSong();
-	if (handle) {
-		snd_pcm_close(handle);
-	}
-}
+typedef u_int8_t uint8_t;
+typedef u_int16_t uint16_t;
+typedef u_int32_t uint32_t;
 
-void WavPlayer::loadSong(const char* filePath) {
-	stopSong();
+#include "wav_file_reader.h"
 
-	if (snd_pcm_prepare(handle) < 0) {
-		std::cerr << "Error: Couldn't prepare PCM." << std::endl;
-		return;
+class Sine {
+public:
+	Sine() {}
+
+	void setSampleRate(int aSampleRate) {
+		sampleRate = aSampleRate;
 	}
 
-	// TODO: Load and parse the WAV file
-	// For simplicity, assume a 16-bit, mono WAV file with a 44.1 kHz sample rate
-	// You need to handle loading and parsing of the WAV file here
+	tp::Buffer<float>* geLeftBuffer() { return &leftBuffer; }
+	tp::Buffer<float>* geRightBuffer() { return &rightBuffer; }
 
-	// Example:
-	// std::ifstream file(filePath, std::ios::binary);
-	// if (!file) {
-	//     std::cerr << "Error: Could not open WAV file." << std::endl;
-	//     return;
-	// }
-	// ... (load and parse WAV file)
+	bool open(PaDeviceIndex index) {
+		PaStreamParameters outputParameters;
 
-	snd_pcm_set_params(handle, SND_PCM_FORMAT_S16_LE, SND_PCM_ACCESS_RW_INTERLEAVED, 1, 44100, 1, 500000);
-}
-
-void WavPlayer::playSong() {
-	if (!isPlaying) {
-		isPlaying = true;
-		playbackThread = new std::thread(&WavPlayer::playbackThreadFunction, this);
-	}
-}
-
-void WavPlayer::stopSong() {
-	if (isPlaying) {
-		isPlaying = false;
-		if (playbackThread && playbackThread->joinable()) {
-			playbackThread->join();
-		}
-		delete playbackThread;
-		playbackThread = nullptr;
-		snd_pcm_drop(handle);
-	}
-}
-
-void WavPlayer::setVolume(float volume) {
-	// TODO: Adjust volume using ALSA API
-	// You might need to use functions like snd_pcm_volume() or other ALSA functions
-}
-
-float WavPlayer::getProgress() const { return progress; }
-
-float WavPlayer::getDurationSec() const {
-	// TODO: Return the duration of the loaded song
-	// You need information from the loaded WAV file for this
-	return 0.0f;
-}
-
-void WavPlayer::setProgress(float newProgress) {
-	if (newProgress >= 0.0f && newProgress <= 1.0f) {
-		progress = newProgress;
-
-		// TODO: Adjust playback position based on the progress using ALSA API
-		// You might need to use functions like snd_pcm_writei() or other ALSA functions
-	}
-}
-
-void WavPlayer::playbackThreadFunction() {
-	const int buffer_size = 1024; // Adjust the buffer size according to your requirements
-	short buffer[buffer_size];
-
-	while (isPlaying) {
-		// TODO: Implement actual playback logic using ALSA API
-		// You might need to use functions like snd_pcm_writei() or other ALSA functions
-
-		// For simplicity, we'll fill the buffer with dummy data
-		for (int i = 0; i < buffer_size; ++i) {
-			buffer[i] = static_cast<short>(32767 * std::sin(2.0 * M_PI * 440.0 * progress));
+		outputParameters.device = index;
+		if (outputParameters.device == paNoDevice) {
+			return false;
 		}
 
-		// Write the buffer to the PCM device
-		int err = snd_pcm_writei(handle, buffer, buffer_size);
-		if (err < 0) {
-			std::cerr << "Error writing to PCM device: " << snd_strerror(err) << std::endl;
-			stopSong();
-			return;
+		const PaDeviceInfo* pInfo = Pa_GetDeviceInfo(index);
+		if (pInfo != 0) {
+			printf("Output device name: '%s'\r", pInfo->name);
 		}
 
-		// Update progress
-		progress += 0.1f;
-		if (progress >= 1.0f) {
-			stopSong();
+		outputParameters.channelCount = 2;
+		outputParameters.sampleFormat = paFloat32; /* 32 bit floating point output */
+		outputParameters.suggestedLatency = Pa_GetDeviceInfo(outputParameters.device)->defaultLowOutputLatency;
+		outputParameters.hostApiSpecificStreamInfo = NULL;
+
+		PaError err = Pa_OpenStream(&stream, NULL, &outputParameters, sampleRate, paFramesPerBufferUnspecified, paClipOff, &Sine::paCallback, this);
+
+		/* Failed to open stream to device !!! */
+		if (err != paNoError) {
+			return false;
 		}
 
-		// Sleep for a short duration (adjust as needed)
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-	}
-}
+		err = Pa_SetStreamFinishedCallback(stream, &Sine::paStreamFinished);
 
-void example() {
-	WavPlayer player;
+		if (err != paNoError) {
+			Pa_CloseStream(stream);
+			stream = 0;
+			return false;
+		}
 
-	// Load a WAV file
-	player.loadSong("path/to/your/file.wav");
-
-	// Start playing the song asynchronously
-	player.playSong();
-
-	// Simulate a main application loop (replace this with your actual application logic)
-	for (int i = 0; i < 30; ++i) {
-		std::cout << "Progress: " << player.getProgress() << std::endl;
-		std::this_thread::sleep_for(std::chrono::seconds(1));
+		return true;
 	}
 
-	// Stop the song playback
-	player.stopSong();
+	bool close() {
+		if (stream == 0) return false;
+		PaError err = Pa_CloseStream(stream);
+		stream = 0;
+		return (err == paNoError);
+	}
+
+	bool start() {
+		if (stream == 0) return false;
+		PaError err = Pa_StartStream(stream);
+		return (err == paNoError);
+	}
+
+	bool stop() {
+		if (stream == 0) return false;
+		PaError err = Pa_StopStream(stream);
+		return (err == paNoError);
+	}
+
+private:
+	int paCallbackMethod(const void* inputBuffer, void* outputBuffer, unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo* timeInfo, PaStreamCallbackFlags statusFlags) {
+		float* out = (float*) outputBuffer;
+
+		for (unsigned long i = 0; i < framesPerBuffer; i++) {
+			*out++ = leftBuffer[leftSampleIdx];
+			*out++ = rightBuffer[rightSampleIdx];
+			
+			leftSampleIdx += 1;
+			rightSampleIdx += 1;
+
+			if (leftSampleIdx >= leftBuffer.size()) 
+				leftSampleIdx -= 1;
+			if (rightSampleIdx >= rightBuffer.size()) 
+				rightSampleIdx -= 1;
+		}
+
+		return paContinue;
+	}
+
+	void paStreamFinishedMethod() { printf("Stream Completed\n"); }
+
+	static int paCallback(const void* inputBuffer, void* outputBuffer, unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo* timeInfo, PaStreamCallbackFlags statusFlags, void* userData) { 
+		return ((Sine*) userData)->paCallbackMethod(inputBuffer, outputBuffer, framesPerBuffer, timeInfo, statusFlags); 
+	}
+
+	static void paStreamFinished(void* userData) { return ((Sine*) userData)->paStreamFinishedMethod(); }
+
+	PaStream* stream = 0;
+
+	tp::Buffer<float> leftBuffer;
+	tp::Buffer<float> rightBuffer;
+
+	int leftSampleIdx = 0;
+	int rightSampleIdx = 0;
+
+	int sampleRate = 44100;
+};
+
+class MusicPlayerContext {
+public:
+	MusicPlayerContext() {
+		initStatus = Pa_Initialize();
+		if (initStatus != paNoError) {
+			fprintf(stderr, "An error occurred while using the portaudio stream\n");
+			fprintf(stderr, "Error number: %d\n", initStatus);
+			fprintf(stderr, "Error message: %s\n", Pa_GetErrorText(initStatus));
+		}
+	}
+
+	void load() {
+		if (connected) {
+			stop();
+			sine.close();
+		}
+
+		exampleLoad();
+		connected = sine.open(Pa_GetDefaultOutputDevice());
+	}
+
+	void stop() {
+		if (!connected) return;
+		sine.stop();
+	}
+
+	void start() {
+		if (!connected) return;
+		sine.start();
+	}
+
+	~MusicPlayerContext() {
+		if (connected) {
+			stop();
+			sine.close();
+		}
+
+		if (initStatus == paNoError) {
+			Pa_Terminate();
+		}
+	}
+
+	void exampleLoad() {
+		AudioFile<double> audioFile;
+		audioFile.load("library/Example.wav");
+
+		audioFile.printSummary();
+
+		sine.setSampleRate(audioFile.getSampleRate());
+
+		int numSamples = audioFile.getNumSamplesPerChannel();
+
+		auto left = sine.geLeftBuffer();
+		auto right = sine.geRightBuffer();
+
+		left->reserve(numSamples);
+		right->reserve(numSamples);
+
+		int channel = 0;
+		for (int i = 0; i < numSamples; i++) {
+			left->getBuff()[i] = audioFile.samples[0][i];
+			right->getBuff()[i] = audioFile.samples[1][i];
+		}
+	}
+
+private:
+	Sine sine;
+	PaError initStatus;
+	bool connected = false;
+};
+
+TrackPlayer::TrackPlayer() {
+	mContext = new MusicPlayerContext();
 }
+
+TrackPlayer::~TrackPlayer() {
+	delete mContext;
+}
+
+void TrackPlayer::startStreamTrack(SongId id) {
+	mContext->load();
+}
+
+void TrackPlayer::playSong() {
+	mContext->start();
+}
+
+void TrackPlayer::stopSong() {
+	mContext->stop();
+}
+
+void TrackPlayer::setVolume(float volume) {}
+
+float TrackPlayer::getProgress() const { return 0; }
+
+float TrackPlayer::getDurationSec() const { return 0; }
+
+void TrackPlayer::setProgress(float newProgress) {}

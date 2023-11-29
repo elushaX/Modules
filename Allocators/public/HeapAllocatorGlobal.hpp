@@ -25,7 +25,8 @@ namespace tp {
 		static bool checkLeaks();
 		static void startIgnore();
 		static void stopIgnore();
-
+		static ualni getNAllocations();
+		
 	public:
 		[[nodiscard]] bool checkWrap() const { return false; }
 		void checkValid() {}

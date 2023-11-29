@@ -1,5 +1,5 @@
 
-// #include "NewPlacement.hpp"
+#include "NewPlacement.hpp"
 #include "WavPlayer.hpp"
 #include "LibraryGui.hpp"
 
@@ -7,6 +7,11 @@
 // sorting
 
 void runApp() {
+
+	TrackPlayer player;
+
+	player.startStreamTrack(0);
+	player.playSong();
 
 	Library library;
 	library.loadJson("library/Library.json");
@@ -32,7 +37,6 @@ void runApp() {
 }
 
 int main() {
-	// example();
 
 	tp::ModuleManifest* deps[] = { &tp::gModuleLibraryViewer, nullptr };
 	tp::ModuleManifest binModule("LibViewEntry", nullptr, nullptr, deps);
