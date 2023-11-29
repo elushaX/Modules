@@ -1,9 +1,8 @@
 
-#include "NewPlacement.hpp"
+// #include "NewPlacement.hpp"
+#include "WavPlayer.hpp"
 #include "LibraryGui.hpp"
 
-// events
-// animations
 // monitor resource usage
 // sorting
 
@@ -33,6 +32,8 @@ void runApp() {
 }
 
 int main() {
+	// example();
+
 	tp::ModuleManifest* deps[] = { &tp::gModuleLibraryViewer, nullptr };
 	tp::ModuleManifest binModule("LibViewEntry", nullptr, nullptr, deps);
 

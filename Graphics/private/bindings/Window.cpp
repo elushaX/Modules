@@ -59,26 +59,26 @@ void Graphics::GL::draw() {
 
 void Graphics::init(Window* window) {
 	mGl.init();
-	//mGui.init(window);
+	mGui.init(window);
 	mCanvas.init();
 }
 
 void Graphics::deinit() {
 	mCanvas.deinit();
-	// mGui.deinit();
+	mGui.deinit();
 	mGl.deinit();
 }
 
 void Graphics::proc() {
 	mGl.proc();
 	mCanvas.proc();
-	// mGui.proc();
+	mGui.proc();
 }
 
 void Graphics::draw() {
 	mGl.draw();
 	mCanvas.draw();
-	// mGui.draw();
+	mGui.draw();
 }
 
 Window::Window(int width, int height, const char* title) {
@@ -101,10 +101,9 @@ Window::Window(int width, int height, const char* title) {
 		return;
 	}
 
-	mGraphics.init(this);
-
 	mContext->inputManager.init(mContext->window);
-	glfwSetWindowUserPointer(mContext->window, &mContext->inputManager);
+	
+	mGraphics.init(this);
 
 	mEvents.mContext = mContext;
 }
