@@ -4,6 +4,7 @@
 
 // -------- Debug UI -------- //
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
@@ -28,6 +29,9 @@ void Graphics::GUI::init(Window* window) {
 
 	// Initialize ImGui with GLFW and OpenGL
 	ImGui_ImplGlfw_InitForOpenGL(window->getContext()->window, true);
+
+	// ImGui_ImplGlfw_GetBackendData();
+
 	ImGui_ImplOpenGL3_Init("#version 330");
 }
 
@@ -45,10 +49,6 @@ void Graphics::GUI::proc() {
 	ImGui::NewFrame();
 
 	tp::HeapAllocGlobal::stopIgnore();
-
-	// ImGui code goes here
-	ImGui::Begin("Window");
-	ImGui::End();
 }
 
 void Graphics::GUI::draw() {

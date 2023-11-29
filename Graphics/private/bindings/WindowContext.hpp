@@ -15,6 +15,8 @@ namespace tp {
 		void init(GLFWwindow* aWindow)  {
 			window = aWindow;
 			// Set up key and mouse button callbacks
+
+			glfwSetWindowUserPointer(window, this);
 			glfwSetKeyCallback(window, keyCallback);
 			glfwSetMouseButtonCallback(window, mouseButtonCallback);
 			glfwSetScrollCallback(window, scrollCallback);
@@ -86,6 +88,7 @@ namespace tp {
 		void resetScroll() {
 			scrollX = 0.0;
 			scrollY = 0.0;
+			mouseButtonStates[GLFW_MOUSE_BUTTON_LEFT] = GLFW_REPEAT;
 		}
 
 		double scrollX = 0.0;
