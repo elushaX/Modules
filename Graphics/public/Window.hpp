@@ -26,6 +26,7 @@ namespace tp {
 			bool isPressed() const;
 			bool isDown() const;
 			halnf getScrollY() const;
+			bool isEvent() const;
 
 		private:
 			friend Window;

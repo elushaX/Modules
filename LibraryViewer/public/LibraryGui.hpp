@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LibraryViewer.hpp"
+#include "WavPlayer.hpp"
 #include "Rect.hpp"
 #include "Animations.hpp"
 #include "imgui.h"
@@ -94,10 +95,38 @@ public:
 	void RenderUI() {
 		ImGui::Begin("InfoWindow", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoResize);
 
+		if (mTrack && ImGui::Button("load")) {
+			mLoadStatus = mPlayer->startStreamTrack(mTrack->mId);
+		}
+
+		ImGui::SameLine(); ImGui::Text(" Load Status : %s", mLoadStatus ? "Loaded" : "Not Loaded");
+
+		if (mTrack && mLoadStatus) {
+			auto songProgress = mPlayer->getProgress();
+			ImGui::SliderFloat("Progress", &songProgress, 0.f, 1.f);
+			mPlayer->setProgress(songProgress);
+		}
+
+		if (ImGui::Button("Play")) {
+			mPlayer->playSong();
+		}
+
+		ImGui::SameLine();
+		if (ImGui::Button("Stop")) {
+			mPlayer->stopSong();
+		}
+
 		ImGui::Text("Song Info:");
 		if (mTrack) {
 			ImGui::Text("Name : %s", mTrack->mName.read());
 			ImGui::Text("Author : %s", mTrack->mArtist.read());
+			ImGui::Text("Love : %s", mTrack->mLoved ? "true" : "false");
+			ImGui::Text("Id : %lli", mTrack->mId);
+			ImGui::Text("Total Time : %lli", mTrack->mTotalTime);
+			ImGui::Text("Play Count : %lli", mTrack->mPlayCount);
+			ImGui::Text("Skip Count : %lli", mTrack->mSkipCount);
+			ImGui::Text("Date Added : %s", mTrack->mDateAdded.read());
+			ImGui::Text("Albom : %s", mTrack->mAlbum.read());
 		} else {
 			ImGui::Text("Not Selected");
 		}
@@ -137,6 +166,8 @@ public:
 	tp::Buffer<SortType> items;
 	const Track* mTrack;
 	bool filterLoved = false;
+	TrackPlayer* mPlayer = nullptr;
+	bool mLoadStatus = false;
 };
 
 
@@ -261,14 +292,18 @@ public:
 template <typename Events, typename Canvas> requires(DrawableConcept<Canvas>)
 class LibraryWidget {
 public:
-	LibraryWidget(Library* lib) : mLibrary(lib) {
+	LibraryWidget(Library* lib, TrackPlayer* player) : mLibrary(lib), mPlayer(player) {
 		for (auto track : mLibrary->mTraks) {
 			mTraks.append(TrackWidget<Events, Canvas>(&track.data()));
 		}
 		mResizeWidget.value = 1000;
+		mCurrentTrackInfo.mPlayer = mPlayer;
 	}
 
 	void proc(const Events& events, const tp::RectF& areaParent, const tp::RectF& aArea) {
+		mNeedRedraw = events.isEvent();
+		if (!mNeedRedraw) return;
+
 		mResizeWidget.max = aArea.z - trackInfoSize;
 		mResizeWidget.min = 100;
 
@@ -353,4 +388,7 @@ private:
 	ResizerWidget<Events, Canvas> mResizeWidget;
 
 	Library* mLibrary;
+	TrackPlayer* mPlayer;
+
+	bool mNeedRedraw = false;
 };

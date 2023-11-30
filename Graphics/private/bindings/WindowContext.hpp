@@ -40,6 +40,10 @@ namespace tp {
 			return mouseButtonStates[GLFW_MOUSE_BUTTON_LEFT] == GLFW_REPEAT || mouseButtonStates[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS; 
 		}
 
+		bool isEvents() const { 
+			return isEvent; 
+		}
+
 		double getScrollY() const { return scrollY; }
 
 		// bool isScrollDown() const { return scrollY < 0.0; }
@@ -57,6 +61,7 @@ namespace tp {
 				} else if (action == GLFW_RELEASE) {
 					inputManager->keyStates[key] = GLFW_RELEASE;
 				}
+				inputManager->isEvent = true;
 			}
 		}
 
@@ -66,6 +71,7 @@ namespace tp {
 			if (inputManager) {
 				// Update mouse button state
 				inputManager->mouseButtonStates[button] = action;
+				inputManager->isEvent = true;
 			}
 		}
 
@@ -76,13 +82,19 @@ namespace tp {
 				// Update scroll state
 				inputManager->scrollX = xoffset;
 				inputManager->scrollY = yoffset;
+				inputManager->isEvent = true;
 			}
 		}
 
 		void update() {
 			double x, y;
 			glfwGetCursorPos(window, &x, &y);
+			mousePosPrev = mousePos;
 			mousePos = { x, y };
+
+			if ((mousePosPrev - mousePos).length2()) {
+				isEvent = true;
+			}
 		}
 
 		void resetScroll() {
@@ -91,10 +103,12 @@ namespace tp {
 			mouseButtonStates[GLFW_MOUSE_BUTTON_LEFT] = GLFW_REPEAT;
 		}
 
+		bool isEvent = false;
 		double scrollX = 0.0;
     double scrollY = 0.0;
 		GLFWwindow* window;
 		Vec2F mousePos;
+		Vec2F mousePosPrev;
 		std::array<int, GLFW_KEY_LAST + 1> keyStates = { GLFW_RELEASE };
 		std::array<int, GLFW_MOUSE_BUTTON_LAST + 1> mouseButtonStates = { GLFW_RELEASE };
 	};

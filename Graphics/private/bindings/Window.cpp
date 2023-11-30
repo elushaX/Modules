@@ -147,6 +147,7 @@ void Window::destroyWindow(Window* window) {
 bool Window::shouldClose() const { return glfwWindowShouldClose(mContext->window); }
 
 void Window::processEvents() {
+	mContext->inputManager.isEvent = false;
 	glfwPollEvents();
 	
 	int w, h;
@@ -161,6 +162,7 @@ void Window::processEvents() {
 	mGraphics.proc();
 
 	mContext->inputManager.update();
+
 	get_time();
 }
 
@@ -188,4 +190,8 @@ bool Window::Events::isDown() const {
 
 halnf Window::Events::getScrollY() const {
 	return mContext->inputManager.getScrollY();
+}
+
+bool Window::Events::isEvent() const {
+	return mContext->inputManager.isEvents();
 }

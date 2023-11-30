@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Common.hpp"
+#include "LibraryViewer.hpp"
 
 class MusicPlayerContext;
 typedef tp::ualni SongId;
@@ -10,7 +10,7 @@ public:
 	TrackPlayer();
 	~TrackPlayer();
 
-	void startStreamTrack(SongId id);
+	bool startStreamTrack(SongId id);
 
 	void playSong();
 

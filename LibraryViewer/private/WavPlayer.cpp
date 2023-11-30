@@ -5,6 +5,7 @@
 
 #include "portaudio.h"
 #include "Buffer.hpp"
+#include "Multithreading.hpp"
 
 typedef u_int8_t uint8_t;
 typedef u_int16_t uint16_t;
@@ -13,6 +14,7 @@ typedef u_int32_t uint32_t;
 #include "wav_file_reader.h"
 
 class Sine {
+	friend class MusicPlayerContext;
 public:
 	Sine() {}
 
@@ -82,6 +84,7 @@ private:
 	int paCallbackMethod(const void* inputBuffer, void* outputBuffer, unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo* timeInfo, PaStreamCallbackFlags statusFlags) {
 		float* out = (float*) outputBuffer;
 
+		mMutex.lock();
 		for (unsigned long i = 0; i < framesPerBuffer; i++) {
 			*out++ = leftBuffer[leftSampleIdx];
 			*out++ = rightBuffer[rightSampleIdx];
@@ -94,6 +97,7 @@ private:
 			if (rightSampleIdx >= rightBuffer.size()) 
 				rightSampleIdx -= 1;
 		}
+		mMutex.unlock();
 
 		return paContinue;
 	}
@@ -115,6 +119,8 @@ private:
 	int rightSampleIdx = 0;
 
 	int sampleRate = 44100;
+
+	tp::Mutex mMutex;
 };
 
 class MusicPlayerContext {
@@ -128,14 +134,18 @@ public:
 		}
 	}
 
-	void load() {
+	bool load(SongId id) {
 		if (connected) {
 			stop();
 			sine.close();
 		}
 
-		exampleLoad();
-		connected = sine.open(Pa_GetDefaultOutputDevice());
+		if (loadWav(id)) {
+			connected = sine.open(Pa_GetDefaultOutputDevice());
+			return true;
+		}
+
+		return false;
 	}
 
 	void stop() {
@@ -159,9 +169,12 @@ public:
 		}
 	}
 
-	void exampleLoad() {
+	bool loadWav(SongId id) {
 		AudioFile<double> audioFile;
-		audioFile.load("library/Example.wav");
+		
+		if (!audioFile.load(std::string(getHome().read()) + std::string("traks/") + std::to_string(id) + ".wav")) {
+			return false;
+		}
 
 		audioFile.printSummary();
 
@@ -180,6 +193,20 @@ public:
 			left->getBuff()[i] = audioFile.samples[0][i];
 			right->getBuff()[i] = audioFile.samples[1][i];
 		}
+
+		return true;
+	}
+
+	float getProgress() const { 
+		return float(sine.leftSampleIdx) / sine.leftBuffer.size(); 
+	}
+
+	void setProgress(float newProgress) {
+		newProgress = tp::clamp(newProgress, 0.f, 1.f);
+		sine.mMutex.lock();
+		sine.leftSampleIdx = sine.leftBuffer.size() * newProgress;
+		sine.rightSampleIdx =  sine.leftBuffer.size() * newProgress;
+		sine.mMutex.unlock();
 	}
 
 private:
@@ -196,8 +223,8 @@ TrackPlayer::~TrackPlayer() {
 	delete mContext;
 }
 
-void TrackPlayer::startStreamTrack(SongId id) {
-	mContext->load();
+bool TrackPlayer::startStreamTrack(SongId id) {
+	return mContext->load(id);
 }
 
 void TrackPlayer::playSong() {
@@ -210,8 +237,12 @@ void TrackPlayer::stopSong() {
 
 void TrackPlayer::setVolume(float volume) {}
 
-float TrackPlayer::getProgress() const { return 0; }
+float TrackPlayer::getProgress() const { 
+	return mContext->getProgress(); 
+}
 
 float TrackPlayer::getDurationSec() const { return 0; }
 
-void TrackPlayer::setProgress(float newProgress) {}
+void TrackPlayer::setProgress(float newProgress) {
+	mContext->setProgress(newProgress);
+}
