@@ -3,6 +3,9 @@
 #include "WavPlayer.hpp"
 #include "LibraryGui.hpp"
 
+// load mpre track info!!
+// display if track presents on fylesystem!!
+// enable playback!!
 // monitor resource usage
 // sorting
 
@@ -10,13 +13,10 @@ void runApp() {
 
 	TrackPlayer player;
 
-	player.startStreamTrack(0);
-	player.playSong();
-
 	Library library;
-	library.loadJson("library/Library.json");
+	library.loadJson(getHome() + "Library.json");
 
-	auto gui = LibraryWidget<tp::Window::Events, tp::Graphics::Canvas>(&library);
+	auto gui = LibraryWidget<tp::Window::Events, tp::Graphics::Canvas>(&library, &player);
 
   auto window = tp::Window::createWindow(800, 600, "Window 1");
 
@@ -28,6 +28,8 @@ void runApp() {
 			
 			gui.proc(window->getEvents(), {}, { area.x, area.y, area.z, area.w });
 			gui.draw(window->getCanvas(), {}, { area.x, area.y, area.z, area.w });
+
+			// tp::sleep(100);
 
 			window->draw();
 		}
