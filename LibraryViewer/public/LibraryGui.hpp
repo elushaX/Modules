@@ -78,6 +78,7 @@ public:
 	void proc(const Events& events, const tp::RectF& areaParent, const tp::RectF& area) {
 		if (!mTrack) return;
 		if (!areaParent.isOverlap(area)) return;
+
 	}
 
 	void draw(Canvas& canvas, const tp::RectF& areaParent, const tp::RectF& area) { 
@@ -133,8 +134,11 @@ public:
 
 		ImGui::Separator();
 
-		ImGui::Checkbox("Loved only", &filterLoved);
-		songFilter.Draw("Song Filter");
+		if (ImGui::Checkbox("Loved only", &filterLoved)) {
+			isSongFilterChanged |= true;
+		}
+
+		isSongFilterChanged |= songFilter.Draw("Song Filter");
 		
 		sortFilter.Draw("Sorting Type");
 
@@ -168,6 +172,7 @@ public:
 	bool filterLoved = false;
 	TrackPlayer* mPlayer = nullptr;
 	bool mLoadStatus = false;
+	bool isSongFilterChanged = true;
 };
 
 
@@ -177,7 +182,10 @@ public:
 	ScrollBarWidget() = default;
 
 	void proc(const Events& events, const tp::RectF& areaParent, const tp::RectF& area) {
-		if (mSizeFraction > 1.f) return;
+		if (mSizeFraction > 1.f) {
+			mPositionFraction = 0;
+			return;
+		}
 
 		if (!areaParent.isOverlap(area)) {
 			mIsScrolling = false;
@@ -301,8 +309,10 @@ public:
 	}
 
 	void proc(const Events& events, const tp::RectF& areaParent, const tp::RectF& aArea) {
-		mNeedRedraw = events.isEvent();
+		mNeedRedraw = events.isEvent() || mCurrentTrackInfo.songFilter.IsActive();
 		if (!mNeedRedraw) return;
+
+		filter();
 
 		mResizeWidget.max = aArea.z - trackInfoSize;
 		mResizeWidget.min = 100;
@@ -312,18 +322,18 @@ public:
 		areaInfo = { mResizeWidget.value + resizeSize, aArea.y, aArea.z - mResizeWidget.value - resizeSize, aArea.w - controllPanelSize } ;
 		areaResize = { mResizeWidget.value, aArea.y, resizeSize, areaInfo.w };
 
-		mScroll.mSizeFraction = area.w / (mLibrary->mTraks.size() * trackSize);
-		mScroll.mScrollFactor = 1.f / mLibrary->mTraks.size();
+		mScroll.mSizeFraction = (area.w - 10) / (mTraksFiltered.size() * trackSize);
+		mScroll.mScrollFactor = 1.f / mTraksFiltered.size();
 
 		mScroll.proc(events, area, { area.x + area.z - scrollSize - 3, area.y + 10, scrollSize - 3.f, area.w - 20 } );
 		mResizeWidget.proc(events, area, areaResize );
 
 		if (area.isInside(events.getPos())) {
 
-			tp::halnf offset = mScroll.mPositionFraction * mLibrary->mTraks.size() * trackSize;
+			tp::halnf offset = mScroll.mPositionFraction * mTraksFiltered.size() * trackSize;
 			auto idx = 0;
 
-			for (auto track : mTraks) {
+			for (auto track : mTraksFiltered) {
 				auto trackArea = tp::RectF{ area.x + 10, area.y + 10 + idx * trackSize - offset, area.z - 20 - scrollSize, trackSize - 5 };
 
 				track->proc(events, area, trackArea);
@@ -344,10 +354,10 @@ public:
 
 		canvas.rect(aArea, { 0.1f, 0.1f, 0.1f, 1.f }); 
 		
-		tp::halnf offset = mScroll.mPositionFraction * mLibrary->mTraks.size() * trackSize;
+		tp::halnf offset = mScroll.mPositionFraction * mTraksFiltered.size() * trackSize;
 		auto idx = 0;
 
-		for (auto track : mTraks) {
+		for (auto track : mTraksFiltered) {
 			track->draw(canvas, area, { area.x + 10, area.y + 10 + idx * trackSize - offset, area.z - 20 - scrollSize, trackSize - 5 } );
 			idx++;
 		}
@@ -367,6 +377,25 @@ public:
 		mCurrentTrack.draw(canvas, area, area);
 	}
 
+	void filter() {
+		if (!mCurrentTrackInfo.isSongFilterChanged) return;
+		mTraksFiltered.clear();
+
+		for (auto track : mTraks) {
+			if (!mCurrentTrackInfo.songFilter.PassFilter(track->mTrack->mName.read()) && !mCurrentTrackInfo.songFilter.PassFilter(track->mTrack->mArtist.read())) {
+				continue;
+			}
+
+			if (mCurrentTrackInfo.filterLoved && !track->mTrack->mLoved) {
+				continue;
+			}
+
+			mTraksFiltered.append( &track.data() );
+		}
+
+		mCurrentTrackInfo.isSongFilterChanged = false;
+	}
+
 private:
 	tp::halnf scrollSize = 20;
 	tp::halnf trackInfoSize = 200;
@@ -381,6 +410,8 @@ private:
 	tp::RectF areaResize;
 
 	tp::Buffer<TrackWidget<Events, Canvas>> mTraks;
+	tp::Buffer<TrackWidget<Events, Canvas>*> mTraksFiltered;
+
 	TrackWidget<Events, Canvas> mCurrentTrack;
 	TrackInfoWidget<Events, Canvas> mCurrentTrackInfo;
 
