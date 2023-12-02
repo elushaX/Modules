@@ -1,8 +1,9 @@
 
-#include "LibraryViewer.hpp"
+#include "Library.hpp"
 #include "LocalConnection.hpp"
 
 #include "picojson.h"
+#include <filesystem>
 
 namespace tp {
 	static ModuleManifest* deps[] = { &gModuleGraphics, &gModuleConnection, nullptr };
@@ -25,6 +26,25 @@ tp::String getHome() {
 		return  out;
 	} else {
 		return "";
+	}
+}
+
+tp::String getSongLocalPath(SongId id) {
+	return getHome() + "tracks/" + tp::String((tp::alni)id);
+}
+
+SONG_FORMAT getSongFormat(const String& localPath) {
+	std::filesystem::path wavFormat((localPath + ".wav").read());
+	std::filesystem::path flacFormat((localPath + ".flac").read());
+	if (std::filesystem::exists(flacFormat)) return SONG_FORMAT::FLAC;
+	if (std::filesystem::exists(wavFormat)) return SONG_FORMAT::WAV;
+	return SONG_FORMAT::NONE;
+}
+
+void Library::checkExisting() {
+	for (auto track : mTraks) {
+		auto const path = getSongLocalPath(track->mId);
+		track->mExists = getSongFormat(path) != SONG_FORMAT::NONE;
 	}
 }
 

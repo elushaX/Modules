@@ -1,7 +1,7 @@
 #pragma once
 
-#include "LibraryViewer.hpp"
-#include "WavPlayer.hpp"
+#include "Library.hpp"
+#include "Player.hpp"
 #include "Rect.hpp"
 #include "Animations.hpp"
 #include "imgui.h"
@@ -96,25 +96,34 @@ public:
 	void RenderUI() {
 		ImGui::Begin("InfoWindow", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoResize);
 
-		if (mTrack && ImGui::Button("load")) {
-			mLoadStatus = mPlayer->startStreamTrack(mTrack->mId);
-		}
+		if (mTrack) {
 
-		ImGui::SameLine(); ImGui::Text(" Load Status : %s", mLoadStatus ? "Loaded" : "Not Loaded");
+			ImGui::Text(" Load Status : %s", mLoadStatus ? "Loaded" : "Not Loaded");
 
-		if (mTrack && mLoadStatus) {
-			auto songProgress = mPlayer->getProgress();
-			ImGui::SliderFloat("Progress", &songProgress, 0.f, 1.f);
-			mPlayer->setProgress(songProgress);
-		}
+			if (ImGui::Button("Play")) {
+				if (mPlayer->getPlayingId() != mTrack->mId) {
+					mLoadStatus = mPlayer->startStreamTrack(mTrack->mId);
+				}
+				mPlayer->continuePlayback();
+			}
 
-		if (ImGui::Button("Play")) {
-			mPlayer->playSong();
-		}
+			if (mLoadStatus) {
 
-		ImGui::SameLine();
-		if (ImGui::Button("Stop")) {
-			mPlayer->stopSong();
+				ImGui::SameLine();
+				if (ImGui::Button("Stop")) {
+					mPlayer->freezePlayback();
+				}
+
+				auto songProgress = mPlayer->getPlaybackProgress();
+				auto vol = mPlayer->getVolume();
+				ImGui::Text("Load Progress : %f", mPlayer->getLoadProgress());
+				if (ImGui::SliderFloat("Progress", &songProgress, 0.f, 1.f)) {
+					mPlayer->setPlaybackProgress(songProgress);
+				}
+				if (ImGui::SliderFloat("Volume", &vol, 0.f, 1.f)) {
+					mPlayer->setVolume(vol);
+				}
+			}
 		}
 
 		ImGui::Text("Song Info:");
@@ -135,6 +144,10 @@ public:
 		ImGui::Separator();
 
 		if (ImGui::Checkbox("Loved only", &filterLoved)) {
+			isSongFilterChanged |= true;
+		}
+		
+		if (ImGui::SliderInt("Existing only", &filterExisting, 0, 3)) {
 			isSongFilterChanged |= true;
 		}
 
@@ -170,9 +183,10 @@ public:
 	tp::Buffer<SortType> items;
 	const Track* mTrack;
 	bool filterLoved = false;
-	TrackPlayer* mPlayer = nullptr;
+	Player* mPlayer = nullptr;
 	bool mLoadStatus = false;
 	bool isSongFilterChanged = true;
+	int filterExisting = 0; // all existing no-existing
 };
 
 
@@ -300,7 +314,7 @@ public:
 template <typename Events, typename Canvas> requires(DrawableConcept<Canvas>)
 class LibraryWidget {
 public:
-	LibraryWidget(Library* lib, TrackPlayer* player) : mLibrary(lib), mPlayer(player) {
+	LibraryWidget(Library* lib, Player* player) : mLibrary(lib), mPlayer(player) {
 		for (auto track : mLibrary->mTraks) {
 			mTraks.append(TrackWidget<Events, Canvas>(&track.data()));
 		}
@@ -358,7 +372,9 @@ public:
 		auto idx = 0;
 
 		for (auto track : mTraksFiltered) {
-			track->draw(canvas, area, { area.x + 10, area.y + 10 + idx * trackSize - offset, area.z - 20 - scrollSize, trackSize - 5 } );
+			auto const trackArea = tp::RectF{ area.x + 10, area.y + 10 + idx * trackSize - offset, area.z - 20 - scrollSize, trackSize - 5 };
+			if (track->mTrack == mCurrentTrack.mTrack) canvas.rect(trackArea, { 0.2f, 0.2f, 0.2f, 0.5f }, 5);
+			track->draw(canvas, area,  trackArea);
 			idx++;
 		}
 
@@ -390,6 +406,16 @@ public:
 				continue;
 			}
 
+			switch (mCurrentTrackInfo.filterExisting) {
+				case 1:
+					if (!track->mTrack->mExists) continue;
+					break;
+
+				case 2:
+					if (track->mTrack->mExists) continue;
+					break;
+			}
+
 			mTraksFiltered.append( &track.data() );
 		}
 
@@ -419,7 +445,7 @@ private:
 	ResizerWidget<Events, Canvas> mResizeWidget;
 
 	Library* mLibrary;
-	TrackPlayer* mPlayer;
+	Player* mPlayer;
 
 	bool mNeedRedraw = false;
 };

@@ -2,7 +2,12 @@
 
 #include "Window.hpp"
 
+typedef tp::ualni SongId;
+enum class SONG_FORMAT { WAV, FLAC, NONE };
+
 tp::String getHome();
+tp::String getSongLocalPath(SongId id);
+SONG_FORMAT getSongFormat(const tp::String& path);
 
 namespace tp {
 	extern ModuleManifest gModuleLibraryViewer;
@@ -13,7 +18,7 @@ public:
 	Track() = default;
 
 public:
-	tp::ualni mId = 0;
+	SongId mId = 0;
 	tp::String mName = "undef";
 	tp::String mArtist = "undef";
 	tp::String mAlbumArtist = "undef";
@@ -36,20 +41,7 @@ public:
   bool mLoved = false;
   bool mAlbumLoved = false;
   bool mExplicit = false;
-  // tp::String mKind = "undef";
-  // tp::ualni mDiscNumber = 0;
-  // tp::ualni mDiscCount = 0;
-  // tp::ualni mTrackNumber = 0;
-  // tp::ualni mTrackCount = 0;
-  // tp::ualni mBitRate = 0;
-  // tp::ualni mSampleRate = 0;
-  // tp::ualni Compilation
-  // tp::ualni Artwork Count
-  // tp::ualni Sort Album
-  // tp::ualni Sort Artist
-  // tp::ualni Sort Name
-  // tp::ualni Persistent ID
-  // tp::ualni Track Type
+  bool mExists = false;
 };
 
 class Library {
@@ -58,11 +50,8 @@ public:
 
 public:
 	bool loadJson(const tp::String& path);
+  void checkExisting();
 
 public:
 	tp::Buffer<Track> mTraks;
 };
-
-class LibraryViewverGui {};
-
-void runApp();
