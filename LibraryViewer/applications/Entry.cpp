@@ -1,22 +1,25 @@
 
 #include "NewPlacement.hpp"
-#include "WavPlayer.hpp"
-#include "LibraryGui.hpp"
 
-// load mpre track info!!
-// display if track presents on fylesystem!!
-// enable playback!!
-// monitor resource usage
-// sorting
+#include "Player.hpp"
+#include "GUI.hpp"
+
+// 1) artworks
+// 2) how to easy add more songs?
+// 3) GUi :
+// - seeker 
+// - song idx 
+// - non existing highlight
+// - prev next
+// - remove debug gui
+// 4) queue & repeat & shuffle...
+// 5) new database with history
 
 void runApp() {
 
-	TrackPlayer player;
-
-	Library library;
-	library.loadJson(getHome() + "Library.json");
-
-	auto gui = LibraryWidget<tp::Window::Events, tp::Graphics::Canvas>(&library, &player);
+	Player player;
+	Library library; library.loadJson(getHome() + "Library.json"); library.checkExisting();
+	LibraryWidget<tp::Window::Events, tp::Graphics::Canvas> gui(&library, &player);
 
   auto window = tp::Window::createWindow(800, 600, "Window 1");
 

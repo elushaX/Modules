@@ -13,7 +13,7 @@ file(GLOB HEADERS "./public/*.hpp" "./public/*/*.hpp" "./applications/*.hpp")
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
 
-target_include_directories(${PROJECT_NAME} PUBLIC ./public/ ${BINDINGS_INCLUDE})
+target_include_directories(${PROJECT_NAME} PUBLIC ./public/ ${BINDINGS_INCLUDE} ./ext/)
 target_link_libraries(${PROJECT_NAME} PUBLIC Graphics Connection)
 target_link_libraries(${PROJECT_NAME} PUBLIC ${BINDINGS_LIBS})
 
