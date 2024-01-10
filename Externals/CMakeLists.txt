@@ -1,6 +1,6 @@
 
-add_subdirectory(glew/build/cmake/)
-target_compile_definitions(glew_s PUBLIC GLEW_NO_GLU)
+#add_subdirectory(glew/build/cmake/)
+#target_compile_definitions(glew_s PUBLIC GLEW_NO_GLU)
 
 add_subdirectory(glfw)
 

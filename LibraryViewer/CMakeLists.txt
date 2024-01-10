@@ -1,11 +1,11 @@
 project(LibraryViewer)
 
 find_package(ALSA REQUIRED)
-# find_package(PortAudio REQUIRED)
+find_package(GLEW REQUIRED)
 
 ### ---------------------- Externals  ---------------------  ###
 set(BINDINGS_INCLUDE ../Externals/glfw/include ../Externals/glew/include)
-set(BINDINGS_LIBS glfw glew_s Imgui Nanovg portaudio)
+set(BINDINGS_LIBS glfw Imgui Nanovg ${GLEW_LIBRARIES} GL portaudio)
 
 ### ---------------------- Static Library  ---------------------  ###
 file(GLOB SOURCES "./private/*.cpp" "./private/*/*.cpp")
