@@ -1,6 +1,7 @@
 #include "Window.hpp"
 
 // -------- OpenGL -------- //
+#define GLEW_STATIC
 #include <GL/glew.h>
 
 #include "WindowContext.hpp"
