@@ -1,5 +1,4 @@
 
-#include "NewPlacement.hpp"
 #include "Window.hpp"
 
 #include "GUI.h"

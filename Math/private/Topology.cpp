@@ -1,7 +1,7 @@
 
 #include "Topology.hpp"
 
-void* operator new(std::size_t, void* in) { return in; }
+#include "NewPlacement.hpp"
 
 using namespace tp;
 

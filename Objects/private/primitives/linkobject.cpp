@@ -1,8 +1,5 @@
 
-#pragma once
-
 #include "primitives/linkobject.h"
-#include "NewPlacement.hpp"
 
 using namespace obj;
 using namespace tp;

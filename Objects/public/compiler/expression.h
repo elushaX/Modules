@@ -18,7 +18,7 @@ namespace obj {
 				NONE,
 				NEW,
 				LOCAL,
-				CONST,
+				CONST_EXPR,
 				CHILD,
 				CALL,
 				ARIPHM,

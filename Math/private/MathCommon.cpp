@@ -2,10 +2,9 @@
 /// whoaoao wtf
 
 #include "MathCommon.hpp"
+#include "Allocators.hpp"
 
-#include "ContainersCommon.hpp"
-
-static tp::ModuleManifest* sModuleDependencies[] = { &tp::gModuleContainers, nullptr };
+static tp::ModuleManifest* sModuleDependencies[] = { &tp::gModuleAllocators, nullptr };
 
 tp::ModuleManifest tp::gModuleMath = ModuleManifest("Math", nullptr, nullptr, sModuleDependencies);
 

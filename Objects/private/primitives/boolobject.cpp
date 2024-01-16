@@ -1,7 +1,6 @@
 
 
 #include "primitives/boolobject.h"
-#include "NewPlacement.hpp"
 
 using namespace obj;
 using namespace tp;

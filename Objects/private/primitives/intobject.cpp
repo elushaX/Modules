@@ -1,8 +1,4 @@
 
-#pragma once
-
-#include "NewPlacement.hpp"
-
 #include "primitives/intobject.h"
 
 using namespace obj;

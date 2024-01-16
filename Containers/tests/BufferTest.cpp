@@ -1,5 +1,3 @@
-#include "NewPlacement.hpp"
-
 #include "Buffer.hpp"
 #include "Testing.hpp"
 #include "Tests.hpp"
@@ -9,7 +7,7 @@ using namespace tp;
 const ualni size = 1000;
 
 TEST_DEF_STATIC(Simple1) {
-	Buffer<TestClass, HeapAlloc> buff;
+	Buffer<TestClass, tp::HeapAlloc> buff;
 	TEST(buff.size() == 0);
 	for (auto i : Range(size * 10)) {
 		buff.append(TestClass(i));
@@ -21,7 +19,7 @@ TEST_DEF_STATIC(Simple1) {
 }
 
 TEST_DEF_STATIC(Simple2) {
-	Buffer<TestClass, HeapAlloc> buff(size);
+	Buffer<TestClass, tp::HeapAlloc> buff(size);
 	TEST(buff.size() == size);
 	for (auto i : Range(size * 10))
 		buff.append(TestClass(i));

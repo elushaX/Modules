@@ -6,7 +6,7 @@ using namespace tp;
 
 TEST_DEF(ComplexNumber) {
 	TEST((ComplexCart{ 3, 4 }.mod() == 5));
-	TEST((ComplexCart{ 1, 1 }.arg() == 0.7853981633974483));
+	TEST((abs(ComplexCart{ 1, 1 }.arg() - 0.7853981633974483) < 0.001));
 	TEST((ComplexCart{ 3, 4 }.norm2() == 25));
 
 	{

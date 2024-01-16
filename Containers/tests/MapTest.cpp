@@ -1,5 +1,3 @@
-#include "NewPlacement.hpp"
-
 #include "Archiver.hpp"
 #include "Map.hpp"
 #include "Testing.hpp"
@@ -8,7 +6,7 @@
 using namespace tp;
 
 TEST_DEF_STATIC(SimpleReference) {
-	tp::Map<tp::ualni, TestClass, HeapAlloc> map;
+	tp::Map<tp::ualni, TestClass, tp::HeapAlloc> map;
 
 	for (auto i : Range(1000, 100000)) {
 		map.put(i, TestClass(i));
@@ -42,7 +40,7 @@ TEST_DEF_STATIC(SimpleReference) {
 }
 
 TEST_DEF_STATIC(SimplePointer) {
-	tp::Map<tp::ualni, TestClass*, HeapAlloc> map;
+	tp::Map<tp::ualni, TestClass*, tp::HeapAlloc> map;
 
 	for (auto i : Range(1000)) {
 		map.put(i, new TestClass(i));
@@ -80,13 +78,13 @@ TEST_DEF_STATIC(SimplePointer) {
 }
 
 TEST_DEF_STATIC(Copy) {
-	tp::Map<tp::ualni, TestClass, HeapAlloc> map;
+	tp::Map<tp::ualni, TestClass, tp::HeapAlloc> map;
 
 	for (auto i : Range(10)) {
 		map.put(i, TestClass(i));
 	}
 
-	tp::Map<tp::ualni, TestClass, HeapAlloc> map2 = map;
+	tp::Map<tp::ualni, TestClass, tp::HeapAlloc> map2 = map;
 
 	TEST_EQUAL(map, map2);
 
@@ -95,7 +93,7 @@ TEST_DEF_STATIC(Copy) {
 }
 
 TEST_DEF_STATIC(SaveLoad) {
-	tp::Map<tp::ualni, TestClass, HeapAlloc> map;
+	tp::Map<tp::ualni, TestClass, tp::HeapAlloc> map;
 
 	for (auto i : Range(10)) {
 		map.put(i, TestClass(i));

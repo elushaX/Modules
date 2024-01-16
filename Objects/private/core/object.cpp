@@ -1,7 +1,5 @@
 
 
-#include "NewPlacement.hpp"
-
 #include "core/object.h"
 
 #include "primitives/classobject.h"

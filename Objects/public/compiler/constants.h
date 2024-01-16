@@ -7,7 +7,8 @@
 namespace obj {
 	namespace BCgen {
 
-		struct ConstObject {
+		class ConstObject {
+		public:
 			obj::Object* mObj = NULL;
 			tp::alni mConstIdx = 0;
 
@@ -16,7 +17,8 @@ namespace obj {
 		};
 
 
-		struct ConstObjectsPool {
+		class ConstObjectsPool {
+		public:
 			tp::Map<tp::String, ConstObject*> mMethods;
 			tp::Map<tp::String, ConstObject*> mStrings;
 			tp::Map<tp::alni, ConstObject*> mIntegers;
@@ -36,6 +38,7 @@ namespace obj {
 			ConstObject* registerObject(obj::Object* obj);
 			void save(tp::Buffer<ConstData>& out);
 
+			ConstObjectsPool() = default;
 			~ConstObjectsPool();
 		};
 	};

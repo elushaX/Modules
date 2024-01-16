@@ -1,5 +1,3 @@
-#include "NewPlacement.hpp"
-
 #include "Strings.hpp"
 #include "Tests.hpp"
 

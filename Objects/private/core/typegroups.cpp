@@ -1,6 +1,4 @@
 
-#include "NewPlacement.hpp"
-
 #include "core/typegroups.h"
 
 #include "core/object.h"

@@ -1,6 +1,4 @@
 
-#include "NewPlacement.hpp"
-
 #include "primitives/interpreterobject.h"
 #include "primitives/linkobject.h"
 #include "primitives/methodobject.h"

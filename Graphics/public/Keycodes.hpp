@@ -65,7 +65,7 @@ namespace tp {
 		TAB = 258,
 		BACKSPACE = 259,
 		INSERT = 260,
-		DELETE = 261,
+		DELETE_KEY = 261,
 		RIGHT = 262,
 		LEFT = 263,
 		DOWN = 264,
@@ -156,7 +156,7 @@ namespace tp {
 	};
 
 	struct KeyEvent {
-		Keycode code;
+		Keycode  code;
 		enum class EventState {
 			RELEASED = 0,
 			PRESSED = 1,

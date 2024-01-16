@@ -1,5 +1,4 @@
 #include "compiler/constants.h"
-#include "NewPlacement.hpp"
 #include "primitives/methodobject.h"
 #include "primitives/primitives.h"
 

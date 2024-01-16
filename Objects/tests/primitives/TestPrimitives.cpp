@@ -1,6 +1,4 @@
 
-#include "NewPlacement.hpp"
-
 #include "Testing.hpp"
 
 #include "core/object.h"

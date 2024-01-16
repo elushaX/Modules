@@ -1,5 +1,3 @@
-#include "NewPlacement.hpp"
-
 #include "Testing.hpp"
 #include "Tests.hpp"
 #include "Tree.hpp"
@@ -7,7 +5,7 @@
 using namespace tp;
 
 TEST_DEF_STATIC(Simple) {
-	AvlTree<AvlNumericKey<alni>, TestClass, HeapAlloc> tree;
+	AvlTree<AvlNumericKey<alni>, TestClass, tp::HeapAlloc> tree;
 
 	TEST(tree.size() == 0);
 	TEST(tree.head() == nullptr);
@@ -24,7 +22,7 @@ TEST_DEF_STATIC(Simple) {
 }
 
 TEST_DEF_STATIC(Persistance) {
-	AvlTree<AvlNumericKey<alni>, TestClass, HeapAlloc> tree;
+	AvlTree<AvlNumericKey<alni>, TestClass, tp::HeapAlloc> tree;
 
 	const auto size = 1000;
 

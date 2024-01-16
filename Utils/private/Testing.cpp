@@ -37,7 +37,7 @@ void Testing::reportState() {
 
 	printf("\n");
 	mRootTest.report();
-}
+	}
 
 bool Testing::hasFailed() {
 	mRootTest.updateState();

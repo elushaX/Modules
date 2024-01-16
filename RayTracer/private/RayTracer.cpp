@@ -1,6 +1,5 @@
 
 #include "MathCommon.hpp"
-#include "NewPlacement.hpp"
 
 #include "CommandLine.hpp"
 #include "Module.hpp"
@@ -48,10 +47,10 @@ ModuleManifest* sDependencies[] = { &gModuleMath, &gModuleCommandLine, &gModuleC
 
 ModuleManifest tp::gModuleRayTracer = ModuleManifest("RayTracer", nullptr, nullptr, sDependencies);
 
-void RayTracer::castRay(const Ray& ray, RayCastData& out, alnf far) {
+void RayTracer::castRay(const Ray& ray, RayCastData& out, alnf farVal) {
 	out.hit = false;
 
-	far *= far;
+	farVal *= farVal;
 
 	for (auto obj : mScene->mObjects) {
 		for (auto trig : obj->mCache.TrigCaches) {
@@ -60,13 +59,13 @@ void RayTracer::castRay(const Ray& ray, RayCastData& out, alnf far) {
 
 				auto dist = (trig->getHitPos() - ray.pos).length2();
 
-				if (far > dist && dist > EPSILON) {
+				if (farVal > dist && dist > EPSILON) {
 					out.trig = &trig.data();
 					out.hitPos = trig->getHitPos();
 					out.obj = &obj.data();
 					out.hit = true;
 
-					far = dist;
+					farVal = dist;
 				}
 			}
 		}
