@@ -1,5 +1,3 @@
-#include "NewPlacement.hpp"
-
 #include "CommandLine.hpp"
 
 using namespace tp;

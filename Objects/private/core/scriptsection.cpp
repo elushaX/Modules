@@ -1,6 +1,5 @@
 
 #include "HeapAllocatorGlobal.hpp"
-#include "NewPlacement.hpp"
 
 #include "core/scriptsection.h"
 

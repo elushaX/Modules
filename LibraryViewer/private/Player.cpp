@@ -1,4 +1,3 @@
-#include "NewPlacement.hpp"
 #include "Player.hpp"
 #include "Buffer.hpp"
 #include "Multithreading.hpp"

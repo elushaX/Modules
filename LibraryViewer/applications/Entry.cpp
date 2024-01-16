@@ -1,6 +1,4 @@
 
-#include "NewPlacement.hpp"
-
 #include "Player.hpp"
 #include "GUI.hpp"
 

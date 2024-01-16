@@ -1,6 +1,4 @@
 
-#include "NewPlacement.hpp"
-
 #include "compiler/function.h"
 
 #include "primitives/methodobject.h"
@@ -305,7 +303,7 @@ void FunctionDefinition::EvalExpr(Expression* expr) {
 				inst(Instruction(OpCode::LOAD_LOCAL, mConstants.get(local->mLocalId)));
 				break;
 			}
-		case Expression::Type::CONST:
+		case Expression::Type::CONST_EXPR:
 			{
 				auto constobj = (ExpressionConst*) expr;
 				switch (constobj->mConstType) {
@@ -384,7 +382,7 @@ tp::alni instSize(const Instruction& inst) {
 							out += inst.mParamBytes;
 							return out;
 						}
-					case Instruction::ArgType::CONST:
+					case Instruction::ArgType::CONST_ARG:
 						{
 							out += 2;
 							if (inst.mConstData2) {
@@ -516,7 +514,7 @@ void FunctionDefinition::generateByteCode(ByteCode& out) {
 								writeParam(out, idx, (tp::int1*) &inst.mParam, inst.mParamBytes);
 								break;
 							}
-						case Instruction::ArgType::CONST:
+						case Instruction::ArgType::CONST_ARG:
 							{
 								writeConst(out, idx, (tp::uint2) inst.mConstData->mConstIdx);
 								if (inst.mConstData2) {

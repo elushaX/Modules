@@ -1,6 +1,5 @@
 
 #include "primitives/colorobject.h"
-#include "NewPlacement.hpp"
 
 using namespace obj;
 using namespace tp;

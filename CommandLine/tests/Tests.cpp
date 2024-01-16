@@ -1,5 +1,3 @@
-#include "NewPlacement.hpp"
-
 #include "Tests.hpp"
 
 int main() {

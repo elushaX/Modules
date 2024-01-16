@@ -1,11 +1,8 @@
 project(Graphics)
 
-find_package(GLEW REQUIRED)
-
 ### ---------------------- Externals  ---------------------  ###
-set(BINDINGS_INCLUDE ../Externals/glfw/include ../Externals/glew/include)
-set(BINDINGS_LIBS glfw Imgui Nanovg ${GLEW_LIBRARIES} GL)
-
+set(BINDINGS_INCLUDE ../Externals/glfw/include ${GLEW_INCLUDE_DIR})
+set(BINDINGS_LIBS glfw Imgui Nanovg ${GLEW_LIB})
 
 ### ---------------------- Static Library  ---------------------  ###
 file(GLOB SOURCES "./private/*.cpp" "./private/*/*.cpp")

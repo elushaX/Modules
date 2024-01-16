@@ -1,5 +1,3 @@
-#include "NewPlacement.hpp"
-
 #include "Archiver.hpp"
 #include "Testing.hpp"
 #include "Tests.hpp"
@@ -7,7 +5,7 @@
 using namespace tp;
 
 TEST_DEF_STATIC(SimpleReference) {
-	tp::List<TestClass, HeapAlloc> list = { TestClass(1), TestClass(2), TestClass(3), TestClass(4) };
+	tp::List<TestClass, tp::HeapAlloc> list = { TestClass(1), TestClass(2), TestClass(3), TestClass(4) };
 
 	list.pushBack(TestClass(5));
 	list.pushFront(TestClass(0));
@@ -24,7 +22,7 @@ TEST_DEF_STATIC(SimpleReference) {
 }
 
 TEST_DEF_STATIC(SimplePointer) {
-	tp::List<TestClass*, HeapAlloc> list = { new TestClass(1), new TestClass(2), new TestClass(3), new TestClass(4) };
+	tp::List<TestClass*, tp::HeapAlloc> list = { new TestClass(1), new TestClass(2), new TestClass(3), new TestClass(4) };
 
 	list.pushBack(new TestClass(5));
 	list.pushFront(new TestClass(0));
@@ -45,8 +43,8 @@ TEST_DEF_STATIC(SimplePointer) {
 }
 
 TEST_DEF_STATIC(Copy) {
-	tp::List<TestClass, HeapAlloc> list = { TestClass(1), TestClass(2), TestClass(3), TestClass(4) };
-	tp::List<TestClass, HeapAlloc> list2 = list;
+	tp::List<TestClass, tp::HeapAlloc> list = { TestClass(1), TestClass(2), TestClass(3), TestClass(4) };
+	tp::List<TestClass, tp::HeapAlloc> list2 = list;
 
 	TEST_EQUAL(list, list2);
 
@@ -55,7 +53,7 @@ TEST_DEF_STATIC(Copy) {
 }
 
 TEST_DEF_STATIC(Serialization) {
-	tp::List<TestClass, HeapAlloc> list = { TestClass(1), TestClass(2), TestClass(3), TestClass(4) };
+	tp::List<TestClass, tp::HeapAlloc> list = { TestClass(1), TestClass(2), TestClass(3), TestClass(4) };
 
 	ArchiverExample<1024, false> write;
 	ArchiverExample<1024, true> read;

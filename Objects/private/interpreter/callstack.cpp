@@ -1,6 +1,4 @@
 
-#include "NewPlacement.hpp"
-
 #include "interpreter/callstack.h"
 
 #include "interpreter/bytecode.h"

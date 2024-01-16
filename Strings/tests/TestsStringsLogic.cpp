@@ -1,5 +1,3 @@
-#include "NewPlacement.hpp"
-
 #include "StringLogic.hpp"
 #include "Tests.hpp"
 

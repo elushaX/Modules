@@ -1,5 +1,4 @@
 #include "compiler/expression.h"
-#include "NewPlacement.hpp"
 
 using namespace obj;
 using namespace BCgen;
@@ -64,30 +63,30 @@ ExpressionFunc::ExpressionFunc(tp::String id) :
 	Expression(Type::FUNC),
 	mFuncId(id) {}
 ExpressionConst::ExpressionConst(tp::String val) :
-	Expression(Type::CONST),
+	Expression(Type::CONST_EXPR),
 	mConstType(STR),
 	str(val) {}
 ExpressionConst::ExpressionConst(const char* val) :
-	Expression(Type::CONST),
+	Expression(Type::CONST_EXPR),
 	mConstType(STR),
 	str(val) {}
 ExpressionConst::ExpressionConst(tp::int4 val) :
-	Expression(Type::CONST),
+	Expression(Type::CONST_EXPR),
 	mConstType(INT),
 	integer(val) {}
 ExpressionConst::ExpressionConst(tp::flt4 val) :
-	Expression(Type::CONST),
+	Expression(Type::CONST_EXPR),
 	mConstType(FLT),
 	floating(val) {}
 ExpressionConst::ExpressionConst(tp::alni val) :
-	Expression(Type::CONST),
+	Expression(Type::CONST_EXPR),
 	mConstType(INT),
 	integer(val) {}
 ExpressionConst::ExpressionConst(tp::alnf val) :
-	Expression(Type::CONST),
+	Expression(Type::CONST_EXPR),
 	mConstType(FLT),
 	floating(val) {}
 ExpressionConst::ExpressionConst(bool val) :
-	Expression(Type::CONST),
+	Expression(Type::CONST_EXPR),
 	mConstType(BOOL),
 	boolean(val) {}

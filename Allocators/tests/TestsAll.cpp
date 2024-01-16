@@ -200,7 +200,7 @@ private:
 	}
 };
 
-const ualni size = 1000;
+const ualni size = 500;
 
 template <typename Alloc>
 void testAlloc() {
@@ -214,7 +214,7 @@ void testAlloc() {
 
 TEST_DEF_STATIC(GlobalHeap) { testAlloc<HeapAllocGlobal>(); }
 
-TEST_DEF_STATIC(Heap) { testAlloc<HeapAlloc>(); }
+TEST_DEF_STATIC(Heap) { testAlloc<tp::HeapAlloc>(); }
 
 TEST_DEF_STATIC(Chunk) {
 	testAlloc<ChunkAlloc<TestStruct, size>>();

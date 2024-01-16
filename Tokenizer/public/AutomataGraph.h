@@ -7,6 +7,11 @@
 #include "Utils.hpp"
 #include "Map.hpp"
 
+#ifdef ENV_OS_WINDOWS
+#undef min
+#undef max
+#endif
+
 namespace tp {
 
 	extern ModuleManifest gModuleTokenizer;
@@ -100,7 +105,7 @@ namespace tp {
 
 		Range<tAlphabetType> getAlphabetRange() const {
 			tAlphabetType start = 0, end = 0;
-			Range<tAlphabetType> all_range = { std::numeric_limits<tAlphabetType>::min(), std::numeric_limits<tAlphabetType>::max() };
+			Range<tAlphabetType> all_range(std::numeric_limits<tAlphabetType>::min(), std::numeric_limits<tAlphabetType>::max());
 			bool first = true;
 
 			for (auto vertex : mVertices) {

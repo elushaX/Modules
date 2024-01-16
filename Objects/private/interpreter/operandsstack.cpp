@@ -1,6 +1,4 @@
 
-#include "NewPlacement.hpp"
-
 #include "interpreter/operandsstack.h"
 
 using namespace obj;

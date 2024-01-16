@@ -1,3 +1,18 @@
+# find_package(ALSA REQUIRED)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  set(CMAKE_PREFIX_PATH "../../ModulesWindowsLibraries/glew-2.1.0")
+  find_package(GLEW REQUIRED)
+  set(GLEW_LIB ${GLEW_STATIC_LIBRARY_RELEASE} opengl32.lib PARENT_SCOPE)
+
+  set(PORTAUDIO_INCLUDE_DIR "../../ModulesWindowsLibraries/portaudio/include" PARENT_SCOPE)
+  set(PORTAUDIO_LIB "../../ModulesWindowsLibraries/portaudio_build/Debug/portaudio" PARENT_SCOPE)
+else()
+  find_package(GLEW REQUIRED)
+  set(GLEW_LIB ${GLEW_LIBRARIES} GL PARENT_SCOPE)
+
+  set(PORTAUDIO_LIB portaudio PARENT_SCOPE)
+endif()
 
 #add_subdirectory(glew/build/cmake/)
 #target_compile_definitions(glew_s PUBLIC GLEW_NO_GLU)

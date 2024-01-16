@@ -1,6 +1,5 @@
 
 #include "compiler/instruction.h"
-#include "NewPlacement.hpp"
 
 using namespace obj;
 using namespace tp;
@@ -21,14 +20,14 @@ Instruction::Instruction(ConstObject* constData) :
 Instruction::Instruction(OpCode op, ConstObject* constData) :
 	mOp(op),
 	mConstData(constData),
-	mArgType(ArgType::CONST),
+	mArgType(ArgType::CONST_ARG),
 	mInstType(InstType::EXEC) {}
 
 Instruction::Instruction(OpCode op, ConstObject* constData, ConstObject* constData2) :
 	mOp(op),
 	mConstData(constData),
 	mConstData2(constData2),
-	mArgType(ArgType::CONST),
+	mArgType(ArgType::CONST_ARG),
 	mInstType(InstType::EXEC) {}
 
 Instruction::Instruction(OpCode op, tp::alni param, tp::alni nBytes) :

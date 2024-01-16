@@ -1,6 +1,3 @@
-#pragma once
-
-#include "NewPlacement.hpp"
 
 #include "primitives/classobject.h"
 #include "primitives/dictobject.h"

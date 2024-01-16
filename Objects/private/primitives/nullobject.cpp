@@ -1,7 +1,4 @@
 
-#pragma once
-
-#include "NewPlacement.hpp"
 
 #include "primitives/nullobject.h"
 

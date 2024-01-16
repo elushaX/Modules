@@ -13,6 +13,7 @@ void initializeCallStackCapture() { gCSCapture = new (malloc(sizeof(CallStackCap
 void deinitializeCallStackCapture() {
 	gCSCapture->~CallStackCapture();
 	free(gCSCapture);
+	gCSCapture = nullptr;
 }
 
 ualni CallStackCapture::CallStack::getDepth() const {
@@ -70,6 +71,8 @@ CallStackCapture::CallStackCapture() {
 }
 
 const CallStackCapture::CallStack* CallStackCapture::getSnapshot() {
+	MODULE_SANITY_CHECK(gModuleUtils)
+
 	if (mBuffLoad > mBuffLen) {
 		static CallStack cs;
 		cs.frames[0] = 0;
@@ -229,4 +232,10 @@ void CallStackCapture::platformWriteDebugSymbols(FramePointer frame, DebugSymbol
 	std::strcpy(out->file, "unresolved");
 	std::strcpy(out->function, "unresolved");
 }
+void CallStackCapture::printSnapshot(const CallStack* snapshot) {
+	printf("CallStack: \n");
+	printf("Call stack debugging is not supported on this platform");
+	printf("\n");
+}
+void CallStackCapture::logAll() { printf("Call stack debugging is not supported on this platform"); }
 #endif

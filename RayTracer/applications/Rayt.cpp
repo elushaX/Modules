@@ -9,6 +9,10 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
+#include <iostream>
+#include <thread>
+#include <chrono>
+
 using namespace tp;
 
 void writeImage(const RayTracer::RenderBuffer& output, const char* name) {
@@ -37,22 +41,19 @@ void writeImage(const RayTracer::RenderBuffer& output, const char* name) {
 	}
 }
 
-static void* printStatus(void* arg) {
-	auto percentage = (const halnf*) arg;
+void printStatus(const halnf* percentage) {
 	auto old = *percentage;
 	while (*percentage < 0.99f) {
-		sleep(500);
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		if (old != *percentage && (*percentage - old) > 0.01) {
-			printf("Progress - %f\n", (*percentage) * 100);
+			std::cout << "Progress - " << (*percentage) * 100 << std::endl;
 			old = *percentage;
 		}
 	}
-	pthread_exit(NULL);
 }
 
 void renderCommand(const String& scenePath) {
 	Scene scene;
-
 	RayTracer::RenderSettings settings;
 
 	loadScene(scene, scenePath, settings);
@@ -60,16 +61,9 @@ void renderCommand(const String& scenePath) {
 	RayTracer::OutputBuffers output;
 	RayTracer rayt;
 
-	pthread_t my_thread;
-	int ret;
+	std::thread statusThread(printStatus, &rayt.mProgress.percentage);
 
-	printf("\nStarting Render:\n\n");
-
-	ret = pthread_create(&my_thread, NULL, &printStatus, &rayt.mProgress.percentage);
-	if (ret != 0) {
-		printf("Error: pthread_create() failed\n");
-		exit(EXIT_FAILURE);
-	}
+	std::cout << "\nStarting Render:\n\n";
 
 	auto start = get_time();
 
@@ -77,9 +71,9 @@ void renderCommand(const String& scenePath) {
 
 	auto end = get_time();
 
-	pthread_join(my_thread, NULL);
+	statusThread.join();
 
-	printf("\nRender finished with average render time per sample - %i (ms)\n", end - start);
+	std::cout << "\nRender finished with average render time per sample - " << (end - start) << " (ms)\n";
 
 	writeImage(output.normals, "normals.png");
 	writeImage(output.color, "color.png");

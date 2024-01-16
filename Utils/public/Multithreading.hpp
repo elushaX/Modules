@@ -1,16 +1,16 @@
 #pragma once
 
-#include <pthread.h>
+#include <mutex>
 
 namespace tp {
 	class Mutex {
-		pthread_mutex_t mMutex{};
+		std::mutex mMutex;
 
 	public:
 		Mutex() = default;
 
-		void lock() { pthread_mutex_lock(&mMutex); }
+		void lock() { mMutex.lock(); }
 
-		void unlock() { pthread_mutex_unlock(&mMutex); }
+		void unlock() { mMutex.unlock(); }
 	};
 }

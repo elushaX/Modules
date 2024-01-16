@@ -1,8 +1,5 @@
 
-#pragma once
-
 #include "primitives/enumobject.h"
-#include "NewPlacement.hpp"
 
 #include <malloc.h>
 

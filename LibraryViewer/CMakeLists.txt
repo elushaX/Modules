@@ -1,11 +1,8 @@
 project(LibraryViewer)
 
-find_package(ALSA REQUIRED)
-find_package(GLEW REQUIRED)
-
 ### ---------------------- Externals  ---------------------  ###
-set(BINDINGS_INCLUDE ../Externals/glfw/include ../Externals/glew/include)
-set(BINDINGS_LIBS glfw Imgui Nanovg ${GLEW_LIBRARIES} GL portaudio)
+set(BINDINGS_INCLUDE ../Externals/glfw/include ${GLEW_INCLUDE_DIR} ${PORTAUDIO_INCLUDE_DIR})
+set(BINDINGS_LIBS glfw Imgui Nanovg ${GLEW_LIB} ${ALSA_LIBRARY} ${PORTAUDIO_LIB})
 
 ### ---------------------- Static Library  ---------------------  ###
 file(GLOB SOURCES "./private/*.cpp" "./private/*/*.cpp")
@@ -22,4 +19,5 @@ file(COPY "applications/Font.ttf" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAM
 
 ### -------------------------- Applications  --------------------------  ###
 add_executable(libView ./applications/Entry.cpp)
-target_link_libraries(libView ${PROJECT_NAME} ${ALSA_LIBRARY})
+target_link_libraries(libView ${PROJECT_NAME})
+ 

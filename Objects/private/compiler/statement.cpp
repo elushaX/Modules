@@ -1,5 +1,4 @@
 #include "compiler/statement.h"
-#include "NewPlacement.hpp"
 
 using namespace obj;
 using namespace BCgen;
@@ -76,7 +75,7 @@ StatementClassDef::StatementClassDef(tp::String class_id, StatementScope* scope)
 StatementFuncDef* obj::BCgen::StmDefFunc(tp::String id, tp::InitialierList<tp::String> args, tp::InitialierList<Statement*> stms) { return new StatementFuncDef(id, args, stms); }
 
 StatementLocalDef* obj::BCgen::StmDefLocal(tp::String id, Expression* value) {
-	if (value->mType == Expression::Type::CONST) {
+	if (value->mType == Expression::Type::CONST_EXPR) {
 		return new StatementLocalDef(id, (ExpressionConst*) value);
 	}
 

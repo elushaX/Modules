@@ -1,6 +1,4 @@
 
-#include "NewPlacement.hpp"
-
 #include "core/typemethods.h"
 
 #include "primitives/floatobject.h"

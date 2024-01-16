@@ -10,16 +10,17 @@
 namespace obj {
 	namespace BCgen {
 
-		struct ConstObject;
+		class ConstObject;
 
-		struct Instruction {
+		class Instruction {
+		public:
 
 			OpCode mOp = OpCode::NONE;
 
 			enum class ArgType : tp::ualni {
 				NO_ARG,
 				PARAM,
-				CONST,
+				CONST_ARG,
 			} mArgType = ArgType::NO_ARG;
 
 			enum class InstType : tp::ualni {

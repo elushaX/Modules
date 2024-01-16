@@ -1,10 +1,11 @@
-#include "NewPlacement.hpp"
+// #include "NewPlacement.hpp"
 
 #include "Testing.hpp"
 #include "Tokenizer.hpp"
 #include <cstdio>
+#include <iostream>
 
-#define LOG(val) // std::cout << #val << " "
+#define LOG(val) std::cout << #val << " "
 
 using namespace tp;
 

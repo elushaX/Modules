@@ -6,7 +6,7 @@
 
 #include "compiler/function.h"
 
-#include "strings.h"
+#include "Strings.hpp"
 
 namespace obj {
 

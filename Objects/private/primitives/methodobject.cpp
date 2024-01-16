@@ -1,6 +1,3 @@
-#pragma once
-
-#include "NewPlacement.hpp"
 
 #include "compiler/function.h"
 #include "core/scriptsection.h"

@@ -1,7 +1,4 @@
-#pragma once
-
 #include "primitives/floatobject.h"
-#include "NewPlacement.hpp"
 
 using namespace obj;
 using namespace tp;

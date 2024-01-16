@@ -1,6 +1,4 @@
 
-#include "NewPlacement.hpp"
-
 #include "interpreter/scopestack.h"
 
 using namespace obj;

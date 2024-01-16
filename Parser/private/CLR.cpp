@@ -1,5 +1,4 @@
 #include "CLR.hpp"
-#include "NewPlacement.hpp"
 
 using namespace tp;
 
