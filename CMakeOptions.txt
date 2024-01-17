@@ -1,4 +1,4 @@
-option(MODULES_MEMORY_DEBUG "Debug memory" OFF)
+option(MODULES_MEMORY_DEBUG "Debug memory" ON)
 
 if (MODULES_MEMORY_DEBUG)
     add_compile_definitions(MEM_DEBUG)

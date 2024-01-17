@@ -27,7 +27,7 @@ ualni HeapAllocGlobal::getNAllocations() { return 0; }
 
 tp::MemHead* tp::HeapAllocGlobal::mEntry = nullptr;
 tp::ualni tp::HeapAllocGlobal::mNumAllocations = 0;
-tp::Mutex tp::HeapAllocGlobal::mMutex;
+std::mutex tp::HeapAllocGlobal::mMutex;
 bool tp::HeapAllocGlobal::mIgnore = true;
 
 // ----------------------- Debug Implementation ---------------------------- //

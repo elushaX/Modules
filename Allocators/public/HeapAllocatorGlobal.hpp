@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Module.hpp"
-#include "Multithreading.hpp"
+#include <mutex>
 
 namespace tp {
 
@@ -10,7 +10,7 @@ namespace tp {
 #ifdef MEM_DEBUG
 		static ualni mNumAllocations;
 		static struct MemHead* mEntry;
-		static Mutex mMutex;
+		static std::mutex mMutex;
 		static bool mIgnore;
 #endif
 
