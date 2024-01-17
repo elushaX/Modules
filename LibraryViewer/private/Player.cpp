@@ -1,6 +1,5 @@
 #include "Player.hpp"
 #include "Buffer.hpp"
-#include "Multithreading.hpp"
 
 #include "portaudio.h"
 
@@ -125,7 +124,7 @@ private:
 private:
 	bool mInitializationStatus = false;
 	PaStream* mPaStream = nullptr;
-	tp::Mutex mMutex;
+	std::mutex mMutex;
 
 	const tp::halnf* mBuffer = nullptr;
 	const tp::ualni* mPointerMax = nullptr;
