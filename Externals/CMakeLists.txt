@@ -5,8 +5,17 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   find_package(GLEW REQUIRED)
   set(GLEW_LIB ${GLEW_STATIC_LIBRARY_RELEASE} opengl32.lib PARENT_SCOPE)
 
-  set(PORTAUDIO_INCLUDE_DIR "../../ModulesWindowsLibraries/portaudio/include" PARENT_SCOPE)
-  set(PORTAUDIO_LIB "../../ModulesWindowsLibraries/portaudio_build/Debug/portaudio" PARENT_SCOPE)
+    # Your relative paths
+    set(RELATIVE_INCLUDE_DIR "../../ModulesWindowsLibraries/portaudio/include")
+    set(RELATIVE_LIB "../../ModulesWindowsLibraries/portaudio_build/Debug/portaudio.lib")
+
+    # Convert to absolute paths
+    get_filename_component(ABSOLUTE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${RELATIVE_INCLUDE_DIR}" ABSOLUTE)
+    get_filename_component(ABSOLUTE_LIB "${CMAKE_CURRENT_SOURCE_DIR}/${RELATIVE_LIB}" ABSOLUTE)
+
+    # Set absolute paths with respect to the parent scope
+    set(PORTAUDIO_INCLUDE_DIR "${ABSOLUTE_INCLUDE_DIR}" PARENT_SCOPE)
+    set(PORTAUDIO_LIB "${ABSOLUTE_LIB}" PARENT_SCOPE)
 else()
   find_package(GLEW REQUIRED)
   set(GLEW_LIB ${GLEW_LIBRARIES} GL PARENT_SCOPE)
