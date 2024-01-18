@@ -4,9 +4,9 @@
 
 // -------- Debug UI -------- //
 #include <imgui.h>
-#include <imgui_internal.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#include <imgui_internal.h>
 
 namespace tp {
 	class Graphics::GUI::Context {
@@ -33,6 +33,9 @@ void Graphics::GUI::init(Window* window) {
 	// ImGui_ImplGlfw_GetBackendData();
 
 	ImGui_ImplOpenGL3_Init("#version 330");
+
+	ImGuiIO& io = ImGui::GetIO();
+	io.Fonts->AddFontFromFileTTF("Font.ttf", 20.f);
 }
 
 void Graphics::GUI::deinit() {

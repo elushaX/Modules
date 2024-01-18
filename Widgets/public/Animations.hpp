@@ -1,6 +1,8 @@
 #pragma once
 
-#include "GraphicsCommon.hpp"
+#include "Color.hpp"
+#include "Rect.hpp"
+#include "Timing.hpp"
 
 namespace tp {
 
@@ -32,7 +34,7 @@ namespace tp {
 
 	class AnimRect : Rect<AnimValue> {
 	public:
-		AnimRect() {	
+		AnimRect() {
 			setAnimTime(450);
 			setNoTransition({ 0, 0, 0, 0 });
 		}

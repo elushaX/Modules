@@ -18,8 +18,8 @@ namespace tp {
 
 		void start(ualni port);
 		Socket accept();
-		static int1* read(Socket client);
-		static void write(Socket client, const int1* message);
+		bool read(Socket client, int1* message, halni size);
+		bool write(Socket client, const int1* message, halni size);
 	};
 
 	class Client {
@@ -29,8 +29,8 @@ namespace tp {
 		Client();
 		~Client();
 
-		void connect(const int1* IP, ualni PORT);
-		int1* read();
-		void write(const int1* message);
+		bool connect(const int1* IP, ualni PORT);
+		bool read(int1* buff, halni size);
+		bool write(const int1* message, halni size);
 	};
 }

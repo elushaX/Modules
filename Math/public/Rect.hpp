@@ -76,13 +76,13 @@ namespace tp {
 			return ret;
 		}
 
-		void calcIntersection(Rect<Type>& in, Rect<Type>& out) const {
+		void calcIntersection(const Rect<Type>& in, Rect<Type>& out) const {
 			if (isOverlap(in)) {
 				out = *this;
 				for (char i = 0; i < 2; i++) {
-					clamp(out.pos[i], in.pos[i], in.pos[i] + in.size[i]);
+					out.pos[i] = tp::clamp(out.pos[i], in.pos[i], in.pos[i] + in.size[i]);
 					Type p2 = pos[i] + size[i];
-					clamp(p2, in.pos[i], in.pos[i] + in.size[i]);
+					p2 = tp::clamp(p2, in.pos[i], in.pos[i] + in.size[i]);
 					out.size[i] = p2 - out.pos[i];
 				}
 			} else {

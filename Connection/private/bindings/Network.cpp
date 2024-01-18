@@ -42,10 +42,7 @@ public:
 
 Server::Server() { mContext = new ServerContext(); }
 
-Server::~Server() {
-	delete mContext;
-	assert(0);
-}
+Server::~Server() { delete mContext; }
 
 void Server::start(ualni port) {
 	mContext->socket.open(asio::ip::tcp::v4());
@@ -61,29 +58,23 @@ Server::Socket Server::accept() {
 	return clientSocket;
 }
 
-int1* Server::read(Socket client) {
-	short messageSize;
-	if (asio::read(*(ServerContext::Socket*) client, asio::buffer(&messageSize, 2)) == -1) {
-		std::cerr << "Failed to read from socket" << std::endl;
-		((ServerContext::Socket*) client)->close();
-		return nullptr;
+bool Server::read(Socket client, int1* message, halni messageSize) {
+	try {
+		std::size_t bytesRead = asio::read(*(ServerContext::Socket*) client, asio::buffer(message, messageSize));
+		return bytesRead == messageSize;
+	} catch (const std::exception& e) {
+		std::cerr << "Error during read: " << e.what() << "\n";
+		return false;
 	}
-	auto message = new char[messageSize + 1];
-	message[messageSize] = '\0';
-	if (asio::read(*(ServerContext::Socket*) client, asio::buffer(message, messageSize)) == -1) {
-		std::cerr << "Failed to read from socket" << std::endl;
-		memcpy(message, "Client wanna say something but i cant read", 100);
-	}
-	return message;
 }
 
-void Server::write(Socket client, const char* message) {
-	auto messageSize = (short) strlen(message);
-	if (asio::write(*(ServerContext::Socket*) client, asio::buffer(&messageSize, 2)) == -1) {
-		std::cerr << "Failed to write to socket" << std::endl;
-	}
-	if (asio::write(*(ServerContext::Socket*) client, asio::buffer(message, messageSize)) == -1) {
-		std::cerr << "Failed to write to socket" << std::endl;
+bool Server::write(Socket client, const int1* message, halni messageSize) {
+	try {
+		std::size_t bytesWritten = asio::write(*(ServerContext::Socket*) client, asio::buffer(message, messageSize));
+		return bytesWritten == messageSize;
+	} catch (const std::exception& e) {
+		std::cerr << "Error during write: " << e.what() << "\n";
+		return false;
 	}
 }
 
@@ -91,37 +82,35 @@ void Server::write(Socket client, const char* message) {
 
 Client::Client() { mContext = new ClientContext(); }
 
-Client::~Client() {
-	delete mContext;
-	assert(0);
+Client::~Client() { delete mContext; }
+
+bool Client::connect(const char* IP, ualni PORT) {
+	try {
+		asio::ip::tcp::endpoint endpoint(asio::ip::address::from_string(IP), PORT);
+		mContext->socket.connect(endpoint);
+		return true;
+	} catch (const std::exception& e) {
+		std::cerr << "Error during read: " << e.what() << "\n";
+		return false;
+	}
 }
 
-void Client::connect(const char* IP, ualni PORT) {
-	asio::ip::tcp::endpoint endpoint(asio::ip::address::from_string(IP), PORT);
-	mContext->socket.connect(endpoint);
+bool Client::read(int1* buff, halni size) {
+	try {
+		std::size_t bytesRead = asio::read(mContext->socket, asio::buffer(buff, size));
+		return bytesRead == size;
+	} catch (const std::exception& e) {
+		std::cerr << "Error during read: " << e.what() << "\n";
+		return false;
+	}
 }
 
-char* Client::read() {
-	short messageSize;
-	if (asio::read(mContext->socket, asio::buffer(&messageSize, 2)) == -1) {
-		std::cerr << "Failed to read from socket" << std::endl;
-		return nullptr;
-	}
-	auto message = new char[messageSize + 1];
-	message[messageSize] = '\0';
-	if (asio::read(mContext->socket, asio::buffer(message, messageSize)) == -1) {
-		std::cerr << "Failed to read from socket" << std::endl;
-		memcpy(message, "Cant wanna say something but i cant read", 100);
-	}
-	return message;
-}
-
-void Client::write(const char* message) {
-	auto messageSize = (short) strlen(message);
-	if (asio::write(mContext->socket, asio::buffer(&messageSize, 2)) == -1) {
-		std::cerr << "Failed to write to socket" << std::endl;
-	}
-	if (asio::write(mContext->socket, asio::buffer(message, messageSize)) == -1) {
-		std::cerr << "Failed to write to socket" << std::endl;
+bool Client::write(const int1* message, halni messageSize) {
+	try {
+		std::size_t bytesWritten = asio::write(mContext->socket, asio::buffer(message, messageSize));
+		return bytesWritten == messageSize;
+	} catch (const std::exception& e) {
+		std::cerr << "Error during write: " << e.what() << "\n";
+		return false;
 	}
 }
