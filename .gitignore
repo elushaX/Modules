@@ -5,3 +5,5 @@ build*
 lib
 install
 .vscode
+out
+.vs
