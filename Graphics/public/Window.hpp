@@ -21,9 +21,10 @@ namespace tp {
 
 		struct Events {
 			Vec2F mPointer;
-			
+
 			const Vec2F& getPos() const;
 			bool isPressed() const;
+			bool isReleased() const;
 			bool isDown() const;
 			halnf getScrollY() const;
 			bool isEvent() const;

@@ -47,8 +47,7 @@ void Graphics::GL::deinit() {
 	glDeleteVertexArrays(1, &mContext->vao);
 }
 
-void Graphics::GL::proc() {
-}
+void Graphics::GL::proc() {}
 
 void Graphics::GL::draw() {
 	glClearColor(0.f, 0.f, 0.f, 0.f);
@@ -102,7 +101,7 @@ Window::Window(int width, int height, const char* title) {
 	}
 
 	mContext->inputManager.init(mContext->window);
-	
+
 	mGraphics.init(this);
 
 	mEvents.mContext = mContext;
@@ -149,7 +148,7 @@ bool Window::shouldClose() const { return glfwWindowShouldClose(mContext->window
 void Window::processEvents() {
 	mContext->inputManager.isEvent = false;
 	glfwPollEvents();
-	
+
 	int w, h;
 	glfwGetWindowSize(mContext->window, &w, &h);
 
@@ -176,22 +175,14 @@ auto Window::getContext() -> Context* { return mContext; }
 Graphics::Canvas& Window::getCanvas() { return mGraphics.mCanvas; }
 const Window::Events& Window::getEvents() { return mEvents; }
 
-const Vec2F& Window::Events::getPos() const {
-	return mContext->inputManager.getPos();
-}
+const Vec2F& Window::Events::getPos() const { return mContext->inputManager.getPos(); }
 
-bool Window::Events::isPressed() const {
-	return mContext->inputManager.isPressed();
-}
+bool Window::Events::isPressed() const { return mContext->inputManager.isPressed(); }
 
-bool Window::Events::isDown() const {
-	return mContext->inputManager.isDown();
-}
+bool Window::Events::isReleased() const { return mContext->inputManager.isReleased(); }
 
-halnf Window::Events::getScrollY() const {
-	return mContext->inputManager.getScrollY();
-}
+bool Window::Events::isDown() const { return mContext->inputManager.isDown(); }
 
-bool Window::Events::isEvent() const {
-	return mContext->inputManager.isEvents();
-}
+halnf Window::Events::getScrollY() const { return mContext->inputManager.getScrollY(); }
+
+bool Window::Events::isEvent() const { return mContext->inputManager.isEvents(); }

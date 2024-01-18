@@ -2,17 +2,12 @@
 
 #include "Library.hpp"
 #include "Player.hpp"
-#include "Rect.hpp"
-#include "Animations.hpp"
-#include "imgui.h"
+#include "Widgets.hpp"
 
-template <typename T>
-concept DrawableConcept = true;
-
-template <typename Events, typename Canvas> requires(DrawableConcept<Canvas>)
+template <typename Events, typename Canvas>
 class ResizerWidget {
 public:
-	ResizerWidget() {}
+	ResizerWidget() = default;
 
 	void proc(const Events& events, const tp::RectF& areaParent, const tp::RectF& area) {
 		if (!areaParent.isOverlap(area)) {
@@ -23,7 +18,7 @@ public:
 		hover = area.isInside(events.getPos());
 
 		if (events.isPressed() && hover) {
-			resizing = true;		
+			resizing = true;
 		} else if (!events.isDown()) {
 			resizing = false;
 		}
@@ -43,11 +38,11 @@ public:
 		}
 	}
 
-	void draw(Canvas& canvas, const tp::RectF& areaParent, const tp::RectF& area) { 
+	void draw(Canvas& canvas, const tp::RectF& areaParent, const tp::RectF& area) {
 		if (!areaParent.isOverlap(area)) return;
-		
+
 		if (hover || resizing) {
-			canvas.rect(area, { 0.23f, 0.23f, 0.23f, 1.f}, 0.f);
+			canvas.rect(area, { 0.23f, 0.23f, 0.23f, 1.f }, 0.f);
 		} else {
 			canvas.rect(area, { 0.04f, 0.04f, 0.04f, 1.f }, 0.f);
 		}
@@ -61,7 +56,8 @@ public:
 	tp::halnf value = 0;
 };
 
-template <typename Events, typename Canvas> requires(DrawableConcept<Canvas>)
+template <typename Events, typename Canvas>
+	requires(DrawableConcept<Canvas>)
 class TrackInfoWidget {
 	struct SortType {
 		tp::String text;
@@ -70,31 +66,36 @@ class TrackInfoWidget {
 	};
 
 public:
-	TrackInfoWidget(const Track* track = nullptr) : mTrack(track) {
-		items.append( { "Date Added" } );
-		items.append( { "Date Last Played" } );
+	TrackInfoWidget(const Track* track = nullptr) :
+		mTrack(track) {
+		items.append({ "Date Added" });
+		items.append({ "Date Last Played" });
 	}
 
 	void proc(const Events& events, const tp::RectF& areaParent, const tp::RectF& area) {
 		if (!mTrack) return;
 		if (!areaParent.isOverlap(area)) return;
-
 	}
 
-	void draw(Canvas& canvas, const tp::RectF& areaParent, const tp::RectF& area) { 
+	void draw(Canvas& canvas, const tp::RectF& areaParent, const tp::RectF& area) {
 		if (!areaParent.isOverlap(area)) return;
-		
-		ImGui::SetNextWindowPos( { area.x, area.y } );
-		ImGui::SetNextWindowSize( { area.z, area.w } );
+
+		ImGui::SetNextWindowPos({ area.x, area.y });
+		ImGui::SetNextWindowSize({ area.z, area.w });
 		RenderUI();
 
-		canvas.rect(area, { 0.13f, 0.13f, 0.13f, 1.f}, 4.f);
+		canvas.rect(area, { 0.13f, 0.13f, 0.13f, 1.f }, 4.f);
 
 		if (!mTrack) return;
 	}
 
 	void RenderUI() {
-		ImGui::Begin("InfoWindow", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoResize);
+		ImGui::Begin(
+			"InfoWindow",
+			0,
+			ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground |
+				ImGuiWindowFlags_NoResize
+		);
 
 		if (mTrack) {
 
@@ -146,20 +147,20 @@ public:
 		if (ImGui::Checkbox("Loved only", &filterLoved)) {
 			isSongFilterChanged |= true;
 		}
-		
+
 		if (ImGui::SliderInt("Existing only", &filterExisting, 0, 3)) {
 			isSongFilterChanged |= true;
 		}
 
 		isSongFilterChanged |= songFilter.Draw("Song Filter");
-		
+
 		sortFilter.Draw("Sorting Type");
 
 		for (int i = 0; i < items.size(); ++i) {
 			if (!sortFilter.PassFilter(items[i].text.read())) continue;
 
 			ImGui::PushID(i);
-			
+
 			if (ImGui::Button("Inc")) {
 				items[i].inc = true;
 			}
@@ -189,8 +190,8 @@ public:
 	int filterExisting = 0; // all existing no-existing
 };
 
-
-template <typename Events, typename Canvas> requires(DrawableConcept<Canvas>)
+template <typename Events, typename Canvas>
+	requires(DrawableConcept<Canvas>)
 class ScrollBarWidget {
 public:
 	ScrollBarWidget() = default;
@@ -214,17 +215,17 @@ public:
 				scrollInertia = -scrollInertia + offset;
 			}
 		}
-		
+
 		if (tp::abs(scrollInertia) > 0.1f) {
 			auto offset = scrollInertia * mScrollFactor;
 			mPositionFraction += offset;
 			mPositionFraction = tp::clamp(mPositionFraction, 0.f, 1.f - mSizeFraction);
 			scrollInertia *= 0.f;
-			return;	
+			return;
 		}
 
 		if (events.isPressed() && area.isInside(events.getPos())) {
-			mIsScrolling = true;		
+			mIsScrolling = true;
 		} else if (!events.isDown()) {
 			mIsScrolling = false;
 		}
@@ -238,10 +239,10 @@ public:
 		mPositionFraction = tp::clamp(mPositionFraction, 0.f, 1.f - mSizeFraction);
 	}
 
-	void draw(Canvas& canvas, const tp::RectF& areaParent, const tp::RectF& area) { 
+	void draw(Canvas& canvas, const tp::RectF& areaParent, const tp::RectF& area) {
 		if (mSizeFraction > 1.f) return;
 		if (!areaParent.isOverlap(area)) return;
-		
+
 		auto minSize = 10.f;
 		tp::RGBA col = tp::RGBA{ 0.25f, 0.25f, 0.25f, 1.f };
 
@@ -250,10 +251,10 @@ public:
 			minSize = 20.f;
 		}
 
-		canvas.rect(area, { 0.15f, 0.15f, 0.15f, 1.f }, 4.f); 
+		canvas.rect(area, { 0.15f, 0.15f, 0.15f, 1.f }, 4.f);
 		auto sliderSize = tp::clamp(area.w * mSizeFraction, minSize, area.w);
 		auto diffSize = sliderSize - area.w * mSizeFraction;
-		canvas.rect({ area.x, area.y + (area.w - diffSize) * mPositionFraction, area.z, sliderSize }, col, 4.f); 
+		canvas.rect({ area.x, area.y + (area.w - diffSize) * mPositionFraction, area.z, sliderSize }, col, 4.f);
 	}
 
 public:
@@ -264,11 +265,12 @@ public:
 	tp::halnf mPositionFraction = 0.f;
 };
 
-
-template <typename Events, typename Canvas> requires(DrawableConcept<Canvas>)
+template <typename Events, typename Canvas>
+	requires(DrawableConcept<Canvas>)
 class TrackWidget {
 public:
-	TrackWidget(const Track* track = nullptr) : mTrack(track) {
+	TrackWidget(const Track* track = nullptr) :
+		mTrack(track) {
 		col.mColor.setAnimTime(0);
 		col.mColor.setNoTransition({ 0.15f, 0.15f, 0.15f, 0.f });
 	};
@@ -277,31 +279,33 @@ public:
 		if (!mTrack) return;
 		if (!areaParent.isOverlap(area)) return;
 		if (area.isInside(events.getPos())) {
-			col.set( { 0.15f, 0.15f, 0.15f, 1.f } );
+			col.set({ 0.15f, 0.15f, 0.15f, 1.f });
 			insideDebug = true;
 		} else {
-			col.set( { 0.15f, 0.15f, 0.15f, 0.f } );
+			col.set({ 0.15f, 0.15f, 0.15f, 0.f });
 			insideDebug = false;
 		}
 	}
 
-	void draw(Canvas& canvas, const tp::RectF& areaParent, const tp::RectF& area) { 
+	void draw(Canvas& canvas, const tp::RectF& areaParent, const tp::RectF& area) {
 		if (!mTrack) return;
 		if (!areaParent.isOverlap(area)) return;
 
-		canvas.rect(area, col.get(), 4.f); 
+		canvas.rect(area, col.get(), 4.f);
 
 		const tp::RectF imageArea = { area.x + marging, area.y + marging, area.w - marging * 2, area.w - marging * 2 };
-		canvas.rect(imageArea, { 0.25f, 0.25f, 0.25f, 1.f }, 4.f); 
+		canvas.rect(imageArea, { 0.25f, 0.25f, 0.25f, 1.f }, 4.f);
 
-		const tp::RectF textArea = { area.x + area.w + marging, area.y + marging, area.z - area.w - marging * 2, area.w - marging * 2 };
-		// canvas.rect(textArea, { 0.25f, 0.25f, 0.25f, 1.f }, 4.f); 
+		const tp::RectF textArea = {
+			area.x + area.w + marging, area.y + marging, area.z - area.w - marging * 2, area.w - marging * 2
+		};
+		// canvas.rect(textArea, { 0.25f, 0.25f, 0.25f, 1.f }, 4.f);
 
 		const tp::RectF textAreaName = { textArea.x, textArea.y, textArea.z, textArea.w * 0.5f };
 		const tp::RectF textAreaAuthor = { textArea.x, textArea.y + textArea.w * 0.5f, textArea.z, textArea.w * 0.5f };
-		
-		canvas.text(mTrack->mName.read(), textAreaName, 15.f, Canvas::LC, 4.f, { 0.9f, 0.9f, 0.9f, 1.f} );
-		canvas.text(mTrack->mArtist.read(), textAreaAuthor, 12.f, Canvas::LC, 4.f, { 0.8f, 0.8f, 0.8f, 1.f} );
+
+		canvas.text(mTrack->mName.read(), textAreaName, 15.f, Canvas::LC, 4.f, { 0.9f, 0.9f, 0.9f, 1.f });
+		canvas.text(mTrack->mArtist.read(), textAreaAuthor, 12.f, Canvas::LC, 4.f, { 0.8f, 0.8f, 0.8f, 1.f });
 	}
 
 public:
@@ -311,10 +315,13 @@ public:
 	const Track* mTrack;
 };
 
-template <typename Events, typename Canvas> requires(DrawableConcept<Canvas>)
+template <typename Events, typename Canvas>
+	requires(DrawableConcept<Canvas>)
 class LibraryWidget {
 public:
-	LibraryWidget(Library* lib, Player* player) : mLibrary(lib), mPlayer(player) {
+	LibraryWidget(Library* lib, Player* player) :
+		mLibrary(lib),
+		mPlayer(player) {
 		for (auto track : mLibrary->mTraks) {
 			mTraks.append(TrackWidget<Events, Canvas>(&track.data()));
 		}
@@ -333,14 +340,16 @@ public:
 
 		areaCP = { aArea.x, aArea.y + aArea.w - controllPanelSize, aArea.z, controllPanelSize };
 		area = { aArea.x, aArea.y, mResizeWidget.value, aArea.w - controllPanelSize };
-		areaInfo = { mResizeWidget.value + resizeSize, aArea.y, aArea.z - mResizeWidget.value - resizeSize, aArea.w - controllPanelSize } ;
+		areaInfo = {
+			mResizeWidget.value + resizeSize, aArea.y, aArea.z - mResizeWidget.value - resizeSize, aArea.w - controllPanelSize
+		};
 		areaResize = { mResizeWidget.value, aArea.y, resizeSize, areaInfo.w };
 
 		mScroll.mSizeFraction = (area.w - 10) / (mTraksFiltered.size() * trackSize);
 		mScroll.mScrollFactor = 1.f / mTraksFiltered.size();
 
-		mScroll.proc(events, area, { area.x + area.z - scrollSize - 3, area.y + 10, scrollSize - 3.f, area.w - 20 } );
-		mResizeWidget.proc(events, area, areaResize );
+		mScroll.proc(events, area, { area.x + area.z - scrollSize - 3, area.y + 10, scrollSize - 3.f, area.w - 20 });
+		mResizeWidget.proc(events, area, areaResize);
 
 		if (area.isInside(events.getPos())) {
 
@@ -348,7 +357,8 @@ public:
 			auto idx = 0;
 
 			for (auto track : mTraksFiltered) {
-				auto trackArea = tp::RectF{ area.x + 10, area.y + 10 + idx * trackSize - offset, area.z - 20 - scrollSize, trackSize - 5 };
+				auto trackArea =
+					tp::RectF{ area.x + 10, area.y + 10 + idx * trackSize - offset, area.z - 20 - scrollSize, trackSize - 5 };
 
 				track->proc(events, area, trackArea);
 
@@ -364,32 +374,33 @@ public:
 		debugPos = events.getPos();
 	}
 
-	void draw(Canvas& canvas, const tp::RectF& areaParent, const tp::RectF& aArea) { 
+	void draw(Canvas& canvas, const tp::RectF& areaParent, const tp::RectF& aArea) {
 
-		canvas.rect(aArea, { 0.1f, 0.1f, 0.1f, 1.f }); 
-		
+		canvas.rect(aArea, { 0.1f, 0.1f, 0.1f, 1.f });
+
 		tp::halnf offset = mScroll.mPositionFraction * mTraksFiltered.size() * trackSize;
 		auto idx = 0;
 
 		for (auto track : mTraksFiltered) {
-			auto const trackArea = tp::RectF{ area.x + 10, area.y + 10 + idx * trackSize - offset, area.z - 20 - scrollSize, trackSize - 5 };
+			auto const trackArea =
+				tp::RectF{ area.x + 10, area.y + 10 + idx * trackSize - offset, area.z - 20 - scrollSize, trackSize - 5 };
 			if (track->mTrack == mCurrentTrack.mTrack) canvas.rect(trackArea, { 0.2f, 0.2f, 0.2f, 0.5f }, 5);
-			track->draw(canvas, area,  trackArea);
+			track->draw(canvas, area, trackArea);
 			idx++;
 		}
 
-		mScroll.draw(canvas, area, { area.x + area.z - scrollSize - 3, area.y + 10, scrollSize - 3.f, area.w - 20 } );
-		
-		// canvas.rect( areaInfo, { 0.04f, 0.04f, 0.04f, 1.f });
-		mCurrentTrackInfo.draw(canvas, aArea, areaInfo );
+		mScroll.draw(canvas, area, { area.x + area.z - scrollSize - 3, area.y + 10, scrollSize - 3.f, area.w - 20 });
 
-		mResizeWidget.draw(canvas, aArea, areaResize );
+		// canvas.rect( areaInfo, { 0.04f, 0.04f, 0.04f, 1.f });
+		mCurrentTrackInfo.draw(canvas, aArea, areaInfo);
+
+		mResizeWidget.draw(canvas, aArea, areaResize);
 
 		drawCP(canvas, aArea, areaCP);
 	}
 
 	void drawCP(Canvas& canvas, const tp::RectF& areaParent, const tp::RectF& area) {
-		canvas.rect( area, { 0.04f, 0.04f, 0.04f, 1.f });
+		canvas.rect(area, { 0.04f, 0.04f, 0.04f, 1.f });
 		mCurrentTrack.draw(canvas, area, area);
 	}
 
@@ -416,7 +427,7 @@ public:
 					break;
 			}
 
-			mTraksFiltered.append( &track.data() );
+			mTraksFiltered.append(&track.data());
 		}
 
 		mCurrentTrackInfo.isSongFilterChanged = false;

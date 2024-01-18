@@ -11,8 +11,8 @@ namespace tp {
 	class InputManager {
 	public:
 		InputManager() = default;
-		
-		void init(GLFWwindow* aWindow)  {
+
+		void init(GLFWwindow* aWindow) {
 			window = aWindow;
 			// Set up key and mouse button callbacks
 
@@ -24,25 +24,17 @@ namespace tp {
 
 		const Vec2F& getPos() const { return mousePos; }
 
-		bool isKeyPressed(int key) const {
-			return keyStates[key] == GLFW_PRESS;
-		}
+		bool isKeyPressed(int key) const { return keyStates[key] == GLFW_PRESS; }
 
-		bool isKeyDown(int key) const { 
-			return keyStates[key] == GLFW_REPEAT || keyStates[key] == GLFW_PRESS;
-		}
+		bool isKeyDown(int key) const { return keyStates[key] == GLFW_REPEAT || keyStates[key] == GLFW_PRESS; }
 
-		bool isPressed() const { 
-			return mouseButtonStates[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS; 
-		}
+		bool isPressed() const { return mouseButtonStates[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS; }
 
-		bool isDown() const { 
-			return mouseButtonStates[GLFW_MOUSE_BUTTON_LEFT] == GLFW_REPEAT || mouseButtonStates[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS; 
-		}
+		bool isReleased() const { return mouseButtonStates[GLFW_MOUSE_BUTTON_LEFT] == GLFW_RELEASE; }
 
-		bool isEvents() const { 
-			return isEvent; 
-		}
+		bool isDown() const { return mouseButtonStates[GLFW_MOUSE_BUTTON_LEFT] == GLFW_REPEAT || mouseButtonStates[GLFW_MOUSE_BUTTON_LEFT] == GLFW_PRESS; }
+
+		bool isEvents() const { return isEvent; }
 
 		double getScrollY() const { return scrollY; }
 
@@ -105,7 +97,7 @@ namespace tp {
 
 		bool isEvent = false;
 		double scrollX = 0.0;
-    double scrollY = 0.0;
+		double scrollY = 0.0;
 		GLFWwindow* window;
 		Vec2F mousePos;
 		Vec2F mousePosPrev;

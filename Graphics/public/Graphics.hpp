@@ -69,19 +69,21 @@ namespace tp {
 			void draw();
 
 		public:
-			enum Align : int2 { 
-				CC = 0x0000, 
-				CT = 0x0001, 
-				CB = 0x0002, 
-				LC = 0x0100, 
-				LT = 0x0101, 
-				LB = 0x0102, 
-				RC = 0x0200, 
-				RT = 0x0201, 
+			enum Align : int2 {
+				CC = 0x0000,
+				CT = 0x0001,
+				CB = 0x0002,
+				LC = 0x0100,
+				LT = 0x0101,
+				LB = 0x0102,
+				RC = 0x0200,
+				RT = 0x0201,
 				RB = 0x0202,
 			};
 
 			RectF getAvaliableArea();
+			void pushClamp(const RectF& rec);
+			void popClamp();
 			void rect(const RectF& rec, const RGBA& col, halnf round = 0);
 			void text(const String&, const RectF&, halnf size, Align, halnf marging, const RGBA&);
 
@@ -90,6 +92,8 @@ namespace tp {
 		private:
 			halnf mWidth = 600;
 			halnf mHeight = 600;
+			Buffer<RectF> mScissors;
+			bool mIsClamping = false;
 		};
 
 	private:
