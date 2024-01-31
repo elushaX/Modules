@@ -3,22 +3,27 @@
 #include "Player.hpp"
 
 // 1) artworks
-// 2) how to easy add more songs?
+// 2) how to easily add more songs?
 // 3) GUi :
 // - seeker
 // - song idx
-// - non existing highlight
+// - non-existing highlight
 // - prev next
 // - remove debug gui
 // 4) queue & repeat & shuffle...
 // 5) new database with history
 
 void runApp() {
+
 	Player player;
 	Library library;
 	library.loadJson(getHome() + "Library.json");
 	library.checkExisting();
-	LibraryWidget<tp::Window::Events, tp::Graphics::Canvas> gui(&library, &player);
+
+	tp::GlobalGUIConfig config;
+	tp::gGlobalGUIConfig = &config;
+
+	tp::LibraryWidget<tp::Window::Events, tp::Graphics::Canvas> gui(&library, &player);
 
 	auto window = tp::Window::createWindow(800, 600, "Window 1");
 
@@ -29,7 +34,7 @@ void runApp() {
 			auto area = window->getCanvas().getAvaliableArea();
 
 			gui.proc(window->getEvents(), {}, { area.x, area.y, area.z, area.w });
-			gui.draw(window->getCanvas(), {}, { area.x, area.y, area.z, area.w });
+			gui.draw(window->getCanvas());
 
 			// tp::sleep(100);
 

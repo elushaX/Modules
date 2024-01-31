@@ -2,7 +2,7 @@ project(LibraryViewer)
 
 ### ---------------------- Externals  ---------------------  ###
 set(BINDINGS_INCLUDE ../Externals/glfw/include ${GLEW_INCLUDE_DIR} ${PORTAUDIO_INCLUDE_DIR})
-set(BINDINGS_LIBS glfw ${GLEW_LIB} ${ALSA_LIBRARY} ${PORTAUDIO_LIB})
+set(BINDINGS_LIBS glfw Imgui ${GLEW_LIB} ${ALSA_LIBRARY} ${PORTAUDIO_LIB})
 
 ### ---------------------- Static Library  ---------------------  ###
 file(GLOB SOURCES "./private/*.cpp" "./private/*/*.cpp")
@@ -14,7 +14,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ./public/ ${BINDINGS_INCLUDE} 
 target_link_libraries(${PROJECT_NAME} PUBLIC Graphics Connection Widgets)
 target_link_libraries(${PROJECT_NAME} PUBLIC ${BINDINGS_LIBS})
 
-file(COPY "library" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
+file(COPY "library" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}")
 file(COPY "applications/Font.ttf" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
 
 ### -------------------------- Applications  --------------------------  ###
