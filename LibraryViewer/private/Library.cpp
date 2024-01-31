@@ -1,12 +1,13 @@
 
 #include "Library.hpp"
 #include "LocalConnection.hpp"
+#include "WidgetBase.hpp"
 
 #include "picojson.h"
 #include <filesystem>
 
 namespace tp {
-	static ModuleManifest* deps[] = { &gModuleGraphics, &gModuleConnection, nullptr };
+	static ModuleManifest* deps[] = { &gModuleGraphics, &gModuleConnection, &gModuleWidgets, nullptr };
 	ModuleManifest gModuleLibraryViewer = ModuleManifest("LibraryViewer", nullptr, nullptr, deps);
 }
 
@@ -23,15 +24,13 @@ tp::String getHome() {
 	if (envVarValue != nullptr) {
 		tp::String out;
 		out = (int1*) (std::string(envVarValue) + "/").c_str();
-		return  out;
+		return out;
 	} else {
-		return "";
+		return "library/";
 	}
 }
 
-tp::String getSongLocalPath(SongId id) {
-	return getHome() + "tracks/" + tp::String((tp::alni)id);
-}
+tp::String getSongLocalPath(SongId id) { return getHome() + "tracks/" + tp::String((tp::alni) id); }
 
 SONG_FORMAT getSongFormat(const String& localPath) {
 	std::filesystem::path wavFormat((localPath + ".wav").read());
@@ -56,21 +55,24 @@ bool Library::loadJson(const String& path) {
 
 	libraryFileMem.reserve(libraryFile.size());
 	libraryFile.readBytes(libraryFileMem.getBuff(), libraryFile.size());
-	
+
 	std::string json = libraryFileMem.getBuff();
 	picojson::value jsonNode;
 	std::string err = picojson::parse(jsonNode, json);
-	
-	if (! err.empty()) {
+
+	if (!err.empty()) {
+		printf("Given path - %s\n", path.read());
+		printf("Home for library is - '%s'. Set it in the env as LIB_VIEW_HOME \n", getHome().read());
+		printf("Error parsing json library file - check your paths and files\n %s \n", err.c_str());
 		return false;
 	}
 
-	auto & traks = jsonNode.get<picojson::array>();
-	for (auto & trackNode : traks) {
+	auto& traks = jsonNode.get<picojson::array>();
+	for (auto& trackNode : traks) {
 		Track newTrack;
 
-		auto & track = trackNode.get<picojson::object>();
-		for (auto & trackProperty : track) {
+		auto& track = trackNode.get<picojson::object>();
+		for (auto& trackProperty : track) {
 			if (PROP(Name)) newTrack.mName = AS_STR;
 			else if (PROP(Artist)) newTrack.mArtist = AS_STR;
 			else if (PROP(Track ID)) newTrack.mId = AS_INT;

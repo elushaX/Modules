@@ -197,7 +197,7 @@ namespace tp {
 				const auto padding = this->getValue("Padding");
 				mContentSize = mContents.last()->mArea.y - mContents.first()->mArea.y;
 				mContentSize += mContents.last()->mArea.w;
-				mContentSize += (mContents.size()) * padding;
+				mContentSize += 2 * padding;
 			}
 		}
 
