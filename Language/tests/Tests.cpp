@@ -1,5 +1,4 @@
 
-#include "NewPlacement.hpp"
 #include "Test.hpp"
 
 using namespace tp;

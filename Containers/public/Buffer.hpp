@@ -165,7 +165,12 @@ namespace tp {
 		}
 	};
 
-	template <typename tType, class tAllocator = DefaultAllocator, ualni(tResizePolicy)(ualni) = BufferResizeScaling<2>, ualni(tResizePolicyDown)(ualni) = BufferResizeScalingDown<2>, ualni tMinSize = 4>
+	template <
+		typename tType,
+		class tAllocator = DefaultAllocator,
+		ualni(tResizePolicy)(ualni) = BufferResizeScaling<2>,
+		ualni(tResizePolicyDown)(ualni) = BufferResizeScalingDown<2>,
+		ualni tMinSize = 4>
 	class Buffer {
 		typedef SelectValueOrReference<tType> Arg;
 
@@ -305,7 +310,7 @@ namespace tp {
 			mBuff = (tType*) mAllocator.allocate(sizeof(tType) * mSize);
 			mLoad = 0;
 			for (const auto& val : input) {
-				mBuff[mLoad] = val;
+				new (&mBuff[mLoad]) tType(val);
 				mLoad++;
 			}
 

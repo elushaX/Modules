@@ -7,6 +7,8 @@ namespace tp {
 	// Gives ability to express grammar in the Unified Format as sentence
 	template <typename tAlphabetType>
 	class SimpleParser {
+		enum UGTokens : ualni { InTransition = 0, Failed, TestSeq };
+
 	public:
 		SimpleParser() {
 			// Grammar for unified grammar format sentence that tables compiled from
@@ -20,10 +22,10 @@ namespace tp {
 			}
 
 			// Define Regular grammar
-			RegularGrammar<tAlphabetType, ualni> rg;
+			RegularGrammar<tAlphabetType, UGTokens> rg;
 			{
 				// this is basically ast from existing tokenizer
-				rg.addRule(rg.seq({ rg.val('a'), rg.val('b') }), 0);
+				rg.addRule(rg.seq({ rg.val('a'), rg.val('b') }), TestSeq);
 			}
 
 			mUnifiedGrammarParser.compileTables(contextFreeGrammar, rg);
@@ -36,7 +38,7 @@ namespace tp {
 
 			// compile each ast into RegularGrammar and ContextFree Grammar api instructions
 			ContextFreeGrammar userContextFreeGrammar;
-			RegularGrammar<tAlphabetType, ualni> userRegularGrammar;
+			RegularGrammar<tAlphabetType, UGTokens> userRegularGrammar;
 
 			// ...
 			// split ast into RE and CF part
@@ -48,10 +50,12 @@ namespace tp {
 			mUserParser.compileTables(userContextFreeGrammar, userRegularGrammar);
 		}
 
-		void parse(const tAlphabetType* grammar, ualni grammarLength, AST& out) { mUserParser.parse(grammar, grammarLength, out); }
+		void parse(const tAlphabetType* grammar, ualni grammarLength, AST& out) {
+			mUserParser.parse(grammar, grammarLength, out);
+		}
 
 	private:
-		Parser<tAlphabetType> mUnifiedGrammarParser;
-		Parser<tAlphabetType> mUserParser;
+		Parser<tAlphabetType, UGTokens> mUnifiedGrammarParser;
+		Parser<tAlphabetType, UGTokens> mUserParser;
 	};
 }

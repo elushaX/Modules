@@ -70,7 +70,7 @@ namespace tp {
 
 	template <typename tAlphabetType, typename tTokType>
 	class RegularGrammar {
-
+	public:
 		struct Node {
 			enum Type {
 				NONE,
@@ -97,7 +97,7 @@ namespace tp {
 
 			~ValueNode() override = default;
 
-		private:
+		public:
 			tAlphabetType mVal;
 		};
 
@@ -118,7 +118,7 @@ namespace tp {
 				mSequence.clear();
 			}
 
-		private:
+		public:
 			Buffer<const Node*> mSequence;
 		};
 
@@ -138,7 +138,7 @@ namespace tp {
 				delete mSecond;
 			}
 
-		private:
+		public:
 			const Node* mFirst = nullptr;
 			const Node* mSecond = nullptr;
 		};
@@ -155,7 +155,7 @@ namespace tp {
 
 			~IfNode() override { delete mNode; }
 
-		private:
+		public:
 			const Node* mNode = nullptr;
 		};
 
@@ -180,7 +180,7 @@ namespace tp {
 
 			~RepetitionNode() override { delete mNode; }
 
-		private:
+		public:
 			Node* mNode = nullptr;
 			bool mPlus = false;
 		};
@@ -197,7 +197,7 @@ namespace tp {
 
 			~ClassNode() override { mRanges.removeAll(); }
 
-		private:
+		public:
 			Buffer<Range<tAlphabetType>> mRanges;
 			bool mExclude = false;
 		};
@@ -220,9 +220,11 @@ namespace tp {
 		const Node* may(const Node* a) { return new IfNode(a); }
 		const Node* any() { return new AnyNode(); }
 		const Node* rep(const Node* rep, bool plus = false) { return new RepetitionNode(rep, plus); }
-		const Node* ranges(const Buffer<Range<tAlphabetType>>& ranges, bool exclude = false) { return new ClassNode(ranges, exclude); }
+		const Node* ranges(const Buffer<Range<tAlphabetType>>& ranges, bool exclude = false) {
+			return new ClassNode(ranges, exclude);
+		}
 
-	private:
+	public:
 		Buffer<Pair<const Node*, tTokType>> mRules;
 	};
 }
