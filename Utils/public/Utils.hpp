@@ -36,12 +36,14 @@ namespace tp {
 			T1 t1;
 			T1 head;
 			T1 x;
+			T1 first;
 		};
 
 		union {
 			T2 t2;
 			T2 tail;
 			T2 y;
+			T2 second;
 		};
 
 		bool operator==(const Pair& in) const { return in.t1 == t1 && in.t2 == t2; }

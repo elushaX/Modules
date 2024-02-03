@@ -1,6 +1,5 @@
 
 #include "Grammar.hpp"
-#include "NewPlacement.hpp"
 
 using namespace tp;
 
@@ -12,7 +11,9 @@ ContextFreeGrammar::Arg::Arg(const String& id, bool terminal, bool epsilon) {
 
 const String& ContextFreeGrammar::Arg::getId() const { return mId; }
 
-bool ContextFreeGrammar::Arg::operator==(const Arg& in) const { return (mId == in.mId) && (mIsEpsilon == in.mIsEpsilon) && (mIsTerminal == in.mIsTerminal); }
+bool ContextFreeGrammar::Arg::operator==(const Arg& in) const {
+	return (mId == in.mId) && (mIsEpsilon == in.mIsEpsilon) && (mIsTerminal == in.mIsTerminal);
+}
 
 ContextFreeGrammar::Rule::Rule(const String& id, const InitialierList<Arg>& args) {
 	mId = id;
