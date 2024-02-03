@@ -7,3 +7,5 @@ install
 .vscode
 out
 .vs
+*.bkp
+*.$*
