@@ -2,7 +2,7 @@
 #pragma once
 
 #include "AST.hpp"
-#include "GrammarCompiler.hpp"
+#include "RegularCompiler.hpp"
 
 namespace tp {
 
