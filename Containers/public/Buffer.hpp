@@ -317,12 +317,13 @@ namespace tp {
 			return *this;
 		}
 
-		void append(Arg data) {
+		tType& append(Arg data) {
 			if (mLoad == mSize) {
 				resizeBuffer(tResizePolicy(mSize));
 			}
 			new (&mBuff[mLoad]) tType(data);
 			mLoad++;
+			return mBuff[mLoad - 1];
 		}
 
 		void append(const Buffer& in) {

@@ -299,6 +299,14 @@ namespace tp {
 			}
 		}
 
+		void transferNodes(List in) {
+			removeAll();
+			for (auto node : in) {
+				attach(node);
+			}
+			in.detachAll();
+		}
+
 	public:
 		template <class tArchiver>
 		void archiveWrite(tArchiver& ar) const {
