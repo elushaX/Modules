@@ -8,9 +8,8 @@
 namespace tp {
 
 	// Non-Deterministic Finite-State Automata
-	template <typename tAlphabetType, typename tStateType, tStateType tNoStateVal, tStateType tFailedStateVal>
+	template <typename tAlphabetType, typename tStateType>
 	class NFA {
-		static_assert(TypeTraits<tAlphabetType>::isIntegral, "tAlphabetType must be enumerable.");
 
 	public:
 		struct Vertex;
@@ -32,7 +31,8 @@ namespace tp {
 
 		struct Vertex {
 			List<Edge> edges;
-			tStateType termination_state = tNoStateVal;
+			tStateType state{};
+			bool isTermination = false;
 			ualni debug_idx = 0;
 			ualni flag = 0;
 		};
@@ -40,12 +40,15 @@ namespace tp {
 	public:
 		List<Vertex> mVertices;
 		Vertex* mStart = nullptr;
+		Buffer<tAlphabetType> mAllSymbols;
 
 	public:
 		NFA() = default;
 
-		Vertex* addVertex() {
+		Vertex* addVertex(const tStateType& state, bool termination) {
 			auto node = mVertices.newNode();
+			node->data.isTermination = termination;
+			node->data.state = state;
 			node->data.debug_idx = mVertices.length() + 1;
 			mVertices.pushBack(node);
 			return &node->data;
@@ -66,34 +69,16 @@ namespace tp {
 
 		[[nodiscard]] Vertex* getStartVertex() const { return mStart; }
 
-		void setVertexState(Vertex* vertex, tStateType state) { vertex->termination_state = state; }
+		void setVertexState(Vertex* vertex, const tStateType& state, bool terminated) {
+			vertex->state = state;
+			vertex->isTermination = terminated;
+		}
 
 		[[nodiscard]] bool isValid() const {
 			if (!mStart) {
 				return false;
 			}
 			return true;
-		}
-
-		Range<tAlphabetType> getAlphabetRange() const {
-			tAlphabetType start = 0, end = 0;
-			Range<tAlphabetType> all_range(
-				std::numeric_limits<tAlphabetType>::min(), std::numeric_limits<tAlphabetType>::max()
-			);
-			bool first = true;
-
-			for (auto vertex : mVertices) {
-				for (auto edge : vertex.data().edges) {
-					if (!edge.data().mConsumesSymbol) continue;
-					auto const& tran_range = edge.data().mAcceptingRange;
-					if (edge.data().mAcceptsAll || edge.data().mExclude) return all_range;
-					if (tran_range.mBegin < start || first) start = tran_range.mBegin;
-					if (tran_range.mEnd > end || first) end = tran_range.mEnd;
-					first = false;
-				}
-			}
-
-			return Range<tAlphabetType>(start, end + 1);
 		}
 
 		// vertices that are reachable from initial set with no input consumption (E-transitions)
@@ -133,10 +118,9 @@ namespace tp {
 	};
 
 	// Deterministic Finite-State Automata
-	template <typename tAlphabetType, typename tStateType, tStateType tNoStateVal, tStateType tFailedStateVal>
+	template <typename tAlphabetType, typename tStateType>
 	class DFA {
-		static_assert(TypeTraits<tAlphabetType>::isIntegral, "tAlphabetType must be enumerable.");
-
+	public:
 		struct Vertex {
 			struct Edge {
 				Vertex* vertex = nullptr;
@@ -144,25 +128,26 @@ namespace tp {
 			};
 
 			List<Edge> edges;
-			tStateType termination_state = tNoStateVal;
+			tStateType state{};
+			bool termination = false;
 			bool marked = false;
 		};
 
 		List<Vertex> mVertices;
 		Vertex* mStart = nullptr;
 		const Vertex* mIter = nullptr;
-		Range<tAlphabetType> mAlphabetRange;
+		Buffer<tAlphabetType> mAlphabetRange;
 		bool mTrapState = false;
 
-		typedef typename NFA<tAlphabetType, tStateType, tNoStateVal, tFailedStateVal>::Vertex NState;
+		typedef typename NFA<tAlphabetType, tStateType>::Vertex NState;
 
 	public:
-		explicit DFA(NFA<tAlphabetType, tStateType, tNoStateVal, tFailedStateVal>& nfa) {
+		explicit DFA(NFA<tAlphabetType, tStateType>& nfa) {
 			if (!nfa.isValid()) {
 				return;
 			}
 
-			mAlphabetRange = nfa.getAlphabetRange();
+			mAlphabetRange = nfa.mAllSymbols;
 
 			struct DStateKey {
 				const List<NState*>* nStates;
@@ -269,14 +254,19 @@ namespace tp {
 
 			// create own vertices
 			for (auto node : dStates) {
-				tStateType state = tNoStateVal;
+				const tStateType* state = nullptr;
+				ualni numFound = 0;
 				for (auto iter : node->val->nStates) {
-					if (iter->termination_state != tNoStateVal) {
-						state = iter->termination_state;
+					if (iter->isTermination) {
+						state = &iter->state;
 						break;
 					}
 				}
-				node->val->dVertex = addVertex(state);
+				if (numFound != 1) {
+					printf("Error constructing dfa - invalid number of termination states in final node.");
+					exit(1);
+				}
+				node->val->dVertex = addVertex(*state);
 			}
 
 			// connect all vertices
@@ -295,9 +285,9 @@ namespace tp {
 			}
 
 			collapseEquivalentVertices();
-			mAlphabetRange = getAlphabetRange();
 		}
 
+		/*
 		tStateType move(tAlphabetType symbol) {
 			if (mTrapState || !mIter) {
 				return tNoStateVal;
@@ -318,10 +308,11 @@ namespace tp {
 			mIter = mStart;
 			mTrapState = false;
 		}
+		*/
 
 		[[nodiscard]] uhalni nVertices() const { return (uhalni) mVertices.length(); }
 
-		[[nodiscard]] Range<tAlphabetType> getRange() const { return mAlphabetRange; }
+		[[nodiscard]] const Buffer<tAlphabetType>& getRange() const { return mAlphabetRange; }
 
 	public:
 		[[nodiscard]] Range<tAlphabetType> getAlphabetRange() const {
@@ -363,9 +354,9 @@ namespace tp {
 			// TODO
 		}
 
-		Vertex* addVertex(tStateType state) {
+		Vertex* addVertex(const tStateType& state) {
 			auto node = mVertices.addNodeBack();
-			node->data.termination_state = state;
+			node->data.state = state;
 			return &node->data;
 		}
 

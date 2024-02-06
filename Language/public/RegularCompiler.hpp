@@ -9,7 +9,7 @@ namespace tp {
 	template <typename tAlphabetType, typename tStateType, tStateType tNoStateVal, tStateType tFailedStateVal>
 	class RegularCompiler {
 
-		typedef NFA<tAlphabetType, tStateType, tNoStateVal, tFailedStateVal> Graph;
+		typedef NFA<tAlphabetType, tStateType> Graph;
 		typedef typename Graph::Vertex Vertex;
 		typedef RegularGrammar<tAlphabetType, tStateType> Grammar;
 
@@ -31,16 +31,17 @@ namespace tp {
 
 		CompileError mError;
 
-		Node compile(Graph& graph, const tAlphabetType* regex, tStateType state) {
+		void compile(Graph& graph, const tAlphabetType* regex, tStateType state) {
 			mGraph = &graph;
-			return compileUtil(regex, state);
+			compileUtil(regex, state);
+			setAlphabet();
 		}
 
-		Node compile(Graph& aGraph, const Grammar& grammar) {
+		void compile(Graph& aGraph, const Grammar& grammar) {
 			mGraph = &aGraph;
 
-			auto left = mGraph->addVertex();
-			auto right = mGraph->addVertex();
+			auto left = addVertex();
+			auto right = addVertex();
 
 			halni idx = 0;
 			for (auto rule : grammar.mRules) {
@@ -49,7 +50,7 @@ namespace tp {
 
 				if (!(node.left && node.right)) {
 					mError.mRuleIndex = idx;
-					return {};
+					return;
 				}
 
 				transitionAny(left, node.left);
@@ -60,7 +61,7 @@ namespace tp {
 
 			mGraph->setStartVertex(left);
 
-			return { left, right };
+			setAlphabet();
 		}
 
 	private:
@@ -68,15 +69,15 @@ namespace tp {
 
 			auto node = compileNode(astNode, nullptr, nullptr);
 
-			mGraph->setVertexState(node.right, state);
+			mGraph->setVertexState(node.right, state, true);
 			mGraph->setStartVertex(node.left);
 
 			return node;
 		}
 
 		Node compileVal(Grammar::ValueNode* val, Vertex* aLeft = nullptr, Vertex* aRight = nullptr) {
-			auto left = aLeft ? aLeft : mGraph->addVertex();
-			auto right = aRight ? aRight : mGraph->addVertex();
+			auto left = aLeft ? aLeft : addVertex();
+			auto right = aRight ? aRight : addVertex();
 			transitionVal(left, right, val->mVal);
 			return { left, right };
 		}
@@ -90,15 +91,15 @@ namespace tp {
 		}
 
 		Node compileAny(const Grammar::AnyNode*, Vertex* aLeft = nullptr, Vertex* aRight = nullptr) {
-			auto left = aLeft ? aLeft : mGraph->addVertex();
-			auto right = aRight ? aRight : mGraph->addVertex();
+			auto left = aLeft ? aLeft : addVertex();
+			auto right = aRight ? aRight : addVertex();
 			transitionAny(left, right, true);
 			return { left, right };
 		}
 
 		Node compileRepeat(const Grammar::RepetitionNode* repeat, Vertex* aLeft = nullptr, Vertex* aRight = nullptr) {
 			if (repeat->mPlus) {
-				auto middle = mGraph->addVertex();
+				auto middle = addVertex();
 
 				auto left_node = compileNode(repeat->mNode, aLeft, middle);
 
@@ -122,8 +123,8 @@ namespace tp {
 		}
 
 		Node compileClass(const Grammar::ClassNode* node, Vertex* aLeft = nullptr, Vertex* aRight = nullptr) {
-			auto left = aLeft ? aLeft : mGraph->addVertex();
-			auto right = aRight ? aRight : mGraph->addVertex();
+			auto left = aLeft ? aLeft : addVertex();
+			auto right = aRight ? aRight : addVertex();
 
 			if (node->mRanges.size() == 1) {
 				auto const& range = node->mRanges.first();
@@ -132,7 +133,7 @@ namespace tp {
 			}
 
 			for (auto range : node->mRanges) {
-				auto middle = mGraph->addVertex();
+				auto middle = addVertex();
 				transitionRange(left, middle, { range.data().mBegin, range.data().mEnd }, node->mExclude);
 				transitionAny(middle, right);
 			}
@@ -181,6 +182,37 @@ namespace tp {
 
 		void transitionRange(Vertex* from, Vertex* to, Range<tAlphabetType> range, bool exclude) {
 			mGraph->addTransition(from, to, range, true, false, exclude);
+		}
+
+		Vertex* addVertex() { return mGraph->addVertex(tNoStateVal, false); }
+
+	private:
+		Range<tAlphabetType> getAlphabetRange() const {
+			tAlphabetType start = 0, end = 0;
+			Range<tAlphabetType> all_range(
+				std::numeric_limits<tAlphabetType>::min(), std::numeric_limits<tAlphabetType>::max()
+			);
+			bool first = true;
+
+			for (auto vertex : mGraph->mVertices) {
+				for (auto edge : vertex.data().edges) {
+					if (!edge.data().mConsumesSymbol) continue;
+					auto const& tran_range = edge.data().mAcceptingRange;
+					if (edge.data().mAcceptsAll || edge.data().mExclude) return all_range;
+					if (tran_range.mBegin < start || first) start = tran_range.mBegin;
+					if (tran_range.mEnd > end || first) end = tran_range.mEnd;
+					first = false;
+				}
+			}
+
+			return Range<tAlphabetType>(start, end + 1);
+		}
+
+		void setAlphabet() {
+			auto range = getAlphabetRange();
+			for (auto iter : range) {
+				mGraph->mAllSymbols.append(iter);
+			}
 		}
 	};
 }
