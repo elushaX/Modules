@@ -100,8 +100,8 @@ namespace tp {
 			inline const Iterator& operator*() { return *this; }
 		};
 
-		tType mBegin = 0;
-		tType mEnd = 0;
+		tType mBegin{};
+		tType mEnd{};
 
 		Range() = default;
 

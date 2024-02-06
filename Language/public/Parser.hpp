@@ -3,6 +3,7 @@
 
 #include "AST.hpp"
 #include "RegularCompiler.hpp"
+#include "ContextFreeCompiler.hpp"
 
 namespace tp {
 
@@ -10,9 +11,13 @@ namespace tp {
 	class Parser {
 
 		typedef TransitionMatrix<tAlphabetType, TokenType, TokenType::InTransition, TokenType::Failed> RegularTable;
-		typedef DFA<tAlphabetType, TokenType, TokenType::InTransition, TokenType::Failed> RegularGraph;
+		typedef DFA<tAlphabetType, TokenType> RegularGraph;
 		typedef RegularCompiler<tAlphabetType, TokenType, TokenType::InTransition, TokenType::Failed> RegularCompiler;
-		typedef NFA<tAlphabetType, TokenType, TokenType::InTransition, TokenType::Failed> RegularNonDetGraph;
+		typedef NFA<tAlphabetType, TokenType> RegularNonDetGraph;
+
+		// ContextFreeCompiler::Alphabet PushDownTable;
+		typedef DFA<ContextFreeCompiler::Alphabet, ContextFreeCompiler::Item> ContextFreeDFA;
+		typedef ContextFreeCompiler::NFA ContextFreeNFA;
 
 	public:
 		Parser() = default;
@@ -27,6 +32,15 @@ namespace tp {
 
 				RegularGraph dfa(nfa);
 				mRegularTable.construct(dfa);
+			}
+
+			// compile context free grammar
+			{
+				ContextFreeNFA nfa;
+				ContextFreeCompiler compiler;
+				compiler.compile(cfGrammar, nfa);
+
+				ContextFreeDFA dfa(nfa);
 			}
 		}
 

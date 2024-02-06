@@ -8,9 +8,6 @@
 namespace tp {
 
 	template <typename tAlphabetType, typename tStateType, tStateType tNoStateVal, tStateType tFailedStateVal>
-	class TransitionMatrix;
-
-	template <typename tAlphabetType, typename tStateType, tStateType tNoStateVal, tStateType tFailedStateVal>
 	class TransitionMatrix {
 
 		static_assert(TypeTraits<tAlphabetType>::isIntegral, "tAlphabetType must be enumerable.");
@@ -30,8 +27,8 @@ namespace tp {
 		auto getTransitions() const { return &mTransitions; }
 		auto getStart() const { return mStart; }
 
-		void construct(const DFA<tAlphabetType, tStateType, tNoStateVal, tFailedStateVal>& dfa) {
-			mSymbolRange = dfa.getRange();
+		void construct(const DFA<tAlphabetType, tStateType>& dfa) {
+			mSymbolRange = { dfa.getRange().first(), dfa.getRange().last() };
 			auto range_len = ualni(mSymbolRange.mEnd - mSymbolRange.mBegin);
 			auto sizeX = range_len ? range_len : 1;
 			auto sizeY = (ualni) (dfa.nVertices() + 1);
@@ -42,7 +39,7 @@ namespace tp {
 
 			ualni idx = 0;
 			for (auto vertex : dfa.mVertices) {
-				auto state = vertex.data().termination_state;
+				auto state = vertex.data().termination ? vertex.data().state : tNoStateVal;
 				mStates[idx] = state;
 				idx++;
 			}
