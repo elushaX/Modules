@@ -27,51 +27,48 @@ namespace tp {
 		auto getTransitions() const { return &mTransitions; }
 		auto getStart() const { return mStart; }
 
-		void construct(const FiniteStateAutomation<tAlphabetType, tStateType>& dfa) {
+		void construct(const FiniteStateAutomation<tAlphabetType, tStateType>& automata) {
 			// mSymbolRange = { dfa.getRange().first(), dfa.getRange().last() };
 			ASSERT(0);
 
-			/*
 			auto range_len = ualni(mSymbolRange.mEnd - mSymbolRange.mBegin);
 			auto sizeX = range_len ? range_len : 1;
-			auto sizeY = (ualni) (dfa.nVertices() + 1);
+			auto sizeY = (ualni) (automata.numStates() + 1);
 
 			mTransitions.reserve({ sizeX, sizeY });
-			mTransitions.assign(dfa.nVertices());
+			mTransitions.assign(automata.numStates());
 			mStates.reserve(sizeY);
 
 			ualni idx = 0;
-			for (auto vertex : dfa.mVertices) {
-				auto state = vertex.data().termination ? vertex.data().state : tNoStateVal;
-				mStates[idx] = state;
+			for (auto state : *automata.getStates()) {
+				auto stateVal = state->isAccepting() ? state->getStateVal() : tNoStateVal;
+				mStates[idx] = stateVal;
 				idx++;
 			}
 
-			mStates[dfa.nVertices()] = tFailedStateVal;
+			mStates[automata.numStates()] = tFailedStateVal;
 
 			idx = 0;
-			for (auto vertex : dfa.mVertices) {
-				if (&vertex.data() == dfa.mStart) {
+			for (auto state : *automata.getStates()) {
+				if (&state.data() == automata.getStartState()) {
 					mStart = mIter = mIterPrev = idx;
 				}
 				idx++;
 			}
 
-			ualni vertexIdx = 0;
-			for (auto vertex : dfa.mVertices) {
-				for (auto edge : vertex.data().edges) {
-					ualni vertex2Idx = 0;
-					for (auto vertex2 : dfa.mVertices) {
-						if (edge.data().vertex == &vertex2.data()) break;
-						vertex2Idx++;
+			ualni stateIdx = 0;
+			for (auto state : *automata.getStates()) {
+				for (auto transition : *state->getTransitions()) {
+					ualni stateIdx2 = 0;
+					for (auto state2 : *automata.getStates()) {
+						if (transition->getState() == &state2.data()) break;
+						stateIdx2++;
 					}
-					auto const code = edge.data().transition_code;
-					mTransitions.set({ (ualni) (code - mSymbolRange.mBegin), (ualni) vertexIdx }, vertex2Idx);
+					auto const code = transition->getSymbol();
+					mTransitions.set({ (ualni) (code - mSymbolRange.mBegin), (ualni) stateIdx }, stateIdx2);
 				}
-				vertexIdx++;
+				stateIdx++;
 			}
-
-			 */
 		}
 
 		bool isTrapped() { return mStates[mIter] == tFailedStateVal; }

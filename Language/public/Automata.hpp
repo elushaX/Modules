@@ -38,6 +38,9 @@ namespace tp {
 
 			[[nodiscard]] bool isEpsilon() const { return mType == EPSILON; }
 
+			const State* getState() const { return mState; }
+			const tAlphabetType& getSymbol() const { return mSymbol; }
+
 		private:
 			State* mState = nullptr;
 			Type mType;
@@ -53,6 +56,9 @@ namespace tp {
 		public:
 			void setValue(const tStateType& stateValue) { mStateVal = stateValue; }
 			void setAcceptance(bool isAccepting) { mIsAccepting = isAccepting; }
+			bool isAccepting() const { return mIsAccepting; }
+			const tStateType& getStateVal() const { return mStateVal; }
+			const Buffer<Transition>* getTransitions() const { return &mTransitions; }
 
 		private:
 			Buffer<Transition> mTransitions;
@@ -94,6 +100,11 @@ namespace tp {
 			return true;
 		}
 
+		[[nodiscard]] ualni numStates() const { return mStates.length(); }
+
+		[[nodiscard]] const List<State>* getStates() const { return &mStates; }
+
+	private:
 		typedef AvlTree<AvlNumericKey<State*>, bool> StatesSet;
 
 		// Expands initial set with states that are reachable from initial set with no input consumption (E-transitions)
@@ -128,6 +139,7 @@ namespace tp {
 			});
 		}
 
+	public:
 		template <typename tAlphabetIterator>
 		bool makeDeterministic(const tAlphabetIterator& allSymbols) {
 			if (!isValid()) return false;
