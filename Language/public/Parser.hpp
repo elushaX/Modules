@@ -10,7 +10,7 @@ namespace tp {
 	template <typename tAlphabetType, typename TokenType>
 	class Parser {
 
-		typedef TransitionMatrix<tAlphabetType, TokenType, TokenType::InTransition, TokenType::Failed> RegularTable;
+		typedef RegularAutomata<tAlphabetType, TokenType, TokenType::InTransition, TokenType::Failed> RegularTable;
 		typedef FiniteStateAutomation<tAlphabetType, TokenType> RegularGraph;
 		typedef RegularCompiler<tAlphabetType, TokenType, TokenType::InTransition, TokenType::Failed> RegularCompiler;
 		typedef FiniteStateAutomation<tAlphabetType, TokenType> RegularNonDetGraph;
