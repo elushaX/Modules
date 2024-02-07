@@ -94,93 +94,87 @@ namespace tp {
 			return true;
 		}
 
-		// vertices that are reachable from initial set with no input consumption (E-transitions)
-		// does not include initial set
-		void findClosureSet(const Buffer<State*>& from, Buffer<State*>& closureSet) const {
-			Map<alni, bool> lookup;
+		typedef AvlTree<AvlNumericKey<State*>, bool> StatesSet;
+
+		// Expands initial set with states that are reachable from initial set with no input consumption (E-transitions)
+		void expandSet(StatesSet& set) const {
 			List<State*> workingSet;
 
-			for (auto item : from) {
-				workingSet.pushBack(item.data());
-			}
+			set.forEach([&](AvlNumericKey<State*>& key, bool) { workingSet.pushBack(key.val); });
 
 			while (workingSet.length()) {
 				auto first = workingSet.first()->data;
-				closureSet.append(first);
-				lookup.put((alni) first, {});
+				set.insert(first, {});
 
-				for (auto edge : first->mTransitions) {
-					if (!edge.data().isEpsilon()) continue;
-					if (lookup.presents((alni) edge.data().mState)) continue;
-					workingSet.pushBack(edge.data().mState);
+				for (auto transition : first->mTransitions) {
+					if (!transition->isEpsilon()) continue;
+					if (set.find(transition->mState)) continue;
+					workingSet.pushBack(transition->mState);
 				}
 
 				workingSet.popFront();
 			}
 		}
 
-		// vertices that are reachable from initial set with symbol transition
-		void findMoveSet(const Buffer<State*>& from, Buffer<State*>& moveSet, tAlphabetType symbol) const {
-			Map<alni, bool> lookup;
-
-			for (auto vertex : from) {
-				for (auto edge : vertex->mTransitions) {
-					if (edge.data().isEpsilon()) continue;
-					if (!edge.data().isTransition(symbol)) continue;
-					if (lookup.presents((alni) edge.data().mState)) continue;
-					moveSet.append(edge.data().mState);
-					lookup.put((alni) edge.data().mState, {});
+		// States that are reachable from initial set with symbol transition
+		void findMoveSet(StatesSet& from, StatesSet& moveSet, tAlphabetType symbol) const {
+			from.forEach([&](AvlNumericKey<State*>& key, bool) {
+				for (auto transition : key.val->mTransitions) {
+					if (transition->isEpsilon()) continue;
+					if (!transition->isTransition(symbol)) continue;
+					if (moveSet.find(transition->mState)) continue;
+					moveSet.insert(transition->mState, {});
 				}
-			}
+			});
 		}
 
 		template <typename tAlphabetIterator>
 		bool makeDeterministic(const tAlphabetIterator& allSymbols) {
 			if (!isValid()) return false;
 
-			typedef Buffer<State*> Group;
-
 			struct GroupKey {
-				const Group* group;
+				const StatesSet* group;
 				static ualni hash(GroupKey key) { return 0; }
 				bool operator==(const GroupKey& key) const { return false; }
 			};
 
 			struct GroupInfo {
-				Group* group = nullptr;
-				AvlTree<AvlNumericKey<alni>, tAlphabetType> transitions;
+				StatesSet* group = nullptr;
+				AvlTree<AvlNumericKey<StatesSet*>, tAlphabetType> transitions;
 				State* newState = nullptr;
 				bool accepting = false;
 				tStateType stateVal = tStateType();
 			};
 
-			Buffer<Group> groups = { {} };
+			Buffer<StatesSet> groups = { {} };
 			Map<GroupKey, GroupInfo, DefaultAllocator, GroupKey::hash> groupInfos;
 
-			findClosureSet({ getStartState() }, groups.first());
+			groups.first().insert(getStartState(), false);
+
+			expandSet(groups.first());
+
 			groupInfos.put({ &groups.first() }, { &groups.first() });
 
 			// 1) find new states
-			List<Group*> workingSet;
+			List<StatesSet*> workingSet;
 			workingSet.pushBack(&groups.first());
 
 			while (workingSet.length()) {
-				Group* group = workingSet.first()->data;
+				StatesSet* group = workingSet.first()->data;
 				GroupInfo* info = &groupInfos.get({ group });
 
 				for (auto symbol : allSymbols) {
 
 					// calculate new possible state
-					Group potentialGroupTmp;
-					Group potentialGroup;
+					StatesSet potentialGroup;
 
-					findMoveSet(*group, potentialGroupTmp, symbol);
-					findClosureSet(potentialGroupTmp, potentialGroup);
+					findMoveSet(*group, potentialGroup, symbol);
+					expandSet(potentialGroup);
 
 					if (!potentialGroup.size()) continue;
 
 					// find existing or create group
-					Group* targetGroup = nullptr;
+					StatesSet* targetGroup = nullptr;
 					auto iter = groupInfos.presents({ &potentialGroup });
 					if (iter) {
 						targetGroup = groupInfos.getSlotVal(iter).group;
@@ -191,7 +185,7 @@ namespace tp {
 					}
 
 					// assert transition is added
-					info->transitions.insert((alni) targetGroup, symbol);
+					info->transitions.insert(targetGroup, symbol);
 				}
 
 				workingSet.popFront();
@@ -200,18 +194,19 @@ namespace tp {
 			// 2) find new states termination values
 			for (auto group : groupInfos) {
 				GroupInfo* info = &group->val;
-				bool accepting = false;
-				for (auto item : *info->group) {
-					if (item->mIsAccepting) {
-						if (accepting) return false;
-						accepting = true;
+				ualni accepting = 0;
+
+				info->group->forEach([&](AvlNumericKey<State*>& key, bool) {
+					if (key.val->mIsAccepting) {
+						accepting++;
 						info->accepting = true;
-						info->stateVal = item->mStateVal;
+						info->stateVal = key.val->mStateVal;
 					}
-				}
+				});
+
 				if (!accepting) {
 					info->accepting = false;
-					info->stateVal = info->group->first()->mStateVal;
+					info->stateVal = info->group->head()->key.val->mStateVal;
 				}
 			}
 
@@ -225,8 +220,8 @@ namespace tp {
 
 			// create transitions
 			for (auto group : groupInfos) {
-				auto functor = [&](AvlNumericKey<alni> targetGroupKey, tAlphabetType symbol) {
-					GroupInfo* targetGroup = &groupInfos.get({ (Group*) targetGroupKey.val });
+				auto functor = [&](AvlNumericKey<StatesSet*> targetGroupKey, tAlphabetType symbol) {
+					GroupInfo* targetGroup = &groupInfos.get({ (StatesSet*) targetGroupKey.val });
 					addTransition(group->val.newState, targetGroup->newState, symbol);
 				};
 				group->val.transitions.forEach(functor);
