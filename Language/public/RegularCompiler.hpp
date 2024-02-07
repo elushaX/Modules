@@ -2,11 +2,11 @@
 #pragma once
 
 #include "Grammar.hpp"
-#include "RegularAutomata.hpp"
+#include "Automata.hpp"
 
 namespace tp {
 
-	template <typename tAlphabetType, typename tStateType, tStateType tNoStateVal, tStateType tFailedStateVal>
+	template <typename tAlphabetType, typename tStateType, ualni tMinSymbol, ualni tMaxSymbol>
 	class RegularCompiler {
 
 		typedef FiniteStateAutomation<tAlphabetType, tStateType> Graph;
@@ -34,7 +34,6 @@ namespace tp {
 		void compile(Graph& graph, const tAlphabetType* regex, tStateType state) {
 			mGraph = &graph;
 			compileUtil(regex, state);
-			setAlphabet();
 		}
 
 		void compile(Graph& aGraph, const Grammar& grammar) {
@@ -59,9 +58,7 @@ namespace tp {
 				idx++;
 			}
 
-			mGraph->setStartVertex(left);
-
-			setAlphabet();
+			mGraph->setStartState(left);
 		}
 
 	private:
@@ -69,9 +66,10 @@ namespace tp {
 
 			auto node = compileNode(astNode, nullptr, nullptr);
 
-			// mGraph->setVertexState(node.right, state, true);
-			// mGraph->setStartVertex(node.left);
-			ASSERT(0);
+			node.right->setValue(state);
+			node.right->setAcceptance(true);
+
+			mGraph->setStartState(node.left);
 
 			return node;
 		}
@@ -129,13 +127,13 @@ namespace tp {
 
 			if (node->mRanges.size() == 1) {
 				auto const& range = node->mRanges.first();
-				transitionRange(left, right, { range.mBegin, range.mEnd }, node->mExclude);
+				transitionRange(left, right, { ualni(range.mBegin), ualni(range.mEnd) }, node->mExclude);
 				return { left, right };
 			}
 
 			for (auto range : node->mRanges) {
 				auto middle = addVertex();
-				transitionRange(left, middle, { range.data().mBegin, range.data().mEnd }, node->mExclude);
+				transitionRange(left, middle, { ualni(range->mBegin), ualni(range->mEnd) }, node->mExclude);
 				transitionAny(middle, right);
 			}
 			return { left, right };
@@ -174,56 +172,37 @@ namespace tp {
 		}
 
 		void transitionAny(Vertex* from, Vertex* to, bool consumes = false) {
-			// mGraph->addTransition(from, to, {}, consumes, true, false);
-			ASSERT(0);
+			for (auto symbol : Range<ualni>(tMinSymbol, tMaxSymbol)) {
+				transitionVal(from, to, symbol);
+			}
 		}
 
-		void transitionVal(Vertex* from, Vertex* to, tAlphabetType val) {
-			// mGraph->addTransition(from, to, { val, val }, true, false, false);
-			ASSERT(0);
-		}
+		void transitionVal(Vertex* from, Vertex* to, tAlphabetType val) { mGraph->addTransition(from, to, val); }
 
-		void transitionRange(Vertex* from, Vertex* to, Range<tAlphabetType> range, bool exclude) {
-			// mGraph->addTransition(from, to, range, true, false, exclude);
-			ASSERT(0);
-		}
+		void transitionRange(Vertex* from, Vertex* to, Range<ualni> range, bool exclude) {
+			if (exclude) {
+				Range<ualni> first = { tMinSymbol, range.mBegin - 1 };
+				Range<ualni> second = { range.mEnd + 1, tMaxSymbol };
 
-		Vertex* addVertex() {
-			// return mGraph->addVertex(tNoStateVal, false);
-			ASSERT(0);
-			return nullptr;
-		}
+				if (first.valid()) {
+					for (auto symbol : first) {
+						transitionVal(from, to, symbol);
+					}
+				}
 
-	private:
-		Range<tAlphabetType> getAlphabetRange() const {
-			/*
-			tAlphabetType start = 0, end = 0;
-			Range<tAlphabetType> all_range(
-				std::numeric_limits<tAlphabetType>::min(), std::numeric_limits<tAlphabetType>::max()
-			);
-			bool first = true;
+				if (second.valid()) {
+					for (auto symbol : second) {
+						transitionVal(from, to, symbol);
+					}
+				}
 
-			for (auto vertex : mGraph->mVertices) {
-				for (auto edge : vertex.data().edges) {
-					if (!edge.data().mConsumesSymbol) continue;
-					auto const& tran_range = edge.data().mAcceptingRange;
-					if (edge.data().mAcceptsAll || edge.data().mExclude) return all_range;
-					if (tran_range.mBegin < start || first) start = tran_range.mBegin;
-					if (tran_range.mEnd > end || first) end = tran_range.mEnd;
-					first = false;
+			} else {
+				for (auto symbol : range) {
+					transitionVal(from, to, symbol);
 				}
 			}
-			return Range<tAlphabetType>(start, end + 1);
-			*/
-			ASSERT(0);
-			return {};
 		}
 
-		void setAlphabet() {
-			auto range = getAlphabetRange();
-			for (auto iter : range) {
-				// mGraph->mAllSymbols.append(iter);
-			}
-		}
+		Vertex* addVertex() { return mGraph->addState(tStateType::InTransition, false); }
 	};
 }

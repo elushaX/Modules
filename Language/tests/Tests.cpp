@@ -12,7 +12,7 @@ void testAutomation() {
 
 	automata.addTransition(start, end, 'a');
 
-	automata.setStartVertex(start);
+	automata.setStartState(start);
 
 	automata.makeDeterministic();
 }
