@@ -8,7 +8,7 @@
 namespace tp {
 
 	template <typename tAlphabetType, typename tStateType, tStateType tNoStateVal, tStateType tFailedStateVal>
-	class TransitionMatrix {
+	class RegularAutomata {
 
 		static_assert(TypeTraits<tAlphabetType>::isIntegral, "tAlphabetType must be enumerable.");
 
@@ -21,15 +21,15 @@ namespace tp {
 		ualni mStart = 0;
 
 	public:
-		TransitionMatrix() = default;
+		RegularAutomata() = default;
 
 		auto getStates() const { return &mStates; }
 		auto getTransitions() const { return &mTransitions; }
 		auto getStart() const { return mStart; }
 
 		void construct(const FiniteStateAutomation<tAlphabetType, tStateType>& automata) {
-			// mSymbolRange = { dfa.getRange().first(), dfa.getRange().last() };
-			ASSERT(0);
+			mSymbolRange = { tAlphabetType(automata.getAlphabetRange().mBegin),
+											 tAlphabetType(automata.getAlphabetRange().mEnd) };
 
 			auto range_len = ualni(mSymbolRange.mEnd - mSymbolRange.mBegin);
 			auto sizeX = range_len ? range_len : 1;

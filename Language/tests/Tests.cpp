@@ -14,7 +14,7 @@ void testAutomation() {
 
 	automata.setStartVertex(start);
 
-	automata.makeDeterministic(Range<char>(10, 30));
+	automata.makeDeterministic();
 }
 
 void test() {

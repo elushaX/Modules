@@ -56,12 +56,12 @@ namespace tp {
 		public:
 			void setValue(const tStateType& stateValue) { mStateVal = stateValue; }
 			void setAcceptance(bool isAccepting) { mIsAccepting = isAccepting; }
-			bool isAccepting() const { return mIsAccepting; }
+			[[nodiscard]] bool isAccepting() const { return mIsAccepting; }
 			const tStateType& getStateVal() const { return mStateVal; }
-			const Buffer<Transition>* getTransitions() const { return &mTransitions; }
+			[[nodiscard]] const Buffer<Transition>* getTransitions() const { return &mTransitions; }
 
 		private:
-			Buffer<Transition> mTransitions;
+			Buffer<Transition> mTransitions{};
 			tStateType mStateVal = tStateType();
 			bool mIsAccepting = false;
 		};
@@ -69,6 +69,7 @@ namespace tp {
 	private:
 		List<State> mStates;
 		State* mStartState = nullptr;
+		Range<ualni> mAlphabetRange = { ENV_UALNI_MAX, ENV_UALNI_MIN };
 
 	public:
 		FiniteStateAutomation() = default;
@@ -83,6 +84,8 @@ namespace tp {
 
 		void addTransition(State* from, State* to, const tAlphabetType& symbol) {
 			from->mTransitions.append(Transition(Transition::SYMBOL, to, symbol));
+			if (mAlphabetRange.mBegin < ualni(symbol)) mAlphabetRange.mBegin = ualni(symbol);
+			if (mAlphabetRange.mEnd > ualni(symbol)) mAlphabetRange.mEnd = ualni(symbol);
 		}
 
 		void addEpsilonTransition(State* from, State* to) { from->mTransitions.append(Transition(Transition::SYMBOL, to)); }
@@ -104,11 +107,13 @@ namespace tp {
 
 		[[nodiscard]] const List<State>* getStates() const { return &mStates; }
 
+		[[nodiscard]] Range<ualni> getAlphabetRange() const { return mAlphabetRange; }
+
 	private:
 		typedef AvlTree<AvlNumericKey<State*>, bool> StatesSet;
 
 		// Expands initial set with states that are reachable from initial set with no input consumption (E-transitions)
-		void expandSet(StatesSet& set) const {
+		static void expandSet(StatesSet& set) {
 			List<State*> workingSet;
 
 			set.forEach([&](AvlNumericKey<State*>& key, bool) { workingSet.pushBack(key.val); });
@@ -128,7 +133,7 @@ namespace tp {
 		}
 
 		// States that are reachable from initial set with symbol transition
-		void findMoveSet(StatesSet& from, StatesSet& moveSet, tAlphabetType symbol) const {
+		static void findMoveSet(StatesSet& from, StatesSet& moveSet, tAlphabetType symbol) {
 			from.forEach([&](AvlNumericKey<State*>& key, bool) {
 				for (auto transition : key.val->mTransitions) {
 					if (transition->isEpsilon()) continue;
@@ -140,8 +145,7 @@ namespace tp {
 		}
 
 	public:
-		template <typename tAlphabetIterator>
-		bool makeDeterministic(const tAlphabetIterator& allSymbols) {
+		bool makeDeterministic() {
 			if (!isValid()) return false;
 
 			struct GroupKey {
@@ -175,7 +179,7 @@ namespace tp {
 				StatesSet* group = workingSet.first()->data;
 				GroupInfo* info = &groupInfos.get({ group });
 
-				for (auto symbol : allSymbols) {
+				for (auto symbol : getAlphabetRange()) {
 
 					// calculate new possible state
 					StatesSet potentialGroup;
