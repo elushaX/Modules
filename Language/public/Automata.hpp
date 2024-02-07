@@ -92,7 +92,7 @@ namespace tp {
 
 		void addAnyTransition(State* from, State* to) { from->mTransitions.append(Transition(Transition::ANY, to)); }
 
-		void setStartVertex(State* start) { mStartState = start; }
+		void setStartState(State* start) { mStartState = start; }
 
 		[[nodiscard]] State* getStartState() const { return mStartState; }
 

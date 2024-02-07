@@ -193,6 +193,7 @@ namespace tp {
 			explicit ClassNode(const Buffer<Range<tAlphabetType>>& ranges, bool exclude = false) :
 				Node(Node::CLASS) {
 				mExclude = exclude;
+				mRanges = ranges;
 			}
 
 			~ClassNode() override { mRanges.removeAll(); }

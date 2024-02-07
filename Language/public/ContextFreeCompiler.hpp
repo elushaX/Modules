@@ -18,7 +18,7 @@ namespace tp {
 
 		struct Item {
 			Grammar::Rule mRule;
-			ualni mAdvanceIdx;
+			ualni mAdvanceIdx = 0;
 		};
 
 		typedef FiniteStateAutomation<Alphabet, Item> NFA;

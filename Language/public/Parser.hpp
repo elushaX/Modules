@@ -2,45 +2,49 @@
 #pragma once
 
 #include "AST.hpp"
+
 #include "RegularCompiler.hpp"
+#include "RegularAutomata.hpp"
+
 #include "ContextFreeCompiler.hpp"
+#include "ContextFreeAutomata.hpp"
 
 namespace tp {
 
-	template <typename tAlphabetType, typename TokenType>
+	template <typename tAlphabetType, typename TokenType, ualni MinSymbol, ualni MaxSymbol>
 	class Parser {
 
-		typedef RegularAutomata<tAlphabetType, TokenType, TokenType::InTransition, TokenType::Failed> RegularTable;
+		typedef RegularGrammar<tAlphabetType, TokenType> RegularGrammar;
+		typedef RegularCompiler<tAlphabetType, TokenType, MinSymbol, MaxSymbol> RegularCompiler;
 		typedef FiniteStateAutomation<tAlphabetType, TokenType> RegularGraph;
-		typedef RegularCompiler<tAlphabetType, TokenType, TokenType::InTransition, TokenType::Failed> RegularCompiler;
-		typedef FiniteStateAutomation<tAlphabetType, TokenType> RegularNonDetGraph;
+		typedef RegularAutomata<tAlphabetType, TokenType, TokenType::InTransition, TokenType::Failed> RegularAutomata;
 
-		// ContextFreeCompiler::Alphabet PushDownTable;
-		typedef FiniteStateAutomation<ContextFreeCompiler::Alphabet, ContextFreeCompiler::Item> ContextFreeDFA;
-		typedef ContextFreeCompiler::NFA ContextFreeNFA;
+		// ContextFreeGrammar;
+		// ContextFreeCompiler;
+		typedef FiniteStateAutomation<ContextFreeCompiler::Alphabet, ContextFreeCompiler::Item> ContextFreeGraph;
+		typedef ContextFreeAutomata<ContextFreeCompiler::Alphabet, ContextFreeCompiler::Item> ContextFreeAutomata;
 
 	public:
 		Parser() = default;
 
 	public:
-		void compileTables(const ContextFreeGrammar& cfGrammar, const RegularGrammar<tAlphabetType, TokenType>& reGrammar) {
+		void compileTables(const ContextFreeGrammar& cfGrammar, const RegularGrammar& reGrammar) {
 			// Compile Regular Grammar
 			{
-				RegularNonDetGraph nfa;
+				RegularGraph graph;
 				RegularCompiler compiler;
-				compiler.compile(nfa, reGrammar);
-
-				RegularGraph dfa(nfa);
-				mRegularTable.construct(dfa);
+				compiler.compile(graph, reGrammar);
+				graph.makeDeterministic();
+				mRegularAutomata.construct(graph);
 			}
 
 			// compile context free grammar
 			{
-				ContextFreeNFA nfa;
+				ContextFreeGraph graph;
 				ContextFreeCompiler compiler;
-				compiler.compile(cfGrammar, nfa);
-
-				ContextFreeDFA dfa(nfa);
+				compiler.compile(cfGrammar, graph);
+				graph.makeDeterministic();
+				mContextFreeAutomata.construct(graph);
 			}
 		}
 
@@ -48,6 +52,7 @@ namespace tp {
 
 	public:
 		// save load compiled tables
-		RegularTable mRegularTable;
+		RegularAutomata mRegularAutomata;
+		ContextFreeAutomata mContextFreeAutomata;
 	};
 }
