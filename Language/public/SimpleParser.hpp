@@ -7,7 +7,10 @@ namespace tp {
 	// Gives ability to express grammar in the Unified Format as sentence
 	template <typename tAlphabetType>
 	class SimpleParser {
-		enum UGTokens : ualni { InTransition = 0, Failed, TestSeq };
+		enum UGTokens : alni { InTransition = -1, TestSeq };
+
+		typedef Parser<tAlphabetType, UGTokens, InTransition, 0, 127> UGParser;
+		typedef Parser<tAlphabetType, alni, -1, 0, 127> UserParser;
 
 	public:
 		SimpleParser() {
@@ -22,23 +25,25 @@ namespace tp {
 			}
 
 			// Define Regular grammar
-			RegularGrammar<tAlphabetType, UGTokens> rg;
+			RegularGrammar<tAlphabetType, UGTokens> regularGrammar;
 			{
 				// this is basically ast from existing tokenizer
-				rg.addRule(rg.seq({ rg.val('a'), rg.val('b') }), TestSeq);
+				regularGrammar.addRule(regularGrammar.seq({ regularGrammar.val('a'), regularGrammar.val('b') }), TestSeq);
 			}
 
-			mUnifiedGrammarParser.compileTables(contextFreeGrammar, rg);
+			Map<String, UGTokens> terminalsMap;
+			terminalsMap.put("TestSeq", TestSeq);
+
+			mUnifiedGrammarParser.compileTables(contextFreeGrammar, regularGrammar, terminalsMap);
 		}
 
 	public:
 		void compileTables(const tAlphabetType* grammar, ualni grammarLength) {
-			AST unifiedGrammarAst;
-			mUnifiedGrammarParser.parse(grammar, grammarLength, unifiedGrammarAst);
+			mUnifiedGrammarParser.parse(grammar, grammarLength);
 
 			// compile each ast into RegularGrammar and ContextFree Grammar api instructions
 			ContextFreeGrammar userContextFreeGrammar;
-			RegularGrammar<tAlphabetType, UGTokens> userRegularGrammar;
+			RegularGrammar<tAlphabetType, alni> userRegularGrammar;
 
 			// ...
 			// split ast into RE and CF part
@@ -47,15 +52,18 @@ namespace tp {
 			// ...
 			// compile tables from user grammar
 
-			mUserParser.compileTables(userContextFreeGrammar, userRegularGrammar);
+			Map<String, alni> terminalsMap;
+			terminalsMap.put("TestSeq", 0);
+
+			mUserParser.compileTables(userContextFreeGrammar, userRegularGrammar, terminalsMap);
 		}
 
-		void parse(const tAlphabetType* grammar, ualni grammarLength, AST& out) {
-			mUserParser.parse(grammar, grammarLength, out);
+		UserParser::ParseResult parse(const tAlphabetType* grammar, ualni grammarLength) {
+			return mUserParser.parse(grammar, grammarLength);
 		}
 
 	private:
-		Parser<tAlphabetType, UGTokens, 0, 127> mUnifiedGrammarParser;
-		Parser<tAlphabetType, UGTokens, 0, 127> mUserParser;
+		UGParser mUnifiedGrammarParser;
+		UserParser mUserParser;
 	};
 }
