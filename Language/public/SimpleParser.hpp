@@ -55,7 +55,7 @@ namespace tp {
 		}
 
 	private:
-		Parser<tAlphabetType, UGTokens> mUnifiedGrammarParser;
-		Parser<tAlphabetType, UGTokens> mUserParser;
+		Parser<tAlphabetType, UGTokens, 0, 127> mUnifiedGrammarParser;
+		Parser<tAlphabetType, UGTokens, 0, 127> mUserParser;
 	};
 }

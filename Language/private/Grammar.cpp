@@ -29,24 +29,6 @@ bool ContextFreeGrammar::Rule::isProductive() const {
 	return true;
 }
 
-bool ContextFreeGrammar::NonTerminal::isProductive() const {
-	for (auto rule : rules) {
-		if (rule->isProductive()) return true;
-	}
-	return false;
-}
-
-bool ContextFreeGrammar::NonTerminal::isLooped(Map<String, ualni>& processed, const String& id) const {
-	for (auto ref : referencing) {
-		if (processed.presents(ref->key)) return true;
-	}
-	processed.put(id, {});
-	for (auto ref : referencing) {
-		if (ref->val->isLooped(processed, ref->key)) return true;
-	}
-	return false;
-}
-
 void ContextFreeGrammar::addRule(const Rule& rule) { mRules.append(rule); }
 
 void ContextFreeGrammar::addRule(const String& id, const InitialierList<Arg>& args) { addRule(Rule(id, args)); }

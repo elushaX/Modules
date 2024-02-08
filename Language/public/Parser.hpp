@@ -21,16 +21,20 @@ namespace tp {
 
 		// ContextFreeGrammar;
 		// ContextFreeCompiler;
-		typedef FiniteStateAutomation<ContextFreeCompiler::Alphabet, ContextFreeCompiler::Item> ContextFreeGraph;
-		typedef ContextFreeAutomata<ContextFreeCompiler::Alphabet, ContextFreeCompiler::Item> ContextFreeAutomata;
+		typedef FiniteStateAutomation<ContextFreeCompiler::SymbolID, ContextFreeCompiler::Item> ContextFreeGraph;
+		typedef ContextFreeAutomata<ContextFreeCompiler::SymbolID, ContextFreeCompiler::Item> ContextFreeAutomata;
 
 	public:
 		Parser() = default;
 
 	public:
-		void compileTables(const ContextFreeGrammar& cfGrammar, const RegularGrammar& reGrammar) {
+		bool compileTables(const ContextFreeGrammar& cfGrammar, const RegularGrammar& reGrammar) {
 			// Compile Regular Grammar
 			{
+				if (!reGrammar.isValid()) {
+					return false;
+				}
+
 				RegularGraph graph;
 				RegularCompiler compiler;
 				compiler.compile(graph, reGrammar);
@@ -40,12 +44,18 @@ namespace tp {
 
 			// compile context free grammar
 			{
+				if (!cfGrammar.isValid()) {
+					return false;
+				}
+
 				ContextFreeGraph graph;
 				ContextFreeCompiler compiler;
 				compiler.compile(cfGrammar, graph);
 				graph.makeDeterministic();
 				mContextFreeAutomata.construct(graph);
 			}
+
+			return true;
 		}
 
 		void parse(const tAlphabetType* sentence, ualni sentenceLength, AST& out) {}
