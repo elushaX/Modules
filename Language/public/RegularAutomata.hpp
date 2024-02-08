@@ -7,66 +7,42 @@
 
 namespace tp {
 
-	template <typename tAlphabetType, typename tStateType, tStateType tNoStateVal, tStateType tFailedStateVal>
+	template <typename tAlphabetType, typename tStateType, tStateType tFailedStateVal>
 	class RegularAutomata {
 
-		static_assert(TypeTraits<tAlphabetType>::isIntegral, "tAlphabetType must be enumerable.");
+		Buffer2D<ualni> mTable;
+		Buffer<Pair<bool, tStateType>> mStates;
 
-		Buffer2D<ualni> mTransitions;
-		Buffer<tStateType> mStates;
+		ualni mCurrentState = 0;
+		ualni mStartState = 0;
+
 		Range<tAlphabetType> mSymbolRange = { 0, 0 };
-
-		ualni mIter = 0;
-		ualni mIterPrev = 0;
-		ualni mStart = 0;
 
 	public:
 		RegularAutomata() = default;
 
-		auto getStates() const { return &mStates; }
-		auto getTransitions() const { return &mTransitions; }
-		auto getStart() const { return mStart; }
+		Pair<tStateType, ualni> accept(const tAlphabetType* stream, ualni size) {
+			mCurrentState = mStartState;
 
-		bool isTrapped() { return mStates[mIter] == tFailedStateVal; }
+			ualni advancedIdx = 0;
 
-		tStateType move(tAlphabetType symbol) {
-			if (symbol >= mSymbolRange.mBegin && symbol < mSymbolRange.mEnd) {
-				mIter = mTransitions.get({ (ualni) (symbol - mSymbolRange.mBegin), (ualni) mIter });
-			} else {
-				mIter = mStates.size() - 1;
+			while (advancedIdx < size) {
+				tAlphabetType& symbol = *(stream + advancedIdx);
+
+				if (!(symbol >= mSymbolRange.mBegin && symbol < mSymbolRange.mEnd)) {
+					return { tFailedStateVal, advancedIdx };
+				}
+
+				mCurrentState = mTable.get({ (ualni) (symbol - mSymbolRange.mBegin), mCurrentState });
+
+				if (mStates[mCurrentState].first) {
+					return { mStates[mCurrentState].second, advancedIdx };
+				}
+
+				advancedIdx++;
 			}
 
-			if (mIterPrev == mStart) {
-				if (mStates[mIter] == tFailedStateVal) {
-					reset();
-					return tFailedStateVal;
-				} else {
-					mIterPrev = mIter;
-					return tNoStateVal;
-				}
-			} else {
-				if (mStates[mIter] == tFailedStateVal) {
-					if (mStates[mIterPrev] != tNoStateVal) {
-						auto out = mStates[mIterPrev];
-						reset();
-						return out;
-					} else {
-						reset();
-						return tFailedStateVal;
-					}
-				} else {
-					mIterPrev = mIter;
-					return tNoStateVal;
-				}
-			}
-
-			mIterPrev = mIter;
-			return mStates[mIter];
-		}
-
-		void reset() {
-			mIter = mStart;
-			mIterPrev = mStart;
+			return { tFailedStateVal, advancedIdx };
 		}
 
 		void construct(const FiniteStateAutomation<tAlphabetType, tStateType>& automata) {
@@ -77,23 +53,22 @@ namespace tp {
 			auto sizeX = range_len ? range_len : 1;
 			auto sizeY = (ualni) (automata.numStates() + 1);
 
-			mTransitions.reserve({ sizeX, sizeY });
-			mTransitions.assign(automata.numStates());
+			mTable.reserve({ sizeX, sizeY });
+			mTable.assign(automata.numStates());
 			mStates.reserve(sizeY);
 
 			ualni idx = 0;
 			for (auto state : *automata.getStates()) {
-				auto stateVal = state->isAccepting() ? state->getStateVal() : tNoStateVal;
-				mStates[idx] = stateVal;
+				mStates[idx] = { state->isAccepting(), state->getStateVal() };
 				idx++;
 			}
 
-			mStates[automata.numStates()] = tFailedStateVal;
+			mStates[automata.numStates()] = { true, tFailedStateVal };
 
 			idx = 0;
 			for (auto state : *automata.getStates()) {
 				if (&state.data() == automata.getStartState()) {
-					mStart = mIter = mIterPrev = idx;
+					mStartState = mCurrentState = idx;
 				}
 				idx++;
 			}
@@ -107,7 +82,7 @@ namespace tp {
 						stateIdx2++;
 					}
 					auto const code = transition->getSymbol();
-					mTransitions.set({ (ualni) (code - mSymbolRange.mBegin), (ualni) stateIdx }, stateIdx2);
+					mTable.set({ (ualni) (code - mSymbolRange.mBegin), (ualni) stateIdx }, stateIdx2);
 				}
 				stateIdx++;
 			}
