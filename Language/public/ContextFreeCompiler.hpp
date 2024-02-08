@@ -7,17 +7,19 @@
 namespace tp {
 
 	class ContextFreeCompiler {
-
+	public:
 		typedef ualni SymbolID;
-
-		struct Symbol {
-			String mId;
-			bool mIsTerminal = false;
-		};
 
 		struct Item {
 			const ContextFreeGrammar::Rule* mRule = nullptr;
 			ualni mAdvanceIdx = 0;
+			ualni numArgs() const { return 0; }
+		};
+
+	private:
+		struct Symbol {
+			String mId;
+			bool mIsTerminal = false;
 		};
 
 		struct NonTerminal {
@@ -90,7 +92,7 @@ namespace tp {
 
 			for (auto nonTerminal : mNonTerminals) {
 				if (!nonTerminal->val.isProductive()) {
-					printf("Non-terminal '%s' is not productive\n", nonTerminal->val.rules.first()->data->id.read());
+					printf("Non-terminal '%s' is not productive\n", nonTerminal->val.rules.first()->getId().read());
 					return false;
 				}
 			}
@@ -102,6 +104,8 @@ namespace tp {
 			}
 
 			initSymbols(grammar);
+
+			return true;
 		}
 
 		void findNonTerminals(const ContextFreeGrammar& grammar) {

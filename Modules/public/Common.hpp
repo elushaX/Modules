@@ -42,6 +42,7 @@ namespace tp {
 	uhalni next2pow(uhalni v);
 	ufalni next2pow(ufalni v);
 
+	ualni hash(const void* bytes);
 	ualni hash(const char* bytes);
 	ualni hash(alni bytes);
 	ualni hash(halni bytes);
