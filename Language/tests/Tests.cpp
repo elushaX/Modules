@@ -19,10 +19,9 @@ void testAutomation() {
 
 void test() {
 	auto parser = SimpleParser<int1>();
-	auto ast = AST();
 
 	parser.compileTables(gGrammar, String::Logic::calcLength(gGrammar));
-	parser.parse(gSentence, String::Logic::calcLength(gSentence), ast);
+	auto result = parser.parse(gSentence, String::Logic::calcLength(gSentence));
 }
 
 int main() {

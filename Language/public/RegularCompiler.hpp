@@ -6,7 +6,7 @@
 
 namespace tp {
 
-	template <typename tAlphabetType, typename tStateType, ualni tMinSymbol, ualni tMaxSymbol>
+	template <typename tAlphabetType, typename tStateType, tStateType tInTransition, ualni tMinSymbol, ualni tMaxSymbol>
 	class RegularCompiler {
 
 		typedef FiniteStateAutomation<tAlphabetType, tStateType> Graph;
@@ -203,6 +203,6 @@ namespace tp {
 			}
 		}
 
-		Vertex* addVertex() { return mGraph->addState(tStateType::InTransition, false); }
+		Vertex* addVertex() { return mGraph->addState(tInTransition, false); }
 	};
 }

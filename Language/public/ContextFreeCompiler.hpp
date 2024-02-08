@@ -8,7 +8,7 @@ namespace tp {
 
 	class ContextFreeCompiler {
 	public:
-		typedef ualni SymbolID;
+		typedef ualni SymbolId;
 
 		struct Item {
 			const ContextFreeGrammar::Rule* mRule = nullptr;
@@ -16,12 +16,12 @@ namespace tp {
 			ualni numArgs() const { return 0; }
 		};
 
-	private:
 		struct Symbol {
 			String mId;
 			bool mIsTerminal = false;
 		};
 
+	private:
 		struct NonTerminal {
 			Buffer<ContextFreeGrammar::Rule*> rules;
 			Map<String, NonTerminal*> references;
@@ -48,10 +48,13 @@ namespace tp {
 		};
 
 	public:
-		bool compile(const ContextFreeGrammar& grammar, FiniteStateAutomation<SymbolID, Item>& automata) {
+		bool compile(const ContextFreeGrammar& grammar, FiniteStateAutomation<SymbolId, Item>& automata) {
 			if (!init(grammar)) return false;
 			return true;
 		}
+
+		[[nodiscard]] const Buffer<Symbol>* getSymbols() const { return &mSymbols; }
+		[[nodiscard]] SymbolId getSymbolId(const String& name) const { return mSymbolLookup.get(name); }
 
 	private:
 		bool init(const ContextFreeGrammar& grammar) {
@@ -135,7 +138,7 @@ namespace tp {
 		void initSymbols(const ContextFreeGrammar& grammar) {
 			for (auto nonTerminal : mNonTerminals) {
 				mSymbols.append({ nonTerminal->key, false });
-				mSymbolLookup.put(nonTerminal->key, SymbolID(mSymbols.size() - 1));
+				mSymbolLookup.put(nonTerminal->key, SymbolId(mSymbols.size() - 1));
 
 				for (auto rule : nonTerminal->val.rules) {
 					for (auto arg : *rule->getArgs()) {
@@ -144,7 +147,7 @@ namespace tp {
 						mTerminals.put(arg->getId(), {});
 
 						mSymbols.append({ nonTerminal->key, true });
-						mSymbolLookup.put(nonTerminal->key, SymbolID(mSymbols.size() - 1));
+						mSymbolLookup.put(nonTerminal->key, SymbolId(mSymbols.size() - 1));
 					}
 				}
 			}
@@ -154,6 +157,6 @@ namespace tp {
 		Map<String, NonTerminal> mNonTerminals;
 		Map<String, bool> mTerminals;
 		Buffer<Symbol> mSymbols;
-		Map<String, SymbolID> mSymbolLookup;
+		Map<String, SymbolId> mSymbolLookup;
 	};
 }

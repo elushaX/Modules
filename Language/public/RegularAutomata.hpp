@@ -25,7 +25,7 @@ namespace tp {
 			ualni advancedIdx = 0;
 
 			while (advancedIdx < size) {
-				tAlphabetType& symbol = *(stream + advancedIdx);
+				const tAlphabetType& symbol = *(stream + advancedIdx);
 
 				if (!(symbol >= mSymbolRange.mBegin && symbol < mSymbolRange.mEnd)) {
 					return { false, advancedIdx, {} };
@@ -34,7 +34,7 @@ namespace tp {
 				mCurrentState = mTable.get({ (ualni) (symbol - mSymbolRange.mBegin), mCurrentState });
 
 				if (mCurrentState == mStates.size()) {
-					return false;
+					return { false, advancedIdx, {} };
 				}
 
 				if (mStates[mCurrentState].first) {

@@ -37,7 +37,7 @@ namespace tp {
 
 			ualni advancedIdx = 0;
 			while (advancedIdx < size) {
-				tAlphabetType& symbol = *(stream + advancedIdx);
+				const tAlphabetType& symbol = *(stream + advancedIdx);
 
 				if (!(symbol >= mRange.mBegin && symbol < mRange.mEnd)) {
 					return { false, advancedIdx, nullptr };
@@ -56,7 +56,7 @@ namespace tp {
 				}
 
 				if (mTable.get({ 0, mCurrentState }).type == Action::REDUCE) {
-					StackItem* newItem = &mItems.append({});
+					StackItem* newItem = &mItems.append(StackItem{});
 					for (auto iter : Range<ualni>(action.num)) {
 						newItem->leafs.append(mStack.last());
 						mCurrentState = mStack.last()->state;
