@@ -20,6 +20,8 @@ namespace tp {
 		public:
 			bool operator==(const Arg& in) const;
 			[[nodiscard]] const String& getId() const;
+			[[nodiscard]] bool isTerminal() const { return mIsTerminal; }
+			[[nodiscard]] bool isEpsilon() const { return mIsEpsilon; }
 
 		private:
 			String mId;
@@ -35,22 +37,12 @@ namespace tp {
 		public:
 			bool operator==(const Rule& in) const;
 			[[nodiscard]] bool isProductive() const;
+			[[nodiscard]] const String& getId() const { return mId; }
+			[[nodiscard]] const Buffer<Arg>* getArgs() const { return &mArgs; }
 
 		private:
 			String mId;
 			Buffer<Arg> mArgs;
-		};
-
-	private:
-		// cache data
-		struct NonTerminal {
-			Buffer<Rule*> rules;
-			Map<String, NonTerminal*> references;
-			Map<String, NonTerminal*> referencing;
-
-		public:
-			[[nodiscard]] bool isProductive() const;
-			[[nodiscard]] bool isLooped(Map<String, ualni>& processed, const String& id) const;
 		};
 
 	public:
@@ -60,9 +52,11 @@ namespace tp {
 		void addRule(const Rule& rule);
 		void addRule(const String& id, const InitialierList<Arg>& args);
 		void setStart(const String& startRule);
+		[[nodiscard]] const Buffer<Rule>* getRules() const { return &mRules; }
+		[[nodiscard]] bool isValid() const { return false; }
+		[[nodiscard]] const String& getStartTerminal() const { return mStartTerminal; }
 
-	private:
-		Map<String, NonTerminal> mNonTerminals;
+	public:
 		Buffer<Rule> mRules;
 		String mStartTerminal;
 		bool mIsLooped = false;
