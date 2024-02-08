@@ -7,21 +7,19 @@
 
 namespace tp {
 
-	template <typename tAlphabetType, typename tStateType, tStateType tFailedStateVal>
+	template <typename tAlphabetType, typename tStateType>
 	class RegularAutomata {
-
-		Buffer2D<ualni> mTable;
-		Buffer<Pair<bool, tStateType>> mStates;
-
-		ualni mCurrentState = 0;
-		ualni mStartState = 0;
-
-		Range<tAlphabetType> mSymbolRange = { 0, 0 };
+	public:
+		struct AcceptResult {
+			bool accepted = false;
+			ualni advancedIdx = 0;
+			tStateType state = tStateType();
+		};
 
 	public:
 		RegularAutomata() = default;
 
-		Pair<tStateType, ualni> accept(const tAlphabetType* stream, ualni size) {
+		AcceptResult accept(const tAlphabetType* stream, ualni size) {
 			mCurrentState = mStartState;
 
 			ualni advancedIdx = 0;
@@ -30,28 +28,33 @@ namespace tp {
 				tAlphabetType& symbol = *(stream + advancedIdx);
 
 				if (!(symbol >= mSymbolRange.mBegin && symbol < mSymbolRange.mEnd)) {
-					return { tFailedStateVal, advancedIdx };
+					return { false, advancedIdx, {} };
 				}
 
 				mCurrentState = mTable.get({ (ualni) (symbol - mSymbolRange.mBegin), mCurrentState });
 
+				if (mCurrentState == mStates.size()) {
+					return false;
+				}
+
 				if (mStates[mCurrentState].first) {
-					return { mStates[mCurrentState].second, advancedIdx };
+					return { true, advancedIdx, mStates[mCurrentState].second };
 				}
 
 				advancedIdx++;
 			}
 
-			return { tFailedStateVal, advancedIdx };
+			return { false, advancedIdx, {} };
 		}
 
+	public:
 		void construct(const FiniteStateAutomation<tAlphabetType, tStateType>& automata) {
 			const auto range = automata.getAlphabetRange();
 			mSymbolRange = { tAlphabetType(range.mBegin), tAlphabetType(range.mEnd) };
 
 			auto range_len = ualni(mSymbolRange.mEnd - mSymbolRange.mBegin);
 			auto sizeX = range_len ? range_len : 1;
-			auto sizeY = (ualni) (automata.numStates() + 1);
+			auto sizeY = (ualni) (automata.numStates());
 
 			mTable.reserve({ sizeX, sizeY });
 			mTable.assign(automata.numStates());
@@ -62,8 +65,6 @@ namespace tp {
 				mStates[idx] = { state->isAccepting(), state->getStateVal() };
 				idx++;
 			}
-
-			mStates[automata.numStates()] = { true, tFailedStateVal };
 
 			idx = 0;
 			for (auto state : *automata.getStates()) {
@@ -87,5 +88,14 @@ namespace tp {
 				stateIdx++;
 			}
 		}
+
+	private:
+		Buffer2D<ualni> mTable;
+		Buffer<Pair<bool, tStateType>> mStates;
+
+		ualni mCurrentState = 0;
+		ualni mStartState = 0;
+
+		Range<tAlphabetType> mSymbolRange = { 0, 0 };
 	};
 }
