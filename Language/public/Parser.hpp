@@ -17,7 +17,7 @@ namespace tp {
 		typedef RegularGrammar<tAlphabetType, TokenType> RegularGrammar;
 		typedef RegularCompiler<tAlphabetType, TokenType, MinSymbol, MaxSymbol> RegularCompiler;
 		typedef FiniteStateAutomation<tAlphabetType, TokenType> RegularGraph;
-		typedef RegularAutomata<tAlphabetType, TokenType, TokenType::InTransition, TokenType::Failed> RegularAutomata;
+		typedef RegularAutomata<tAlphabetType, TokenType> RegularAutomata;
 
 		// ContextFreeGrammar;
 		// ContextFreeCompiler;
@@ -31,10 +31,6 @@ namespace tp {
 		bool compileTables(const ContextFreeGrammar& cfGrammar, const RegularGrammar& reGrammar) {
 			// Compile Regular Grammar
 			{
-				if (!reGrammar.isValid()) {
-					return false;
-				}
-
 				RegularGraph graph;
 				RegularCompiler compiler;
 				compiler.compile(graph, reGrammar);
@@ -44,10 +40,6 @@ namespace tp {
 
 			// compile context free grammar
 			{
-				if (!cfGrammar.isValid()) {
-					return false;
-				}
-
 				ContextFreeGraph graph;
 				ContextFreeCompiler compiler;
 				compiler.compile(cfGrammar, graph);

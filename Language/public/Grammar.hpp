@@ -53,7 +53,6 @@ namespace tp {
 		void addRule(const String& id, const InitialierList<Arg>& args);
 		void setStart(const String& startRule);
 		[[nodiscard]] const Buffer<Rule>* getRules() const { return &mRules; }
-		[[nodiscard]] bool isValid() const { return false; }
 		[[nodiscard]] const String& getStartTerminal() const { return mStartTerminal; }
 
 	public:

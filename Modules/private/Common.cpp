@@ -29,6 +29,8 @@ namespace tp {
 		return v + 1;
 	}
 
+	ualni hash(const void* bytes) { return hash((const char*) bytes); }
+
 	ualni hash(const char* bytes) {
 		unsigned long hash = 5381;
 		int c;

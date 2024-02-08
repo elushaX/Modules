@@ -96,20 +96,20 @@ namespace tp {
 			Map<const AutomataState*, ualni> states;
 			ualni stateIndex = 0;
 			for (auto state : *automata.getStates()) {
-				states.put(state.data(), { stateIndex });
+				states.put(&state.data(), { stateIndex });
 				stateIndex++;
 			}
 
 			stateIndex = 0;
 			for (auto state : *automata.getStates()) {
-				if (state.data() == automata.getStartState()) {
+				if (&state.data() == automata.getStartState()) {
 					mStartState = stateIndex;
 				}
 
 				if (state->isAccepting()) {
-					ASSERT(state->getTransitions().size() == 0)
+					ASSERT(state->getTransitions()->size() == 0)
 					for (auto symbolIndex : Range<ualni>(numSymbols)) {
-						mTable.set({ stateIndex, symbolIndex }, { Action::REDUCE, state->getStateVal() });
+						mTable.set({ stateIndex, symbolIndex }, { Action::REDUCE, state->getStateVal().numArgs() });
 					}
 				} else {
 					for (auto transition : *state->getTransitions()) {
