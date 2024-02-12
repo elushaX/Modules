@@ -21,7 +21,8 @@ namespace tp {
 		inline AvlNumericKey keyInRightSubtree(AvlNumericKey in) const { return in; }
 		inline AvlNumericKey keyInLeftSubtree(AvlNumericKey in) const { return in; }
 
-		inline void updateTreeCacheCallBack() {}
+		template <typename NodeType>
+		inline void updateTreeCacheCallBack(const NodeType&) {}
 	};
 
 	template <typename Key, typename Data, class Allocator = DefaultAllocator>
@@ -42,7 +43,7 @@ namespace tp {
 			Data data;
 			Key key;
 
-		private:
+		public:
 			Node* mLeft = nullptr;
 			Node* mRight = nullptr;
 			Node* mParent = nullptr;
@@ -57,7 +58,7 @@ namespace tp {
 			inline KeyArg keyInRightSubtree(KeyArg aKey) const { return key.keyInRightSubtree(aKey); }
 			inline KeyArg keyInLeftSubtree(KeyArg aKey) const { return key.keyInLeftSubtree(aKey); }
 
-			inline void updateTreeCacheCallBack() { key.updateTreeCacheCallBack(); }
+			inline void updateTreeCacheCallBack() { key.updateTreeCacheCallBack(*this); }
 		};
 
 	private:

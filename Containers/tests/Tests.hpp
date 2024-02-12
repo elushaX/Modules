@@ -34,3 +34,4 @@ void testMap();
 void testAvl();
 void testBuffer();
 void testBuffer2d();
+void testIntervalTree();

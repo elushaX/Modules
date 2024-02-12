@@ -16,6 +16,7 @@ int main() {
 		return 1;
 	}
 
+	testIntervalTree();
 	testList();
 	testMap();
 	testAvl();

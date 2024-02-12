@@ -93,6 +93,7 @@ namespace tp {
 	// power
 	template <typename T>
 	[[nodiscard]] T pow(T x, uhalni n) {
+		if (n == 0) return 1;
 		T out = x;
 		for (uhalni i = 0; i < n - 1; i++) {
 			out = out * x;
