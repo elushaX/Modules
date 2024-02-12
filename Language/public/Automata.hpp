@@ -184,7 +184,7 @@ namespace tp {
 					// calculate new possible state
 					StatesSet potentialGroup;
 
-					findMoveSet(*group, potentialGroup, symbol);
+					findMoveSet(*group, potentialGroup, tAlphabetType(symbol));
 					expandSet(potentialGroup);
 
 					if (!potentialGroup.size()) continue;
@@ -201,7 +201,7 @@ namespace tp {
 					}
 
 					// assert transition is added
-					info->transitions.insert(targetGroup, symbol);
+					info->transitions.insert(targetGroup, tAlphabetType(symbol));
 				}
 
 				workingSet.popFront();

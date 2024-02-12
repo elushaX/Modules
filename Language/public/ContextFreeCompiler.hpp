@@ -8,7 +8,26 @@ namespace tp {
 
 	class ContextFreeCompiler {
 	public:
-		typedef ualni SymbolId;
+		struct SymbolVal {
+			SymbolVal() = default;
+
+			SymbolVal(ualni aId, ualni aStart, ualni aLen) {
+				id = aId;
+				start = aStart;
+				len = aLen;
+			};
+
+			SymbolVal(ualni val) { id = val; }
+
+			operator ualni() const { return id; }
+
+			bool operator==(const SymbolVal& in) const { return in.id == id; }
+			SymbolVal& operator=(const SymbolVal& in) = default;
+
+			ualni id = 0;
+			ualni start = 0;
+			ualni len = 0;
+		};
 
 		struct Item {
 			const ContextFreeGrammar::Rule* mRule = nullptr;
@@ -48,13 +67,13 @@ namespace tp {
 		};
 
 	public:
-		bool compile(const ContextFreeGrammar& grammar, FiniteStateAutomation<SymbolId, Item>& automata) {
+		bool compile(const ContextFreeGrammar& grammar, FiniteStateAutomation<SymbolVal, Item>& automata) {
 			if (!init(grammar)) return false;
 			return true;
 		}
 
 		[[nodiscard]] const Buffer<Symbol>* getSymbols() const { return &mSymbols; }
-		[[nodiscard]] SymbolId getSymbolId(const String& name) const { return mSymbolLookup.get(name); }
+		[[nodiscard]] SymbolVal getSymbolId(const String& name) const { return mSymbolLookup.get(name); }
 
 	private:
 		bool init(const ContextFreeGrammar& grammar) {
@@ -138,7 +157,7 @@ namespace tp {
 		void initSymbols(const ContextFreeGrammar& grammar) {
 			for (auto nonTerminal : mNonTerminals) {
 				mSymbols.append({ nonTerminal->key, false });
-				mSymbolLookup.put(nonTerminal->key, SymbolId(mSymbols.size() - 1));
+				mSymbolLookup.put(nonTerminal->key, SymbolVal(mSymbols.size() - 1));
 
 				for (auto rule : nonTerminal->val.rules) {
 					for (auto arg : *rule->getArgs()) {
@@ -147,7 +166,7 @@ namespace tp {
 						mTerminals.put(arg->getId(), {});
 
 						mSymbols.append({ nonTerminal->key, true });
-						mSymbolLookup.put(nonTerminal->key, SymbolId(mSymbols.size() - 1));
+						mSymbolLookup.put(nonTerminal->key, SymbolVal(mSymbols.size() - 1));
 					}
 				}
 			}
@@ -157,6 +176,6 @@ namespace tp {
 		Map<String, NonTerminal> mNonTerminals;
 		Map<String, bool> mTerminals;
 		Buffer<Symbol> mSymbols;
-		Map<String, SymbolId> mSymbolLookup;
+		Map<String, SymbolVal> mSymbolLookup;
 	};
 }

@@ -19,8 +19,8 @@ namespace tp {
 
 		// ContextFreeGrammar;
 		// ContextFreeCompiler;
-		typedef FiniteStateAutomation<ContextFreeCompiler::SymbolId, ContextFreeCompiler::Item> ContextFreeGraph;
-		typedef ContextFreeAutomata<ContextFreeCompiler::SymbolId, ContextFreeCompiler::Item> ContextFreeAutomata;
+		typedef FiniteStateAutomation<ContextFreeCompiler::SymbolVal, ContextFreeCompiler::Item> ContextFreeGraph;
+		typedef ContextFreeAutomata<ContextFreeCompiler::SymbolVal, ContextFreeCompiler::Item> ContextFreeAutomata;
 
 	public:
 		struct ParseResult {
@@ -72,7 +72,7 @@ namespace tp {
 
 		ParseResult parse(const tAlphabetType* sentence, ualni sentenceLength) {
 			// get tokens stream
-			Buffer<ContextFreeCompiler::SymbolId> tokens;
+			Buffer<ContextFreeCompiler::SymbolVal> tokens;
 
 			const tAlphabetType* sentenceIter = sentence;
 			ualni lengthIter = sentenceLength;
@@ -84,10 +84,12 @@ namespace tp {
 					return { false, nullptr };
 				}
 
+				tokens.append(ContextFreeCompiler::SymbolVal(
+					mGrammarGlue.get(result.state), ualni(sentenceIter - sentence), result.advancedIdx
+				));
+
 				sentenceIter += result.advancedIdx;
 				lengthIter -= result.advancedIdx;
-
-				tokens.append(mGrammarGlue.get(result.state));
 			}
 
 			ContextFreeAutomata::AcceptResult result = mContextFreeAutomata.accept(tokens.getBuff(), tokens.size());
@@ -99,7 +101,7 @@ namespace tp {
 		RegularAutomata mRegularAutomata;
 		ContextFreeAutomata mContextFreeAutomata;
 
-		Map<tTokenType, ContextFreeCompiler::SymbolId> mGrammarGlue;
-		Map<ContextFreeCompiler::SymbolId, String> mAstNames;
+		Map<tTokenType, ContextFreeCompiler::SymbolVal> mGrammarGlue;
+		Map<ContextFreeCompiler::SymbolVal, String> mAstNames;
 	};
 }
