@@ -132,6 +132,6 @@ namespace tp {
 		ualni mStartState = 0;
 		ualni mCurrentState = 0;
 
-		Range<tAlphabetType> mRange = { 0, 0 };
+		Range<ualni> mRange;
 	};
 }
