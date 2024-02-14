@@ -42,7 +42,7 @@ TEST_DEF_STATIC(FunctionalitySimple) {
 	intervalTree.insert({ 3, 6 }, 2);
 	intervalTree.insert({ 8, 12 }, 3);
 
-	intervalTree.forEachIntersection(4, 5, [](ualni data) {
+	intervalTree.forEachIntersection(4, 5, [](alni start, ualni end, ualni data) {
 		printf("%i", int(data));
 		printf("\n");
 	});
@@ -72,7 +72,7 @@ TEST_DEF_STATIC(FunctionalityScale) {
 				idx++;
 			}
 
-			intervalTree.forEachIntersection(testInterval->start, testInterval->end, [&](ualni data) {
+			intervalTree.forEachIntersection(testInterval->start, testInterval->end, [&](alni start, ualni end, ualni data) {
 				result.append(data);
 			});
 
@@ -129,7 +129,7 @@ TEST_DEF_STATIC(Efficency) {
 	};
 
 	auto test = [&](ualni NUM_TEST_INTERVALS, ualni NUM_CHECKS) {
-		const auto SPAN = (halnf) (halnf(NUM_TEST_INTERVALS)) * 0 + 1000;
+		const auto SPAN = (halnf) (halnf(NUM_TEST_INTERVALS));
 		const auto SCALE = (halnf) (2.f);
 
 		IntervalTree<halnf, ualni> intervalTree;
@@ -160,10 +160,14 @@ TEST_DEF_STATIC(Efficency) {
 
 		for (auto testInterval : testIntervals) {
 			ualni debugFound = 0;
-			ualni debug = intervalTree.forEachIntersection(testInterval->start, testInterval->end, [&](ualni data) {
-				debugFound++;
-				//
-			});
+			ualni debug = intervalTree.forEachIntersection(
+				testInterval->start,
+				testInterval->end,
+				[&](ualni start, ualni end, ualni data) {
+					debugFound++;
+					//
+				}
+			);
 
 			if (debug > debugMaxChecks) {
 				debugMaxChecks = debug;
@@ -213,11 +217,63 @@ TEST_DEF_STATIC(Efficency) {
 	printf("\n\n");
 }
 
-TEST_DEF_STATIC(Benchmarks) {}
+TEST_DEF_STATIC(FunctionalityComplex) {
+	IntervalTree<ualni, ualni> intervals;
+
+	struct QueryResult {
+		ualni numFound = 0;
+		ualni lastDataFound = 0;
+
+		[[nodiscard]] bool isSingleData(ualni aData) const { return numFound == 1 & lastDataFound == aData; }
+		[[nodiscard]] bool notFound() const { return numFound == 0; }
+		[[nodiscard]] bool found(ualni num) const { return numFound == num; }
+	};
+
+	auto makeQuery = [&](ualni aStart, ualni aEnd) {
+		QueryResult out;
+		intervals.forEachIntersection(aStart, aEnd, [&](alni start, ualni end, ualni data) {
+			out.numFound++;
+			out.lastDataFound = data;
+		});
+		return out;
+	};
+
+	intervals.insert({ 2, 5 }, 1);
+	intervals.insert({ 12, 15 }, 2);
+	intervals.insert({ 22, 25 }, 3);
+
+	TEST(makeQuery(1, 6).isSingleData(1));
+	TEST(makeQuery(1, 3).isSingleData(1));
+	TEST(makeQuery(3, 6).isSingleData(1));
+
+	TEST(makeQuery(0, 1).notFound());
+	TEST(makeQuery(7, 8).notFound());
+
+	TEST(makeQuery(3, 4).isSingleData(1));
+
+	TEST(makeQuery(13, 14).isSingleData(2));
+
+	TEST(makeQuery(1, 35).found(3));
+	TEST(makeQuery(11, 35).found(2));
+
+	// check opened
+	TEST(makeQuery(5, 12).found(2));
+	TEST(makeQuery(15, 22).found(2));
+
+	TEST(makeQuery(1, 2).isSingleData(1));
+	TEST(makeQuery(25, 35).isSingleData(3));
+
+	intervals.removeAll();
+
+	intervals.insert({ 0, 3 }, 1);
+	intervals.insert({ 0, 13 }, 2);
+
+	TEST(makeQuery(0, 1).found(2));
+}
 
 TEST_DEF(IntervalTree) {
 	testFunctionalitySimple();
 	testFunctionalityScale();
 	testEfficency();
-	testBenchmarks();
+	testFunctionalityComplex();
 }

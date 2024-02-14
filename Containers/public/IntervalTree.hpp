@@ -56,7 +56,7 @@ namespace tp {
 			if (node == nullptr) return;
 
 			debug++;
-			
+
 			// If 'start' is to the right of the rightmost point of any interval
 			// in this node and all children, there won't be any matches.
 			if (start > node->key.mMax) return;
@@ -65,8 +65,8 @@ namespace tp {
 			forEachIntersectionUtil(node->mLeft, start, end, functor, debug);
 
 			// Check this node
-			if (start < node->key.mEnd && end > node->key.mStart) {
-				functor(node->data);
+			if (start <= node->key.mEnd && end >= node->key.mStart) {
+				functor(node->key.mStart, node->key.mEnd, node->data);
 			}
 
 			// If end is to the left of the start of this interval,
