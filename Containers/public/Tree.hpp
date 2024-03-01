@@ -61,10 +61,143 @@ namespace tp {
 			inline void updateTreeCacheCallBack() { key.updateTreeCacheCallBack(*this); }
 		};
 
-	private:
-		Node* mRoot = nullptr;
-		ualni mSize = 0;
-		Allocator mAlloc;
+	public:
+		AvlTree() { MODULE_SANITY_CHECK(gModuleContainers) }
+		~AvlTree() { removeAll(); }
+
+		[[nodiscard]] ualni size() const { return mSize; }
+
+		Node* head() const { return this->mRoot; }
+
+		void insert(KeyArg key, DataArg data) {
+			mRoot = insertUtil(mRoot, key, data);
+			mRoot->mParent = nullptr;
+		}
+
+		void remove(KeyArg key) {
+			mRoot = removeUtil(mRoot, key);
+			if (mRoot) mRoot->mParent = nullptr;
+		}
+
+		Node* maxNode(Node* head) const {
+			if (!head) return nullptr;
+			while (head->mRight != nullptr) {
+				head = head->mRight;
+			}
+			return head;
+		}
+
+		Node* minNode(Node* head) const {
+			if (!head) return nullptr;
+			while (head->mLeft != nullptr) {
+				head = head->mLeft;
+			}
+			return head;
+		}
+
+		Node* find(KeyArg key) const {
+			Node* iter = mRoot;
+			while (true) {
+				if (!iter) return nullptr;
+				if (iter->exactNode(key)) return iter;
+				if (iter->descentLeft(key)) {
+					key = iter->keyInLeftSubtree(key);
+					iter = iter->mLeft;
+				} else {
+					key = iter->keyInRightSubtree(key);
+					iter = iter->mRight;
+				}
+			}
+		}
+
+		Node* findLessOrEq(KeyArg key) const {
+			Node* iter = mRoot;
+			while (true) {
+				if (!iter) return nullptr;
+				if (iter->exactNode(key)) return iter;
+				if (iter->descentLeft(key)) {
+					if (iter->mLeft) {
+						key = iter->keyInLeftSubtree(key);
+						iter = iter->mLeft;
+					} else {
+						return iter;
+					}
+				} else {
+					if (iter->mRight) {
+						key = iter->keyInRightSubtree(key);
+						iter = iter->mRight;
+					} else {
+						return iter;
+					}
+				}
+			}
+		}
+
+		// returns first invalid node
+		const Node* findInvalidNode(const Node* head) const {
+			if (head == nullptr) return nullptr;
+
+			if (head->mLeft) {
+				// TODO: incomplete test
+				if (!head->descentLeft(head->mLeft->getFindKey(head))) return head;
+				if (head->mLeft->mParent != head) return head;
+				if (!head->mRight && head->mLeft->mHeight != head->mHeight - 1) return head;
+			}
+
+			if (head->mRight) {
+				if (!head->descentRight(head->mRight->getFindKey(head))) return head;
+				if (head->mRight->mParent != head) return head;
+				if (!head->mLeft && head->mRight->mHeight != head->mHeight - 1) return head;
+			}
+
+			if (head->mLeft && head->mRight) {
+				if (max(head->mLeft->mHeight, head->mRight->mHeight) != head->mHeight - 1) return head;
+			}
+
+			int balance = getNodeHeight(head->mRight) - getNodeHeight(head->mLeft);
+
+			if (balance > 1 || balance < -1) return head;
+
+			const Node* ret = findInvalidNode(head->mRight);
+
+			if (ret) return ret;
+
+			return findInvalidNode(head->mLeft);
+		}
+
+		bool isValid() { return findInvalidNode(head()) == nullptr; }
+
+		template <typename tFunctor>
+		void traverse(Node* node, bool after, tFunctor functor) {
+			if (!after) functor(node);
+			if (node->mLeft) traverse(node->mLeft, after, functor);
+			if (node->mRight) traverse(node->mRight, after, functor);
+			if (after) functor(node);
+		}
+
+		void removeAll() {
+			if (!mRoot) return;
+			removeUtil(mRoot);
+			mRoot = nullptr;
+			mSize = 0;
+		}
+
+		void removeUtil(Node* node) {
+			if (node->mLeft) removeUtil(node->mLeft);
+			if (node->mRight) removeUtil(node->mRight);
+			deleteNode(node);
+		}
+
+	public:
+		template <class tArchiver>
+		void archiveWrite(tArchiver& file) const {
+			FAIL("not implemented")
+		}
+
+		template <class tArchiver>
+		void archiveRead(tArchiver&) {
+			FAIL("not implemented")
+		}
 
 	private:
 		inline void deleteNode(Node* node) {
@@ -243,134 +376,9 @@ namespace tp {
 			return head;
 		}
 
-	public:
-		AvlTree() { MODULE_SANITY_CHECK(gModuleContainers) }
-
-		[[nodiscard]] ualni size() const { return mSize; }
-
-		Node* head() const { return this->mRoot; }
-
-		void insert(KeyArg key, DataArg data) {
-			mRoot = insertUtil(mRoot, key, data);
-			mRoot->mParent = nullptr;
-		}
-
-		void remove(KeyArg key) {
-			mRoot = removeUtil(mRoot, key);
-			if (mRoot) mRoot->mParent = nullptr;
-		}
-
-		Node* maxNode(Node* head) const {
-			if (!head) return nullptr;
-			while (head->mRight != nullptr) {
-				head = head->mRight;
-			}
-			return head;
-		}
-
-		Node* minNode(Node* head) const {
-			if (!head) return nullptr;
-			while (head->mLeft != nullptr) {
-				head = head->mLeft;
-			}
-			return head;
-		}
-
-		Node* find(KeyArg key) const {
-			Node* iter = mRoot;
-			while (true) {
-				if (!iter) return nullptr;
-				if (iter->exactNode(key)) return iter;
-				if (iter->descentLeft(key)) {
-					key = iter->keyInLeftSubtree(key);
-					iter = iter->mLeft;
-				} else {
-					key = iter->keyInRightSubtree(key);
-					iter = iter->mRight;
-				}
-			}
-		}
-
-		Node* findLessOrEq(KeyArg key) const {
-			Node* iter = mRoot;
-			while (true) {
-				if (!iter) return nullptr;
-				if (iter->exactNode(key)) return iter;
-				if (iter->descentLeft(key)) {
-					if (iter->mLeft) {
-						key = iter->keyInLeftSubtree(key);
-						iter = iter->mLeft;
-					} else {
-						return iter;
-					}
-				} else {
-					if (iter->mRight) {
-						key = iter->keyInRightSubtree(key);
-						iter = iter->mRight;
-					} else {
-						return iter;
-					}
-				}
-			}
-		}
-
-		// returns first invalid node
-		const Node* findInvalidNode(const Node* head) const {
-			if (head == nullptr) return nullptr;
-
-			if (head->mLeft) {
-				// TODO: incomplete test
-				if (!head->descentLeft(head->mLeft->getFindKey(head))) return head;
-				if (head->mLeft->mParent != head) return head;
-				if (!head->mRight && head->mLeft->mHeight != head->mHeight - 1) return head;
-			}
-
-			if (head->mRight) {
-				if (!head->descentRight(head->mRight->getFindKey(head))) return head;
-				if (head->mRight->mParent != head) return head;
-				if (!head->mLeft && head->mRight->mHeight != head->mHeight - 1) return head;
-			}
-
-			if (head->mLeft && head->mRight) {
-				if (max(head->mLeft->mHeight, head->mRight->mHeight) != head->mHeight - 1) return head;
-			}
-
-			int balance = getNodeHeight(head->mRight) - getNodeHeight(head->mLeft);
-
-			if (balance > 1 || balance < -1) return head;
-
-			const Node* ret = findInvalidNode(head->mRight);
-
-			if (ret) return ret;
-
-			return findInvalidNode(head->mLeft);
-		}
-
-		bool isValid() { return findInvalidNode(head()) == nullptr; }
-
-		template <typename tFunctor>
-		void traverse(Node* node, bool after, tFunctor functor) {
-			if (!after) functor(node);
-			if (node->mLeft) traverse(node->mLeft, after, functor);
-			if (node->mRight) traverse(node->mRight, after, functor);
-			if (after) functor(node);
-		}
-
-		void removeAll() {
-			traverse(mRoot, true, [this](Node* node) { deleteNode(node); });
-			mRoot = nullptr;
-			mSize = 0;
-		}
-
-	public:
-		template <class tArchiver>
-		void archiveWrite(tArchiver& file) const {
-			FAIL("not implemented")
-		}
-
-		template <class tArchiver>
-		void archiveRead(tArchiver&) {
-			FAIL("not implemented")
-		}
+	private:
+		Node* mRoot = nullptr;
+		ualni mSize = 0;
+		Allocator mAlloc;
 	};
 }
