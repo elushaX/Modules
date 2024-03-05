@@ -24,6 +24,7 @@ namespace obj {
 				FUNC,
 				BOOLEAN,
 				SELF,
+				LIST,
 			} mType = Type::NONE;
 
 			bool mValueUsed = false;
@@ -32,7 +33,12 @@ namespace obj {
 			Expression(Type type);
 
 			ExpressionChild* ExprChild(tp::String id);
-			ExpressionCall* ExprCall(tp::InitialierList<Expression*> args);
+			ExpressionCall* ExprCall(class ExpressionList* args);
+		};
+
+		struct ExpressionList : public Expression {
+			tp::Buffer<Expression*> mItems;
+			ExpressionList();
 		};
 
 		struct ExpressionNew : public Expression {
@@ -59,8 +65,8 @@ namespace obj {
 
 		struct ExpressionCall : public Expression {
 			Expression* mParent = NULL;
-			tp::Buffer<Expression*> mArgs;
-			ExpressionCall(Expression* mParent, tp::InitialierList<Expression*> args);
+			ExpressionList* mArgs;
+			ExpressionCall(Expression* mParent, ExpressionList* args);
 		};
 
 		struct ExpressionAriphm : public Expression {

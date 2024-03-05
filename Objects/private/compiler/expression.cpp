@@ -9,7 +9,7 @@ Expression::Expression(Type type) :
 
 ExpressionChild* Expression::ExprChild(tp::String id) { return new ExpressionChild(this, id); }
 
-ExpressionCall* Expression::ExprCall(tp::InitialierList<Expression*> args) { return new ExpressionCall(this, args); }
+ExpressionCall* Expression::ExprCall(ExpressionList* args) { return new ExpressionCall(this, args); }
 
 ExpressionLocal* obj::BCgen::ExprLocal(tp::String id) { return new ExpressionLocal(id); }
 
@@ -17,11 +17,15 @@ ExpressionSelf* obj::BCgen::ExprSelf() { return new ExpressionSelf(); }
 
 ExpressionNew* obj::BCgen::ExprNew(tp::String type) { return new ExpressionNew(type); }
 
-ExpressionAriphm* obj::BCgen::ExprAriphm(Expression* left, Expression* right, OpCode type) { return new ExpressionAriphm(left, right, type); }
+ExpressionAriphm* obj::BCgen::ExprAriphm(Expression* left, Expression* right, OpCode type) {
+	return new ExpressionAriphm(left, right, type);
+}
 
 ExpressionFunc* obj::BCgen::ExprFunc(tp::String id) { return new ExpressionFunc(id); }
 
-ExpressionBoolean* obj::BCgen::ExprBool(Expression* left, Expression* right, obj::OpCode type) { return new ExpressionBoolean(left, right, ExpressionBoolean::BoolType(type)); }
+ExpressionBoolean* obj::BCgen::ExprBool(Expression* left, Expression* right, obj::OpCode type) {
+	return new ExpressionBoolean(left, right, ExpressionBoolean::BoolType(type));
+}
 
 ExpressionBoolean* obj::BCgen::ExprBoolNot(Expression* invert) { return new ExpressionBoolean(invert); }
 
@@ -36,11 +40,14 @@ ExpressionBoolean::ExpressionBoolean(Expression* invert) :
 	mLeft(invert),
 	mBoolType(BoolType::NOT) {}
 
-ExpressionCall::ExpressionCall(Expression* mParent, tp::InitialierList<Expression*> args) :
+ExpressionCall::ExpressionCall(Expression* mParent, ExpressionList* args) :
 	Expression(Type::CALL),
 	mParent(mParent) {
 	mArgs = args;
 }
+
+ExpressionList::ExpressionList() :
+	Expression(Type::LIST) {}
 
 ExpressionNew::ExpressionNew(tp::String type) :
 	Expression(Type::NEW),
