@@ -37,9 +37,9 @@ namespace obj {
 		struct StatementFuncDef : public Statement {
 			tp::Buffer<tp::String> mArgs;
 			tp::String mFunctionId;
-			tp::Buffer<Statement*> mStatements;
+			StatementScope* mStatements;
 
-			StatementFuncDef(tp::String function_id, tp::InitialierList<tp::String> args, tp::InitialierList<Statement*> statements);
+			StatementFuncDef(tp::String function_id);
 		};
 
 		struct StatementLocalDef : public Statement {
@@ -101,7 +101,8 @@ namespace obj {
 		};
 
 		// Helpers
-		StatementFuncDef* StmDefFunc(tp::String id, tp::InitialierList<tp::String> args, tp::InitialierList<Statement*> stms);
+		StatementFuncDef*
+		StmDefFunc(tp::String id, tp::InitialierList<tp::String> args, tp::InitialierList<Statement*> stms);
 		StatementLocalDef* StmDefLocal(tp::String id, Expression* value);
 		StatementCopy* StmCopy(Expression* left, Expression* right);
 		StatementPrint* StmPrint(Expression* target);
