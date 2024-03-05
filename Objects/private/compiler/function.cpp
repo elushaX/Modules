@@ -133,7 +133,7 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 				auto function_obj = NDO_CAST(MethodObject, NDO->create("method"));
 				auto method_const_obj = mConstants.addMethod(func.mFunctionId, function_obj);
 
-				for (auto child_stm : stm_func_def->mStatements) {
+				for (auto child_stm : stm_func_def->mStatements->mStatements) {
 					func.EvalStatement(child_stm.data());
 				}
 

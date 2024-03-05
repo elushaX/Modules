@@ -3,10 +3,8 @@
 using namespace obj;
 using namespace BCgen;
 
-StatementFuncDef::StatementFuncDef(tp::String function_id, tp::InitialierList<tp::String> args, tp::InitialierList<Statement*> statements) {
+StatementFuncDef::StatementFuncDef(tp::String function_id) {
 	mType = Type::DEF_FUNC;
-	mArgs = args;
-	mStatements = statements;
 	mFunctionId = function_id;
 }
 
@@ -72,7 +70,14 @@ StatementClassDef::StatementClassDef(tp::String class_id, StatementScope* scope)
 }
 // helpers
 
-StatementFuncDef* obj::BCgen::StmDefFunc(tp::String id, tp::InitialierList<tp::String> args, tp::InitialierList<Statement*> stms) { return new StatementFuncDef(id, args, stms); }
+StatementFuncDef*
+obj::BCgen::StmDefFunc(tp::String id, tp::InitialierList<tp::String> args, tp::InitialierList<Statement*> stms) {
+	auto out = new StatementFuncDef(id);
+	auto scope = new StatementScope(stms, true);
+	out->mStatements = scope;
+	out->mArgs = args;
+	return out;
+}
 
 StatementLocalDef* obj::BCgen::StmDefLocal(tp::String id, Expression* value) {
 	if (value->mType == Expression::Type::CONST_EXPR) {
@@ -90,12 +95,20 @@ StatementReturn* obj::BCgen::StmReturn() { return new StatementReturn(); }
 
 StatementReturn* obj::BCgen::StmReturn(Expression* obj) { return new StatementReturn(obj); }
 
-StatementIf* obj::BCgen::StmIf(Expression* condition, StatementScope* on_true, StatementScope* on_false) { return new StatementIf(condition, on_true, on_false); }
+StatementIf* obj::BCgen::StmIf(Expression* condition, StatementScope* on_true, StatementScope* on_false) {
+	return new StatementIf(condition, on_true, on_false);
+}
 
-StatementScope* obj::BCgen::StmScope(tp::InitialierList<Statement*> statements, bool aPushToScopeStack = false) { return new StatementScope(statements, aPushToScopeStack); }
+StatementScope* obj::BCgen::StmScope(tp::InitialierList<Statement*> statements, bool aPushToScopeStack = false) {
+	return new StatementScope(statements, aPushToScopeStack);
+}
 
-StatementWhile* obj::BCgen::StmWhile(Expression* condition, StatementScope* scope) { return new StatementWhile(condition, scope); }
+StatementWhile* obj::BCgen::StmWhile(Expression* condition, StatementScope* scope) {
+	return new StatementWhile(condition, scope);
+}
 
 StatementIgnore* obj::BCgen::StmIgnore(Expression* expr) { return new StatementIgnore(expr); }
 
-StatementClassDef* obj::BCgen::StmClassDef(tp::String id, StatementScope* scope) { return new StatementClassDef(id, scope); }
+StatementClassDef* obj::BCgen::StmClassDef(tp::String id, StatementScope* scope) {
+	return new StatementClassDef(id, scope);
+}

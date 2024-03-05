@@ -13,27 +13,27 @@ oscript {
 
 	scope:
 		'{' stmts '}' [scope]
-		| ;
+		| '{' '}' [scope_empty];
 
 	stmts:
-			stmts ';' stmt ';' [stm_list_append]
-		| stmt [stm_list_create]
-		| ;
+			stmts stmt [stm_list_append]
+		| stmt [stm_list_create];
 
 	stmt:
-			stm_var_def_new_type [tmp]
-		| stm_var_def_assign [tmp]
-		| stm_log [tmp]
-		| stm_assign [tmp]
+			stm_var_def_new_type ';' [tmp]
+		| stm_var_def_assign ';' [tmp]
+		| stm_log ';' [tmp]
+		| stm_assign ';' [tmp]
 		| stm_while [tmp]
-		| stm_return [tmp]
-		| stm_break [tmp]
+		| stm_return ';' [tmp]
+		| stm_break ';' [tmp]
 		| stm_if [tmp]
 		| stm_def_class [tmp]
+		| stm_def_method [tmp]
+		| stm_ignore ';' [tmp]
 	;
 
-	stm_def_method: 'class' id scope [stm_def_class];
-
+	stm_def_method: 'method' id '(' id_list ')' scope [stm_def_method];
 	stm_def_class: 'class' id scope [stm_def_class];
 
 	stm_if:
@@ -46,11 +46,17 @@ oscript {
 	stm_var_def_new_type: 'var' id ':' id [stm_var_def_new_type];
 	stm_var_def_assign: 'var' id '=' expr [stm_var_def_assign];
 	stm_log: 'print' expr [stm_log];
-	stm_assign: expr '=' expr [stm_assign];
+	stm_assign : expr '=' expr [stm_assign];
+	stm_ignore : expr [stm_ignore];
 
 	expr_list:
 			expr_list ',' expr ',' [expr_list_append]
 		| expr [expr_list_create]
+		| ;
+
+	id_list:
+			id_list ',' id ',' [id_list_append]
+		| id [id_list_create]
 		| ;
 
 	expr:
