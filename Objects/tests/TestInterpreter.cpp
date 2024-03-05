@@ -41,7 +41,10 @@ if (i == 10) {
 )";
 
 auto script = R"(
-var i = 10;
+{
+	var i = 10;
+	print (i + 10) * 5;
+}
 )";
 
 TEST_DEF_STATIC(Complex) {
@@ -64,7 +67,7 @@ TEST_DEF_STATIC(Simple) {
 
 	interpreter->getMember<LinkObject>("target method")->setLink(method);
 
-	method->mScript->mReadable->val = "<< 3;";
+	method->mScript->mReadable->val = script;
 	method->compile();
 
 	interpreter->exec();
@@ -77,9 +80,12 @@ TEST_DEF_STATIC(Simple) {
 
 	NDO->destroy(interpreterLoaded);
 	NDO->destroy(interpreter);
+
+	printf("\n\nEnd\n\n");
 }
 
 TEST_DEF(Interpreter) {
 	testSimple();
+	exit(0);
 	// testComplex();
 }

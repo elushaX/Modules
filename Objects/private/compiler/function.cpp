@@ -348,8 +348,8 @@ void FunctionDefinition::EvalExpr(Expression* expr) {
 		case Expression::Type::CALL:
 			{
 				auto call = (ExpressionCall*) expr;
-				inst(Instruction(OpCode::PUSH_ARGS, call->mArgs.size(), 1));
-				for (auto arg : call->mArgs) {
+				inst(Instruction(OpCode::PUSH_ARGS, call->mArgs->mItems.size(), 1));
+				for (auto arg : call->mArgs->mItems) {
 					EvalExpr(arg.data());
 				}
 				EvalExpr(call->mParent);
