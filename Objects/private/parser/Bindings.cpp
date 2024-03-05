@@ -158,29 +158,12 @@ void bind(LalrParser& parser) {
 	BIND(stm_var_def_assign);
 	BIND(stm_log);
 	BIND(stm_assign);
+	stm_while_loop stm_return stm_break BIND(expr_function) BIND(expr_method) BIND(expr_child) BIND(expr_bool_eq)
+		BIND(expr_bool_negate) BIND(expr_bool_neq) BIND(expr_bool_grater) BIND(expr_bool_lesser) BIND(expr_bool_grater_eq)
+			BIND(expr_bool_lesser_eq) BIND(expr_add) BIND(expr_subtract) BIND(expr_multiply) BIND(expr_divide)
+				BIND(expr_compound) BIND(expr_bool) BIND(expr_int) BIND(expr_float) BIND(expr_string) BIND(expr_id)
 
-	BIND(expr_function)
-	BIND(expr_method)
-	BIND(expr_child)
-	BIND(expr_bool_eq)
-	BIND(expr_bool_negate)
-	BIND(expr_bool_neq)
-	BIND(expr_bool_grater)
-	BIND(expr_bool_lesser)
-	BIND(expr_bool_grater_eq)
-	BIND(expr_bool_lesser_eq)
-	BIND(expr_add)
-	BIND(expr_subtract)
-	BIND(expr_multiply)
-	BIND(expr_divide)
-	BIND(expr_compound)
-	BIND(expr_bool)
-	BIND(expr_int)
-	BIND(expr_float)
-	BIND(expr_string)
-	BIND(expr_id)
+					BIND(tmp)
 
-	BIND(tmp)
-
-	parser.set_lexer_action_handler("string", &lalr::string_literal<IteratorType>);
+						parser.set_lexer_action_handler("string", &lalr::string_literal<IteratorType>);
 }

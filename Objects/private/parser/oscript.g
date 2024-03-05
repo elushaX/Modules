@@ -7,6 +7,9 @@ oscript {
 	%left '*' '/';
 	%left '.' '=';
 	%left '==' '>' '<' '>=' '<=' '!=' '!';
+	%left ';';
+
+	script : stmts [tmp];
 
 	scope:
 		'{' stmts '}' [scope]
@@ -22,8 +25,24 @@ oscript {
 		| stm_var_def_assign [tmp]
 		| stm_log [tmp]
 		| stm_assign [tmp]
+		| stm_while [tmp]
+		| stm_return [tmp]
+		| stm_break [tmp]
+		| stm_if [tmp]
+		| stm_def_class [tmp]
 	;
 
+	stm_def_method: 'class' id scope [stm_def_class];
+
+	stm_def_class: 'class' id scope [stm_def_class];
+
+	stm_if:
+		'if' '(' expr ')' scope [stm_if]
+		| 'if' '(' expr ')' scope 'else' scope [stm_if];
+
+	stm_break: 'break' [stm_break];
+	stm_return: 'return' expr [stm_return] | 'return' [stm_return];
+	stm_while: 'while' '(' expr ')' scope [stm_while_loop];
 	stm_var_def_new_type: 'var' id ':' id [stm_var_def_new_type];
 	stm_var_def_assign: 'var' id '=' expr [stm_var_def_assign];
 	stm_log: 'print' expr [stm_log];
