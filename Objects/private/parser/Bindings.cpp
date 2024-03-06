@@ -13,7 +13,7 @@ static UserData scope_empty(const UserData*, const Node*, size_t) { return new S
 
 static UserData stm_list_append(const UserData* start, const Node*, size_t) {
 	auto scope = (StatementScope*) start[0];
-	auto stm = (Statement*) start[2];
+	auto stm = (Statement*) start[1];
 	scope->mStatements.append(stm);
 	return scope;
 }
@@ -153,19 +153,19 @@ static UserData expr_bool_lesser_eq(const UserData* start, const Node*, size_t) 
 }
 
 static UserData expr_add(const UserData* start, const Node*, size_t) {
-	return new ExpressionAriphm((Expression*) start[0], (Expression*) start[2], obj::OpCode::OBJ_ADD);
+	return new ExpressionArithmetics((Expression*) start[0], (Expression*) start[2], obj::OpCode::OBJ_ADD);
 }
 
 static UserData expr_subtract(const UserData* start, const Node*, size_t) {
-	return new ExpressionAriphm((Expression*) start[0], (Expression*) start[2], obj::OpCode::OBJ_SUB);
+	return new ExpressionArithmetics((Expression*) start[0], (Expression*) start[2], obj::OpCode::OBJ_SUB);
 }
 
 static UserData expr_multiply(const UserData* start, const Node*, size_t) {
-	return new ExpressionAriphm((Expression*) start[0], (Expression*) start[2], obj::OpCode::OBJ_MUL);
+	return new ExpressionArithmetics((Expression*) start[0], (Expression*) start[2], obj::OpCode::OBJ_MUL);
 }
 
 static UserData expr_divide(const UserData* start, const Node*, size_t) {
-	return new ExpressionAriphm((Expression*) start[0], (Expression*) start[2], obj::OpCode::OBJ_DIV);
+	return new ExpressionArithmetics((Expression*) start[0], (Expression*) start[2], obj::OpCode::OBJ_DIV);
 }
 
 static UserData expr_compound(const UserData* start, const Node*, size_t) { return start[1]; }

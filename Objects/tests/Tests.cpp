@@ -17,11 +17,6 @@ int main() {
 	tp::ModuleManifest module("ObjectsTests", nullptr, nullptr, deps);
 
 	if (module.initialize()) {
-		testInterpreter();
-		module.deinitialize();
-	}
-
-	if (module.initialize()) {
 		testParser();
 		module.deinitialize();
 	}
@@ -33,6 +28,11 @@ int main() {
 
 	if (module.initialize()) {
 		testPrimitives();
+		module.deinitialize();
+	}
+
+	if (module.initialize()) {
+		testInterpreter();
 		module.deinitialize();
 	}
 

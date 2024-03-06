@@ -3,115 +3,109 @@
 
 #include "expression.h"
 
-namespace obj {
-	namespace BCgen {
-		struct Statement {
-			enum class Type {
-				NONE,
-				SCOPE,
-				DEF_FUNC,
-				DEF_LOCAL,
-				RET,
-				PRINT,
-				COPY,
-				IF,
-				WHILE,
-				IGNORE,
-				CALL,
-				CLASS_DEF,
-			} mType = Type::NONE;
+namespace obj::BCgen {
+	struct Statement {
 
-			bool mValueUsed = false;
+		enum class Type {
+			NONE,
+			SCOPE,
+			DEF_FUNC,
+			DEF_LOCAL,
+			RET,
+			PRINT,
+			COPY,
+			IF,
+			WHILE,
+			IGNORE,
+			CALL,
+			CLASS_DEF,
+		} mType = Type::NONE;
 
-			Statement() {}
-			Statement(Type type);
-		};
+		bool mValueUsed = false;
 
-		struct StatementScope : public Statement {
-			tp::Buffer<Statement*> mStatements;
-			bool mPushToScopeStack = false;
-
-			StatementScope(tp::InitialierList<Statement*> statements, bool aPushToScopeStack);
-		};
-
-		struct StatementFuncDef : public Statement {
-			tp::Buffer<tp::String> mArgs;
-			tp::String mFunctionId;
-			StatementScope* mStatements;
-
-			StatementFuncDef(tp::String function_id);
-		};
-
-		struct StatementLocalDef : public Statement {
-			tp::String mLocalId;
-			Expression* mNewExpr = NULL;
-			ExpressionConst* mConstExpr = NULL;
-			bool mIsConstExpr = false;
-
-			StatementLocalDef(tp::String id, Expression* value);
-			StatementLocalDef(tp::String id, ExpressionConst* value);
-		};
-
-		struct StatementCopy : public Statement {
-			Expression* mLeft = NULL;
-			Expression* mRight = NULL;
-
-			StatementCopy(Expression* left, Expression* right);
-		};
-
-		struct StatementReturn : public Statement {
-			Expression* mRet = NULL;
-
-			StatementReturn(Expression* ret);
-			StatementReturn();
-		};
-
-		struct StatementPrint : public Statement {
-			Expression* mTarget = NULL;
-
-			StatementPrint(Expression* mTarget);
-		};
-
-		struct StatementIgnore : public Statement {
-			Expression* mExpr = NULL;
-
-			StatementIgnore(Expression* expr);
-		};
-
-		struct StatementIf : public Statement {
-			Expression* mCondition = NULL;
-			StatementScope* mOnTrue = NULL;
-			StatementScope* mOnFalse = NULL;
-
-			StatementIf(Expression* condition, StatementScope* on_true, StatementScope* on_false);
-		};
-
-		struct StatementWhile : public Statement {
-			Expression* mCondition = NULL;
-			StatementScope* mScope = NULL;
-
-			StatementWhile(Expression* condition, StatementScope* scope);
-		};
-
-		struct StatementClassDef : public Statement {
-			tp::String mClassId;
-			StatementScope* mScope = NULL;
-
-			StatementClassDef(tp::String class_id, StatementScope* scope);
-		};
-
-		// Helpers
-		StatementFuncDef*
-		StmDefFunc(tp::String id, tp::InitialierList<tp::String> args, tp::InitialierList<Statement*> stms);
-		StatementLocalDef* StmDefLocal(tp::String id, Expression* value);
-		StatementCopy* StmCopy(Expression* left, Expression* right);
-		StatementPrint* StmPrint(Expression* target);
-		StatementReturn* StmReturn(Expression* obj);
-		StatementReturn* StmReturn();
-		StatementIf* StmIf(Expression* condition, StatementScope* on_true, StatementScope* on_false);
-		StatementScope* StmScope(tp::InitialierList<Statement*> statements, bool aPushToScopeStack);
-		StatementWhile* StmWhile(Expression* condition, StatementScope* scope);
-		StatementIgnore* StmIgnore(Expression* expr);
-		StatementClassDef* StmClassDef(tp::String id, StatementScope* scope);
+		explicit Statement(Type type);
+		virtual ~Statement() = default;
 	};
-};
+
+	struct StatementScope : public Statement {
+		tp::Buffer<Statement*> mStatements;
+		bool mPushToScopeStack = false;
+
+		StatementScope(tp::InitialierList<Statement*> statements, bool aPushToScopeStack);
+		~StatementScope() override;
+	};
+
+	struct StatementFuncDef : public Statement {
+		tp::Buffer<tp::String> mArgs;
+		tp::String mFunctionId;
+		StatementScope* mStatements = nullptr;
+
+		explicit StatementFuncDef(const tp::String& function_id);
+		~StatementFuncDef() override;
+	};
+
+	struct StatementLocalDef : public Statement {
+		tp::String mLocalId;
+		Expression* mNewExpr = nullptr;
+		ExpressionConst* mConstExpr = nullptr;
+		bool mIsConstExpr = false;
+
+		StatementLocalDef(const tp::String& id, Expression* value);
+		~StatementLocalDef() override;
+	};
+
+	struct StatementCopy : public Statement {
+		Expression* mLeft = nullptr;
+		Expression* mRight = nullptr;
+
+		StatementCopy(Expression* left, Expression* right);
+		~StatementCopy() override;
+	};
+
+	struct StatementReturn : public Statement {
+		Expression* mRet = nullptr;
+
+		explicit StatementReturn(Expression* ret);
+		StatementReturn();
+		~StatementReturn() override;
+	};
+
+	struct StatementPrint : public Statement {
+		Expression* mTarget = nullptr;
+
+		explicit StatementPrint(Expression* mTarget);
+		~StatementPrint() override;
+	};
+
+	struct StatementIgnore : public Statement {
+		Expression* mExpr = nullptr;
+
+		explicit StatementIgnore(Expression* expr);
+		~StatementIgnore() override;
+	};
+
+	struct StatementIf : public Statement {
+		Expression* mCondition = nullptr;
+		StatementScope* mOnTrue = nullptr;
+		StatementScope* mOnFalse = nullptr;
+
+		StatementIf(Expression* condition, StatementScope* on_true, StatementScope* on_false);
+		~StatementIf() override;
+	};
+
+	struct StatementWhile : public Statement {
+		Expression* mCondition = nullptr;
+		StatementScope* mScope = nullptr;
+
+		StatementWhile(Expression* condition, StatementScope* scope);
+		~StatementWhile() override;
+	};
+
+	struct StatementClassDef : public Statement {
+		tp::String mClassId;
+		StatementScope* mScope = nullptr;
+
+		StatementClassDef(const tp::String& class_id, StatementScope* scope);
+		~StatementClassDef() override;
+	};
+}
