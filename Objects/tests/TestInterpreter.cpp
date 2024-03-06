@@ -41,10 +41,8 @@ if (i == 10) {
 )";
 
 auto script = R"(
-{
 	var i = 10;
 	print (i + 10) * 5;
-}
 )";
 
 TEST_DEF_STATIC(Complex) {
@@ -86,6 +84,5 @@ TEST_DEF_STATIC(Simple) {
 
 TEST_DEF(Interpreter) {
 	testSimple();
-	exit(0);
 	// testComplex();
 }

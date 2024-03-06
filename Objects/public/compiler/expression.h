@@ -6,126 +6,120 @@
 
 #include "interpreter/opcodes.h"
 
-namespace obj {
-	namespace BCgen {
+namespace obj::BCgen {
 
-		struct ExpressionChild;
-		struct ExpressionCall;
+	struct Expression {
+		enum class Type {
+			NONE,
+			NEW,
+			LOCAL,
+			CONST_EXPR,
+			CHILD,
+			CALL,
+			ARITHMETICS,
+			FUNC,
+			BOOLEAN,
+			SELF,
+			LIST,
+		} mType = Type::NONE;
 
-		struct Expression {
-			enum class Type {
-				NONE,
-				NEW,
-				LOCAL,
-				CONST_EXPR,
-				CHILD,
-				CALL,
-				ARIPHM,
-				FUNC,
-				BOOLEAN,
-				SELF,
-				LIST,
-			} mType = Type::NONE;
+		bool mValueUsed = false;
 
-			bool mValueUsed = false;
+		explicit Expression(Type type);
+		virtual ~Expression() = default;
 
-			Expression();
-			Expression(Type type);
-
-			ExpressionChild* ExprChild(tp::String id);
-			ExpressionCall* ExprCall(class ExpressionList* args);
-		};
-
-		struct ExpressionList : public Expression {
-			tp::Buffer<Expression*> mItems;
-			ExpressionList();
-		};
-
-		struct ExpressionNew : public Expression {
-			tp::String mNewType;
-			ExpressionNew(tp::String type);
-		};
-
-		struct ExpressionLocal : public Expression {
-			tp::String mLocalId;
-			ExpressionLocal(tp::String id);
-		};
-
-		struct ExpressionFunc : public Expression {
-			tp::String mFuncId;
-			ExpressionFunc(tp::String id);
-		};
-
-		struct ExpressionChild : public Expression {
-			Expression* mParent = NULL;
-			tp::String mLocalId;
-			bool mMethod = false;
-			ExpressionChild(Expression* mParent, tp::String id);
-		};
-
-		struct ExpressionCall : public Expression {
-			Expression* mParent = NULL;
-			ExpressionList* mArgs;
-			ExpressionCall(Expression* mParent, ExpressionList* args);
-		};
-
-		struct ExpressionAriphm : public Expression {
-			Expression* mLeft = NULL;
-			Expression* mRight = NULL;
-			OpCode mOpType;
-			ExpressionAriphm(Expression* left, Expression* right, OpCode type);
-		};
-
-		struct ExpressionBoolean : public Expression {
-			Expression* mLeft = NULL;
-			Expression* mRight = NULL;
-
-			enum class BoolType : tp::uint1 {
-				AND = 24U,
-				OR,
-				EQUAL,
-				NOT_EQUAL,
-				MORE,
-				LESS,
-				EQUAL_OR_MORE,
-				EQUAL_OR_LESS,
-				NOT,
-			} mBoolType;
-
-			ExpressionBoolean(Expression* left, Expression* right, BoolType type);
-			ExpressionBoolean(Expression* invert);
-		};
-
-		struct ExpressionConst : public Expression {
-			enum ConstType { STR, INT, BOOL, FLT } mConstType;
-			tp::String str;
-			tp::alni integer = 0;
-			tp::alnf floating = 0;
-			bool boolean = 0;
-
-			ExpressionConst(tp::String val);
-			ExpressionConst(const char* val);
-			ExpressionConst(tp::alni val);
-			ExpressionConst(tp::int4 val);
-			ExpressionConst(tp::flt4 val);
-			ExpressionConst(tp::alnf val);
-			ExpressionConst(bool val);
-		};
-
-		struct ExpressionSelf : public Expression {
-			ExpressionSelf();
-		};
-
-		ExpressionLocal* ExprLocal(tp::String id);
-		ExpressionSelf* ExprSelf();
-		ExpressionFunc* ExprFunc(tp::String id);
-		ExpressionNew* ExprNew(tp::String id);
-		ExpressionAriphm* ExprAriphm(Expression* left, Expression* right, OpCode type);
-		ExpressionBoolean* ExprBool(Expression* left, Expression* right, OpCode type);
-		ExpressionBoolean* ExprBoolNot(Expression* invert);
-		template <typename ConstType>
-		ExpressionConst* ExprConst(ConstType val) {
-			return new ExpressionConst(val);
-		}
+		struct ExpressionChild* ExprChild(const tp::String& id);
+		struct ExpressionCall* ExprCall(class ExpressionList* args);
 	};
-};
+
+	struct ExpressionList : public Expression {
+		tp::Buffer<Expression*> mItems;
+		ExpressionList();
+		~ExpressionList() override;
+	};
+
+	struct ExpressionNew : public Expression {
+		tp::String mNewType;
+		explicit ExpressionNew(const tp::String& type);
+		~ExpressionNew() override;
+	};
+
+	struct ExpressionLocal : public Expression {
+		tp::String mLocalId;
+		explicit ExpressionLocal(const tp::String& id);
+		~ExpressionLocal() override;
+	};
+
+	struct ExpressionFunc : public Expression {
+		tp::String mFuncId;
+		explicit ExpressionFunc(const tp::String& id);
+		~ExpressionFunc() override;
+	};
+
+	struct ExpressionChild : public Expression {
+		Expression* mParent = nullptr;
+		tp::String mLocalId;
+		bool mMethod = false;
+		ExpressionChild(Expression* mParent, const tp::String& id);
+		~ExpressionChild() override;
+	};
+
+	struct ExpressionCall : public Expression {
+		Expression* mParent = nullptr;
+		ExpressionList* mArgs = nullptr;
+		ExpressionCall(Expression* mParent, ExpressionList* args);
+		~ExpressionCall() override;
+	};
+
+	struct ExpressionArithmetics : public Expression {
+		Expression* mLeft = nullptr;
+		Expression* mRight = nullptr;
+		OpCode mOpType = OpCode::NONE;
+		ExpressionArithmetics(Expression* left, Expression* right, OpCode type);
+		~ExpressionArithmetics() override;
+	};
+
+	struct ExpressionBoolean : public Expression {
+		Expression* mLeft = nullptr;
+		Expression* mRight = nullptr;
+
+		enum class BoolType : tp::uint1 {
+			AND = 24U,
+			OR,
+			EQUAL,
+			NOT_EQUAL,
+			MORE,
+			LESS,
+			EQUAL_OR_MORE,
+			EQUAL_OR_LESS,
+			NOT,
+		} mBoolType;
+
+		ExpressionBoolean(Expression* left, Expression* right, BoolType type);
+		explicit ExpressionBoolean(Expression* invert);
+		~ExpressionBoolean() override;
+	};
+
+	struct ExpressionConst : public Expression {
+		enum ConstType { STR, INT, BOOL, FLT } mConstType;
+		tp::String str;
+		tp::alni integer = 0;
+		tp::alnf floating = 0;
+		bool boolean = false;
+
+		explicit ExpressionConst(const tp::String& val);
+		explicit ExpressionConst(const char* val);
+		explicit ExpressionConst(tp::alni val);
+		explicit ExpressionConst(tp::int4 val);
+		explicit ExpressionConst(tp::flt4 val);
+		explicit ExpressionConst(tp::alnf val);
+		explicit ExpressionConst(bool val);
+
+		~ExpressionConst() override;
+	};
+
+	struct ExpressionSelf : public Expression {
+		ExpressionSelf();
+		~ExpressionSelf() override = default;
+	};
+}

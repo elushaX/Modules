@@ -3,31 +3,12 @@
 using namespace obj;
 using namespace BCgen;
 
-Expression::Expression() {}
 Expression::Expression(Type type) :
 	mType(type) {}
 
-ExpressionChild* Expression::ExprChild(tp::String id) { return new ExpressionChild(this, id); }
+ExpressionChild* Expression::ExprChild(const tp::String& id) { return new ExpressionChild(this, id); }
 
 ExpressionCall* Expression::ExprCall(ExpressionList* args) { return new ExpressionCall(this, args); }
-
-ExpressionLocal* obj::BCgen::ExprLocal(tp::String id) { return new ExpressionLocal(id); }
-
-ExpressionSelf* obj::BCgen::ExprSelf() { return new ExpressionSelf(); }
-
-ExpressionNew* obj::BCgen::ExprNew(tp::String type) { return new ExpressionNew(type); }
-
-ExpressionAriphm* obj::BCgen::ExprAriphm(Expression* left, Expression* right, OpCode type) {
-	return new ExpressionAriphm(left, right, type);
-}
-
-ExpressionFunc* obj::BCgen::ExprFunc(tp::String id) { return new ExpressionFunc(id); }
-
-ExpressionBoolean* obj::BCgen::ExprBool(Expression* left, Expression* right, obj::OpCode type) {
-	return new ExpressionBoolean(left, right, ExpressionBoolean::BoolType(type));
-}
-
-ExpressionBoolean* obj::BCgen::ExprBoolNot(Expression* invert) { return new ExpressionBoolean(invert); }
 
 ExpressionBoolean::ExpressionBoolean(Expression* left, Expression* right, BoolType type) :
 	Expression(Type::BOOLEAN),
@@ -40,60 +21,103 @@ ExpressionBoolean::ExpressionBoolean(Expression* invert) :
 	mLeft(invert),
 	mBoolType(BoolType::NOT) {}
 
+ExpressionBoolean::~ExpressionBoolean() {
+	delete mLeft;
+	delete mRight;
+}
+
 ExpressionCall::ExpressionCall(Expression* mParent, ExpressionList* args) :
 	Expression(Type::CALL),
 	mParent(mParent) {
 	mArgs = args;
 }
 
+ExpressionCall::~ExpressionCall() {
+	delete mParent;
+	delete mArgs;
+}
+
 ExpressionList::ExpressionList() :
 	Expression(Type::LIST) {}
 
-ExpressionNew::ExpressionNew(tp::String type) :
+ExpressionList::~ExpressionList() {
+	for (auto item : mItems) {
+		delete item.data();
+	}
+}
+
+ExpressionNew::ExpressionNew(const tp::String& type) :
 	Expression(Type::NEW),
 	mNewType(type) {}
-ExpressionLocal::ExpressionLocal(tp::String id) :
+
+ExpressionNew::~ExpressionNew() = default;
+
+ExpressionLocal::ExpressionLocal(const tp::String& id) :
 	Expression(Type::LOCAL),
 	mLocalId(id) {}
+
+ExpressionLocal::~ExpressionLocal() = default;
+
 ExpressionSelf::ExpressionSelf() :
 	Expression(Type::SELF) {}
-ExpressionChild::ExpressionChild(Expression* mParent, tp::String id) :
+
+ExpressionChild::ExpressionChild(Expression* mParent, const tp::String& id) :
 	Expression(Type::CHILD),
 	mParent(mParent),
 	mLocalId(id) {}
-ExpressionAriphm::ExpressionAriphm(Expression* left, Expression* right, OpCode type) :
-	Expression(Type::ARIPHM),
+
+ExpressionChild::~ExpressionChild() { delete mParent; }
+
+ExpressionArithmetics::ExpressionArithmetics(Expression* left, Expression* right, OpCode type) :
+	Expression(Type::ARITHMETICS),
 	mLeft(left),
 	mRight(right),
 	mOpType(type) {}
-ExpressionFunc::ExpressionFunc(tp::String id) :
+
+ExpressionArithmetics::~ExpressionArithmetics() {
+	delete mLeft;
+	delete mRight;
+}
+
+ExpressionFunc::ExpressionFunc(const tp::String& id) :
 	Expression(Type::FUNC),
 	mFuncId(id) {}
-ExpressionConst::ExpressionConst(tp::String val) :
+
+ExpressionFunc::~ExpressionFunc() = default;
+
+ExpressionConst::ExpressionConst(const tp::String& val) :
 	Expression(Type::CONST_EXPR),
 	mConstType(STR),
 	str(val) {}
+
 ExpressionConst::ExpressionConst(const char* val) :
 	Expression(Type::CONST_EXPR),
 	mConstType(STR),
 	str(val) {}
+
 ExpressionConst::ExpressionConst(tp::int4 val) :
 	Expression(Type::CONST_EXPR),
 	mConstType(INT),
 	integer(val) {}
+
 ExpressionConst::ExpressionConst(tp::flt4 val) :
 	Expression(Type::CONST_EXPR),
 	mConstType(FLT),
 	floating(val) {}
+
 ExpressionConst::ExpressionConst(tp::alni val) :
 	Expression(Type::CONST_EXPR),
 	mConstType(INT),
 	integer(val) {}
+
 ExpressionConst::ExpressionConst(tp::alnf val) :
 	Expression(Type::CONST_EXPR),
 	mConstType(FLT),
 	floating(val) {}
+
 ExpressionConst::ExpressionConst(bool val) :
 	Expression(Type::CONST_EXPR),
 	mConstType(BOOL),
 	boolean(val) {}
+
+ExpressionConst::~ExpressionConst() = default;

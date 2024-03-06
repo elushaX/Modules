@@ -212,18 +212,17 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 								type = "str";
 								break;
 							}
-						default:
-							{
-								ASSERT(0 && "Cantbe");
-							}
 					}
 
 					auto new_expr = new ExpressionNew(type);
+					auto defLocalExpr = new StatementLocalDef(stm_local_def->mLocalId, new_expr);
 
-					EvalStatement(StmDefLocal(stm_local_def->mLocalId, new_expr));
+					EvalStatement(defLocalExpr);
 					EvalExpr(stm_local_def->mConstExpr);
 					inst(Instruction(OpCode::LOAD_LOCAL, mConstants.get(stm_local_def->mLocalId)));
 					inst(Instruction(OpCode::OBJ_COPY));
+
+					delete defLocalExpr;
 				}
 				break;
 			}
@@ -256,8 +255,6 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 
 		default: ASSERT(0)
 	}
-
-	delete stm;
 }
 
 void FunctionDefinition::EvalExpr(Expression* expr) {
@@ -283,9 +280,9 @@ void FunctionDefinition::EvalExpr(Expression* expr) {
 				inst(Instruction(OpCode::LOAD_LOCAL, mConstants.get(func->mFuncId)));
 				break;
 			}
-		case Expression::Type::ARIPHM:
+		case Expression::Type::ARITHMETICS:
 			{
-				auto ariphm = (ExpressionAriphm*) expr;
+				auto ariphm = (ExpressionArithmetics*) expr;
 				EvalExpr(ariphm->mRight);
 				EvalExpr(ariphm->mLeft);
 				inst(Instruction(ariphm->mOpType));
@@ -359,7 +356,6 @@ void FunctionDefinition::EvalExpr(Expression* expr) {
 
 		default: ASSERT(0)
 	}
-	delete expr;
 }
 
 tp::alni instSize(const Instruction& inst) {
@@ -553,32 +549,16 @@ tp::List<Instruction>::Node* FunctionDefinition::inst(Instruction inst) {
 	return mInstructions.last();
 }
 
-static Parser* sParger = NULL;
+void obj::BCgen::init() {}
 
-void obj::BCgen::init() {
-	ASSERT(!sParger);
-	if (!sParger) {
-		sParger = new Parser();
-	}
-}
-
-void obj::BCgen::deinit() {
-	ASSERT(sParger);
-	if (sParger) {
-		delete sParger;
-		sParger = nullptr;
-	}
-}
+void obj::BCgen::deinit() {}
 
 bool obj::BCgen::Compile(obj::MethodObject* method) {
 
-	ASSERT(method);
-	ASSERT(sParger);
-
-	if (!sParger) return false;
+	Parser sParger;
 
 	auto script = method->mScript->mReadable->val;
-	auto res = sParger->parse(script);
+	auto res = sParger.parse(script);
 
 	if (res.err) {
 		// TODO : print parse error
