@@ -22,8 +22,9 @@ add_executable(osg ./applications/GUI.cpp ./applications/GUIEntry.cpp)
 #target_link_libraries(osi ${PROJECT_NAME})
 target_link_libraries(osg ${PROJECT_NAME} Graphics Imgui)
 
+file(COPY "rsc/Font.ttf" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
+
 ### -------------------------- Tests  --------------------------  ###
-enable_testing()
 file(GLOB TEST_SOURCES "./tests/*.cpp" "./tests/*/*.cpp")
 add_executable(${PROJECT_NAME}Tests ${TEST_SOURCES})
 target_link_libraries(${PROJECT_NAME}Tests ${PROJECT_NAME} Utils)

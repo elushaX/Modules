@@ -16,3 +16,6 @@
 [submodule "Externals/lua"]
     path = Externals/lua
     url = https://github.com/lua/lua.git
+[submodule "Externals/lalr"]
+	path = Externals/lalr
+	url = https://github.com/IlyaShurupov/lalr.git

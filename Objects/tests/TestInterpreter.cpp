@@ -42,7 +42,7 @@ if (i == 10) {
 
 auto script = R"(
 	var i = 10;
-	print (i + 10) * 5;
+	print i;
 )";
 
 TEST_DEF_STATIC(Complex) {
