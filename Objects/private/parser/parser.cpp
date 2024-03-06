@@ -1,5 +1,4 @@
 
-
 #include <parser/parser.h>
 
 #include "Private.hpp"
@@ -36,7 +35,12 @@ Parser::Result Parser::parse(const tp::String& stream) {
 	ASSERT(parser.valid());
 
 	parser.parse(streamStd.begin(), streamStd.end());
-	auto scope = (BCgen::StatementScope*) parser.user_data();
 
-	return { scope, parser.accepted() && parser.full() };
+	BCgen::StatementScope* out = nullptr;
+
+	if (parser.accepted() && parser.full()) {
+		out = (BCgen::StatementScope*) parser.user_data().statement;
+	}
+
+	return { out, !(parser.accepted() && parser.full()) };
 }

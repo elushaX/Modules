@@ -17,4 +17,18 @@ TEST_DEF_STATIC(Basic) {
 	delete res.scope;
 }
 
-TEST_DEF(Parser) { testBasic(); }
+TEST_DEF_STATIC(ErrorHandling) {
+	Parser parser;
+
+	String stream = "var i = true; print (i + 1) * 10; invalidCharacter ";
+	auto res = parser.parse(stream);
+
+	TEST(res.isError);
+
+	delete res.scope;
+}
+
+TEST_DEF(Parser) {
+	testBasic();
+	testErrorHandling();
+}

@@ -1,8 +1,6 @@
 
 #include "Private.hpp"
 
-#include <parser/parser.h>
-
 using namespace obj::BCgen;
 
 typedef lalr::ParserNode<SymbolType> Node;
@@ -12,23 +10,19 @@ static UserData scope(const UserData* start, const Node*, size_t) { return start
 static UserData scope_empty(const UserData*, const Node*, size_t) { return new StatementScope({}, true); }
 
 static UserData stm_list_append(const UserData* start, const Node*, size_t) {
-	auto scope = (StatementScope*) start[0];
-	auto stm = (Statement*) start[1];
-	scope->mStatements.append(stm);
+	auto scope = (StatementScope*) start[0].statement;
+	scope->mStatements.append(start[1].statement);
 	return scope;
 }
 
 static UserData stm_list_create(const UserData* start, const Node*, size_t) {
-	return new StatementScope({ (Statement*) start[0] }, true);
+	return new StatementScope({ start[0].statement }, true);
 }
 
-static UserData stm_log(const UserData* start, const Node*, size_t) {
-	auto expr = (Expression*) (start[1]);
-	return new StatementPrint(expr);
-}
+static UserData stm_log(const UserData* start, const Node*, size_t) { return new StatementPrint(start[1].expression); }
 
 static UserData stm_assign(const UserData* start, const Node*, size_t) {
-	return new StatementCopy((Expression*) start[0], (Expression*) start[2]);
+	return new StatementCopy(start[0].expression, start[2].expression);
 }
 
 static UserData stm_var_def_new_type(const UserData*, const Node* nodes, size_t) {
@@ -36,51 +30,53 @@ static UserData stm_var_def_new_type(const UserData*, const Node* nodes, size_t)
 }
 
 static UserData stm_var_def_assign(const UserData* start, const Node* nodes, size_t) {
-	return new StatementLocalDef((char*) nodes[1].lexeme().c_str(), (Expression*) start[3]);
+	return new StatementLocalDef((char*) nodes[1].lexeme().c_str(), start[3].expression);
 }
 
 static UserData stm_return(const UserData* start, const Node*, size_t length) {
 	if (length == 2) {
-		return new StatementReturn((Expression*) start[1]);
+		return new StatementReturn(start[1].expression);
 	}
 	return new StatementReturn();
 }
 
 static UserData stm_ignore(const UserData* start, const Node*, size_t) {
-	return new StatementIgnore((Expression*) start[0]);
+	return new StatementIgnore(start[0].expression);
 }
 
 static UserData stm_def_class(const UserData* start, const Node* nodes, size_t) {
-	auto newClass = new StatementClassDef((char*) nodes[1].lexeme().c_str(), (StatementScope*) start[2]);
+	auto newClass = new StatementClassDef((char*) nodes[1].lexeme().c_str(), (StatementScope*) start[2].statement);
 	return newClass;
 }
 
 static UserData stm_def_method(const UserData* start, const Node* nodes, size_t) {
 	auto method = new StatementFuncDef((char*) nodes[1].lexeme().c_str());
-	method->mStatements = (StatementScope*) start[5];
-	auto args = (tp::Buffer<tp::String>*) start[3];
+	method->mStatements = (StatementScope*) start[5].statement;
+	auto args = start[3].arguments;
 	method->mArgs = *args;
 	delete args;
 	return method;
 }
 
 static UserData stm_if(const UserData* start, const Node*, size_t length) {
-	if (length == 5) return new StatementIf((Expression*) start[2], (StatementScope*) start[4], nullptr);
-	return new StatementIf((Expression*) start[2], (StatementScope*) start[4], (StatementScope*) start[6]);
+	if (length == 5) return new StatementIf(start[2].expression, (StatementScope*) start[4].statement, nullptr);
+	return new StatementIf(
+		start[2].expression, (StatementScope*) start[4].statement, (StatementScope*) start[6].statement
+	);
 }
 
 static UserData stm_while_loop(const UserData* start, const Node*, size_t) {
-	return new StatementWhile((Expression*) start[2], (StatementScope*) start[4]);
+	return new StatementWhile(start[2].expression, (StatementScope*) start[4].statement);
 }
 
 static UserData stm_break(const UserData*, const Node*, size_t) {
 	ASSERT(0);
 	// todo : implement break
-	return nullptr;
+	return {};
 }
 
 static UserData id_list_append(const UserData* start, const Node* nodes, size_t) {
-	auto list = (tp::Buffer<tp::String>*) start[0];
+	auto list = start[0].arguments;
 	list->append((char*) nodes[1].lexeme().c_str());
 	return list;
 }
@@ -90,82 +86,78 @@ static UserData id_list_create(const UserData*, const Node* nodes, size_t) {
 }
 
 static UserData expr_function(const UserData* start, const Node*, size_t) {
-	auto expr = (Expression*) (start[0]);
-	auto args = (ExpressionList*) (start[2]);
+	auto expr = start[0].expression;
+	auto args = (ExpressionList*) start[2].expression;
 	return expr->ExprCall(args);
 }
 
 static UserData expr_method(const UserData* start, const Node* nodes, size_t) {
-	auto expr = (Expression*) (start[0]);
-	auto args = (ExpressionList*) (start[4]);
+	auto expr = start[0].expression;
+	auto args = (ExpressionList*) (start[4].expression);
 	auto childId = nodes[1].lexeme();
 	auto method = new ExpressionChild(expr, (char*) childId.c_str());
 	return method->ExprCall(args);
 }
 
 static UserData expr_list_append(const UserData* start, const Node*, size_t) {
-	auto list = (ExpressionList*) start[0];
-	auto expr = (Expression*) start[2];
+	auto list = (ExpressionList*) start[0].expression;
+	auto expr = start[2].expression;
 	list->mItems.append(expr);
 	return list;
 }
 
 static UserData expr_list_create(const UserData* start, const Node*, size_t) {
 	auto exprList = new ExpressionList();
-	exprList->mItems.append((Expression*) start[0]);
+	exprList->mItems.append(start[0].expression);
 	return exprList;
 }
 
 static UserData expr_child(const UserData* start, const Node* nodes, size_t) {
-	return new ExpressionChild((Expression*) start[0], (char*) nodes[2].lexeme().c_str());
+	return new ExpressionChild(start[0].expression, (char*) nodes[2].lexeme().c_str());
 }
 
 static UserData expr_bool_eq(const UserData* start, const Node*, size_t) {
-	return new ExpressionBoolean((Expression*) start[0], (Expression*) start[2], ExpressionBoolean::BoolType::EQUAL);
+	return new ExpressionBoolean(start[0].expression, start[2].expression, ExpressionBoolean::BoolType::EQUAL);
 }
 
 static UserData expr_bool_negate(const UserData* start, const Node*, size_t) {
-	return new ExpressionBoolean((Expression*) start[1]);
+	return new ExpressionBoolean(start[1].expression);
 }
 
 static UserData expr_bool_neq(const UserData* start, const Node*, size_t) {
-	return new ExpressionBoolean((Expression*) start[0], (Expression*) start[2], ExpressionBoolean::BoolType::NOT_EQUAL);
+	return new ExpressionBoolean(start[0].expression, start[2].expression, ExpressionBoolean::BoolType::NOT_EQUAL);
 }
 
 static UserData expr_bool_grater(const UserData* start, const Node*, size_t) {
-	return new ExpressionBoolean((Expression*) start[0], (Expression*) start[2], ExpressionBoolean::BoolType::MORE);
+	return new ExpressionBoolean(start[0].expression, start[2].expression, ExpressionBoolean::BoolType::MORE);
 }
 
 static UserData expr_bool_lesser(const UserData* start, const Node*, size_t) {
-	return new ExpressionBoolean((Expression*) start[0], (Expression*) start[2], ExpressionBoolean::BoolType::LESS);
+	return new ExpressionBoolean(start[0].expression, start[2].expression, ExpressionBoolean::BoolType::LESS);
 }
 
 static UserData expr_bool_grater_eq(const UserData* start, const Node*, size_t) {
-	return new ExpressionBoolean(
-		(Expression*) start[0], (Expression*) start[2], ExpressionBoolean::BoolType::EQUAL_OR_MORE
-	);
+	return new ExpressionBoolean(start[0].expression, start[2].expression, ExpressionBoolean::BoolType::EQUAL_OR_MORE);
 }
 
 static UserData expr_bool_lesser_eq(const UserData* start, const Node*, size_t) {
-	return new ExpressionBoolean(
-		(Expression*) start[0], (Expression*) start[2], ExpressionBoolean::BoolType::EQUAL_OR_LESS
-	);
+	return new ExpressionBoolean(start[0].expression, start[2].expression, ExpressionBoolean::BoolType::EQUAL_OR_LESS);
 }
 
 static UserData expr_add(const UserData* start, const Node*, size_t) {
-	return new ExpressionArithmetics((Expression*) start[0], (Expression*) start[2], obj::OpCode::OBJ_ADD);
+	return new ExpressionArithmetics(start[0].expression, start[2].expression, obj::OpCode::OBJ_ADD);
 }
 
 static UserData expr_subtract(const UserData* start, const Node*, size_t) {
-	return new ExpressionArithmetics((Expression*) start[0], (Expression*) start[2], obj::OpCode::OBJ_SUB);
+	return new ExpressionArithmetics(start[0].expression, start[2].expression, obj::OpCode::OBJ_SUB);
 }
 
 static UserData expr_multiply(const UserData* start, const Node*, size_t) {
-	return new ExpressionArithmetics((Expression*) start[0], (Expression*) start[2], obj::OpCode::OBJ_MUL);
+	return new ExpressionArithmetics(start[0].expression, start[2].expression, obj::OpCode::OBJ_MUL);
 }
 
 static UserData expr_divide(const UserData* start, const Node*, size_t) {
-	return new ExpressionArithmetics((Expression*) start[0], (Expression*) start[2], obj::OpCode::OBJ_DIV);
+	return new ExpressionArithmetics(start[0].expression, start[2].expression, obj::OpCode::OBJ_DIV);
 }
 
 static UserData expr_compound(const UserData* start, const Node*, size_t) { return start[1]; }

@@ -29,7 +29,8 @@ namespace ImGui {
 	void ApplyStyle(tp::halnf dpmm, float font_size_mm = 5, float ui_scale = 1);
 };
 
-ImGui::PopupData ImGui::HoverPopupBegin(const char* str_id, tp::Vec2F size, tp::Vec2F pos_p, ImGuiPopupFlags popup_flags) {
+ImGui::PopupData
+ImGui::HoverPopupBegin(const char* str_id, tp::Vec2F size, tp::Vec2F pos_p, ImGuiPopupFlags popup_flags) {
 	ImGui::PopupData out;
 	out.ishovered = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup);
 
@@ -69,7 +70,10 @@ void ImGui::HoverPopupEnd(ImGui::PopupData& in) {
 		return;
 	}
 
-	in.ishovered |= IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem | ImGuiHoveredFlags_ChildWindows);
+	in.ishovered |= IsWindowHovered(
+		ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem |
+		ImGuiHoveredFlags_ChildWindows
+	);
 
 	tp::Vec2F mousepos = { ImGui::GetMousePos().x, ImGui::GetMousePos().y };
 	tp::halnf tollerance = 10;
@@ -876,7 +880,12 @@ void obj::ObjectsGUI::explorer() {
 	}
 
 	ImGui::SameLine();
-	ImGui::BeginChild("child_path", { 0, 45 }, false, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_HorizontalScrollbar);
+	ImGui::BeginChild(
+		"child_path",
+		{ 0, 45 },
+		false,
+		ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_HorizontalScrollbar
+	);
 	tp::List<ViewStackNode*> rev_path;
 	for (auto childo = mViewStack.last(); childo; childo = childo->prev) {
 		rev_path.pushBack(&childo->data);
@@ -994,7 +1003,7 @@ void obj::ObjectsGUI::properties(const obj::ObjectType* type, bool top_of_tree_v
 
 	assert(type);
 	assert(mActive);
-	assert(mActive->type == type);
+	if (mActive->type != type) return;
 
 	ImGui::Text(" RefCount : %i", obj::NDO->getrefc(mActive));
 
