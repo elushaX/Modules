@@ -555,17 +555,13 @@ void obj::BCgen::deinit() {}
 
 bool obj::BCgen::Compile(obj::MethodObject* method) {
 
-	Parser sParger;
+	Parser parser;
 
 	auto script = method->mScript->mReadable->val;
-	auto res = sParger.parse(script);
+	auto res = parser.parse(script);
 
-	if (res.err) {
+	if (res.isError) {
 		// TODO : print parse error
-		auto loc = res.err->getErrorLocation(script.read());
-		printf("Parser Error (%i,%i): %s\n", loc.head, loc.tail, res.err->mDescription.read());
-		// tp::gLogeer->write(tp::sfmt("Parser Error (%i,%i): \n", loc.head, loc.tail), true, tp::Logger::LogEntry::ERR);
-		// tp::GLog->write(res.err->mDescr, true, tp::Logger::LogEntry::ERR);
 		return false;
 	}
 
