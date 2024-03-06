@@ -9,35 +9,12 @@ namespace obj {
 	public:
 		Parser() = default;
 
-		struct Error {
-			tp::String mDescription = "No Description";
-			tp::alni mAdvancedIdx = 0;
-
-			Error() = default;
-			Error(const tp::String& description, tp::alni idx) {
-				mDescription = description;
-				mAdvancedIdx = idx;
-			}
-
-			tp::Pair<tp::alni, tp::alni> getErrorLocation(const char* stream) const {
-				tp::alni line = 1;
-				tp::alni column = 1;
-
-				for (auto i : tp::Range(mAdvancedIdx)) {
-					if (stream[i] == '\n') {
-						column = 0;
-						line++;
-					}
-					column++;
-				}
-
-				return { line, column };
-			}
-		};
-
 		struct Result {
-			Error* err = nullptr;
 			obj::BCgen::StatementScope* scope = nullptr;
+			bool isError = false;
+			tp::String description;
+			tp::halni line = 0;
+			tp::halni column = 0;
 		};
 
 		Result parse(const tp::String& stream);

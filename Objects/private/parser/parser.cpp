@@ -6,24 +6,37 @@
 
 using namespace obj;
 
+lalr::ErrorPolicy::~ErrorPolicy() = default;
+void lalr::ErrorPolicy::lalr_error(int line, int column, int error, const char* format, va_list args) {}
+void lalr::ErrorPolicy::lalr_vprintf(const char* format, va_list args){};
+
+class CustomErrorPolicy : public lalr::ErrorPolicy {
+public:
+	virtual ~CustomErrorPolicy() override {}
+
+	virtual void lalr_error(int line, int column, int error, const char* format, va_list args) override {
+		printf("Parser Error: %i %i \n", line, column);
+		vfprintf(stdout, format, args);
+		printf("\n");
+	}
+
+	virtual void lalr_vprintf(const char* format, va_list args) override { printf(format, args); }
+};
+
 Parser::Result Parser::parse(const tp::String& stream) {
 
-	lalr::ErrorPolicy errorPolicy;
+	CustomErrorPolicy errorPolicy;
 
 	LalrParser parser(oscript_parser_state_machine, &errorPolicy);
 
 	bind(parser);
-	
+
 	std::string streamStd(stream.read());
 
-	LALR_ASSERT(parser.valid());
+	ASSERT(parser.valid());
 
 	parser.parse(streamStd.begin(), streamStd.end());
-
-	parser.accepted();
-	parser.full();
-
 	auto scope = (BCgen::StatementScope*) parser.user_data();
 
-	return { nullptr, scope };
+	return { scope, parser.accepted() && parser.full() };
 }
