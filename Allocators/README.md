@@ -26,17 +26,11 @@ int main(char argc, char* argv[]) {
 }
 
 ```
-If memory leaks were detected it will be loged in the output console.
+If memory leaks were detected it will be logged in the output console.
 
 ![image](https://user-images.githubusercontent.com/63184036/222794298-3f238de4-c0b8-41fa-b7ec-c0c675da8f05.png)
 
-Also debug.memleaks binary will be generated in the working directory that can be viewved with MemLeaks Viewver.
+Also debug.memleaks binary will be generated in the working directory that can be viewed with MemLeaks Viewer.
 
 ![image](https://user-images.githubusercontent.com/63184036/222793169-a405effe-72be-42fc-b375-bb06dce0a735.png)
 
-
-## Memory Usage Analisys
-Currently outdated
-
-## Benchmarks
-Currently outdated

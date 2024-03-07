@@ -1,6 +1,60 @@
-All:
-	Testing
-	make more general structure for feature renders
+
+ALL:
+  Check Warnings
+  Gradually introduce STL into the project (replace own classes or add seamless interface and conversions into STL)
+  Make all modules stable with tests
+
+Modules:
+  Remove all static variable into module's data
+  Make modules simple threaded
+
+Graphics:
+  Window event system
+  Graphics API
+  FPS count & Performance control
+  make more general structure for feature renders
+
+Containers:
+  Test generatePermutations
+  Add variant size buffer
+  Buffer add resize function
+  Buffer improvements
+  Buff serialization
+  Tree serialization
+  Write Traverse Avl test
+  Add mem leakage tests
+  Add check copy times
+  AVL dont copy data just swap
+
+Storage:
+  Finish networking
+  Enable preloads
+
+Utils:
+  Stack trace fixes
+  Save leaks and then use in debugging to break when the same call occurs?
+
+Objects:
+  Warnings
+  Memory leaks
+  Compile-time error handling
+  Debug information support
+  Run-time error handling
+  Refactors
+  Optimizations
+
+  features:
+    add debug line information into bytecode
+    implement Alloc Size queries
+
+  enhance:
+    use anonymous namespaces for object static methods
+    remove obj_ref_count macro
+    fix all clang-tidy notices
+    replace all strings with const string ref
+    replace all type usages with typedefs
+    remove tp::
+    rename classes
 
 Language:
 	Grammar:
@@ -37,60 +91,6 @@ RayTracer:
 		MIS (DMIS CMIS)
 		Important sampling
 		Threading
-
-Parser:
-  CF Grammar:
-    optimize generation of sentences
-    check sanity
-
-  impl parse machine
-
-Objects:
-  features:
-    add debug line information into bytecode
-    implement Alloc Size queries
-
-  enhance:
-    use anonymous namespaces for object static methods
-    remove obj_ref_count macro
-    fix all clang-tidy notices
-    replace all strings with const string ref
-    replace all type usages with typedefs
-    remove tp::
-    rename classes
-
-  bugs:
-    disallow Alloc Size queries
-
-
-Modules:
-  Remove all static variable into module's data
-  Make modules simple threaded
-
-Graphics:
-  Window event system
-  Graphics API
-  FPS count & Performance control
-
-Containers:
-  Test generatePermutations
-  Add variant size buffer
-  Buffer add resize function
-  Buffer improvements
-  Buff serialization
-  Tree serialization
-  Write Traverse Avl test
-  Add mem leakage tests
-  Add check copy times
-  AVL dont copy data just swap
-
-Storage:
-  Finish networking
-  Enable preloads
-
-Utils:
-  Stack trace fixes
-  Save leaks and then use in debugging to break when the same call occurs?
 
 TextEditor:
   Implement
