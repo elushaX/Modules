@@ -3,6 +3,20 @@
 
 using namespace tp;
 
+void testAutomation() {
+
+	FiniteStateAutomation<char, int> automata;
+
+	auto start = automata.addState(0, false);
+	auto end = automata.addState(1, true);
+
+	automata.addTransition(start, end, 'a');
+
+	automata.setStartVertex(start);
+
+	automata.makeDeterministic(Range<char>(10, 30));
+}
+
 void test() {
 	auto parser = SimpleParser<int1>();
 	auto ast = AST();
@@ -20,6 +34,7 @@ int main() {
 		return 1;
 	}
 
+	testAutomation();
 	test();
 
 	testModule.deinitialize();

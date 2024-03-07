@@ -11,12 +11,12 @@ namespace tp {
 	class Parser {
 
 		typedef TransitionMatrix<tAlphabetType, TokenType, TokenType::InTransition, TokenType::Failed> RegularTable;
-		typedef DFA<tAlphabetType, TokenType> RegularGraph;
+		typedef FiniteStateAutomation<tAlphabetType, TokenType> RegularGraph;
 		typedef RegularCompiler<tAlphabetType, TokenType, TokenType::InTransition, TokenType::Failed> RegularCompiler;
-		typedef NFA<tAlphabetType, TokenType> RegularNonDetGraph;
+		typedef FiniteStateAutomation<tAlphabetType, TokenType> RegularNonDetGraph;
 
 		// ContextFreeCompiler::Alphabet PushDownTable;
-		typedef DFA<ContextFreeCompiler::Alphabet, ContextFreeCompiler::Item> ContextFreeDFA;
+		typedef FiniteStateAutomation<ContextFreeCompiler::Alphabet, ContextFreeCompiler::Item> ContextFreeDFA;
 		typedef ContextFreeCompiler::NFA ContextFreeNFA;
 
 	public:

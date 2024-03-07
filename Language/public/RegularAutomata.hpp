@@ -27,8 +27,11 @@ namespace tp {
 		auto getTransitions() const { return &mTransitions; }
 		auto getStart() const { return mStart; }
 
-		void construct(const DFA<tAlphabetType, tStateType>& dfa) {
-			mSymbolRange = { dfa.getRange().first(), dfa.getRange().last() };
+		void construct(const FiniteStateAutomation<tAlphabetType, tStateType>& dfa) {
+			// mSymbolRange = { dfa.getRange().first(), dfa.getRange().last() };
+			ASSERT(0);
+
+			/*
 			auto range_len = ualni(mSymbolRange.mEnd - mSymbolRange.mBegin);
 			auto sizeX = range_len ? range_len : 1;
 			auto sizeY = (ualni) (dfa.nVertices() + 1);
@@ -67,6 +70,8 @@ namespace tp {
 				}
 				vertexIdx++;
 			}
+
+			 */
 		}
 
 		bool isTrapped() { return mStates[mIter] == tFailedStateVal; }
