@@ -3,7 +3,6 @@
 
 #include "Rayt.hpp"
 
-#include "CommandLine.hpp"
 #include "Timing.hpp"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION

@@ -31,6 +31,7 @@ Parser::Result Parser::parse(const tp::String& stream) {
 	bind(parser);
 
 	std::string streamStd(stream.read());
+	streamStd += "\n"; // for windows os to make happy
 
 	ASSERT(parser.valid());
 

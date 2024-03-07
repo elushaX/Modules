@@ -1,7 +1,7 @@
 
 #include "MathCommon.hpp"
 
-#include "CommandLine.hpp"
+#include "ConnectionCommon.hpp"
 #include "Module.hpp"
 #include "Ray.hpp"
 #include "RayTracer.hpp"
@@ -43,7 +43,7 @@ normal = n1 * barycentric.x + n2 * barycentric.y + n3 * barycentric.z;
 
 using namespace tp;
 
-ModuleManifest* sDependencies[] = { &gModuleMath, &gModuleCommandLine, &gModuleConnection, nullptr };
+ModuleManifest* sDependencies[] = { &gModuleMath, &gModuleConnection, nullptr };
 
 ModuleManifest tp::gModuleRayTracer = ModuleManifest("RayTracer", nullptr, nullptr, sDependencies);
 

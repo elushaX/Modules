@@ -7,7 +7,7 @@ file(GLOB HEADERS "./public/*.hpp" "./public/*/*.hpp" "./applications/*.hpp")
 add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ./public/)
-target_link_libraries(${PROJECT_NAME} PUBLIC Math CommandLine Connection)
+target_link_libraries(${PROJECT_NAME} PUBLIC Math Connection)
 
 ### -------------------------- Applications  --------------------------  ###
 add_executable(rayt ./applications/Rayt.cpp applications/SceneLoad.cpp

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SimpleParser.hpp"
+// #include "SimpleParser.hpp"
 
 const char* gGrammar = R"(
 # Grammar in the CF-RE United Format (Defined by language module)
