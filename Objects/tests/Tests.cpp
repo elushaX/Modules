@@ -18,9 +18,9 @@ int main() {
 
 	if (module.initialize()) {
 
-		// testParser();
-		// testCore();
-		// testPrimitives();
+		testParser();
+		testCore();
+		testPrimitives();
 		testInterpreter();
 
 		module.deinitialize();

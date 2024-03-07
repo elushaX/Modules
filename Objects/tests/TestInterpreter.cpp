@@ -41,25 +41,26 @@ if (i == 10) {
 )";
 
 auto script = R"(
-	var i = false;
-	print i;
+	print false;
 )";
 
-TEST_DEF_STATIC(Complex) {
+TEST_DEF_STATIC(Simple) {
 	auto method = NDO_CAST(MethodObject, NDO->create("method"));
 	auto interpreter = NDO_CAST(InterpreterObject, NDO->create("interpreter"));
 
 	interpreter->getMember<LinkObject>("target method")->setLink(method);
 
-	method->mScript->mReadable->val = script1;
+	method->mScript->mReadable->val = script;
 	method->compile();
 
 	interpreter->exec();
 
 	NDO->destroy(interpreter);
+
+	printf("\n\nEnd\n\n");
 }
 
-TEST_DEF_STATIC(Simple) {
+TEST_DEF_STATIC(SimpleSave) {
 	auto method = NDO_CAST(MethodObject, NDO->create("method"));
 	auto interpreter = NDO_CAST(InterpreterObject, NDO->create("interpreter"));
 
@@ -82,7 +83,22 @@ TEST_DEF_STATIC(Simple) {
 	printf("\n\nEnd\n\n");
 }
 
+TEST_DEF_STATIC(Complex) {
+	auto method = NDO_CAST(MethodObject, NDO->create("method"));
+	auto interpreter = NDO_CAST(InterpreterObject, NDO->create("interpreter"));
+
+	interpreter->getMember<LinkObject>("target method")->setLink(method);
+
+	method->mScript->mReadable->val = script1;
+	method->compile();
+
+	interpreter->exec();
+
+	NDO->destroy(interpreter);
+}
+
 TEST_DEF(Interpreter) {
 	testSimple();
+	testSimpleSave();
 	// testComplex();
 }
