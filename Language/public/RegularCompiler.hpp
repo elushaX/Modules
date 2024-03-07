@@ -9,8 +9,8 @@ namespace tp {
 	template <typename tAlphabetType, typename tStateType, tStateType tNoStateVal, tStateType tFailedStateVal>
 	class RegularCompiler {
 
-		typedef NFA<tAlphabetType, tStateType> Graph;
-		typedef typename Graph::Vertex Vertex;
+		typedef FiniteStateAutomation<tAlphabetType, tStateType> Graph;
+		typedef typename Graph::State Vertex;
 		typedef RegularGrammar<tAlphabetType, tStateType> Grammar;
 
 		struct Node {
@@ -69,8 +69,9 @@ namespace tp {
 
 			auto node = compileNode(astNode, nullptr, nullptr);
 
-			mGraph->setVertexState(node.right, state, true);
-			mGraph->setStartVertex(node.left);
+			// mGraph->setVertexState(node.right, state, true);
+			// mGraph->setStartVertex(node.left);
+			ASSERT(0);
 
 			return node;
 		}
@@ -173,21 +174,29 @@ namespace tp {
 		}
 
 		void transitionAny(Vertex* from, Vertex* to, bool consumes = false) {
-			mGraph->addTransition(from, to, {}, consumes, true, false);
+			// mGraph->addTransition(from, to, {}, consumes, true, false);
+			ASSERT(0);
 		}
 
 		void transitionVal(Vertex* from, Vertex* to, tAlphabetType val) {
-			mGraph->addTransition(from, to, { val, val }, true, false, false);
+			// mGraph->addTransition(from, to, { val, val }, true, false, false);
+			ASSERT(0);
 		}
 
 		void transitionRange(Vertex* from, Vertex* to, Range<tAlphabetType> range, bool exclude) {
-			mGraph->addTransition(from, to, range, true, false, exclude);
+			// mGraph->addTransition(from, to, range, true, false, exclude);
+			ASSERT(0);
 		}
 
-		Vertex* addVertex() { return mGraph->addVertex(tNoStateVal, false); }
+		Vertex* addVertex() {
+			// return mGraph->addVertex(tNoStateVal, false);
+			ASSERT(0);
+			return nullptr;
+		}
 
 	private:
 		Range<tAlphabetType> getAlphabetRange() const {
+			/*
 			tAlphabetType start = 0, end = 0;
 			Range<tAlphabetType> all_range(
 				std::numeric_limits<tAlphabetType>::min(), std::numeric_limits<tAlphabetType>::max()
@@ -204,14 +213,16 @@ namespace tp {
 					first = false;
 				}
 			}
-
 			return Range<tAlphabetType>(start, end + 1);
+			*/
+			ASSERT(0);
+			return {};
 		}
 
 		void setAlphabet() {
 			auto range = getAlphabetRange();
 			for (auto iter : range) {
-				mGraph->mAllSymbols.append(iter);
+				// mGraph->mAllSymbols.append(iter);
 			}
 		}
 	};

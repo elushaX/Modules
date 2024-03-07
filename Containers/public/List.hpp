@@ -18,7 +18,7 @@ namespace tp {
 			Type data;
 			Node* next = nullptr;
 			Node* prev = nullptr;
-			Node() = default;
+			Node() { data = Type(); }
 			explicit Node(TypeArg p_data) :
 				data(p_data) {}
 			Type& operator->() { return data; }

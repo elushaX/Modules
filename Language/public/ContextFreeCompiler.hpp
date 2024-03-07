@@ -21,8 +21,8 @@ namespace tp {
 			ualni mAdvanceIdx;
 		};
 
-		typedef NFA<Alphabet, Item> NFA;
-		typedef typename NFA::Vertex State;
+		typedef FiniteStateAutomation<Alphabet, Item> NFA;
+		typedef typename NFA::State State;
 
 	public:
 		void compile(const Grammar& in, NFA& out) { nfa = &out; }
