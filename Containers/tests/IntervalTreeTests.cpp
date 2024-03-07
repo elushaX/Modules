@@ -10,7 +10,7 @@ using namespace tp;
 
 struct Interval {
 
-	[[nodiscard]] bool overlaps(const Interval& in) const { return in.start < end && in.end > start; }
+	[[nodiscard]] bool overlaps(const Interval& in) const { return in.start <= end && in.end >= start; }
 
 	halnf start{};
 	halnf end{};
