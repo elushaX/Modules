@@ -41,7 +41,7 @@ if (i == 10) {
 )";
 
 auto script = R"(
-	var i = 10;
+	var i = false;
 	print i;
 )";
 

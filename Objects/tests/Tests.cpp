@@ -18,10 +18,10 @@ int main() {
 
 	if (module.initialize()) {
 
-		testParser();
+		// testParser();
 		// testCore();
 		// testPrimitives();
-		// testInterpreter();
+		testInterpreter();
 
 		module.deinitialize();
 	}
