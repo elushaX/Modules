@@ -13,7 +13,6 @@ namespace obj {
 		struct ExpressionCall;
 
 		struct Expression {
-			
 			enum class Type {
 				NONE,
 				NEW,
@@ -76,7 +75,7 @@ namespace obj {
 			Expression* mRight = NULL;
 
 			enum class BoolType : tp::uint1 {
-				AND = 24U, 
+				AND = 24U,
 				OR,
 				EQUAL,
 				NOT_EQUAL,

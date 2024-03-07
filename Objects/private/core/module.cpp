@@ -1,6 +1,4 @@
 
-#include "Tokenizer.hpp"
-
 #include "compiler/function.h"
 
 #include "primitives/boolobject.h"
@@ -81,9 +79,8 @@ static tp::ModuleManifest* sModuleDependencies[] = {
 	// &tp::gModuleCompressor,
 	&tp::gModuleMath,
 	&tp::gModuleStrings,
-	&tp::gModuleTokenizer,
 	&tp::gModuleConnection,
-	NULL
+	nullptr
 };
 
 tp::ModuleManifest obj::gModuleObjects = tp::ModuleManifest("Objects", init, deinit, sModuleDependencies);

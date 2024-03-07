@@ -164,7 +164,9 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 				// compile function
 				for (auto child_stm : stm_class_def->mScope->mStatements) {
 					// check for return statements
-					ASSERT(child_stm.data()->mType != Statement::Type::RET && "return statements are not allowed in class definition");
+					ASSERT(
+						child_stm.data()->mType != Statement::Type::RET && "return statements are not allowed in class definition"
+					);
 					func.EvalStatement(child_stm.data());
 				}
 				// create one last instruction - constructing class from function execution state
@@ -580,8 +582,8 @@ bool obj::BCgen::Compile(obj::MethodObject* method) {
 
 	if (res.err) {
 		// TODO : print parse error
-		auto loc = res.err->get_err_location(script.read());
-		printf("Parser Error (%i,%i): %s\n", loc.head, loc.tail, res.err->mDescr.read());
+		auto loc = res.err->getErrorLocation(script.read());
+		printf("Parser Error (%i,%i): %s\n", loc.head, loc.tail, res.err->mDescription.read());
 		// tp::gLogeer->write(tp::sfmt("Parser Error (%i,%i): \n", loc.head, loc.tail), true, tp::Logger::LogEntry::ERR);
 		// tp::GLog->write(res.err->mDescr, true, tp::Logger::LogEntry::ERR);
 		return false;
