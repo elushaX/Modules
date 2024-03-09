@@ -46,6 +46,7 @@ Objects:
 	Not feature rich
 	Not stable
 	No tests
+	Not thread safe
 
 Language:
 	Not implemented yet

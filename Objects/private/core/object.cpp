@@ -145,13 +145,11 @@ namespace obj {
 			return;
 		}
 
-#ifdef OBJECT_REF_COUNT
 		ObjectMemHead* mh = NDO_MEMH_FROM_NDO(in);
 		if (mh->refc > 1) {
 			mh->refc--;
 			return;
 		}
-#endif
 
 		NDO_CASTV(ClassObject, in, classobj);
 		if (classobj) {
@@ -175,7 +173,6 @@ namespace obj {
 		ObjectMemDeallocate(in);
 	}
 
-#ifdef OBJECT_REF_COUNT
 	tp::halni objects_api::getrefc(Object* in) {
 		ObjectMemHead* mh = NDO_MEMH_FROM_NDO(in);
 		return (tp::halni) mh->refc;
@@ -190,7 +187,7 @@ namespace obj {
 		ObjectMemHead* mh = NDO_MEMH_FROM_NDO(in);
 		mh->refc = refc;
 	}
-#endif
+
 
 	void hierarchy_copy(Object* self, const Object* in, const ObjectType* type) {
 		if (type->base) {

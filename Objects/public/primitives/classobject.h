@@ -23,10 +23,7 @@ namespace obj {
 		Type* createMember(tp::String id) {
 			auto out = NDO->create(Type::TypeData.name);
 			addMember(out, id);
-#ifdef OBJECT_REF_COUNT
 			NDO->destroy(out);
-#endif // OBJECT_REF_COUNT
-
 			return (Type*) out;
 		}
 

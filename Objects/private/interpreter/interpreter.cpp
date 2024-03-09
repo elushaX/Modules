@@ -128,7 +128,7 @@ void Interpreter::stepBytecodeIn() {
 
 		case OpCode::IGNORE:
 			{
-				NDO->destroy(mOperandsStack.getOperand());
+				mOperandsStack.getOperand();
 				break;
 			}
 

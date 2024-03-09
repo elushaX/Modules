@@ -84,31 +84,23 @@ alni ListObject::allocated_size_recursive(ListObject* self) {
 }
 
 void ListObject::pushBack(Object* obj) {
-#ifdef OBJECT_REF_COUNT
 	obj::NDO->refinc(obj);
-#endif // OBJECT_REF_COUNT
 	items.pushBack(obj);
 }
 
 void ListObject::pushFront(Object* obj) {
-#ifdef OBJECT_REF_COUNT
 	obj::NDO->refinc(obj);
-#endif // OBJECT_REF_COUNT
 	items.pushFront(obj);
 }
 
 void ListObject::delNode(tp::List<Object*>::Node* node) {
-#ifdef OBJECT_REF_COUNT
 	obj::NDO->destroy(node->data);
-#endif // OBJECT_REF_COUNT
 	items.deleteNode(node);
 }
 
 void ListObject::popBack() {
-#ifdef OBJECT_REF_COUNT
 	auto obj = items.last();
 	if (obj) obj::NDO->destroy(obj->data);
-#endif // OBJECT_REF_COUNT
 	items.popBack();
 }
 

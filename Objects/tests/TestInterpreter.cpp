@@ -44,7 +44,7 @@ auto script = R"(
 	print false;
 )";
 
-TEST_DEF_STATIC(Simple) {
+TEST_DEF_STATIC(Entry) {
 	auto method = NDO_CAST(MethodObject, NDO->create("method"));
 	auto interpreter = NDO_CAST(InterpreterObject, NDO->create("interpreter"));
 
@@ -57,7 +57,7 @@ TEST_DEF_STATIC(Simple) {
 
 	NDO->destroy(interpreter);
 
-	printf("\n\nEnd\n\n");
+	printf("\n");
 }
 
 TEST_DEF_STATIC(SimpleSave) {
@@ -80,7 +80,42 @@ TEST_DEF_STATIC(SimpleSave) {
 	NDO->destroy(interpreterLoaded);
 	NDO->destroy(interpreter);
 
-	printf("\n\nEnd\n\n");
+	printf("\n");
+}
+
+TEST_DEF_STATIC(Simple) {
+	auto compileStartCount = getObjCount();
+
+	auto method = NDO_CAST(MethodObject, NDO->create("method"));
+	auto interpreter = NDO_CAST(InterpreterObject, NDO->create("interpreter"));
+
+	interpreter->getMember<LinkObject>("target method")->setLink(method);
+
+	auto exec = [&](const char* script){
+		method->mScript->mReadable->val = script;
+		method->compile();
+
+		auto startCount = getObjCount();
+		interpreter->exec();
+
+		if (getObjCount() != startCount) {
+			TEST(false && "Mem leaks in interpreter");
+		}
+
+		printf("\n");
+	};
+
+	exec("10 + 15;");
+	exec("print 10 + 15;");
+	exec("print (10 + 15) * 20;");
+	exec("var k : int;");
+	exec("var k : int; print k;");
+
+	NDO->destroy(interpreter);
+
+	if (getObjCount() != compileStartCount) {
+		TEST(false && "Mem leaks in compiler and interpreter");
+	}
 }
 
 TEST_DEF_STATIC(Complex) {
@@ -98,7 +133,8 @@ TEST_DEF_STATIC(Complex) {
 }
 
 TEST_DEF(Interpreter) {
-	testSimple();
+	testEntry();
+	// testSimple();
 	testSimpleSave();
 	// testComplex();
 }

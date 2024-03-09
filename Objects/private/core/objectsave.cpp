@@ -11,6 +11,7 @@
 namespace obj {
 
 	ObjectMemHead* bottom = nullptr;
+	tp::ualni count = 0;
 
 	struct ObjectsFileHeader {
 		char name[10] = { 0 };
@@ -33,15 +34,16 @@ namespace obj {
 		memh->down = NULL;
 		memh->flags = 0;
 
-#ifdef OBJECT_REF_COUNT
 		memh->refc = (tp::alni) 1;
-#endif
 
 		if (bottom) {
 			bottom->down = memh;
 		}
+
 		memh->up = bottom;
 		bottom = memh;
+
+		count++;
 
 		NDO_FROM_MEMH(memh)->type = type;
 		return NDO_FROM_MEMH(memh);
@@ -61,6 +63,8 @@ namespace obj {
 		}
 
 		tp::HeapAllocGlobal::deallocate(memh);
+
+		count--;
 	}
 
 	void logTypeData(const ObjectType* type) {
@@ -70,6 +74,8 @@ namespace obj {
 			logTypeData(type->base);
 		}
 	}
+
+	tp::ualni getObjCount() { return count;  }
 
 	void assertNoLeaks() {
 		if (bottom) {

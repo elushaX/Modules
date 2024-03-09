@@ -22,7 +22,6 @@ define base type
 define struct members
 implement construct, destruct and copy methods */
 
-#define OBJECT_REF_COUNT
 
 #ifdef _DEBUG
 #define NDO_CAST(cast_type, ptr) ((cast_type*)ndo_cast(ptr, &cast_type::TypeData))
@@ -93,9 +92,7 @@ namespace obj {
 		ObjectMemHead* up;
 		ObjectMemHead* down;
 		tp::alni flags;
-		#ifdef OBJECT_REF_COUNT
 		tp::alni refc;
-		#endif
 	};
 
 	struct Object {
@@ -210,13 +207,11 @@ namespace obj {
 
 		void destroy(Object* in);
 
-		#ifdef OBJECT_REF_COUNT
 		void refinc(Object* in);
 		tp::halni getrefc(Object* in);
 	private:
 		void setrefc(Object* in, tp::halni refc);
 	public:
-		#endif
 
 		save_load_callbacks* sl_callbacks[SAVE_LOAD_MAX_CALLBACK_SLOTS];
 		tp::alni sl_callbacks_load_idx = 0;
@@ -238,6 +233,7 @@ namespace obj {
 
 	void logTypeData(const ObjectType* type);
 	void assertNoLeaks();
+	tp::ualni getObjCount();
 
 	Object* ndo_cast(const Object* in, const ObjectType* to_type);
 
