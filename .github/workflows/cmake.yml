@@ -33,7 +33,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install python3 python-is-python3
           sudo apt-get install -y libx11-dev libgl1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
-          sudo apt-get install -y clang-15
+          sudo apt-get install -y clang-16
           sudo apt-get install -y libasound2-dev libglew-dev
           sudo apt-get install -y portaudio19-dev
           #cd Externals/glew/
@@ -47,9 +47,9 @@ jobs:
 
       - name: Configure CMake
         run: |
-          clang++-15 -v
           gcc -v
-          CC=clang-15 CXX=clang++-15 cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+          clang++-16 -v
+          CC=clang-15 CXX=clang++-16 cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
       - name: Build
         run: CC=clang CXX=clang++ cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -v -j
