@@ -1,13 +1,16 @@
 # find_package(ALSA REQUIRED)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-  set(CMAKE_PREFIX_PATH "../../ModulesWindowsLibraries/glew-2.1.0")
+  message("Configuring for windows...")
+  message("Libraries path is - ${WINDOWS_LIBRARIES}")
+
+  set(CMAKE_PREFIX_PATH  "${WINDOWS_LIBRARIES}/glew-2.1.0")
   find_package(GLEW REQUIRED)
   set(GLEW_LIB ${GLEW_STATIC_LIBRARY_RELEASE} opengl32.lib PARENT_SCOPE)
 
     # Your relative paths
-    set(RELATIVE_INCLUDE_DIR "../../ModulesWindowsLibraries/portaudio/include")
-    set(RELATIVE_LIB "../../ModulesWindowsLibraries/portaudio_build/Debug/portaudio.lib")
+    set(RELATIVE_INCLUDE_DIR  "${WINDOWS_LIBRARIES}/portaudio/include")
+    set(RELATIVE_LIB  "${WINDOWS_LIBRARIES}/portaudio_build/Debug/portaudio.lib")
 
     # Convert to absolute paths
     get_filename_component(ABSOLUTE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${RELATIVE_INCLUDE_DIR}" ABSOLUTE)
