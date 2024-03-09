@@ -46,7 +46,7 @@ namespace tp {
 
 	template <typename tType, typename tData>
 	class IntervalTree : public AvlTree<IntervalKey<tType>, tData> {
-		typedef AvlTree<IntervalKey<tType>, tData>::Node Node;
+		typedef typename AvlTree<IntervalKey<tType>, tData>::Node Node;
 
 	public:
 		IntervalTree() = default;
