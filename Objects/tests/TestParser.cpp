@@ -7,14 +7,38 @@ using namespace tp;
 using namespace obj;
 
 TEST_DEF_STATIC(Basic) {
-	Parser parser;
+	{
+		Parser parser;
 
-	String stream = "var i = true; print (i + 1) * 10;";
-	auto res = parser.parse(stream);
+		String stream = "";
+		auto res = parser.parse(stream);
 
-	TEST(!res.isError);
+		TEST(!res.isError);
 
-	delete res.scope;
+		delete res.scope;
+	}
+
+	{
+		Parser parser;
+
+		String stream = "var i = true;";
+		auto res = parser.parse(stream);
+
+		TEST(!res.isError);
+
+		delete res.scope;
+	}
+
+	{
+		Parser parser;
+
+		String stream = "var i = true; print (i + 1) * 10;";
+		auto res = parser.parse(stream);
+
+		TEST(!res.isError);
+
+		delete res.scope;
+	}
 }
 
 TEST_DEF_STATIC(ErrorHandling) {

@@ -1,8 +1,6 @@
 project(Objects)
 
 ### ---------------------- Externals  ---------------------  ###
-set(BINDINGS_INCLUDE ../Externals/lalr/src)
-# set(BINDINGS_LIBS )
 
 ### ---------------------- Static Library  ---------------------  ###
 file(GLOB SOURCES "./private/*.cpp" "./private/*/*.cpp")
@@ -11,7 +9,8 @@ file(GLOB HEADERS "./public/*.hpp" "./public/*/*.hpp" "./applications/*.hpp")
 add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ./public/ ${BINDINGS_INCLUDE})
-target_link_libraries(${PROJECT_NAME} PUBLIC Strings Math Connection)
+target_link_libraries(${PROJECT_NAME} PUBLIC Strings Math Connection LALR)
+target_compile_definitions(${PROJECT_NAME} PUBLIC USERDATA_DESTROY_FAILED_TREE_ROOTS)
 
 ### -------------------------- Applications  --------------------------  ###
 #add_executable(osc ./applications/Compiler.cpp)

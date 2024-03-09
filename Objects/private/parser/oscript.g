@@ -9,7 +9,7 @@ oscript {
 	%left '==' '>' '<' '>=' '<=' '!=' '!';
 	%left ';';
 
-	script : stmts [tmp];
+	script : stmts [tmp] | ;
 
 	scope:
 		'{' stmts '}' [scope]

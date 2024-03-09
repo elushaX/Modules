@@ -61,10 +61,8 @@ alni LinkObject::allocated_size_recursive(LinkObject* self) {
 Object* LinkObject::getLink() { return link; }
 
 void LinkObject::setLink(Object* obj) {
-#ifdef OBJECT_REF_COUNT
 	if (link) NDO->destroy(link);
 	if (obj) NDO->refinc(obj);
-#endif // OBJECT_REF_COUNT
 	link = obj;
 }
 
