@@ -1,10 +1,12 @@
 
 #include "Testing.hpp"
 
+#include "compiler/function.h"
 #include "core/object.h"
-
-#include "primitives/dictobject.h"
-#include "primitives/intobject.h"
+#include "interpreter/interpreter.h"
+#include "primitives/interpreterobject.h"
+#include "primitives/linkobject.h"
+#include "primitives/methodobject.h"
 
 using namespace tp;
 using namespace obj;
