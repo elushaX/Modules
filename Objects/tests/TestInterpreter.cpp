@@ -106,6 +106,8 @@ TEST_DEF_STATIC(Simple) {
 	};
 
 	exec("10 + 15;");
+	exec("print 10 + 15 * 10;");
+	exec("print 10 + 15 * (10 + 10) + 5;");
 	exec("print 10 + 15;");
 	exec("print (10 + 15) * 20;");
 	exec("var k : int;");
@@ -134,7 +136,7 @@ TEST_DEF_STATIC(Complex) {
 
 TEST_DEF(Interpreter) {
 	testEntry();
-	// testSimple();
+	testSimple();
 	testSimpleSave();
 	// testComplex();
 }
