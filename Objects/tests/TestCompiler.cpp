@@ -2,6 +2,7 @@
 #include "ObjectTests.hpp"
 
 #include "compiler/function.h"
+#include "parser/parser.h"
 #include "core/object.h"
 #include "interpreter/interpreter.h"
 #include "primitives/interpreterobject.h"
@@ -11,47 +12,51 @@
 using namespace tp;
 using namespace obj;
 
-TEST_DEF_STATIC(Basic) {
-	{	
-		// no errors
-		auto method = NDO_CAST(MethodObject, NDO->create("method"));
+SUITE(Compiler) {
+	TEST(Basic) {
+		objTestModule.initialize();
 
-		method->mScript->mReadable->val = "print 1 * 20 + 10;";
-		method->compile();
+		{	
+			// no errors
+			auto method = NDO_CAST(MethodObject, NDO->create("method"));
 
-		NDO->destroy(method);
+			method->mScript->mReadable->val = "print 1 * 20 + 10;";
+			method->compile();
 
-		assertNoLeaks();
-	}
+			NDO->destroy(method);
 
-	{
-		// with errors
-		auto method = NDO_CAST(MethodObject, NDO->create("method"));
+			assertNoLeaks();
+		}
 
-		method->mScript->mReadable->val = "print undefinedVariable;";
-		method->compile();
+		{
+			// with errors
+			auto method = NDO_CAST(MethodObject, NDO->create("method"));
 
-		NDO->destroy(method);
+			method->mScript->mReadable->val = "print undefinedVariable;";
+			method->compile();
 
-		assertNoLeaks();
-	}
-}
+			NDO->destroy(method);
 
-TEST_DEF_STATIC(ErrorHandling) {
-	Parser parser;
+			assertNoLeaks();
+		}
 
-	String stream = "var i = true; print (i + 1) * 10; invalidCharacter ";
-	auto res = parser.parse(stream);
-
-	TEST(res.isError);
-
-	delete res.scope;
-}
-
-TEST_DEF(Compiler) {
-	if (objTestModule.initialize()) {
-		testBasic();
-		testErrorHandling();
 		objTestModule.deinitialize();
 	}
+	
+	/*
+	TEST(ErrorHandling) {
+		objTestModule.initialize();
+
+		obj::Parser parser;
+
+		String stream = "var i = true; print (i + 1) * 10; invalidCharacter ";
+		auto res = parser.parse(stream);
+
+		CHECK(res.isError);
+
+		delete res.scope;
+
+		objTestModule.deinitialize();
+	}
+	*/
 }

@@ -11,6 +11,7 @@ bool uninit_flag = false;
 void NullObject::uninit() {
 	uninit_flag = true;
 	NDO->destroy(NdoNull_globalInstance);
+	NdoNull_globalInstance = nullptr;
 }
 
 void NullObject::destructor(Object* self) { DEBUG_ASSERT(uninit_flag && "Only one the instance of NullObject exists and thus it can't be destroyed"); }

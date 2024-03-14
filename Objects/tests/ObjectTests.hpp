@@ -1,6 +1,9 @@
 
-#include "Testing.hpp"
+#include "Module.hpp"
 
-#include "primitives/primitives.h"
+#include <UnitTest++/UnitTest++.h>
+#include <UnitTest++/TestReporterStdout.h>
 
 extern tp::ModuleManifest objTestModule;
+
+#define TEST_OFF(name) static void name()

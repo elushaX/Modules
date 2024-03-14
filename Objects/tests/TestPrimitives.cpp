@@ -11,28 +11,29 @@
 using namespace tp;
 using namespace obj;
 
-TEST_DEF_STATIC(Dict) {
-	auto integer = NDO_CAST(IntObject, NDO->create("int"));
-	integer->val = 10;
+SUITE(PrimitiveObjects) {
+	TEST(Dict) {
+		objTestModule.initialize();
 
-	auto dict = NDO_CAST(DictObject, NDO->create("dict"));
+		{
+			auto integer = NDO_CAST(IntObject, NDO->create("int"));
+			integer->val = 10;
 
-	dict->put("val", integer);
+			auto dict = NDO_CAST(DictObject, NDO->create("dict"));
 
-	NDO->save(dict, "dict.o");
+			dict->put("val", integer);
 
-	auto dictLoaded = NDO_CAST(DictObject, NDO->load("dict.o"));
+			NDO->save(dict, "dict.o");
 
-	TEST(dictLoaded->presents("val").isValid());
-	TEST(NDO_CAST(IntObject, dictLoaded->get("val"))->val == 10);
+			auto dictLoaded = NDO_CAST(DictObject, NDO->load("dict.o"));
 
-	NDO->destroy(dict);
-	NDO->destroy(dictLoaded);
-}
+			CHECK(dictLoaded->presents("val").isValid());
+			CHECK(NDO_CAST(IntObject, dictLoaded->get("val"))->val == 10);
 
-TEST_DEF(Primitives) { 
-	if (objTestModule.initialize()) {
-		testDict();
+			NDO->destroy(dict);
+			NDO->destroy(dictLoaded);
+		}
+
 		objTestModule.deinitialize();
 	}
 }
