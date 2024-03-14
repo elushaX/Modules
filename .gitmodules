@@ -19,3 +19,6 @@
 [submodule "Externals/lalr"]
 	path = Externals/lalr
 	url = https://github.com/IlyaShurupov/lalr.git
+[submodule "Externals/unittest-cpp"]
+	path = Externals/unittest-cpp
+	url = https://github.com/unittest-cpp/unittest-cpp.git
