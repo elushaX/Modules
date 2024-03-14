@@ -1,5 +1,5 @@
 
-#include "Testing.hpp"
+#include "ObjectTests.hpp"
 
 #include "compiler/function.h"
 #include "core/object.h"
@@ -135,8 +135,13 @@ TEST_DEF_STATIC(Complex) {
 }
 
 TEST_DEF(Interpreter) {
-	testEntry();
-	testSimple();
-	testSimpleSave();
-	// testComplex();
+	if (objTestModule.initialize()) {
+		
+		testEntry();
+		testSimple();
+		testSimpleSave();
+		// testComplex();
+		
+		objTestModule.deinitialize();
+	}
 }

@@ -10,7 +10,6 @@ using namespace tp;
 Testing tp::gTesting;
 
 void Testing::startTest(const char* name) {
-	MODULE_SANITY_CHECK(gModuleUtils)
 	auto newNode = new (malloc(sizeof(TestingNode))) TestingNode{ {}, {}, name, mCurrent };
 	mCurrent->mSubTests.pushBack(newNode);
 	mCurrent = mCurrent->mSubTests.last()->data;
@@ -23,7 +22,6 @@ void Testing::endTest() {
 }
 
 void Testing::addFailedCheck(const FailedCheck& info) {
-	DEBUG_BREAK(0 && info.expression);
 	auto lastRecord = &mCurrent->mFailedChecks.last()->data;
 	if (lastRecord && lastRecord->failedCheck.file == info.file && lastRecord->failedCheck.line == info.line) {
 		lastRecord->times++;

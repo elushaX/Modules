@@ -1,5 +1,5 @@
 
-#include "Testing.hpp"
+#include "ObjectTests.hpp"
 
 #include "compiler/function.h"
 #include "core/object.h"
@@ -49,6 +49,9 @@ TEST_DEF_STATIC(ErrorHandling) {
 }
 
 TEST_DEF(Compiler) {
-	testBasic();
-	testErrorHandling();
+	if (objTestModule.initialize()) {
+		testBasic();
+		testErrorHandling();
+		objTestModule.deinitialize();
+	}
 }

@@ -1,5 +1,5 @@
 
-#include "Testing.hpp"
+#include "ObjectTests.hpp"
 
 #include "core/object.h"
 
@@ -28,4 +28,9 @@ TEST_DEF_STATIC(BasicAPI) {
 	NDO->destroy(savedInt);
 }
 
-TEST_DEF(Core) { testBasicAPI(); }
+TEST_DEF(Core) { 
+	if (objTestModule.initialize()) {
+		testBasicAPI();
+		objTestModule.deinitialize();
+	}
+}

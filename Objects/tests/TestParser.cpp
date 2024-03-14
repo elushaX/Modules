@@ -1,5 +1,5 @@
 
-#include "Testing.hpp"
+#include "ObjectTests.hpp"
 
 #include "parser/parser.h"
 
@@ -53,6 +53,11 @@ TEST_DEF_STATIC(ErrorHandling) {
 }
 
 TEST_DEF(Parser) {
-	testBasic();
-	testErrorHandling();
+	if (objTestModule.initialize()) {
+		
+		testBasic();
+		testErrorHandling();
+
+		objTestModule.deinitialize();
+	}
 }
