@@ -6,57 +6,58 @@
 using namespace tp;
 using namespace obj;
 
-TEST_DEF_STATIC(Basic) {
-	{
-		Parser parser;
+SUITE(Parser) {
+	TEST(Basic) {
+		objTestModule.initialize();
 
-		String stream = "";
-		auto res = parser.parse(stream);
+		{
+			Parser parser;
 
-		TEST(!res.isError);
+			String stream = "";
+			auto res = parser.parse(stream);
 
-		delete res.scope;
+			CHECK(!res.isError);
+
+			delete res.scope;
+		}
+
+		{
+			Parser parser;
+
+			String stream = "var i = true;";
+			auto res = parser.parse(stream);
+
+			CHECK(!res.isError);
+
+			delete res.scope;
+		}
+
+		{
+			Parser parser;
+
+			String stream = "var i = true; print (i + 1) * 10;";
+			auto res = parser.parse(stream);
+
+			CHECK(!res.isError);
+
+			delete res.scope;
+		}
+
+		objTestModule.deinitialize();
 	}
 
-	{
-		Parser parser;
+	TEST(ErrorHandling) {
+		objTestModule.initialize();
 
-		String stream = "var i = true;";
-		auto res = parser.parse(stream);
+		{
+			Parser parser;
+			String stream = "var i = true; print (i + 1) * 10; invalidCharacter ";
+			auto res = parser.parse(stream);
 
-		TEST(!res.isError);
+			CHECK(res.isError);
 
-		delete res.scope;
-	}
-
-	{
-		Parser parser;
-
-		String stream = "var i = true; print (i + 1) * 10;";
-		auto res = parser.parse(stream);
-
-		TEST(!res.isError);
-
-		delete res.scope;
-	}
-}
-
-TEST_DEF_STATIC(ErrorHandling) {
-	Parser parser;
-
-	String stream = "var i = true; print (i + 1) * 10; invalidCharacter ";
-	auto res = parser.parse(stream);
-
-	TEST(res.isError);
-
-	delete res.scope;
-}
-
-TEST_DEF(Parser) {
-	if (objTestModule.initialize()) {
-		
-		testBasic();
-		testErrorHandling();
+			delete res.scope;
+		}
 
 		objTestModule.deinitialize();
 	}

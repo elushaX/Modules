@@ -8,29 +8,30 @@
 using namespace tp;
 using namespace obj;
 
-TEST_DEF_STATIC(BasicAPI) {
-	auto integer = NDO_CAST(IntObject, NDO->create("int"));
+SUITE(Core) {
+	TEST(BasicAPI) {
+		objTestModule.initialize();
 
-	integer->val = 10;
+		{
+			auto integer = NDO_CAST(IntObject, NDO->create("int"));
 
-	printf("%s\n", NDO->toString(integer).read());
+			integer->val = 10;
 
-	NDO->save(integer, "tmp.o");
-	auto savedInt = NDO->load("tmp.o");
+			printf("%s\n", NDO->toString(integer).read());
 
-	printf("%s\n", NDO->toString(savedInt).read());
+			NDO->save(integer, "tmp.o");
+			auto savedInt = NDO->load("tmp.o");
 
-	TEST(NDO->compare(integer, savedInt));
-	TEST(NDO_CAST(IntObject, savedInt));
-	TEST(integer->val == NDO_CAST(IntObject, savedInt)->val);
+			printf("%s\n", NDO->toString(savedInt).read());
 
-	NDO->destroy(integer);
-	NDO->destroy(savedInt);
-}
+			CHECK(NDO->compare(integer, savedInt));
+			CHECK(NDO_CAST(IntObject, savedInt));
+			CHECK(integer->val == NDO_CAST(IntObject, savedInt)->val);
 
-TEST_DEF(Core) { 
-	if (objTestModule.initialize()) {
-		testBasicAPI();
+			NDO->destroy(integer);
+			NDO->destroy(savedInt);
+		}
+
 		objTestModule.deinitialize();
 	}
 }
