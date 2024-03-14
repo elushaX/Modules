@@ -1,7 +1,5 @@
 
-#include "Testing.hpp"
-
-#include "primitives/primitives.h"
+#include "ObjectTests.hpp"
 
 using namespace tp;
 using namespace obj;
@@ -11,20 +9,15 @@ void testCore();
 void testPrimitives();
 void testInterpreter();
 
+tp::ModuleManifest* objDeps[] = { &gModuleObjects, nullptr };
+tp::ModuleManifest objTestModule("ObjectsTests", nullptr, nullptr, objDeps);
+
 int main() {
 
-	tp::ModuleManifest* deps[] = { &gModuleObjects, nullptr };
-	tp::ModuleManifest module("ObjectsTests", nullptr, nullptr, deps);
-
-	if (module.initialize()) {
-
-		testParser();
-		testCore();
-		testPrimitives();
-		testInterpreter();
-
-		module.deinitialize();
-	}
+	testParser();
+	testCore();
+	testPrimitives();
+	testInterpreter();
 
 	return 0;
 }

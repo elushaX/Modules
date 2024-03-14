@@ -1,5 +1,5 @@
 
-#include "Testing.hpp"
+#include "ObjectTests.hpp"
 
 #include "compiler/function.h"
 #include "core/object.h"
@@ -30,4 +30,9 @@ TEST_DEF_STATIC(Dict) {
 	NDO->destroy(dictLoaded);
 }
 
-TEST_DEF(Primitives) { testDict(); }
+TEST_DEF(Primitives) { 
+	if (objTestModule.initialize()) {
+		testDict();
+		objTestModule.deinitialize();
+	}
+}
