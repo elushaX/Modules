@@ -132,6 +132,7 @@ namespace tp {
 		}
 
 		void deallocate(void* aPtr) {
+			if (!aPtr) return;
 			auto chunk = mChunks.find(aPtr);
 			(*chunk)->deallocate(aPtr);
 			if ((*chunk)->isEmpty()) {

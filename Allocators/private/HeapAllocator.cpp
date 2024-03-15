@@ -13,7 +13,10 @@ using namespace tp;
 
 // ----------------------- Release Implementation ---------------------------- //
 void* HeapAlloc::allocate(ualni aBlockSize) { return malloc(aBlockSize); }
-void HeapAlloc::deallocate(void* aPtr) { free(aPtr); }
+void HeapAlloc::deallocate(void* aPtr) {
+	if (!aPtr) return;
+	free(aPtr);
+}
 HeapAlloc::~HeapAlloc() {}
 
 #else
@@ -45,6 +48,8 @@ void* HeapAlloc::allocate(ualni aBlockSize) {
 }
 
 void HeapAlloc::deallocate(void* aPtr) {
+	if (!aPtr) return;
+
 	auto head = ((MemHeadLocal*) (aPtr)) - 1;
 
 	mNumAllocations--;
@@ -60,7 +65,7 @@ void HeapAlloc::deallocate(void* aPtr) {
 
 HeapAlloc::~HeapAlloc() {
 	if (mNumAllocations) {
-		DEBUG_BREAK("Destruction of not freed Allocator")
+		DEBUG_ASSERT(0 && "Destruction of not freed Allocator")
 
 #ifdef MEM_STACK_TRACE
 		// TODO : log leaks and free them up

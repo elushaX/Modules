@@ -1,11 +1,13 @@
 
+#include "Module.hpp"
+
+#include "UnitTest++/UnitTest++.h"
+
 #include "Archiver.hpp"
 #include <cstdio>
 #include <cstdlib>
 
 using namespace tp;
-
-bool sFailed = false;
 
 struct Undef {
 	char character1 = 'a';
@@ -202,10 +204,7 @@ void test() {
 
 	read % res;
 
-	if (val != res) {
-		printf("Test %s Failed\n", typeid(tType).name());
-		sFailed = true;
-	}
+	CHECK(!(val != res));
 }
 
 template <typename T, typename A, typename = void>
@@ -214,17 +213,32 @@ struct HasArchive : FalseType {};
 template <typename T, typename A>
 struct HasArchive<T, A, VoidType<decltype(DeclareValue<T>()().archive(DeclareValue<A&>()()))>> : TrueType {};
 
-void testArchiver() {
-	printf("has archive method - %i\n", HasArchive<SimpleArchive, ArchiverExample<10, false>>::value);
-	printf("has archive method - %i\n", ArchiverExample<10, false>::HasFunc::Archive<SimpleArchive>::value);
-	printf("has archive method - %i\n", ArchiverExample<10, false>::HasFunc::Archive<Simple>::value);
 
-	test<SimpleArchive>();
-	test<Simple>();
-	test<Set<Simple>>();
-	test<ComplexCart<Simple>>();
+SUITE(BaseModule) {
+	TEST(Basic) {
+		tp::ModuleManifest* ModuleDependencies[] = { &tp::gModuleBase, nullptr };
+		tp::ModuleManifest TestModule("Test", nullptr, nullptr, ModuleDependencies);
 
-	if (sFailed) {
-		exit(1);
+		REQUIRE CHECK(TestModule.initialize());
+
+		REQUIRE CHECK(tp::gEnvironment.mWidth == tp::Environment::ArchWidth::X64);
+
+		CHECK(tp::max(2, 1) == 2);
+		CHECK(tp::max(-1, 0) == 0);
+		CHECK(tp::max(0, -1) == 0);
+		CHECK(tp::min(0, -1) == -1);
+
+		printf("has archive method - %i\n", HasArchive<SimpleArchive, ArchiverExample<10, false>>::value);
+		printf("has archive method - %i\n", ArchiverExample<10, false>::HasFunc::Archive<SimpleArchive>::value);
+		printf("has archive method - %i\n", ArchiverExample<10, false>::HasFunc::Archive<Simple>::value);
+
+		test<SimpleArchive>();
+		test<Simple>();
+		test<Set<Simple>>();
+		test<ComplexCart<Simple>>();
+
+		TestModule.deinitialize();
 	}
 }
+
+int main() { return UnitTest::RunAllTests(); }

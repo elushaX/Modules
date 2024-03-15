@@ -1,27 +1,19 @@
 
 #include "Tests.hpp"
-#include "Testing.hpp"
-
-static bool init(const tp::ModuleManifest* self) {
-	tp::gTesting.setRootName(self->getName());
-	return true;
-}
+#include "UnitTest++/UnitTest++.h"
 
 int main() {
 
 	tp::ModuleManifest* deps[] = { &tp::gModuleUtils, &tp::gModuleAllocators, nullptr };
-	tp::ModuleManifest testModule("ContainersTest", init, nullptr, deps);
+	tp::ModuleManifest testModule("ContainersTest", nullptr, nullptr, deps);
 
 	if (!testModule.initialize()) {
 		return 1;
 	}
 
-	testIntervalTree();
-	testList();
-	testMap();
-	testAvl();
-	testBuffer();
-	testBuffer2d();
+	bool res = UnitTest::RunAllTests();
 
 	testModule.deinitialize();
+
+	return res;
 }

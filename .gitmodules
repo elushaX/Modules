@@ -13,9 +13,9 @@
 [submodule "Externals/nanovg"]
 	path = Externals/nanovg
 	url = https://github.com/elushaX/nanovg.git
-[submodule "Externals/asio"]
-	path = Externals/asio
-	url = https://github.com/elushaX/asio.git
 [submodule "Externals/lalr"]
 	path = Externals/lalr
 	url = https://github.com/elushaX/lalr.git
+[submodule "Externals/asio"]
+	path = Externals/asio
+	url = https://github.com/elushaX/asio.git

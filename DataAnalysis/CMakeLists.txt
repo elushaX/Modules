@@ -28,5 +28,5 @@ add_executable(${PROJECT_NAME}Tests ${TEST_SOURCES})
 
 target_include_directories(${PROJECT_NAME}Tests PUBLIC ./applications/)
 
-target_link_libraries(${PROJECT_NAME}Tests ${PROJECT_NAME} Utils)
+target_link_libraries(${PROJECT_NAME}Tests ${PROJECT_NAME} UnitTest++)
 add_test(NAME ${PROJECT_NAME}Tests COMMAND ${PROJECT_NAME}Tests)

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "UnitTest++/UnitTest++.h"
+
 #include "Allocators.hpp"
 #include "Utils.hpp"
 
@@ -28,10 +30,3 @@ public:
 	[[nodiscard]] tp::ualni getVal() const { return val1; }
 	void setVal(tp::ualni val) { val1 = val; }
 };
-
-void testList();
-void testMap();
-void testAvl();
-void testBuffer();
-void testBuffer2d();
-void testIntervalTree();

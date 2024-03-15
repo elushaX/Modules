@@ -1,39 +1,40 @@
 
-#include "NewPlacement.hpp"
+#include "UnitTest++/UnitTest++.h"
 
 #include "FCNN.hpp"
-#include "Testing.hpp"
 #include "Utils.hpp"
 
 #include <cstdio>
 
 using namespace tp;
 
-void test() {
-	Buffer<halni> layers = { 100, 70, 50, 30, 20 };
-	Buffer<halnf> input(layers.first());
-	Buffer<halnf> outputExpected(layers.last());
-	Buffer<halnf> output(layers.last());
+SUITE(FCNN) {
+	TEST(Basic) {
+		Buffer<halni> layers = { 100, 70, 50, 30, 20 };
+		Buffer<halnf> input(layers.first());
+		Buffer<halnf> outputExpected(layers.last());
+		Buffer<halnf> output(layers.last());
 
-	for (auto inputVal : Range(layers.first())) {
-		input[inputVal] = (halnf) randomFloat() * 100;
-	}
+		for (auto inputVal : Range(layers.first())) {
+			input[inputVal] = (halnf) randomFloat() * 100;
+		}
 
-	for (auto outIdx : Range(layers.last())) {
-		outputExpected[outIdx] = (halnf) randomFloat();
-	}
+		for (auto outIdx : Range(layers.last())) {
+			outputExpected[outIdx] = (halnf) randomFloat();
+		}
 
-	FCNN nn(layers);
-	halnf steppingValue = 100;
+		FCNN nn(layers);
+		halnf steppingValue = 100;
 
-	for (auto i : Range(50)) {
+		for (auto i : Range(50)) {
 
-		nn.evaluate(input, output);
+			nn.evaluate(input, output);
 		
-		nn.calcGrad(outputExpected);
-		nn.applyGrad(steppingValue);
+			nn.calcGrad(outputExpected);
+			nn.applyGrad(steppingValue);
 
-		printf("Loss %f \n", nn.calcCost(outputExpected));
+			printf("Loss %f \n", nn.calcCost(outputExpected));
+		}
 	}
 }
 
@@ -45,9 +46,9 @@ int main() {
 		return 1;
 	}
 
-	test();
+	bool res = UnitTest::RunAllTests();
 
 	testModule.deinitialize();
 
-	return 0;
+	return res;
 }
