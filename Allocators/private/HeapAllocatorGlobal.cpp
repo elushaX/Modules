@@ -16,7 +16,10 @@ using namespace tp;
 // ----------------------- Release Implementation ---------------------------- //
 
 void* HeapAllocGlobal::allocate(ualni aBlockSize) { return malloc(aBlockSize); }
-void HeapAllocGlobal::deallocate(void* aPtr) { free(aPtr); }
+void HeapAllocGlobal::deallocate(void* aPtr) {
+	if (!aPtr) return;
+	free(aPtr);
+}
 HeapAllocGlobal::~HeapAllocGlobal() = default;
 bool HeapAllocGlobal::checkLeaks() { return false; }
 void HeapAllocGlobal::startIgnore() {}

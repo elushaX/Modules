@@ -245,6 +245,7 @@ namespace tp {
 			}
 			removeAll();
 			mNSlots = in.mNSlots;
+			deleteTable(mTable);
 			mTable = newTable(mNSlots);
 			for (alni i = 0; i < mNSlots; i++) {
 				if (in.mTable[i] && !isDeletedNode(in.mTable[i])) {

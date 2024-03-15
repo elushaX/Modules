@@ -1,5 +1,4 @@
 #include "IntervalTree.hpp"
-#include "Testing.hpp"
 #include "Tests.hpp"
 
 #include "Buffer.hpp"
@@ -34,246 +33,242 @@ struct Interval {
 	}
 };
 
-TEST_DEF_STATIC(FunctionalitySimple) {
+SUITE(IntervalTree) {
+	TEST(FunctionalitySimple) {
 
-	IntervalTree<ualni, ualni> intervalTree;
+		IntervalTree<ualni, ualni> intervalTree;
 
-	intervalTree.insert({ 0, 10 }, 1);
-	intervalTree.insert({ 3, 6 }, 2);
-	intervalTree.insert({ 8, 12 }, 3);
+		intervalTree.insert({ 0, 10 }, 1);
+		intervalTree.insert({ 3, 6 }, 2);
+		intervalTree.insert({ 8, 12 }, 3);
 
-	intervalTree.forEachIntersection(4, 5, [](alni start, ualni end, ualni data) {
-		printf("%i", int(data));
-		printf("\n");
-	});
-}
-
-TEST_DEF_STATIC(FunctionalityScale) {
-
-	const int NUM_TEST_INTERVALS = 1000;
-	const halnf SPAN = 100;
-
-	Buffer<Interval> pool;
-	IntervalTree<halnf, ualni> intervalTree;
-
-	Buffer<Interval> testIntervals;
-
-	auto test = [&]() {
-		for (auto testInterval : testIntervals) {
-
-			Buffer<ualni> correct;
-			Buffer<ualni> result;
-
-			ualni idx = 0;
-			for (auto interval : pool) {
-				if (!interval->ignore && interval->overlaps(testInterval.data())) {
-					correct.append(idx);
-				}
-				idx++;
-			}
-
-			intervalTree.forEachIntersection(testInterval->start, testInterval->end, [&](alni start, ualni end, ualni data) {
-				result.append(data);
-			});
-
-			TEST(correct.size() == result.size());
-
-			if (!(correct.size() == result.size())) {
-				printf("intersections - \n");
-
-				for (auto i : correct) {
-					printf(" %i", (int) i.data());
-				}
-				printf("\n");
-
-				for (auto i : result) {
-					printf(" %i", (int) i.data());
-				}
-				printf("\n\n");
-			}
-			// todo compare containers
-		}
-	};
-
-	// initialize
-	for (auto i : Range<ualni>(NUM_TEST_INTERVALS)) {
-		auto interval = Interval();
-		interval.random(SPAN);
-
-		pool.append(interval);
-		intervalTree.insert({ interval.start, interval.end }, i);
-
-		interval.random(SPAN * 2.f, (halnf) randomFloat());
-
-		testIntervals.append(interval);
+		intervalTree.forEachIntersection(4, 5, [](alni start, ualni end, ualni data) {
+			printf("%i", int(data));
+			printf("\n");
+		});
 	}
 
-	test();
+	TEST(FunctionalityScale) {
 
-	// remove some
-	for (auto i : Range<ualni>(NUM_TEST_INTERVALS / 2)) {
-		auto idx = ualni(randomFloat() * (alnf) pool.size());
-		pool[idx].ignore = true;
-		intervalTree.remove({ pool[idx].start, pool[idx].end });
-	}
+		const int NUM_TEST_INTERVALS = 1000;
+		const halnf SPAN = 100;
 
-	test();
-}
-
-TEST_DEF_STATIC(Efficency) {
-
-	struct Stat {
-		halnf numItems = 0;
-		halnf avgFound = 0;
-		halnf avgChecks = 0;
-	};
-
-	auto test = [&](ualni NUM_TEST_INTERVALS, ualni NUM_CHECKS) {
-		const auto SPAN = (halnf) (halnf(NUM_TEST_INTERVALS));
-		const auto SCALE = (halnf) (2.f);
-
+		Buffer<Interval> pool;
 		IntervalTree<halnf, ualni> intervalTree;
+
 		Buffer<Interval> testIntervals;
 
-		auto WOBBLE = SPAN * 0;
+		auto test = [&]() {
+			for (auto testInterval : testIntervals) {
+
+				Buffer<ualni> correct;
+				Buffer<ualni> result;
+
+				ualni idx = 0;
+				for (auto interval : pool) {
+					if (!interval->ignore && interval->overlaps(testInterval.data())) {
+						correct.append(idx);
+					}
+					idx++;
+				}
+
+				intervalTree.forEachIntersection(testInterval->start, testInterval->end, [&](alni start, ualni end, ualni data) {
+					result.append(data);
+				});
+
+				CHECK(correct.size() == result.size());
+
+				if (!(correct.size() == result.size())) {
+					printf("intersections - \n");
+
+					for (auto i : correct) {
+						printf(" %i", (int) i.data());
+					}
+					printf("\n");
+
+					for (auto i : result) {
+						printf(" %i", (int) i.data());
+					}
+					printf("\n\n");
+				}
+				// todo compare containers
+			}
+		};
+
+		// initialize
 		for (auto i : Range<ualni>(NUM_TEST_INTERVALS)) {
 			auto interval = Interval();
-			interval.randomSized(SPAN, SCALE, WOBBLE);
+			interval.random(SPAN);
+
+			pool.append(interval);
 			intervalTree.insert({ interval.start, interval.end }, i);
-			// WOBBLE -= 1.f;
-		}
 
-		for (auto i : Range(0))
-			intervalTree.insert({ (halnf) i * 0.01f, SPAN }, 0);
+			interval.random(SPAN * 2.f, (halnf) randomFloat());
 
-		WOBBLE = 0;
-		for (auto i : Range<ualni>(NUM_CHECKS)) {
-			auto interval = Interval();
-			interval.randomSized(SPAN, SCALE, WOBBLE);
 			testIntervals.append(interval);
 		}
 
-		ualni debugMaxChecks = 0;
-		ualni debugMaxFound = 0;
-		halnf debugAvgChecks = 0;
-		halnf debugAvgFound = 0;
+		test();
 
-		for (auto testInterval : testIntervals) {
-			ualni debugFound = 0;
-			ualni debug = intervalTree.forEachIntersection(
-				testInterval->start,
-				testInterval->end,
-				[&](ualni start, ualni end, ualni data) {
-					debugFound++;
-					//
-				}
-			);
-
-			if (debug > debugMaxChecks) {
-				debugMaxChecks = debug;
-				debugMaxFound = debugFound;
-			}
-
-			debugMaxChecks = max(debug, debugMaxChecks);
-			debugAvgChecks += (halnf) debug;
-			debugAvgFound += (halnf) debugFound;
+		// remove some
+		for (auto i : Range<ualni>(NUM_TEST_INTERVALS / 2)) {
+			auto idx = ualni(randomFloat() * (alnf) pool.size());
+			pool[idx].ignore = true;
+			intervalTree.remove({ pool[idx].start, pool[idx].end });
 		}
 
-		debugAvgChecks /= (halnf) testIntervals.size();
-		debugAvgFound /= (halnf) testIntervals.size();
-
-		printf("\nItems : %llu\n", NUM_TEST_INTERVALS);
-		printf("Avg(checks) : %f\n", debugAvgChecks);
-		printf("Avg(found) : %f\n", debugAvgFound);
-		printf("Max checks : %llu\n", debugMaxChecks);
-		printf("Max checks found : %llu\n", debugMaxFound);
-		printf("N(Avg(checks) / Avg(N(items)) : %f\n", debugAvgChecks / (halnf) intervalTree.size());
-		printf("N(Avg(found)) / Avg(N(items)) : %f\n", debugAvgFound / (halnf) intervalTree.size());
-		printf("Avg(found) / Avg(checks) : %f\n", debugAvgFound / debugAvgChecks);
-
-		return Stat{ (halnf) NUM_TEST_INTERVALS,
-								 debugAvgFound / (halnf) intervalTree.size(),
-								 debugAvgChecks / (halnf) intervalTree.size() };
-	};
-
-	Buffer<Stat> stats;
-	for (auto i : Range(2, 5)) {
-		Stat stat = test(pow(10, i), 100);
-		stats.append(stat);
+		test();
 	}
 
-	printf("\nChecks: ");
-	for (auto stat : stats)
-		printf("%e ", stat->avgChecks);
+	TEST(Efficency) {
 
-	printf("\nHits:   ");
-	for (auto stat : stats)
-		printf("%e ", stat->avgFound);
+		struct Stat {
+			halnf numItems = 0;
+			halnf avgFound = 0;
+			halnf avgChecks = 0;
+		};
 
-	printf("\nItems:  ");
-	for (auto stat : stats)
-		printf("%e ", stat->numItems);
+		auto test = [&](ualni NUM_TEST_INTERVALS, ualni NUM_CHECKS) {
+			const auto SPAN = (halnf) (halnf(NUM_TEST_INTERVALS));
+			const auto SCALE = (halnf) (2.f);
 
-	printf("\n\n");
-}
+			IntervalTree<halnf, ualni> intervalTree;
+			Buffer<Interval> testIntervals;
 
-TEST_DEF_STATIC(FunctionalityComplex) {
-	IntervalTree<ualni, ualni> intervals;
+			auto WOBBLE = SPAN * 0;
+			for (auto i : Range<ualni>(NUM_TEST_INTERVALS)) {
+				auto interval = Interval();
+				interval.randomSized(SPAN, SCALE, WOBBLE);
+				intervalTree.insert({ interval.start, interval.end }, i);
+				// WOBBLE -= 1.f;
+			}
 
-	struct QueryResult {
-		ualni numFound = 0;
-		ualni lastDataFound = 0;
+			for (auto i : Range(0))
+				intervalTree.insert({ (halnf) i * 0.01f, SPAN }, 0);
 
-		[[nodiscard]] bool isSingleData(ualni aData) const { return numFound == 1 & lastDataFound == aData; }
-		[[nodiscard]] bool notFound() const { return numFound == 0; }
-		[[nodiscard]] bool found(ualni num) const { return numFound == num; }
-	};
+			WOBBLE = 0;
+			for (auto i : Range<ualni>(NUM_CHECKS)) {
+				auto interval = Interval();
+				interval.randomSized(SPAN, SCALE, WOBBLE);
+				testIntervals.append(interval);
+			}
 
-	auto makeQuery = [&](ualni aStart, ualni aEnd) {
-		QueryResult out;
-		intervals.forEachIntersection(aStart, aEnd, [&](alni start, ualni end, ualni data) {
-			out.numFound++;
-			out.lastDataFound = data;
-		});
-		return out;
-	};
+			ualni debugMaxChecks = 0;
+			ualni debugMaxFound = 0;
+			halnf debugAvgChecks = 0;
+			halnf debugAvgFound = 0;
 
-	intervals.insert({ 2, 5 }, 1);
-	intervals.insert({ 12, 15 }, 2);
-	intervals.insert({ 22, 25 }, 3);
+			for (auto testInterval : testIntervals) {
+				ualni debugFound = 0;
+				ualni debug = intervalTree.forEachIntersection(
+					testInterval->start,
+					testInterval->end,
+					[&](ualni start, ualni end, ualni data) {
+						debugFound++;
+						//
+					}
+				);
 
-	TEST(makeQuery(1, 6).isSingleData(1));
-	TEST(makeQuery(1, 3).isSingleData(1));
-	TEST(makeQuery(3, 6).isSingleData(1));
+				if (debug > debugMaxChecks) {
+					debugMaxChecks = debug;
+					debugMaxFound = debugFound;
+				}
 
-	TEST(makeQuery(0, 1).notFound());
-	TEST(makeQuery(7, 8).notFound());
+				debugMaxChecks = max(debug, debugMaxChecks);
+				debugAvgChecks += (halnf) debug;
+				debugAvgFound += (halnf) debugFound;
+			}
 
-	TEST(makeQuery(3, 4).isSingleData(1));
+			debugAvgChecks /= (halnf) testIntervals.size();
+			debugAvgFound /= (halnf) testIntervals.size();
 
-	TEST(makeQuery(13, 14).isSingleData(2));
+			printf("\nItems : %llu\n", NUM_TEST_INTERVALS);
+			printf("Avg(checks) : %f\n", debugAvgChecks);
+			printf("Avg(found) : %f\n", debugAvgFound);
+			printf("Max checks : %llu\n", debugMaxChecks);
+			printf("Max checks found : %llu\n", debugMaxFound);
+			printf("N(Avg(checks) / Avg(N(items)) : %f\n", debugAvgChecks / (halnf) intervalTree.size());
+			printf("N(Avg(found)) / Avg(N(items)) : %f\n", debugAvgFound / (halnf) intervalTree.size());
+			printf("Avg(found) / Avg(checks) : %f\n", debugAvgFound / debugAvgChecks);
 
-	TEST(makeQuery(1, 35).found(3));
-	TEST(makeQuery(11, 35).found(2));
+			return Stat{ (halnf) NUM_TEST_INTERVALS,
+									 debugAvgFound / (halnf) intervalTree.size(),
+									 debugAvgChecks / (halnf) intervalTree.size() };
+		};
 
-	// check opened
-	TEST(makeQuery(5, 12).found(2));
-	TEST(makeQuery(15, 22).found(2));
+		Buffer<Stat> stats;
+		for (auto i : Range(2, 5)) {
+			Stat stat = test(pow(10, i), 100);
+			stats.append(stat);
+		}
 
-	TEST(makeQuery(1, 2).isSingleData(1));
-	TEST(makeQuery(25, 35).isSingleData(3));
+		printf("\nChecks: ");
+		for (auto stat : stats)
+			printf("%e ", stat->avgChecks);
 
-	intervals.removeAll();
+		printf("\nHits:   ");
+		for (auto stat : stats)
+			printf("%e ", stat->avgFound);
 
-	intervals.insert({ 0, 3 }, 1);
-	intervals.insert({ 0, 13 }, 2);
+		printf("\nItems:  ");
+		for (auto stat : stats)
+			printf("%e ", stat->numItems);
 
-	TEST(makeQuery(0, 1).found(2));
-}
+		printf("\n\n");
+	}
 
-TEST_DEF(IntervalTree) {
-	testFunctionalitySimple();
-	testFunctionalityScale();
-	testEfficency();
-	testFunctionalityComplex();
+	TEST(FunctionalityComplex) {
+		IntervalTree<ualni, ualni> intervals;
+
+		struct QueryResult {
+			ualni numFound = 0;
+			ualni lastDataFound = 0;
+
+			[[nodiscard]] bool isSingleData(ualni aData) const { return numFound == 1 & lastDataFound == aData; }
+			[[nodiscard]] bool notFound() const { return numFound == 0; }
+			[[nodiscard]] bool found(ualni num) const { return numFound == num; }
+		};
+
+		auto makeQuery = [&](ualni aStart, ualni aEnd) {
+			QueryResult out;
+			intervals.forEachIntersection(aStart, aEnd, [&](alni start, ualni end, ualni data) {
+				out.numFound++;
+				out.lastDataFound = data;
+			});
+			return out;
+		};
+
+		intervals.insert({ 2, 5 }, 1);
+		intervals.insert({ 12, 15 }, 2);
+		intervals.insert({ 22, 25 }, 3);
+
+		CHECK(makeQuery(1, 6).isSingleData(1));
+		CHECK(makeQuery(1, 3).isSingleData(1));
+		CHECK(makeQuery(3, 6).isSingleData(1));
+
+		CHECK(makeQuery(0, 1).notFound());
+		CHECK(makeQuery(7, 8).notFound());
+
+		CHECK(makeQuery(3, 4).isSingleData(1));
+
+		CHECK(makeQuery(13, 14).isSingleData(2));
+
+		CHECK(makeQuery(1, 35).found(3));
+		CHECK(makeQuery(11, 35).found(2));
+
+		// check opened
+		CHECK(makeQuery(5, 12).found(2));
+		CHECK(makeQuery(15, 22).found(2));
+
+		CHECK(makeQuery(1, 2).isSingleData(1));
+		CHECK(makeQuery(25, 35).isSingleData(3));
+
+		intervals.removeAll();
+
+		intervals.insert({ 0, 3 }, 1);
+		intervals.insert({ 0, 13 }, 2);
+
+		CHECK(makeQuery(0, 1).found(2));
+	}
+
 }

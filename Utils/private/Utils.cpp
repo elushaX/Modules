@@ -3,8 +3,6 @@
 
 #include "ContainersCommon.hpp"
 
-#include "Testing.hpp"
-
 #include <ctime>
 #include <random>
 
@@ -19,10 +17,6 @@ static bool initialize(const tp::ModuleManifest*) {
 
 static void deinitialize(const tp::ModuleManifest*) {
 	deinitializeCallStackCapture();
-	tp::gTesting.reportState();
-	if (tp::gTesting.hasFailed()) {
-		exit(1);
-	}
 }
 
 namespace tp {

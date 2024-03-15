@@ -2,7 +2,7 @@
 // #include "NewPlacement.hpp"
 
 #include "RayTracer.hpp"
-#include "Testing.hpp"
+#include "UnitTest++/UnitTest++.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
@@ -47,63 +47,67 @@ bool compareCols(const RGBA& l, const RGBA& r) {
 	return true;
 }
 
-void testRT() {
-	using namespace tp;
+SUITE(RayTracer) {
+	TEST(Basic) {
+		using namespace tp;
 
-	Scene scene;
+		Scene scene;
 
-	scene.mCamera.lookAtPoint({ 0, 0, 0 }, { 2, 2, 2 }, { 0, 0, 1 });
-	scene.mCamera.setFOV(3.14 / 4);
+		scene.mCamera.lookAtPoint({ 0, 0, 0 }, { 2, 2, 2 }, { 0, 0, 1 });
+		scene.mCamera.setFOV(3.14 / 4);
 
-	scene.mLights.append({ { 0, 0, 1.1f }, 1.f, 0.3f });
+		scene.mLights.append({ { 0, 0, 1.1f }, 1.f, 0.3f });
 
-	scene.mObjects.append(Object());
-	auto& object = scene.mObjects.last();
+		scene.mObjects.append(Object());
+		auto& object = scene.mObjects.last();
 
-	object.mTopology.Points = {
-		{ 1.000000, 0.000000, 0.000000 },
-		{ 0.000000, 1.000000, 0.000000 },
-		{ 0.000000, 0.000000, 1.000000 },
-	};
+		object.mTopology.Points = {
+			{ 1.000000, 0.000000, 0.000000 },
+			{ 0.000000, 1.000000, 0.000000 },
+			{ 0.000000, 0.000000, 1.000000 },
+		};
 
-	object.mTopology.Normals = {
-		{ 1.000000, 1.000000, 1.000000 },
-		{ 1.000000, 1.000000, 1.000000 },
-		{ 1.000000, 1.000000, 1.000000 },
-	};
+		object.mTopology.Normals = {
+			{ 1.000000, 1.000000, 1.000000 },
+			{ 1.000000, 1.000000, 1.000000 },
+			{ 1.000000, 1.000000, 1.000000 },
+		};
 
-	object.mTopology.Indexes = {
-		{ 0, 1, 2 },
-	};
+		object.mTopology.Indexes = {
+			{ 0, 1, 2 },
+		};
 
-	object.mCache.Source = &object.mTopology;
-	object.mCache.updateCache();
+		object.mCache.Source = &object.mTopology;
+		object.mCache.updateCache();
 
-	RayTracer::RenderSettings settings = {
-		0,
-		0,
-		1,
-		{ 10, 10 },
-	};
+		RayTracer::RenderSettings settings = {
+			0,
+			0,
+			1,
+			{ 10, 10 },
+		};
 
-	RayTracer::OutputBuffers output;
-	// output.reserve(RayTracer::RenderBuffer::Index2D(settings.size.x, settings.size.y));
+		RayTracer::OutputBuffers output;
+		// output.reserve(RayTracer::RenderBuffer::Index2D(settings.size.x, settings.size.y));
 
-	RayTracer rt;
-	rt.render(scene, output, settings);
+		RayTracer rt;
+		rt.render(scene, output, settings);
 
-	TEST(compareCols(output.color.get({ 6, 4 }), RGBA{ 0.560100f, 0.560100f, 0.560100f, 1.000000f }));
-	TEST(compareCols(output.color.get({ 6, 5 }), RGBA{ 0.353739f, 0.353739f, 0.353739f, 1.000000f }));
-	TEST(compareCols(output.color.get({ 6, 6 }), RGBA{ 0.242577f, 0.242577f, 0.242577f, 1.000000f }));
-	TEST(compareCols(output.color.get({ 6, 7 }), RGBA{ 0.176313f, 0.176313f, 0.176313f, 1.000000f }));
-	TEST(compareCols(output.color.get({ 6, 8 }), RGBA{ 0.000000f, 0.000000f, 0.000000f, 0.000000f }));
+		CHECK(compareCols(output.color.get({ 6, 4 }), RGBA{ 0.560100f, 0.560100f, 0.560100f, 1.000000f }));
+		CHECK(compareCols(output.color.get({ 6, 5 }), RGBA{ 0.353739f, 0.353739f, 0.353739f, 1.000000f }));
+		CHECK(compareCols(output.color.get({ 6, 6 }), RGBA{ 0.242577f, 0.242577f, 0.242577f, 1.000000f }));
+		CHECK(compareCols(output.color.get({ 6, 7 }), RGBA{ 0.176313f, 0.176313f, 0.176313f, 1.000000f }));
+		CHECK(compareCols(output.color.get({ 6, 8 }), RGBA{ 0.000000f, 0.000000f, 0.000000f, 0.000000f }));
 
-	if (0) {
-		writeImage(output.color);
-		for (auto i = 0; i < output.color.size().x; i++) {
-			for (auto j = 0; j < output.color.size().y; j++) {
-				auto tmp = output.color.get({ i, j });
-				printf("TEST(compareCols(output.get({%i, %i}), RGBA{ %ff, %ff, %ff, %ff }));\n", i, j, tmp.r, tmp.g, tmp.b, tmp.a);
+		if (0) {
+			writeImage(output.color);
+			for (auto i = 0; i < output.color.size().x; i++) {
+				for (auto j = 0; j < output.color.size().y; j++) {
+					auto tmp = output.color.get({ i, j });
+					printf(
+						"TEST(compareCols(output.get({%i, %i}), RGBA{ %ff, %ff, %ff, %ff }));\n", i, j, tmp.r, tmp.g, tmp.b, tmp.a
+					);
+				}
 			}
 		}
 	}
@@ -117,7 +121,9 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	testRT();
+	bool res = UnitTest::RunAllTests();
 
 	TestModule.deinitialize();
+
+	return res;
 }

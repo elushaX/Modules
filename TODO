@@ -1,5 +1,13 @@
 
 ALL:
+  
+  Remove utils module
+  add scoped api for module manifest
+  Add windows old beautifull window to graphics
+  add windows callstack support
+  remove loki library
+  remove archiver and add boost serialization
+
   Check Warnings
   Gradually introduce STL into the project (replace own classes or add seamless interface and conversions into STL)
   Make all modules stable with tests

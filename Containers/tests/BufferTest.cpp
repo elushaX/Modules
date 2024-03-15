@@ -1,35 +1,33 @@
 #include "Buffer.hpp"
-#include "Testing.hpp"
 #include "Tests.hpp"
 
 using namespace tp;
 
 const ualni size = 1000;
 
-TEST_DEF_STATIC(Simple1) {
-	Buffer<TestClass, tp::HeapAlloc> buff;
-	TEST(buff.size() == 0);
-	for (auto i : Range(size * 10)) {
-		buff.append(TestClass(i));
+SUITE(Buffer) {
+	TEST(Simple1) {
+		Buffer<TestClass, tp::HeapAlloc> buff;
+		CHECK(buff.size() == 0);
+		for (auto i : Range(size * 10)) {
+			buff.append(TestClass(i));
+		}
+		CHECK(buff.size() == size * 10);
+		while (buff.size())
+			buff.pop();
+		CHECK(buff.size() == 0);
 	}
-	TEST(buff.size() == size * 10);
-	while (buff.size())
-		buff.pop();
-	TEST(buff.size() == 0);
-}
 
-TEST_DEF_STATIC(Simple2) {
-	Buffer<TestClass, tp::HeapAlloc> buff(size);
-	TEST(buff.size() == size);
-	for (auto i : Range(size * 10))
-		buff.append(TestClass(i));
-	TEST(buff.size() == size + size * 10);
-	while (buff.size())
-		buff.pop();
-	TEST(buff.size() == 0);
-}
+	TEST(Simple2) {
+		Buffer<TestClass, tp::HeapAlloc> buff(size);
+		CHECK(buff.size() == size);
+		for (auto i : Range(size * 10))
+			buff.append(TestClass(i));
+		CHECK(buff.size() == size + size * 10);
+		while (buff.size())
+			buff.pop();
+		CHECK(buff.size() == 0);
+	}
 
-TEST_DEF(Buffer) {
-	testSimple1();
-	testSimple2();
+	TEST(NO_TEST) { CHECK(false); }
 }

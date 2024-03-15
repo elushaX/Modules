@@ -1,6 +1,7 @@
 
+#include "UnitTest++/UnitTest++.h"
+
 #include "Debugging.hpp"
-#include "Testing.hpp"
 #include "Utils.hpp"
 
 #include <cstdio>
@@ -42,22 +43,23 @@ void root() {
 	third();
 }
 
-TEST_DEF(Debugging) {
-	root();
+SUITE(Utils) {
+	TEST(CallStackCapture) {
+		tp::ModuleManifest* deps[] = { &tp::gModuleUtils, nullptr };
+		tp::ModuleManifest testModule("UtilsTest", nullptr, nullptr, deps);
 
-	gCSCapture->logAll();
-}
+		REQUIRE CHECK(testModule.initialize());
 
-int main() {
+		root();
 
-	tp::ModuleManifest* deps[] = { &tp::gModuleUtils, nullptr };
-	tp::ModuleManifest testModule("UtilsTest", nullptr, nullptr, deps);
+		gCSCapture->logAll();
 
-	if (!testModule.initialize()) {
-		return 1;
+		testModule.deinitialize();
 	}
 
-	testDebugging();
-
-	testModule.deinitialize();
+	TEST(CAllStackCaptureContent) { 
+		CHECK(false);
+	}
 }
+
+int main() { return UnitTest::RunAllTests(); }

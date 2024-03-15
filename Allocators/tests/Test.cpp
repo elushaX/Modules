@@ -1,11 +1,8 @@
 
-#include "Testing.hpp"
-#include "Utils.hpp"
+#include "UnitTest++/UnitTest++.h"
 
-#include "ChunkAllocator.hpp"
-#include "HeapAllocator.hpp"
-#include "HeapAllocatorGlobal.hpp"
-#include "PoolAllocator.hpp"
+#include "Allocators.hpp"
+#include "Utils.hpp"
 
 #include <cmath>
 
@@ -80,7 +77,7 @@ private:
 		if (mIsLoaded[idx]) return;
 		verifyIntegrity();
 		mLoaded[idx] = new (mAlloc.allocate(sizeof(TestStruct))) TestStruct(mData[idx]);
-		TEST(mLoaded[idx]);
+		ASSERT(mLoaded[idx]);
 		mIsLoaded[idx] = true;
 		mLoadedNum++;
 		verifyIntegrity();
@@ -181,7 +178,7 @@ private:
 		uint1 val = *address;
 		*address = 5;
 
-		TEST(!mAlloc.checkWrap());
+		ASSERT(!mAlloc.checkWrap());
 
 		*address = val;
 	}
@@ -208,38 +205,45 @@ void testAlloc() {
 		TestBenches<size, Alloc> heapTests{};
 		heapTests.runTests();
 	} catch (...) {
-		TEST(false);
+		ASSERT(false);
 	}
 }
 
-TEST_DEF_STATIC(GlobalHeap) { testAlloc<HeapAllocGlobal>(); }
+SUITE(Allocators) {
+	TEST(GlobalHeap) { testAlloc<HeapAllocGlobal>(); }
 
-TEST_DEF_STATIC(Heap) { testAlloc<tp::HeapAlloc>(); }
+	TEST(Heap) { testAlloc<tp::HeapAlloc>(); }
 
-TEST_DEF_STATIC(Chunk) {
-	testAlloc<ChunkAlloc<TestStruct, size>>();
-	testAlloc<ChunkAlloc<TestStruct, size * 2>>();
+	TEST(Chunk) {
+		testAlloc<ChunkAlloc<TestStruct, size>>();
+		testAlloc<ChunkAlloc<TestStruct, size * 2>>();
+	}
+
+	TEST(Pool) {
+		testAlloc<PoolAlloc<TestStruct, 1>>();
+		testAlloc<PoolAlloc<TestStruct, size / 100>>();
+		testAlloc<PoolAlloc<TestStruct, size>>();
+	}
+
+	TEST(Simple) {
+		auto a = new TestStruct(-1);
+		delete a;
+	}
 }
 
-TEST_DEF_STATIC(Pool) {
-	testAlloc<PoolAlloc<TestStruct, 1>>();
-	testAlloc<PoolAlloc<TestStruct, size / 100>>();
-	testAlloc<PoolAlloc<TestStruct, size>>();
-}
 
-TEST_DEF_STATIC(Simple) {
-	auto a = new TestStruct(-1);
-	delete a;
-}
+int main() {
 
-TEST_DEF(All) {
-	testSimple();
+	tp::ModuleManifest* deps[] = { &tp::gModuleAllocators, &tp::gModuleUtils, nullptr };
+	tp::ModuleManifest testModule("AllocatorsTest", nullptr, nullptr, deps);
 
-	testGlobalHeap();
-	testHeap();
-	testChunk();
-	testPool();
+	if (!testModule.initialize()) {
+		return 1;
+	}
 
-	// TEST(HeapAllocGlobal::checkLeaks());
-	// TEST(false);
+	bool res = UnitTest::RunAllTests();
+
+	testModule.deinitialize();
+
+	return res;
 }
