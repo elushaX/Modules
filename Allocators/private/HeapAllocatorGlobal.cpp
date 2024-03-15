@@ -3,7 +3,7 @@
 #include "HeapAllocatorGlobal.hpp"
 #include "PrivateConfig.hpp"
 
-#include "Debugging.hpp"
+#include "Callstack.hpp"
 #include "Utils.hpp"
 
 #include <cstdio>
@@ -33,7 +33,11 @@ tp::ualni tp::HeapAllocGlobal::mNumAllocations = 0;
 std::mutex tp::HeapAllocGlobal::mMutex;
 bool tp::HeapAllocGlobal::mIgnore = true;
 
-// ----------------------- Debug Implementation ---------------------------- //
+#ifdef MEM_STACK_TRACE
+tp::CallStackCapture tp::HeapAllocGlobal::mCallstack;
+#endif
+
+	// ----------------------- Debug Implementation ---------------------------- //
 // |----------------|
 // |     MemHead    |
 // |----------------|
@@ -105,8 +109,7 @@ ALLOCATE:
 	// 3) Trace the stack
 #ifdef MEM_STACK_TRACE
 	// check if somewhat decides to call new within static variable initialization
-	if (gCSCapture) head->mCallStack = gCSCapture->getSnapshot();
-	else head->mCallStack = nullptr;
+	head->mCallStack = mCallstack.getSnapshot();
 #endif
 
 	mMutex.unlock();
@@ -146,12 +149,16 @@ void HeapAllocGlobal::deallocate(void* aPtr) {
 	if (!head->mIgnored) {
 		// 3) Check the wrap
 		if (memCompareVal(wrap_top, WRAP_SIZE, WRAP_VAL)) {
-			CallStackCapture::printSnapshot(head->mCallStack);
+#ifdef MEM_STACK_TRACE
+			mCallstack.printSnapshot(head->mCallStack);
+#endif
 			ASSERT(!"Allocated Block Wrap Corrupted!")
 		}
 
 		if (memCompareVal(wrap_bottom, WRAP_SIZE, WRAP_VAL)) {
-			CallStackCapture::printSnapshot(head->mCallStack);
+#ifdef MEM_STACK_TRACE
+			mCallstack.printSnapshot(head->mCallStack);
+#endif
 			ASSERT(!"Allocated Block Wrap Corrupted!")
 		}
 
@@ -176,7 +183,7 @@ bool HeapAllocGlobal::checkLeaks() {
 
 #ifdef MEM_STACK_TRACE
 		for (auto iter = mEntry; iter; iter = iter->mPrev) {
-			if (!iter->mIgnored) CallStackCapture::printSnapshot(iter->mCallStack);
+			if (!iter->mIgnored) mCallstack.printSnapshot(iter->mCallStack);
 		}
 #endif
 

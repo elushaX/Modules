@@ -13,7 +13,12 @@ namespace tp {
 	class Buffer2D {
 	public:
 		typedef ualni Index;
-		typedef Pair<Index, Index> Index2D;
+
+		struct Index2D {
+			Index x = 0;
+			Index y = 0;
+		};
+
 		typedef SelectValueOrReference<tType> tTypeArg;
 
 	private:

@@ -1,8 +1,6 @@
 
 #include "Utils.hpp"
 
-#include "ContainersCommon.hpp"
-
 #include <ctime>
 #include <random>
 
@@ -21,12 +19,7 @@ static void deinitialize(const tp::ModuleManifest*) {
 
 namespace tp {
 
-	static ModuleManifest* sModuleUtilsDeps[] = { &gModuleContainers, nullptr };
-	ModuleManifest gModuleUtils = ModuleManifest("Utils", initialize, deinitialize, sModuleUtilsDeps);
-
 	void memSetVal(void* p, uhalni byteSize, uint1 val) {
-		// MODULE_SANITY_CHECK(gModuleBase)
-
 		alni alignedVal = val;
 		alignedVal = (alignedVal << 8) | alignedVal;
 		alignedVal = (alignedVal << 16) | alignedVal;
@@ -44,8 +37,6 @@ namespace tp {
 	}
 
 	void memCopy(void* left, const void* right, uhalni len) {
-		MODULE_SANITY_CHECK(gModuleBase)
-
 		ualni alignedLen = len / sizeof(alni);
 		for (ualni idx = 0; idx < alignedLen; idx++) {
 			((alni*) left)[idx] = ((alni*) right)[idx];
@@ -58,7 +49,6 @@ namespace tp {
 	}
 
 	int1 memCompare(const void* left, const void* right, uhalni len) {
-		MODULE_SANITY_CHECK(gModuleBase)
 		if (!len) return 0;
 
 		ualni alignedLength = len / sizeof(alni);
@@ -88,7 +78,6 @@ namespace tp {
 	bool memEqual(const void* left, const void* right, uhalni len) { return memCompare(left, right, len) == 0; }
 
 	int1 memCompareVal(const void* left, uhalni len, uint1 val) {
-		MODULE_SANITY_CHECK(gModuleBase)
 		if (!len) return 0;
 
 		alni valAligned = val;

@@ -6,9 +6,6 @@
 #define MEMBER_OFFSET(s, m) (alni(&(((s*) 0)->m)))
 
 namespace tp {
-
-	extern ModuleManifest gModuleUtils;
-
 	void memSetVal(void* p, uhalni byteSize, uint1 val);
 	void memCopy(void* left, const void* right, uhalni len);
 	int1 memCompare(const void* left, const void* right, uhalni len);
@@ -21,35 +18,6 @@ namespace tp {
 }
 
 namespace tp {
-
-	template <typename T1, typename T2>
-	class Pair {
-	public:
-		Pair() = default;
-
-		template <typename U1, typename U2>
-		Pair(U1 t1, U2 t2) :
-			head(static_cast<T1>(t1)),
-			tail(static_cast<T2>(t2)) {}
-
-		union {
-			T1 t1;
-			T1 head;
-			T1 x;
-			T1 first;
-		};
-
-		union {
-			T2 t2;
-			T2 tail;
-			T2 y;
-			T2 second;
-		};
-
-		bool operator==(const Pair& in) const { return in.t1 == t1 && in.t2 == t2; }
-
-		bool operator!=(const Pair& in) const { return !this->operator==(in); }
-	};
 
 	template <typename Type = alni>
 	class Bits {

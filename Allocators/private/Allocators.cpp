@@ -13,9 +13,11 @@ static bool init(const tp::ModuleManifest* self) {
   return true;
 }
 
-static void deinit(const tp::ModuleManifest* self) { tp::HeapAllocGlobal::checkLeaks(); }
+static void deinit(const tp::ModuleManifest* self) { 
+  tp::HeapAllocGlobal::checkLeaks();
+}
 
-static tp::ModuleManifest* sModuleDependencies[] = { &tp::gModuleUtils, nullptr };
+static tp::ModuleManifest* sModuleDependencies[] = { nullptr };
 tp::ModuleManifest tp::gModuleAllocators = ModuleManifest("Allocators", init, deinit, sModuleDependencies);
 
 void* operator new(size_t aSize) { return tp::HeapAllocGlobal::allocate(aSize); }

@@ -6,7 +6,7 @@ using namespace tp;
 
 SUITE(HashTable) {
 	TEST(SimpleReference) {
-		tp::Map<tp::ualni, TestClass, tp::HeapAlloc> map;
+		tp::Map<tp::ualni, TestClass, TestAllocator> map;
 
 		for (auto i : Range(1000, 100000)) {
 			map.put(i, TestClass(i));
@@ -40,7 +40,7 @@ SUITE(HashTable) {
 	}
 
 	TEST(SimplePointer) {
-		tp::Map<tp::ualni, TestClass*, tp::HeapAlloc> map;
+		tp::Map<tp::ualni, TestClass*, TestAllocator> map;
 
 		for (auto i : Range(1000)) {
 			map.put(i, new TestClass(i));
@@ -78,13 +78,13 @@ SUITE(HashTable) {
 	}
 
 	TEST(Copy) {
-		tp::Map<tp::ualni, TestClass, tp::HeapAlloc> map;
+		tp::Map<tp::ualni, TestClass, TestAllocator> map;
 
 		for (auto i : Range(10)) {
 			map.put(i, TestClass(i));
 		}
 
-		tp::Map<tp::ualni, TestClass, tp::HeapAlloc> map2 = map;
+		tp::Map<tp::ualni, TestClass, TestAllocator> map2 = map;
 
 		CHECK(map == map2);
 
@@ -93,7 +93,7 @@ SUITE(HashTable) {
 	}
 
 	TEST(SaveLoad) {
-		tp::Map<tp::ualni, TestClass, tp::HeapAlloc> map;
+		tp::Map<tp::ualni, TestClass, TestAllocator> map;
 
 		for (auto i : Range(10)) {
 			map.put(i, TestClass(i));

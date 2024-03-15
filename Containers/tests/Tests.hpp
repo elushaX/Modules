@@ -2,8 +2,19 @@
 
 #include "UnitTest++/UnitTest++.h"
 
-#include "Allocators.hpp"
 #include "Utils.hpp"
+
+// counting number of allocations and deallocations
+struct TestAllocator {
+	TestAllocator() { count = 0; };
+
+	tp::ualni count = 0;
+
+	void* allocate(tp::ualni size);
+	void deallocate(void*);
+
+	~TestAllocator();
+};
 
 class TestClass {
 	tp::ualni val2 = 0;

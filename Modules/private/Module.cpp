@@ -5,14 +5,6 @@
 
 using namespace tp;
 
-static bool init(const ModuleManifest* self) {
-	gEnvironment.log();
-	return true;
-}
-
-static ModuleManifest* deps[] = { nullptr };
-ModuleManifest tp::gModuleBase = ModuleManifest("Common", init, nullptr, deps);
-
 ModuleManifest::ModuleManifest(const char* aModuleName, ModuleInit aInit, ModuleDeinit aDeinit, ModuleManifest** aDependencies) {
 	mInit = aInit;
 	mDeinit = aDeinit;

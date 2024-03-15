@@ -1,19 +1,15 @@
 
-#include "Debugging.hpp"
-#include "Utils.hpp"
+#include "Callstack.hpp"
 
 #include <iostream>
 
 using namespace tp;
 
-CallStackCapture* tp::gCSCapture = nullptr;
-
-void initializeCallStackCapture() { gCSCapture = new (malloc(sizeof(CallStackCapture))) CallStackCapture(); }
-
-void deinitializeCallStackCapture() {
-	gCSCapture->~CallStackCapture();
-	free(gCSCapture);
-	gCSCapture = nullptr;
+// frame to reference on no sapce left
+static void errorNoSpaceLeft() {
+	// to disable optimization of function
+	static int dummy;
+	dummy = 10;
 }
 
 ualni CallStackCapture::CallStack::getDepth() const {
@@ -24,14 +20,7 @@ ualni CallStackCapture::CallStack::getDepth() const {
 		}
 		len++;
 	}
-	ualni stripedLen = 0;
-	for (auto i = FRAMES_TO_SKIP_START; i < len - FRAMES_TO_SKIP_END; i++) {
-		if (!frames[i]) {
-			break;
-		}
-		stripedLen++;
-	}
-	return stripedLen;
+	return len++;
 }
 
 ualni CallStackCapture::hashCallStack(CallStackKey key) {
@@ -44,7 +33,7 @@ ualni CallStackCapture::hashCallStack(CallStackKey key) {
 }
 
 bool CallStackCapture::CallStackKey::operator==(const CallStackCapture::CallStackKey& in) const {
-	for (auto i : Range(MAX_CALL_DEPTH_CAPTURE)) {
+	for (ualni i = 0; i < MAX_CALL_DEPTH_CAPTURE; i++) {
 		if (cs->frames[i] != in.cs->frames[i]) {
 			return false;
 		}
@@ -60,26 +49,26 @@ CallStackCapture::CallStackCapture() {
 	static_assert(MAX_CALL_DEPTH_CAPTURE >= 1);
 	static_assert(MAX_CALL_CAPTURES_MEM_SIZE_MB > 0);
 	static_assert(MAX_DEBUG_INFO_LEN > sizeof("unresolved"));
-	static_assert(FRAMES_TO_SKIP_END >= 0 && FRAMES_TO_SKIP_START >= 0);
-	static_assert(MAX_CALL_DEPTH_CAPTURE > FRAMES_TO_SKIP_START + FRAMES_TO_SKIP_END);
 	static_assert(MAX_CALL_CAPTURES_MEM_SIZE_MB * 1024 * 1024 > sizeof(CallStack));
 
-	MODULE_SANITY_CHECK(gModuleUtils)
 	mBuffLoad = 0;
-	mBuffLen = (MAX_CALL_CAPTURES_MEM_SIZE_MB * 1024 * 1024) / sizeof(CallStack);
+	mBuffLen = STACKS_LENGTH;
 	mBuff = (CallStack*) malloc(mBuffLen * sizeof(CallStack));
+	
+	mErrorSnapshot.frames[0] = (alni) & errorNoSpaceLeft;
+
+
+	platformInit();
 }
 
 const CallStackCapture::CallStack* CallStackCapture::getSnapshot() {
-	MODULE_SANITY_CHECK(gModuleUtils)
 
 	if (mBuffLoad > mBuffLen) {
-		static CallStack cs;
-		cs.frames[0] = 0;
-		return &cs;
+		return &mErrorSnapshot;
 	}
 
 	CallStack* cs = &mBuff[mBuffLoad];
+
 	platformWriteStackTrace(cs);
 
 	auto idx = mSnapshots.presents({ cs });
@@ -213,7 +202,7 @@ void CallStackCapture::printSnapshot(const CallStack* snapshot) {
 	printf("CallStack: \n");
 	if (snapshot) {
 		for (auto frame : *snapshot) {
-			auto symbols = gCSCapture->getSymbols(frame.getFrame());
+			auto symbols = getSymbols(frame.getFrame());
 			printf("  %s   -----   %s:%llu\n", symbols->getFunc(), symbols->getFile(), symbols->getLine());
 		}
 	}
@@ -227,15 +216,112 @@ void CallStackCapture::logAll() {
 }
 
 #else
-void CallStackCapture::platformWriteStackTrace(CallStack* stack) { stack->frames[0] = 0; }
-void CallStackCapture::platformWriteDebugSymbols(FramePointer frame, DebugSymbols* out) {
-	std::strcpy(out->file, "unresolved");
-	std::strcpy(out->function, "unresolved");
+#include <windows.h>
+#include <dbghelp.h>
+#include <stdio.h>
+
+#pragma comment(lib, "dbghelp.lib")
+
+void CallStackCapture::platformInit() {
+	HANDLE process = GetCurrentProcess();
+	SymInitialize(process, NULL, TRUE);
 }
+
+void CallStackCapture::platformDeinit() { 
+	HANDLE process = GetCurrentProcess();
+	SymCleanup(process);
+}
+
+void CallStackCapture::platformWriteStackTrace(CallStack* stack) {
+	DWORD hash;
+	CONTEXT context;
+	memset(&context, 0, sizeof(CONTEXT));
+	context.ContextFlags = CONTEXT_FULL;
+	RtlCaptureContext(&context);
+
+	STACKFRAME64 stackFrame;
+	memset(&stackFrame, 0, sizeof(STACKFRAME64));
+#ifdef _M_IX86
+	hash = IMAGE_FILE_MACHINE_I386;
+	stackFrame.AddrPC.Offset = context.Eip;
+	stackFrame.AddrPC.Mode = AddrModeFlat;
+	stackFrame.AddrFrame.Offset = context.Ebp;
+	stackFrame.AddrFrame.Mode = AddrModeFlat;
+	stackFrame.AddrStack.Offset = context.Esp;
+	stackFrame.AddrStack.Mode = AddrModeFlat;
+#elif _M_X64
+	hash = IMAGE_FILE_MACHINE_AMD64;
+	stackFrame.AddrPC.Offset = context.Rip;
+	stackFrame.AddrPC.Mode = AddrModeFlat;
+	stackFrame.AddrFrame.Offset = context.Rbp;
+	stackFrame.AddrFrame.Mode = AddrModeFlat;
+	stackFrame.AddrStack.Offset = context.Rsp;
+	stackFrame.AddrStack.Mode = AddrModeFlat;
+#endif
+
+	for (int frameIndex = 0; frameIndex < MAX_CALL_DEPTH_CAPTURE; ++frameIndex) {
+		if (!StackWalk64(
+					hash,
+					GetCurrentProcess(),
+					GetCurrentThread(),
+					&stackFrame,
+					&context,
+					NULL,
+					SymFunctionTableAccess64,
+					SymGetModuleBase64,
+					NULL
+				)) {
+
+			stack->frames[frameIndex] = 0;
+			break;
+		}
+		stack->frames[frameIndex] = (alni) (void*) stackFrame.AddrPC.Offset;
+	}
+	stack->frames[MAX_CALL_DEPTH_CAPTURE - 1] = 0;
+}
+
+void CallStackCapture::platformWriteDebugSymbols(FramePointer frame, DebugSymbols* out) {
+	HANDLE process = GetCurrentProcess();
+
+	IMAGEHLP_LINE64 lineInfo;
+	DWORD displacement;
+	lineInfo.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
+	if (SymGetLineFromAddr64(process, (DWORD64) frame, &displacement, &lineInfo)) {
+		strcpy(out->file, lineInfo.FileName);
+		out->line = lineInfo.LineNumber;
+	} else {
+		strcpy(out->file, "unresolved");
+		out->line = 0;
+	}
+
+	DWORD64 displacementSym = 0;
+	char symbolBuffer[sizeof(IMAGEHLP_SYMBOL64) + MAX_PATH] = { 0 };
+	IMAGEHLP_SYMBOL64* symbol = (IMAGEHLP_SYMBOL64*) symbolBuffer;
+	symbol->SizeOfStruct = sizeof(IMAGEHLP_SYMBOL64);
+	symbol->MaxNameLength = MAX_PATH;
+
+	if (SymGetSymFromAddr64(process, (DWORD64) frame, &displacementSym, symbol)) {
+		strcpy(out->function, symbol->Name);
+	} else {
+		strcpy(out->function, "unresolved");
+	}
+}
+
 void CallStackCapture::printSnapshot(const CallStack* snapshot) {
 	printf("CallStack: \n");
-	printf("Call stack debugging is not supported on this platform");
+	if (snapshot) {
+		for (int i = 0; i < snapshot->getDepth(); ++i) {
+			DebugSymbols symbols;
+			platformWriteDebugSymbols(snapshot->frames[i], &symbols);
+			printf("  %s   -----   %s:%lu\n", symbols.function, symbols.file, symbols.line);
+		}
+	}
 	printf("\n");
 }
-void CallStackCapture::logAll() { printf("Call stack debugging is not supported on this platform"); }
+
+void CallStackCapture::logAll() {
+	for (auto cs : *this) {
+		printSnapshot(cs.getCallStack());
+	}
+}
 #endif

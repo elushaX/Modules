@@ -7,7 +7,7 @@ const ualni size = 1000;
 
 SUITE(Buffer) {
 	TEST(Simple1) {
-		Buffer<TestClass, tp::HeapAlloc> buff;
+		Buffer<TestClass, TestAllocator> buff;
 		CHECK(buff.size() == 0);
 		for (auto i : Range(size * 10)) {
 			buff.append(TestClass(i));
@@ -19,7 +19,7 @@ SUITE(Buffer) {
 	}
 
 	TEST(Simple2) {
-		Buffer<TestClass, tp::HeapAlloc> buff(size);
+		Buffer<TestClass, TestAllocator> buff(size);
 		CHECK(buff.size() == size);
 		for (auto i : Range(size * 10))
 			buff.append(TestClass(i));

@@ -12,7 +12,7 @@ project(ModulesRoot)
 include(CMakeOptions.txt)
 
 add_subdirectory(Modules)
-add_subdirectory(Utils)
+add_subdirectory(Callstack)
 add_subdirectory(Containers)
 add_subdirectory(Math)
 add_subdirectory(Allocators)

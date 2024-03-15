@@ -2,18 +2,23 @@
 #include "Tests.hpp"
 #include "UnitTest++/UnitTest++.h"
 
-int main() {
+void* TestAllocator::allocate(tp::ualni size) {
+	count++;
+	return malloc(size);
+}
 
-	tp::ModuleManifest* deps[] = { &tp::gModuleUtils, &tp::gModuleAllocators, nullptr };
-	tp::ModuleManifest testModule("ContainersTest", nullptr, nullptr, deps);
-
-	if (!testModule.initialize()) {
-		return 1;
+void TestAllocator::deallocate(void* p) {
+	if (p) {
+		free(p);
+		count--;
 	}
+}
 
-	bool res = UnitTest::RunAllTests();
 
-	testModule.deinitialize();
+TestAllocator::~TestAllocator() { 
+	ASSERT(!count);
+}
 
-	return res;
+int main() {
+	return UnitTest::RunAllTests();
 }

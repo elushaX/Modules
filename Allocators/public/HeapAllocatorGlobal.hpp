@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Module.hpp"
+#include "Callstack.hpp"
 #include <mutex>
 
 namespace tp {
@@ -12,6 +12,9 @@ namespace tp {
 		static struct MemHead* mEntry;
 		static std::mutex mMutex;
 		static bool mIgnore;
+#ifdef MEM_STACK_TRACE // Save stack on allocation call
+		static CallStackCapture mCallstack;
+#endif
 #endif
 
 	public:

@@ -4,7 +4,6 @@
 #include "Module.hpp"
 
 namespace tp {
-	extern ModuleManifest gModuleContainers;
 
 	class DefaultAllocator {
 	public:

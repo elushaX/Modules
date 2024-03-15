@@ -224,7 +224,7 @@ SUITE(IntervalTree) {
 			ualni numFound = 0;
 			ualni lastDataFound = 0;
 
-			[[nodiscard]] bool isSingleData(ualni aData) const { return numFound == 1 & lastDataFound == aData; }
+			[[nodiscard]] bool isSingleData(ualni aData) const { return numFound == 1 && lastDataFound == aData; }
 			[[nodiscard]] bool notFound() const { return numFound == 0; }
 			[[nodiscard]] bool found(ualni num) const { return numFound == num; }
 		};

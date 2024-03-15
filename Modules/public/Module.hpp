@@ -30,6 +30,4 @@ namespace tp {
 		uhalni mInitCount = 0;
 		void* mCustomData = nullptr;
 	};
-
-	extern ModuleManifest gModuleBase;
 };
