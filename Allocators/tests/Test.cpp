@@ -234,7 +234,7 @@ SUITE(Allocators) {
 
 int main() {
 
-	tp::ModuleManifest* deps[] = { &tp::gModuleAllocators, &tp::gModuleUtils, nullptr };
+	tp::ModuleManifest* deps[] = { &tp::gModuleAllocators, nullptr };
 	tp::ModuleManifest testModule("AllocatorsTest", nullptr, nullptr, deps);
 
 	if (!testModule.initialize()) {

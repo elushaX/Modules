@@ -6,5 +6,4 @@
 #define MEM_CLEAR_ON_DEALLOC          // Clear data on free
 #define MEM_CLEAR_ON_DEALLOC_VAL 0xAA // Clear data on free
 #define MEM_CLEAR_ON_ALLOC_VAL 0xCC   // Clear data on free
-#define MEM_STACK_TRACE               // Save stack on allocation call
 #define MEM_STACK_TRACE_MAX_DEPTH 32  // Call stack max depth

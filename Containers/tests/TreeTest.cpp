@@ -5,7 +5,7 @@ using namespace tp;
 
 SUITE(AvlTree) {
 	TEST(Simple) {
-		AvlTree<AvlNumericKey<alni>, TestClass, tp::HeapAlloc> tree;
+		AvlTree<AvlNumericKey<alni>, TestClass, TestAllocator> tree;
 
 		CHECK(tree.size() == 0);
 		CHECK(tree.head() == nullptr);
@@ -22,7 +22,7 @@ SUITE(AvlTree) {
 	}
 
 	TEST(Persistance) {
-		AvlTree<AvlNumericKey<alni>, TestClass, tp::HeapAlloc> tree;
+		AvlTree<AvlNumericKey<alni>, TestClass, TestAllocator> tree;
 
 		const auto size = 1000;
 

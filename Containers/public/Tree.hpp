@@ -62,7 +62,7 @@ namespace tp {
 		};
 
 	public:
-		AvlTree() { MODULE_SANITY_CHECK(gModuleContainers) }
+		AvlTree() {}
 		~AvlTree() { removeAll(); }
 
 		[[nodiscard]] ualni size() const { return mSize; }

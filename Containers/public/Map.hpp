@@ -164,7 +164,6 @@ namespace tp {
 
 	public:
 		Map() {
-			MODULE_SANITY_CHECK(gModuleContainers)
 			mNSlots = next2pow(uhalni(tTableInitialSize - 1));
 			mTable = newTable(mNSlots);
 		}
@@ -243,7 +242,13 @@ namespace tp {
 			if (this == &in) {
 				return *this;
 			}
-			removeAll();
+			
+			for (ualni i = 0; i < mNSlots; i++) {
+				if (mTable[i] && !isDeletedNode(mTable[i])) {
+					deleteNode(mTable[i]);
+				}
+			}
+			mNEntries = 0;
 			mNSlots = in.mNSlots;
 			deleteTable(mTable);
 			mTable = newTable(mNSlots);

@@ -3,17 +3,17 @@
 #include "Environment.hpp"
 #include "Map.hpp"
 
-#define MAX_CALL_DEPTH_CAPTURE 128
-#define MAX_CALL_CAPTURES_MEM_SIZE_MB 16
-#define MAX_DEBUG_INFO_LEN 63
-#define FRAMES_TO_SKIP_START 2
-#define FRAMES_TO_SKIP_END 3
-
 namespace tp {
 
 	class CallStackCapture {
 	public:
 		typedef tp::alni FramePointer;
+
+		enum {
+			MAX_CALL_DEPTH_CAPTURE = 16,
+			MAX_CALL_CAPTURES_MEM_SIZE_MB = 32,
+			MAX_DEBUG_INFO_LEN = 64,
+		};
 
 		class CallStack {
 			friend CallStackCapture;
@@ -26,17 +26,18 @@ namespace tp {
 				const FramePointer* mFrame;
 
 			public:
-				explicit Iterator(const FramePointer* frame) :
-					mFrame(frame){};
+				explicit Iterator(const FramePointer* frame) : mFrame(frame){};
 				FramePointer getFrame() { return *mFrame; }
 				bool operator==(const Iterator& in) const { return in.mFrame == mFrame; }
 				void operator++() { mFrame++; }
 				const Iterator& operator*() const { return *this; }
 			};
 
-			[[nodiscard]] Iterator begin() const { return Iterator(frames + FRAMES_TO_SKIP_START); }
-			[[nodiscard]] Iterator end() const { return Iterator(frames + FRAMES_TO_SKIP_START + getDepth()); }
+			[[nodiscard]] Iterator begin() const { return Iterator(frames); }
+			[[nodiscard]] Iterator end() const { return Iterator(frames + getDepth()); }
 		};
+
+		enum { STACKS_LENGTH = (MAX_CALL_CAPTURES_MEM_SIZE_MB * 1024 * 1024) / sizeof(CallStack) };
 
 		class DebugSymbols {
 			friend CallStackCapture;
@@ -57,44 +58,15 @@ namespace tp {
 		[[nodiscard]] const CallStack* getSnapshot();
 		const DebugSymbols* getSymbols(FramePointer fp);
 
-		static void printSnapshot(const CallStack* snapshot);
+		void printSnapshot(const CallStack* snapshot);
 		void logAll();
-
-	public:
-		template <class Saver>
-		void write(Saver& file) {
-			file.write(mBuffLoad);
-			for (auto cs : *this) {
-				file.write(cs.getCallStack()->getDepth());
-				for (auto frame : *cs.getCallStack()) {
-					file.write((ualni) frame.getFrame());
-				}
-			}
-			file.write(mSymbols);
-		}
-
-		// independent of the configuration
-		template <class Loader>
-		void read(Loader& file) {
-			clear();
-			ualni loadLen;
-			file.read(loadLen);
-			for (auto cs = loadLen; cs; cs--) {
-				ualni callStackLen;
-				file.read(callStackLen);
-				for (auto fp = callStackLen; fp; fp--) {
-					// --
-				}
-			}
-		}
 
 	public:
 		class Iterator {
 			const CallStack* mSnapshot;
 
 		public:
-			explicit Iterator(const CallStack* start) :
-				mSnapshot(start){};
+			explicit Iterator(const CallStack* start) : mSnapshot(start) {};
 			const CallStack* getCallStack() { return mSnapshot; }
 			bool operator==(const Iterator& in) const { return in.mSnapshot == mSnapshot; }
 			void operator++() { mSnapshot++; }
@@ -113,16 +85,19 @@ namespace tp {
 		static void platformWriteStackTrace(CallStack* stack);
 		static void platformWriteDebugSymbols(FramePointer frame, DebugSymbols* out);
 		[[nodiscard]] static ualni hashCallStack(CallStackKey key);
+		void platformInit();
+		void platformDeinit();
 
 		void clear();
 
 	private:
+		CallStack mErrorSnapshot;
+
 		ualni mBuffLen;
 		ualni mBuffLoad;
 		CallStack* mBuff;
+
 		Map<CallStackKey, CallStack*, DefaultAllocator, hashCallStack> mSnapshots;
 		Map<FramePointer, DebugSymbols> mSymbols;
 	};
-
-	extern CallStackCapture* gCSCapture;
 }

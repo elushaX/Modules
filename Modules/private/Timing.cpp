@@ -47,6 +47,7 @@ namespace tp {
 		}
 	}
 
+	// TODO remove
 	float Timer::easeIn(time_ms pDuration) {
 		if (!pDuration) {
 			pDuration = mDuration;
@@ -55,6 +56,7 @@ namespace tp {
 		return clamp((1.1f * x) / (x + 0.1f), 0.f, 1.f);
 	}
 
+	// TODO remove
 	float Timer::easeOut(time_ms pDuration) {
 		if (!pDuration) {
 			pDuration = mDuration;
