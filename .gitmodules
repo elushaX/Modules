@@ -1,24 +1,21 @@
-[submodule "Externals/asio"]
-	path = Externals/asio
-	url = https://github.com/IlyaShurupov/asio.git
-[submodule "Externals/glfw"]
-	path = Externals/glfw
-	url = https://github.com/IlyaShurupov/glfw.git
 [submodule "Externals/imgui"]
 	path = Externals/imgui
-	url = https://github.com/IlyaShurupov/imgui.git
-[submodule "Externals/glew"]
-	path = Externals/glew
-	url = https://github.com/IlyaShurupov/glew.git
-[submodule "Externals/nanovg"]
-	path = Externals/nanovg
-	url = https://github.com/IlyaShurupov/nanovg.git
+	url = https://github.com/elushaX/imgui.git
 [submodule "Externals/lua"]
-    path = Externals/lua
-    url = https://github.com/lua/lua.git
-[submodule "Externals/lalr"]
-	path = Externals/lalr
-	url = https://github.com/IlyaShurupov/lalr.git
+	path = Externals/lua
+	url = https://github.com/elushaX/lua.git
 [submodule "Externals/unittest-cpp"]
 	path = Externals/unittest-cpp
-	url = https://github.com/unittest-cpp/unittest-cpp.git
+	url = https://github.com/elushaX/unittest-cpp.git
+[submodule "Externals/glfw"]
+	path = Externals/glfw
+	url = https://github.com/elushaX/glfw.git
+[submodule "Externals/nanovg"]
+	path = Externals/nanovg
+	url = https://github.com/elushaX/nanovg.git
+[submodule "Externals/asio"]
+	path = Externals/asio
+	url = https://github.com/elushaX/asio.git
+[submodule "Externals/lalr"]
+	path = Externals/lalr
+	url = https://github.com/elushaX/lalr.git
