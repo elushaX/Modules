@@ -8,6 +8,8 @@ extern "C" {
 
 #include "OBJ_Loader.h"
 
+#include <filesystem>
+
 bool loadMeshes(tp::Scene& scene, const std::string& objetsPath) {
 	using namespace tp;
 
@@ -127,7 +129,18 @@ void loadScene(tp::Scene& scene, const std::string& scenePath, tp::RayTracer::Re
 	lua_State* L = luaL_newstate();
 	luaL_openlibs(L);
 
-	if (luaL_dofile(L, "script.lua") != 0) {
+	namespace fs = std::filesystem;
+
+	fs::path fullPath(scenePath);
+
+	// Extract the filename
+	std::string fileName = fullPath.filename().string();
+
+	// Remove the filename from the path
+	fs::path directoryPath = fullPath.remove_filename();
+
+
+	if (luaL_dofile(L, scenePath.c_str()) != 0) {
 		lua_close(L);
 		printf("Cant open scene script.\n");
 		return;
@@ -138,7 +151,9 @@ void loadScene(tp::Scene& scene, const std::string& scenePath, tp::RayTracer::Re
 	if (lua_isstring(L, -1)) {
 		std::string meshesPath = lua_tostring(L, -1);
 
-		if (!loadMeshes(scene, meshesPath)) {
+		directoryPath /= meshesPath;
+
+		if (!loadMeshes(scene, directoryPath.string())) {
 			printf("No 'meshes' loaded - check ur .obj path and validate content of .obj .\n");
 			return;
 		}

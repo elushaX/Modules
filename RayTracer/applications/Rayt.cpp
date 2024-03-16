@@ -80,6 +80,10 @@ void renderCommand(const std::string& scenePath) {
 }
 
 int main(int argc, const char** argv) {
-	renderCommand("scene.lua");
+	if (argc > 1) {
+		renderCommand(argv[1]);
+	} else {
+		renderCommand("scene.lua");
+	}
 	return 0;
 }
