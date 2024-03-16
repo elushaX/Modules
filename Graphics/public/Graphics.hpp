@@ -2,7 +2,7 @@
 
 #include "GraphicsCommon.hpp"
 
-// TODO : fix this ugly shit
+// TODO : ugly
 
 namespace tp {
 	class Window;
@@ -85,7 +85,7 @@ namespace tp {
 			void pushClamp(const RectF& rec);
 			void popClamp();
 			void rect(const RectF& rec, const RGBA& col, halnf round = 0);
-			void text(const String&, const RectF&, halnf size, Align, halnf marging, const RGBA&);
+			void text(const char*, const RectF&, halnf size, Align, halnf marging, const RGBA&);
 
 			// TODO : API
 

@@ -23,8 +23,8 @@ void writeImage(const RayTracer::RenderBuffer& output, const char* name) {
 	Buffer2D<urgb> converted;
 	converted.reserve(output.size());
 
-	for (RayTracer::RenderBuffer::Index i = 0; i < output.size().x; i++) {
-		for (RayTracer::RenderBuffer::Index j = 0; j < output.size().y; j++) {
+	for (Index i = 0; i < output.size().x; i++) {
+		for (Index j = 0; j < output.size().y; j++) {
 			converted.get({ i, j }).r = uint1(output.get({ i, j }).r * 255);
 			converted.get({ i, j }).g = uint1(output.get({ i, j }).g * 255);
 			converted.get({ i, j }).b = uint1(output.get({ i, j }).b * 255);
@@ -51,7 +51,7 @@ void printStatus(const halnf* percentage) {
 	}
 }
 
-void renderCommand(const String& scenePath) {
+void renderCommand(const std::string& scenePath) {
 	Scene scene;
 	RayTracer::RenderSettings settings;
 
@@ -80,14 +80,6 @@ void renderCommand(const String& scenePath) {
 }
 
 int main(int argc, const char** argv) {
-	tp::ModuleManifest* deps[] = { &gModuleRayTracer, nullptr };
-	tp::ModuleManifest module("Rayt", nullptr, nullptr, deps);
-
-	if (module.initialize()) {
-		renderCommand("scene.lua");
-
-		module.deinitialize();
-	}
-
+	renderCommand("scene.lua");
 	return 0;
 }

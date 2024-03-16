@@ -1,8 +1,6 @@
 
 #include "Topology.hpp"
 
-#include "NewPlacement.hpp"
-
 using namespace tp;
 
 Vec3F TrigCache::gHitPos;

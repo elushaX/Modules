@@ -18,8 +18,8 @@ void writeImage(const RayTracer::RenderBuffer& output) {
 	Buffer2D<urgb> converted;
 	converted.reserve(output.size());
 
-	for (RayTracer::RenderBuffer::Index i = 0; i < output.size().x; i++) {
-		for (RayTracer::RenderBuffer::Index j = 0; j < output.size().y; j++) {
+	for (Index i = 0; i < output.size().x; i++) {
+		for (Index j = 0; j < output.size().y; j++) {
 			converted.get({ i, j }).r = uint1(output.get({ i, j }).r * 255);
 			converted.get({ i, j }).g = uint1(output.get({ i, j }).g * 255);
 			converted.get({ i, j }).b = uint1(output.get({ i, j }).b * 255);
@@ -101,8 +101,8 @@ SUITE(RayTracer) {
 
 		if (0) {
 			writeImage(output.color);
-			for (auto i = 0; i < output.color.size().x; i++) {
-				for (auto j = 0; j < output.color.size().y; j++) {
+			for (Index i = 0; i < output.color.size().x; i++) {
+				for (Index j = 0; j < output.color.size().y; j++) {
 					auto tmp = output.color.get({ i, j });
 					printf(
 						"TEST(compareCols(output.get({%i, %i}), RGBA{ %ff, %ff, %ff, %ff }));\n", i, j, tmp.r, tmp.g, tmp.b, tmp.a
@@ -114,16 +114,5 @@ SUITE(RayTracer) {
 }
 
 int main(int argc, char* argv[]) {
-	tp::ModuleManifest* ModuleDependencies[] = { &tp::gModuleRayTracer, nullptr };
-	tp::ModuleManifest TestModule("TokenizerTest", nullptr, nullptr, ModuleDependencies);
-
-	if (!TestModule.initialize()) {
-		return 1;
-	}
-
-	bool res = UnitTest::RunAllTests();
-
-	TestModule.deinitialize();
-
-	return res;
+	return UnitTest::RunAllTests();
 }

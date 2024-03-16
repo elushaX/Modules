@@ -24,12 +24,12 @@ void writeImage(const Buffer<halnf>& image, const char* name) {
 
 struct Dataset {
 	ualni length = 0;
-	Pair<ualni, ualni> imageSize = { 0, 0 };
+	std::pair<ualni, ualni> imageSize = { 0, 0 };
 	Buffer<uint1> labels;
 	Buffer<Buffer<uint1>> images;
 };
 
-bool loadDataset(Dataset& out, const String& location) {
+bool loadDataset(Dataset& out, const std::string& location) {
 	LocalConnection dataset;
 	dataset.connect(LocalConnection::Location(location), LocalConnection::Type(true));
 
@@ -207,51 +207,38 @@ public:
 };
 
 int main() {
-	ModuleManifest* deps[] = { &gModuleDataAnalysis, &gModuleConnection, nullptr };
-	ModuleManifest module = ModuleManifest("NumRec", nullptr, nullptr, deps);
+	NumberRec app;
 
-	if (!module.initialize()) {
-		return 1;
-	}
+	auto numBatches = 10;
+	auto trainRange = Range(0, 50000);
+	auto testRange = Range(50000, 70000);
 
-	{
-		NumberRec app;
+	auto batchSize = trainRange.idxDiff() / numBatches;
 
-		auto numBatches = 10;
-		auto trainRange = Range(0, 50000);
-		auto testRange = Range(50000, 70000);
+	for (auto epoch : Range(1)) {
+		printf("Epoch %i\n", epoch.index());
 
-		auto batchSize = trainRange.idxDiff() / numBatches;
+		for (auto batchIdx : Range(trainRange.idxDiff() / batchSize)) {
+			printf(" - Batch :%i \n", batchIdx.index());
 
-		for (auto epoch : Range(1)) {
-			printf("Epoch %i\n", epoch.index());
+			auto batchRange = Range(trainRange.idxBegin() + batchSize * batchIdx, trainRange.idxBegin() + batchSize * (batchIdx + 1));
 
-			for (auto batchIdx : Range(trainRange.idxDiff() / batchSize)) {
-				printf(" - Batch :%i \n", batchIdx.index());
+			app.trainStep(batchRange);
 
-				auto batchRange = Range(trainRange.idxBegin() + batchSize * batchIdx, trainRange.idxBegin() + batchSize * (batchIdx + 1));
-
-				app.trainStep(batchRange);
-
-				printf("Cost on batch data : %f\n", app.test(batchRange));
-			}
-
-			printf("Cost on test data : %f\n\n", app.test(testRange));
+			printf("Cost on batch data : %f\n", app.test(batchRange));
 		}
 
-		auto errors = 0;
-		for (auto i : testRange) {
-			if (app.testIncorrect(i)) {
-				errors++;
-			}
-			// app.debLog(i);
-			// app.displayImage(i);
-		}
-
-		printf("\n\nIncorrect - %i out of %i (%f)\n\n", errors, testRange.idxDiff(), (halnf) errors / (halnf) testRange.idxDiff());
+		printf("Cost on test data : %f\n\n", app.test(testRange));
 	}
 
-	module.deinitialize();
+	auto errors = 0;
+	for (auto i : testRange) {
+		if (app.testIncorrect(i)) {
+			errors++;
+		}
+		// app.debLog(i);
+		// app.displayImage(i);
+	}
 
-	return 0;
+	printf("\n\nIncorrect - %i out of %i (%f)\n\n", errors, testRange.idxDiff(), (halnf) errors / (halnf) testRange.idxDiff());
 }

@@ -8,12 +8,12 @@ extern "C" {
 
 #include "OBJ_Loader.h"
 
-bool loadMeshes(tp::Scene& scene, const tp::String& objetsPath) {
+bool loadMeshes(tp::Scene& scene, const std::string& objetsPath) {
 	using namespace tp;
 
 	objl::Loader Loader;
 
-	if (!Loader.LoadFile(objetsPath.read())) {
+	if (!Loader.LoadFile(objetsPath.c_str())) {
 		std::cout << "Failed to Load File. May have failed to find it or it was not an .obj file.\n";
 		return false;
 	}
@@ -123,7 +123,7 @@ int readLight(lua_State* L, tp::PointLight* light) {
 	return 1; // Success
 }
 
-void loadScene(tp::Scene& scene, const tp::String& scenePath, tp::RayTracer::RenderSettings& settings) {
+void loadScene(tp::Scene& scene, const std::string& scenePath, tp::RayTracer::RenderSettings& settings) {
 	lua_State* L = luaL_newstate();
 	luaL_openlibs(L);
 
@@ -136,7 +136,7 @@ void loadScene(tp::Scene& scene, const tp::String& scenePath, tp::RayTracer::Ren
 	lua_getglobal(L, "Meshes");
 
 	if (lua_isstring(L, -1)) {
-		tp::String meshesPath = lua_tostring(L, -1);
+		std::string meshesPath = lua_tostring(L, -1);
 
 		if (!loadMeshes(scene, meshesPath)) {
 			printf("No 'meshes' loaded - check ur .obj path and validate content of .obj .\n");

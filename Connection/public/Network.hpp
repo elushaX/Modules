@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Common.hpp"
+#include "Module.hpp"
 
 namespace tp {
 	class ServerContext;

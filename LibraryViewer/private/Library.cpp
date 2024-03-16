@@ -7,7 +7,7 @@
 #include <filesystem>
 
 namespace tp {
-	static ModuleManifest* deps[] = { &gModuleGraphics, &gModuleConnection, &gModuleWidgets, nullptr };
+	static ModuleManifest* deps[] = { &gModuleGraphics, &gModuleStrings, &gModuleAllocators, nullptr };
 	ModuleManifest gModuleLibraryViewer = ModuleManifest("LibraryViewer", nullptr, nullptr, deps);
 }
 
@@ -51,7 +51,7 @@ bool Library::loadJson(const String& path) {
 	LocalConnection libraryFile;
 	Buffer<int1> libraryFileMem;
 
-	if (!libraryFile.connect(LocalConnection::Location(path), LocalConnection::Type(true))) return false;
+	if (!libraryFile.connect(LocalConnection::Location(path.read()), LocalConnection::Type(true))) return false;
 
 	libraryFileMem.reserve(libraryFile.size());
 	libraryFile.readBytes(libraryFileMem.getBuff(), libraryFile.size());

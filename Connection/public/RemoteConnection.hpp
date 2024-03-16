@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ConnectionCommon.hpp"
-#include "List.hpp"
 
 namespace tp {
 
@@ -17,7 +16,7 @@ namespace tp {
 		};
 
 	public:
-		RemoteConnection(){ MODULE_SANITY_CHECK(gModuleConnection) };
+		RemoteConnection() = default;
 
 		virtual ~RemoteConnection() {
 			if (mStatus.isOpened()) RemoteConnection::disconnect();

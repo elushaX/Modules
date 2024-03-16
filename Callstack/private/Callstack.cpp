@@ -59,6 +59,8 @@ CallStackCapture::CallStackCapture() {
 
 
 	platformInit();
+
+	initialized = true;
 }
 
 const CallStackCapture::CallStack* CallStackCapture::getSnapshot() {
@@ -101,7 +103,10 @@ void CallStackCapture::clear() {
 	mSymbols.removeAll();
 }
 
-CallStackCapture::~CallStackCapture() { free(mBuff); }
+CallStackCapture::~CallStackCapture() { 
+	free(mBuff); 
+	initialized = false;
+}
 
 // ---------------------------------- Platform Depended ---------------------------------- //
 

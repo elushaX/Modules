@@ -2,6 +2,8 @@
 
 #include "Common.hpp"
 
+#include <string>
+
 namespace tp {
 
 	// Used to transfer data to or from some sort of archive
@@ -129,5 +131,30 @@ namespace tp {
 	private:
 		ualni mAddress = 0;
 		ualni mFirstNotWritten = 0;
+	};
+
+	struct StringArchiver {
+		std::string* val;
+
+		StringArchiver(std::string& val) { this->val = &val; }
+
+		template <typename tArchiver>
+		void archiveRead(tArchiver& ar) {
+			ualni len;
+			ar >> len;
+			val->resize(len);
+			for (ualni i = 0; i < len; i++) {
+				ar >> (*val)[i];
+			}
+		}
+
+		template <typename tArchiver>
+		void archiveWrite(tArchiver& ar) const {
+			ualni len = val->size();
+			ar << len;
+			for (ualni i = 0; i < len; i++) {
+				ar << (*val)[i];
+			}
+		}
 	};
 }

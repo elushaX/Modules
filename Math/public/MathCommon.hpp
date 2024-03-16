@@ -13,17 +13,7 @@
 #define SQRT2 1.4142135623730950488016887242
 #define EXP 2.7182818284590452353602874714
 
-namespace tp {
-	extern ModuleManifest gModuleMath;
+#include <cmath>
 
-	alnf sin(alnf radians);
-	alnf tan(alnf radians);
-	alnf atan2(alnf X, alnf Y);
-	alnf atan(alnf val);
-	alnf cos(alnf radians);
-	alnf acos(alnf val);
-	alnf sqrt(alnf val);
-	alnf rad(alnf val);
-	alnf deg(alnf val);
-	alnf log2(alnf val);
-}
+#define RAD(val) (val * (PI / 180.f))
+#define DEG(val) (val * (180.f / PI))

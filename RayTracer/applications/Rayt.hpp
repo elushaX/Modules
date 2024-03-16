@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RayTracer.hpp"
-#include "Strings.hpp"
 
-void loadScene(tp::Scene& scene, const tp::String& scenePath, tp::RayTracer::RenderSettings& settings);
+#include <string>
+
+void loadScene(tp::Scene& scene, const std::string& scenePath, tp::RayTracer::RenderSettings& settings);

@@ -12,6 +12,7 @@ namespace tp {
 		static struct MemHead* mEntry;
 		static std::mutex mMutex;
 		static bool mIgnore;
+		static bool mEnableCallstack;
 #ifdef MEM_STACK_TRACE // Save stack on allocation call
 		static CallStackCapture mCallstack;
 #endif
@@ -29,7 +30,10 @@ namespace tp {
 		static void startIgnore();
 		static void stopIgnore();
 		static ualni getNAllocations();
-		
+
+		static void enableCallstack();
+		static void disableCallstack();
+
 	public:
 		[[nodiscard]] bool checkWrap() const { return false; }
 		void checkValid() {}

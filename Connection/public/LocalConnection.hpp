@@ -9,20 +9,20 @@ namespace tp {
 	class LocalConnection : public Connection {
 	public:
 		class Location {
-			String mLocation;
+			std::string mLocation;
 
 		public:
 			Location() :
 				mLocation("tmp"){};
-			explicit Location(const String& location) :
+			explicit Location(const std::string& location) :
 				mLocation(location) {}
-			void setLocation(const String& location) { mLocation = location; }
-			[[nodiscard]] const String& getLocation() const { return mLocation; }
+			void setLocation(const std::string& location) { mLocation = location; }
+			[[nodiscard]] const std::string& getLocation() const { return mLocation; }
 			[[nodiscard]] bool exists() const;
 		};
 
 	public:
-		LocalConnection(){ MODULE_SANITY_CHECK(gModuleConnection) };
+		LocalConnection() = default;
 
 		virtual ~LocalConnection() {
 			if (mStatus.isOpened()) LocalConnection::disconnect();

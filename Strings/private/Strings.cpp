@@ -12,6 +12,6 @@ bool initialize(const ModuleManifest*) {
 
 void deinitialize(const ModuleManifest*) { Logger::deinitializeGlobal(); }
 
-static tp::ModuleManifest* sModuleDependencies[] = { &tp::gModuleContainers, &tp::gModuleAllocators, nullptr };
+static tp::ModuleManifest* sModuleDependencies[] = { &tp::gModuleAllocators, nullptr };
 
 ModuleManifest tp::gModuleStrings = ModuleManifest("Strings", initialize, deinitialize, sModuleDependencies);
