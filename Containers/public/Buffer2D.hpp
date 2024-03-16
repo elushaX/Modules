@@ -8,16 +8,17 @@ namespace tp {
 
 	template <typename tType, ualni tSizeX, ualni tSizeY>
 	using ConstSizeBuffer2D = ConstSizeBuffer<ConstSizeBuffer<tType, tSizeX>, tSizeY>;
+	
+	typedef ualni Index;
+
+	struct Index2D {
+		Index x = 0;
+		Index y = 0;
+	};
 
 	template <typename tType, class tAllocator = DefaultAllocator>
 	class Buffer2D {
 	public:
-		typedef ualni Index;
-
-		struct Index2D {
-			Index x = 0;
-			Index y = 0;
-		};
 
 		typedef SelectValueOrReference<tType> tTypeArg;
 

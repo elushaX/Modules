@@ -62,16 +62,7 @@ int main(int argc, char** argv) {
 		imageName = argv[1];
 	}
 
-	ModuleManifest* deps[] = { &gModuleDataAnalysis, &gModuleConnection, nullptr };
-	ModuleManifest module = ModuleManifest("NumRec", nullptr, nullptr, deps);
-
-	if (!module.initialize()) {
-		return 1;
-	}
-
 	executeCmd(imageName);
-
-	module.deinitialize();
 
 	return 0;
 }

@@ -22,11 +22,8 @@ add_executable(NumRecApp applications/NumRecApp.cpp)
 target_link_libraries(NumRecApp ${PROJECT_NAME} Connection ImageIO)
 
 ### -------------------------- Tests  --------------------------  ###
-enable_testing()
 file(GLOB TEST_SOURCES "./tests/*.cpp" "./tests/*/*.cpp")
-add_executable(${PROJECT_NAME}Tests ${TEST_SOURCES})
-
-target_include_directories(${PROJECT_NAME}Tests PUBLIC ./applications/)
-
-target_link_libraries(${PROJECT_NAME}Tests ${PROJECT_NAME} UnitTest++)
-add_test(NAME ${PROJECT_NAME}Tests COMMAND ${PROJECT_NAME}Tests)
+add_executable(Test${PROJECT_NAME} ${TEST_SOURCES})
+target_include_directories(Test${PROJECT_NAME} PUBLIC ./applications/)
+target_link_libraries(Test${PROJECT_NAME} ${PROJECT_NAME} UnitTest++)
+add_test(NAME Test${PROJECT_NAME} COMMAND Test${PROJECT_NAME})

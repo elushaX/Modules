@@ -9,6 +9,8 @@ namespace tp {
 	public:
 		typedef tp::alni FramePointer;
 
+		bool initialized = false;
+
 		enum {
 			MAX_CALL_DEPTH_CAPTURE = 16,
 			MAX_CALL_CAPTURES_MEM_SIZE_MB = 32,

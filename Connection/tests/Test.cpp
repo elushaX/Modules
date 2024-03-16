@@ -14,14 +14,14 @@ SUITE(Connection) {
 
 		{
 			LocalConnection file;
-			file.connect(LocalConnection::Location(String("tmp2.txt")), LocalConnection::Type(false));
+			file.connect(LocalConnection::Location(std::string("tmp2.txt")), LocalConnection::Type(false));
 			file.writeBytes(data, 6);
 			file.disconnect();
 		}
 
 		{
 			LocalConnection file;
-			file.connect(LocalConnection::Location(String("tmp2.txt")), LocalConnection::Type(true));
+			file.connect(LocalConnection::Location(std::string("tmp2.txt")), LocalConnection::Type(true));
 			file.readBytes(dataRead, 6);
 			file.disconnect();
 		}
@@ -35,17 +35,5 @@ SUITE(Connection) {
 }
 
 int main() {
-
-	tp::ModuleManifest* deps[] = { &tp::gModuleConnection, nullptr };
-	tp::ModuleManifest testModule("ConnectionTest", nullptr, nullptr, deps);
-
-	if (!testModule.initialize()) {
-		return 1;
-	}
-
-	bool res = UnitTest::RunAllTests();
-
-	testModule.deinitialize();
-
-	return res;
+	return UnitTest::RunAllTests();
 }

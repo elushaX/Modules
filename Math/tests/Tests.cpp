@@ -44,16 +44,5 @@ SUITE(Math) {
 }
 
 int main() {
-	tp::ModuleManifest* deps[] = { &tp::gModuleMath, &tp::gModuleUtils, nullptr };
-	tp::ModuleManifest testModule("MathTest", nullptr, nullptr, deps);
-
-	if (!testModule.initialize()) {
-		return 1;
-	}
-
-	bool res = UnitTest::RunAllTests();
-
-	testModule.deinitialize();
-
-	return res;
+	return UnitTest::RunAllTests();
 }

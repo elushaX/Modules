@@ -71,7 +71,7 @@ void Graphics::Canvas::popClamp() {
 }
 
 void Graphics::Canvas::text(
-	const String& string, const RectF& aRec, halnf size, Align align, halnf marging, const RGBA& col
+	const char* string, const RectF& aRec, halnf size, Align align, halnf marging, const RGBA& col
 ) {
 	RectF rec = { aRec.x + marging, aRec.y + marging, aRec.z - marging * 2, aRec.w - marging * 2 };
 
@@ -107,7 +107,7 @@ void Graphics::Canvas::text(
 
 	nvgTextAlign(mContext->vg, alignNVG);
 
-	nvgText(mContext->vg, centerX, centerY, string.read(), nullptr);
+	nvgText(mContext->vg, centerX, centerY, string, nullptr);
 
 	popClamp();
 }

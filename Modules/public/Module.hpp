@@ -2,6 +2,7 @@
 #pragma once
 
 #include "Assert.hpp"
+#include "Utils.hpp"
 #include "Common.hpp"
 
 #define MODULE_SANITY_CHECK(name) DEBUG_ASSERT(name.isInitialized() && "Modules Is Not Initialized" && #name)

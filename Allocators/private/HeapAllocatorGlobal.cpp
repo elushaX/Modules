@@ -32,6 +32,7 @@ tp::MemHead* tp::HeapAllocGlobal::mEntry = nullptr;
 tp::ualni tp::HeapAllocGlobal::mNumAllocations = 0;
 std::mutex tp::HeapAllocGlobal::mMutex;
 bool tp::HeapAllocGlobal::mIgnore = true;
+bool tp::HeapAllocGlobal::mEnableCallstack = false;
 
 #ifdef MEM_STACK_TRACE
 tp::CallStackCapture tp::HeapAllocGlobal::mCallstack;
@@ -109,7 +110,7 @@ ALLOCATE:
 	// 3) Trace the stack
 #ifdef MEM_STACK_TRACE
 	// check if somewhat decides to call new within static variable initialization
-	head->mCallStack = mCallstack.getSnapshot();
+	head->mCallStack = (mEnableCallstack && mCallstack.initialized) ? mCallstack.getSnapshot() : nullptr;
 #endif
 
 	mMutex.unlock();
@@ -144,20 +145,19 @@ void HeapAllocGlobal::deallocate(void* aPtr) {
 	if (head == mEntry) {
 		mEntry = head->mPrev;
 	}
-	mMutex.unlock();
-
+	
 	if (!head->mIgnored) {
 		// 3) Check the wrap
 		if (memCompareVal(wrap_top, WRAP_SIZE, WRAP_VAL)) {
 #ifdef MEM_STACK_TRACE
-			mCallstack.printSnapshot(head->mCallStack);
+			if (head->mCallStack) mCallstack.printSnapshot(head->mCallStack);
 #endif
 			ASSERT(!"Allocated Block Wrap Corrupted!")
 		}
 
 		if (memCompareVal(wrap_bottom, WRAP_SIZE, WRAP_VAL)) {
 #ifdef MEM_STACK_TRACE
-			mCallstack.printSnapshot(head->mCallStack);
+			if (head->mCallStack) mCallstack.printSnapshot(head->mCallStack);
 #endif
 			ASSERT(!"Allocated Block Wrap Corrupted!")
 		}
@@ -167,6 +167,8 @@ void HeapAllocGlobal::deallocate(void* aPtr) {
 		memSetVal(data, head->mBlockSize, CLEAR_DEALLOC_VAL);
 #endif
 	}
+
+	mMutex.unlock();
 
 	// 5) free the block
 	free(head);
@@ -183,7 +185,7 @@ bool HeapAllocGlobal::checkLeaks() {
 
 #ifdef MEM_STACK_TRACE
 		for (auto iter = mEntry; iter; iter = iter->mPrev) {
-			if (!iter->mIgnored) mCallstack.printSnapshot(iter->mCallStack);
+			if (!iter->mIgnored && iter->mCallStack) mCallstack.printSnapshot(iter->mCallStack);
 		}
 #endif
 
@@ -209,6 +211,18 @@ void HeapAllocGlobal::stopIgnore() {
 
 ualni HeapAllocGlobal::getNAllocations() { 
 	return mNumAllocations;
+}
+
+void HeapAllocGlobal::enableCallstack() {
+	mMutex.lock();
+	mEnableCallstack = true;
+	mMutex.unlock();
+}
+
+void HeapAllocGlobal::disableCallstack() {
+	mMutex.lock();
+	mEnableCallstack = false;
+	mMutex.unlock();
 }
 
 HeapAllocGlobal::~HeapAllocGlobal() = default;

@@ -18,7 +18,7 @@ namespace tp {
 
 		[[nodiscard]] ComplexCart operator-(const ComplexCart& in) const { return { in.r - r, in.i - i }; }
 
-		[[nodiscard]] Number mod() const { return tp::sqrt(i * i + r * r); }
+		[[nodiscard]] Number mod() const { return sqrt(i * i + r * r); }
 
 		[[nodiscard]] Number arg() const { return atan2(r, i); }
 

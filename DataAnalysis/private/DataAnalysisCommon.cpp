@@ -4,6 +4,6 @@
 #include "MathCommon.hpp"
 
 namespace tp {
-	static ModuleManifest* deps[] = { &gModuleMath, &gModuleContainers, &gModuleAllocators, nullptr };
+	static ModuleManifest* deps[] = { &gModuleAllocators, nullptr };
 	ModuleManifest gModuleDataAnalysis = ModuleManifest("DataAnalysis", nullptr, nullptr, deps);
 }

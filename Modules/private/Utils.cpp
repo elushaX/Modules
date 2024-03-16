@@ -9,7 +9,7 @@ void deinitializeCallStackCapture();
 
 static bool initialize(const tp::ModuleManifest*) {
 	initializeCallStackCapture();
-	std::srand(std::time(nullptr));
+	// std::srand(std::time(nullptr));
 	return true;
 }
 

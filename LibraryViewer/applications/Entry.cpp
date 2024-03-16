@@ -33,7 +33,7 @@ void runApp() {
 
 			auto area = window->getCanvas().getAvaliableArea();
 
-			gui.proc(window->getEvents(), {}, { area.x, area.y, area.z, area.w });
+			gui.proc(window->getEvents(), { area.x, area.y, area.z, area.w }, { area.x, area.y, area.z, area.w });
 			gui.draw(window->getCanvas());
 
 			// tp::sleep(100);
@@ -53,6 +53,8 @@ int main() {
 	if (!binModule.initialize()) {
 		return 1;
 	}
+
+	tp::HeapAllocGlobal::disableCallstack();
 
 	runApp();
 

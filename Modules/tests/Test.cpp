@@ -216,7 +216,7 @@ struct HasArchive<T, A, VoidType<decltype(DeclareValue<T>()().archive(DeclareVal
 
 SUITE(BaseModule) {
 	TEST(Basic) {
-		tp::ModuleManifest* ModuleDependencies[] = { &tp::gModuleBase, nullptr };
+		tp::ModuleManifest* ModuleDependencies[] = { nullptr };
 		tp::ModuleManifest TestModule("Test", nullptr, nullptr, ModuleDependencies);
 
 		REQUIRE CHECK(TestModule.initialize());

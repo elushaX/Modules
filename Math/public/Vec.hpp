@@ -16,7 +16,7 @@ namespace tp {
 		inline Type& set(ualni i, TypeArg arg) { return mBuff[i] = arg; }
 
 	public:
-		Vec() { MODULE_SANITY_CHECK(gModuleMath) }
+		Vec() = default;
 
 		explicit Vec(TypeArg val) { assign(val); }
 

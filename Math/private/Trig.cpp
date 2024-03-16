@@ -6,7 +6,6 @@
 using namespace tp;
 
 Trig::Trig() {
-	MODULE_SANITY_CHECK(gModuleMath)
 	p1.assign(0.f, 0.f, 0.f);
 	p2.assign(0.f, 0.f, 0.f);
 	p3.assign(0.f, 0.f, 0.f);

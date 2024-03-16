@@ -1,10 +1,9 @@
 #pragma once
 
-#include "Strings.hpp"
+#include "Module.hpp"
+#include <string>
 
 namespace tp {
-	extern ModuleManifest gModuleConnection;
-
 	class Connection {
 	public:
 		typedef ualni SizeBytes;

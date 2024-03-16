@@ -229,7 +229,7 @@ SUITE(Strings) {
 
 int main() {
 
-	tp::ModuleManifest* deps[] = { &tp::gModuleStrings, &tp::gModuleUtils, nullptr };
+	tp::ModuleManifest* deps[] = { &tp::gModuleStrings, nullptr };
 	tp::ModuleManifest testModule("StringsTest", nullptr, nullptr, deps);
 
 	if (!testModule.initialize()) {

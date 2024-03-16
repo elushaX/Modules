@@ -49,7 +49,7 @@ namespace tp {
 			uhalni depth = 2;
 			uhalni spray = 1;
 			ualni multisampling = 1;
-			Vec2I size;
+			Vec2<ualni> size;
 		};
 
 		struct OutputBuffers {

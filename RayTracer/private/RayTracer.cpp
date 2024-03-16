@@ -43,10 +43,6 @@ normal = n1 * barycentric.x + n2 * barycentric.y + n3 * barycentric.z;
 
 using namespace tp;
 
-ModuleManifest* sDependencies[] = { &gModuleMath, &gModuleConnection, nullptr };
-
-ModuleManifest tp::gModuleRayTracer = ModuleManifest("RayTracer", nullptr, nullptr, sDependencies);
-
 void RayTracer::castRay(const Ray& ray, RayCastData& out, alnf farVal) {
 	out.hit = false;
 
@@ -167,8 +163,8 @@ void RayTracer::render(const Scene& scene, OutputBuffers& out, const RenderSetti
 		col.b /= num;
 	};
 
-	for (auto i = 0; i < mSettings.size.x; i++) {
-		for (auto j = 0; j < mSettings.size.y; j++) {
+	for (ualni i = 0; i < mSettings.size.x; i++) {
+		for (ualni j = 0; j < mSettings.size.y; j++) {
 			for (auto sample = 0; sample < mSettings.multisampling; sample++) {
 				auto randX = randomFloat();
 				auto randY = randomFloat();

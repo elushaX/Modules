@@ -7,7 +7,8 @@
 using namespace tp;
 
 bool LocalConnection::Location::exists() const {
-	FILE* file = fopen(mLocation.read(), "r");
+	// TODO : fixme
+	FILE* file = fopen(mLocation.c_str(), "r");
 	if (file) {
 		// File exists, close it and return 1
 		fclose(file);
@@ -23,10 +24,8 @@ bool LocalConnection::connect(const Location& location, const Type& connectionIn
 	auto handle = new LocalConnectionContext();
 
 	switch (connectionInfo.getType()) {
-		case Type::READ: handle->open(location.getLocation().read(), true); break;
-
-		case Type::WRITE: handle->open(location.getLocation().read(), false); break;
-
+		case Type::READ: handle->open(location.getLocation().c_str(), true); break;
+		case Type::WRITE: handle->open(location.getLocation().c_str(), false); break;
 		default: break;
 	};
 

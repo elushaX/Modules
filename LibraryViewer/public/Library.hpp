@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Window.hpp"
+#include "Strings.hpp"
 
 typedef tp::ualni SongId;
 enum class SONG_FORMAT { WAV, FLAC, NONE };

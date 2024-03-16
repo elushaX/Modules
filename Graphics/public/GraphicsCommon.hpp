@@ -2,8 +2,9 @@
 
 #include "Color.hpp"
 #include "Rect.hpp"
-#include "Strings.hpp"
 #include "Timing.hpp"
+
+#include "Allocators.hpp"
 
 namespace tp {
 	extern ModuleManifest gModuleGraphics;

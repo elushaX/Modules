@@ -24,22 +24,27 @@ SUITE(FCNN) {
 		}
 
 		FCNN nn(layers);
-		halnf steppingValue = 100;
+		halnf steppingValue = 0.01;
 
-		for (auto i : Range(50)) {
+		halnf cost = 0;
+
+		for (auto i : Range(150)) {
 
 			nn.evaluate(input, output);
 		
 			nn.calcGrad(outputExpected);
 			nn.applyGrad(steppingValue);
 
+			cost = nn.calcCost(outputExpected);
 			printf("Loss %f \n", nn.calcCost(outputExpected));
 		}
+
+		CHECK(cost < 0.1f);
 	}
 }
 
 int main() {
-	tp::ModuleManifest* deps[] = { &tp::gModuleDataAnalysis, &tp::gModuleUtils, nullptr };
+	tp::ModuleManifest* deps[] = { &tp::gModuleDataAnalysis, nullptr };
 	tp::ModuleManifest testModule("DataAnalysisTest", nullptr, nullptr, deps);
 
 	if (!testModule.initialize()) {

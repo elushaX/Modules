@@ -77,9 +77,7 @@ static void deinit(const tp::ModuleManifest*) {
 
 static tp::ModuleManifest* sModuleDependencies[] = {
 	// &tp::gModuleCompressor,
-	&tp::gModuleMath,
 	&tp::gModuleStrings,
-	&tp::gModuleConnection,
 	nullptr
 };
 
