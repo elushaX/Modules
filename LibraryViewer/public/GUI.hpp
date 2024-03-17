@@ -34,7 +34,7 @@ namespace tp {
 			}
 		}
 
-		void draw(Canvas& canvas) const override {
+		void draw(Canvas& canvas) override {
 			if (!this->mVisible) return;
 			if (!mTrack) return;
 
@@ -90,7 +90,7 @@ namespace tp {
 			// renderUI();
 		}
 
-		void draw(Canvas&) const override {
+		void draw(Canvas&) override {
 			if (!this->mVisible) return;
 			if (!mTrack) return;
 			// canvas.rect(this->mArea, { 0.13f, 0.13f, 0.13f, 1.f }, 4.f);
@@ -241,7 +241,7 @@ namespace tp {
 			// mCurrentTrack.proc(events, this->mArea, mSplitView.getFirst());
 		}
 
-		void draw(Canvas& canvas) const override {
+		void draw(Canvas& canvas) override {
 			if (!this->mVisible) return;
 
 			canvas.rect(this->mArea, { 0.1f, 0.1f, 0.1f, 1.f });

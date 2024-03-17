@@ -17,7 +17,7 @@ namespace tp {
 			this->mArea = aArea;
 		}
 
-		void draw(Canvas& canvas) const override {
+		void draw(Canvas& canvas) override {
 			canvas.text(
 				mLabel.read(),
 				this->mArea,

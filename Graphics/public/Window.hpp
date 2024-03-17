@@ -21,6 +21,7 @@ namespace tp {
 
 		struct Events {
 			Vec2F mPointer;
+			halnf pressure = 0;
 
 			const Vec2F& getPos() const;
 			bool isPressed() const;

@@ -25,7 +25,7 @@ namespace tp {
 			mIsHover = aArea.isInside(events.getPos());
 		}
 
-		void draw(Canvas& canvas) const override {
+		void draw(Canvas& canvas) override {
 			if (!this->mVisible) return;
 
 			if (mIsHover) canvas.rect(this->mArea, this->getColor("Accent"), this->getValue("Rounding"));
@@ -65,7 +65,7 @@ namespace tp {
 			mIsHover = aArea.isInside(events.getPos());
 		}
 
-		void draw(Canvas& canvas) const override {
+		void draw(Canvas& canvas) override {
 			if (!this->mVisible) return;
 
 			if (mIsHover) canvas.rect(this->mArea, this->getColor("Base"), this->getValue("Rounding"));
@@ -119,7 +119,7 @@ namespace tp {
 			}
 		}
 
-		void draw(Canvas& canvas) const override {
+		void draw(Canvas& canvas) override {
 			canvas.rect(this->mArea, this->getColor("Back"));
 			mButton.draw(canvas);
 			mUser.draw(canvas);
@@ -173,7 +173,7 @@ namespace tp {
 			mHistoryView.proc(events, this->mArea, history);
 		}
 
-		void draw(Canvas& canvas) const override {
+		void draw(Canvas& canvas) override {
 			canvas.rect(this->mArea, this->getColor("Back"));
 			mHistoryView.draw(canvas);
 			mMessage.draw(canvas);
@@ -232,7 +232,7 @@ namespace tp {
 			mActive.proc(events, aArea, mSplitView.getFirst());
 		}
 
-		void draw(Canvas& canvas) const override {
+		void draw(Canvas& canvas) override {
 			canvas.rect(this->mArea, this->getColor("Back"));
 			mSplitView.draw(canvas);
 			mSideView.draw(canvas);
@@ -267,7 +267,7 @@ namespace tp {
 			}
 		}
 
-		void draw(Canvas& canvas) const override {
+		void draw(Canvas& canvas) override {
 			canvas.rect(this->mArea, this->getColor("Back"));
 			if (mLogged) mChatting.draw(canvas);
 			else mLogin.draw(canvas);

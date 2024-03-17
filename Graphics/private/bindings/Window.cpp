@@ -7,6 +7,9 @@
 
 #include <cstdio>
 
+#define EASYTAB_IMPLEMENTATION
+#include "easytab.h"
+
 namespace tp {
 	class Graphics::GL::Context {
 	public:
@@ -105,9 +108,17 @@ Window::Window(int width, int height, const char* title) {
 	mGraphics.init(this);
 
 	mEvents.mContext = mContext;
+
+	#ifdef ENV_OS_WINDOWS
+	EasyTab_Load(glfwGetWin32Window(mContext->window));
+	#endif
 }
 
 Window::~Window() {
+	#ifdef ENV_OS_WINDOWS
+	EasyTab_Unload();
+	#endif
+
 	mGraphics.deinit();
 	glfwDestroyWindow(mContext->window);
 	delete mContext;
@@ -147,6 +158,16 @@ bool Window::shouldClose() const { return glfwWindowShouldClose(mContext->window
 
 void Window::processEvents() {
 	mContext->inputManager.isEvent = false;
+
+	#ifdef ENV_OS_WINDOWS
+	HWND w32window = glfwGetWin32Window(mContext->window);
+	MSG msg;
+	if (PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE)) {
+		if (EasyTab_HandleEvent(msg.hwnd, msg.message, msg.lParam, msg.wParam) == EASYTAB_OK)
+			mEvents.pressure = EasyTab->Pressure;
+	}
+	#endif
+
 	glfwPollEvents();
 
 	int w, h;
@@ -161,6 +182,12 @@ void Window::processEvents() {
 	mGraphics.proc();
 
 	mContext->inputManager.update();
+
+	if (mEvents.isPressed()) {
+		mEvents.pressure = 1.f;
+	} else if (mEvents.isReleased()) {
+		mEvents.pressure = 0.f;
+	}
 
 	get_time();
 }

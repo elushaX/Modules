@@ -14,7 +14,7 @@ void StrokeGPUHandles::sendDataToGPU(Buffer<StrokePoint>* mPoints) {
 	glBindVertexArray(VertexArrayID);
 	vbo_len = mPoints->size();
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(mPoints[0]) * vbo_len, mPoints->getBuff(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mPoints[0]) * vbo_len, mPoints->getBuff(), GL_DYNAMIC_DRAW);
 }
 
 StrokeGPUHandles::~StrokeGPUHandles() {
@@ -79,7 +79,7 @@ void Stroke::compress(halnf factor) {
 		}
 
 		if (min_node) {
-			passed_poits.deleteNode(min_node);
+			passed_poits.removeNode(min_node);
 		}
 	} while (min_node);
 
@@ -268,19 +268,18 @@ void PencilBrush::sample(Project* proj, Vec2F crs, halnf pressure) {
 	// mStroke->updateGpuBuffers();
 }
 
-void PencilBrush::draw(Renderer* render, const Camera* camera) const {
+void PencilBrush::draw(Renderer* render, const Camera* camera) {
 	if (mStroke) {
 		if (mEnableCompression) {
-			Stroke tempDisplayStroke;
-			tempDisplayStroke.getPoints() = mStroke->getPoints();
-			tempDisplayStroke.setColor(mStroke->getColor());
-			ensureReady(&tempDisplayStroke, camera, 0);
+			mTempDisplayStroke.getPoints() = mStroke->getPoints();
+			mTempDisplayStroke.setColor(mStroke->getColor());
+			ensureReady(&mTempDisplayStroke, camera, 0);
 
-			render->drawStroke(&tempDisplayStroke, camera);
+			render->drawStroke(&mTempDisplayStroke, camera);
 		} else {
 			render->drawStroke(mStroke, camera);
 		}
-	} 
+	}
 }
 
 PencilBrush::~PencilBrush() {
