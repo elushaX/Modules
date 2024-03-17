@@ -36,9 +36,9 @@ namespace tp {
 		void offset_target(halnf val);
 
 	public:
-		[[nodiscard]] Mat4F calculateTransformationMatrix();
+		[[nodiscard]] Mat4F calculateTransformationMatrix() const;
 		[[nodiscard]] Mat<halnf, 4, 4> calculateProjectionMatrix() const;
-		[[nodiscard]] Mat<halnf, 4, 4> calculateViewMatrix();
+		[[nodiscard]] Mat<halnf, 4, 4> calculateViewMatrix() const;
 		[[nodiscard]] Vec3F project(Vec2F normalized);
 		[[nodiscard]] Vec2F project(const Vec3F& world);
 		[[nodiscard]] static Vec2F project(const tp::Vec3F& world, const tp::Mat4F& viewMat, const tp::Mat4F& projMat);
