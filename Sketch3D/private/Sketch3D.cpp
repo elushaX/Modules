@@ -1,7 +1,7 @@
 
 #include "Sketch3D.hpp"
 
-using namespace strokes;
+using namespace tp;
 
 Stroke::GLHandles::GLHandles() {
 	glGenVertexArrays(1, &VertexArrayID);
@@ -300,6 +300,11 @@ Project::Project() {
 
 	mActiveBrush = "pencil";
 
+	Stroke* debug = new Stroke();
+	debug->mPoints = { { { 0, 0, 0 }, 1 }, { { 1, 1, 1 } , 1} };
+	debug->updateGpuBuffers();
+
+	mLayers.last()->strokes.pushBack(debug);
 
 	auto vec = mCamera.project({0, 0, 0});
 	vec = mCamera.project({-1, 0, 0});

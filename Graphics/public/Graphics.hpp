@@ -81,12 +81,21 @@ namespace tp {
 				RB = 0x0202,
 			};
 
+			struct ImageHandle {
+				ualni id = 0;
+			};
+
 			RectF getAvaliableArea();
 			void pushClamp(const RectF& rec);
 			void popClamp();
 			void rect(const RectF& rec, const RGBA& col, halnf round = 0);
 			void text(const char*, const RectF&, halnf size, Align, halnf marging, const RGBA&);
 
+			void drawColorwheel(const RectF& rec, const RGB& col);
+
+			ImageHandle createImageFromTextId(ualni id, Vec2F size); 
+			void deleteImageHandle(ImageHandle image);
+			void drawImage(const RectF& rec, ImageHandle* image, halnf angle, halnf alpha, halnf rounding);
 			// TODO : API
 
 		private:

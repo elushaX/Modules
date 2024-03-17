@@ -3,29 +3,31 @@
 
 #include "Graphics.hpp"
 #include "Window.hpp"
-#include "Widgets.hpp"
+#include "Sketch3DWidget.hpp"
 
 void runApp() {
 
 	tp::GlobalGUIConfig config;
 	tp::gGlobalGUIConfig = &config;
 
-	tp::LabelWidget<tp::Window::Events, tp::Graphics::Canvas> gui;
-
 	auto window = tp::Window::createWindow(800, 600, "Window 1");
 
-	if (window) {
-		while (!window->shouldClose()) {
-			window->processEvents();
+	{
+		tp::Sketch3DWidget<tp::Window::Events, tp::Graphics::Canvas> gui(window->getCanvas(), {800, 1000});
 
-			auto area = window->getCanvas().getAvaliableArea();
+		if (window) {
+			while (!window->shouldClose()) {
+				window->processEvents();
 
-			gui.proc(window->getEvents(), { area.x, area.y, area.z, area.w }, { area.x, area.y, area.z, area.w });
-			gui.draw(window->getCanvas());
+				auto area = window->getCanvas().getAvaliableArea();
 
-			tp::sleep(100);
+				gui.proc(window->getEvents(), { area.x, area.y, area.z, area.w }, { area.x, area.y, area.z, area.w });
+				gui.draw(window->getCanvas());
 
-			window->draw();
+				tp::sleep(100);
+
+				window->draw();
+			}
 		}
 	}
 

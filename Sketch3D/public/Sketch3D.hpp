@@ -1,3 +1,4 @@
+#pragma once
 
 #include "Buffer.hpp"
 #include "List.hpp"
@@ -10,7 +11,7 @@
 #include "FrameBuffer.hpp"
 #include "Shader.hpp"
 
-namespace strokes {
+namespace tp {
 
 	class Renderer;
 	class Project;
@@ -21,12 +22,12 @@ namespace strokes {
 
 	public:
 		struct Point {
-			tp::Vec3F pos;
-			tp::halnf thickness = NULL;
+			Vec3F pos = { 0, 0, 0 };
+			halnf thickness = NULL;
 		};
 
-		tp::Buffer<Point> mPoints;
-		tp::RGBA mCol;
+		Buffer<Point> mPoints;
+		RGBA mCol;
 
 	private:
 		struct GLHandles {
@@ -34,7 +35,7 @@ namespace strokes {
 			GLuint vertexbuffer = 0;
 			GLuint vbo_len = 0;
 			GLHandles();
-			void sendDataToGPU(tp::Buffer<Point>* mPoints);
+			void sendDataToGPU(Buffer<Point>* mPoints);
 			~GLHandles();
 		} mGl;
 
@@ -42,57 +43,57 @@ namespace strokes {
 
 		Stroke();
 
-		void denoisePos(tp::halni passes);
-		void denoiseThickness(tp::halni passes);
-		void compress(tp::halnf factor);
-		void subdiv(tp::halnf precition, tp::Camera* cam, tp::halni passes = 1);
+		void denoisePos(halni passes);
+		void denoiseThickness(halni passes);
+		void compress(halnf factor);
+		void subdiv(halnf precition, Camera* cam, halni passes = 1);
 
 		void updateGpuBuffers();
 
-		tp::Buffer<Point>& buff();
+		Buffer<Point>& buff();
 	};
 
 	class Brush {
 	public:
-		tp::String mType = "equal";
+		String mType = "equal";
 		Brush() {}
-		virtual void sample(Project* proj, tp::Vec2F crs, tp::halnf pressure) {}
-		virtual void draw(Renderer* render, tp::Camera* camera) {}
+		virtual void sample(Project* proj, Vec2F crs, halnf pressure) {}
+		virtual void draw(Renderer* render, Camera* camera) {}
 		virtual ~Brush() {}
 	};
 
 	class PencilBrush : public Brush {
 
-		tp::halnf mPrecision = 0.001f;
+		halnf mPrecision = 0.001f;
 
-		tp::halni mDenoisePassesPos = 1;
-		tp::halni mDenoisePassesThick = 3;
-		tp::halnf mCompressionFactor = 0.0001f;
-		tp::halni mSubdivPasses = 3;
+		halni mDenoisePassesPos = 1;
+		halni mDenoisePassesThick = 3;
+		halnf mCompressionFactor = 0.0001f;
+		halni mSubdivPasses = 3;
 		bool mEnableCompression = true;
 
-		tp::halni mMaxPoints = 100;
+		halni mMaxPoints = 100;
 
 		Stroke* mStroke = NULL;
 		Stroke mShowStroke;
 
-		void unsureReady(Stroke* stroke, tp::Camera* cam, bool debug = false);
+		void unsureReady(Stroke* stroke, Camera* cam, bool debug = false);
 
 	public:
 		
-		tp::RGBA mCol = tp::RGBA(1.0f);
-		tp::halnf mSize = 0.01f;
+		RGBA mCol = RGBA(1.0f);
+		halnf mSize = 0.01f;
 
 		PencilBrush();
-		virtual void sample(Project* proj, tp::Vec2F crs, tp::halnf pressure) override;
-		virtual void draw(Renderer* render, tp::Camera* camera) override;
+		virtual void sample(Project* proj, Vec2F crs, halnf pressure) override;
+		virtual void draw(Renderer* render, Camera* camera) override;
 		virtual ~PencilBrush();
 	};
 
 	struct EraserBrush : public Brush {
 		EraserBrush() { mType = "eraser"; }
-		virtual void sample(Project* proj, tp::Vec2F crs, tp::halnf pressure) override {}
-		virtual void draw(Renderer* render, tp::Camera* camera) override {}
+		virtual void sample(Project* proj, Vec2F crs, halnf pressure) override {}
+		virtual void draw(Renderer* render, Camera* camera) override {}
 		virtual ~EraserBrush() {}
 	};
 
@@ -101,29 +102,29 @@ namespace strokes {
 	public:
 
 		struct Layer {
-			tp::String name = "new layer";
-			tp::List<Stroke*> strokes;
+			String name = "new layer";
+			List<Stroke*> strokes;
 			bool enabled = true;
 			~Layer();
 		};
 
-		tp::Buffer<Layer*> mLayers;
-		tp::halni mActiveLayer = -1;
+		Buffer<Layer*> mLayers;
+		halni mActiveLayer = -1;
 
-		tp::Camera mCamera;
-		tp::RGBA mBackgroundColor = { 0.22f, 0.22f, 0.25f, 1.f };
+		Camera mCamera;
+		RGBA mBackgroundColor = { 0.22f, 0.22f, 0.25f, 1.f };
 
-		tp::Map<tp::String, Brush*> mBrushes;
-		tp::String mActiveBrush;
+		Map<String, Brush*> mBrushes;
+		String mActiveBrush;
 
 		Project();
 		~Project();
 	};
 
 	class Renderer {
-		tp::RenderBuffer mBufferDowncast;
-		tp::RenderBuffer mBuffer;
-		tp::RenderShader mShader;
+		RenderBuffer mBufferDowncast;
+		RenderBuffer mBuffer;
+		RenderShader mShader;
 
 		// shader uniforms
 		GLuint mMatrixUniform = 0;
@@ -133,64 +134,64 @@ namespace strokes {
 		GLuint mBGColUniform = 0;
 
 	public:
-		Renderer(tp::Vec2F size);
+		Renderer(Vec2F size);
 
 		void renderBegin();
-		void setViewport(tp::RectF viewport);
-		void drawStroke(Stroke* str, tp::Camera* camera);
+		void setViewport(RectF viewport);
+		void drawStroke(Stroke* str, Camera* camera);
 		void renderEnd();
 
-		void setClearCol(tp::RGBA col);
-		tp::uhalni getTextudeId();
-		tp::RenderBuffer* getBuff();
+		void setClearCol(RGBA col);
+		uhalni getTextudeId();
+		RenderBuffer* getBuff();
 
 		~Renderer();
 	};
 };
 
 /*
-void Project::save(tp::File& file) {
-	file.write<tp::Camera>(&mCamera);
-	file.write<tp::rgba>(&mBackgroundColor);
-	file.write<tp::halni>(&mActiveLayer);
+void Project::save(File& file) {
+	file.write<Camera>(&mCamera);
+	file.write<rgba>(&mBackgroundColor);
+	file.write<halni>(&mActiveLayer);
 
-	tp::alni lay_len = mLayers.length();
-	file.write<tp::alni>(&lay_len);
+	alni lay_len = mLayers.length();
+	file.write<alni>(&lay_len);
 	for (auto layer : mLayers) {
 		layer.data()->name.save(&file);
 
 		file.write<bool>(&layer.data()->enabled);
 
-		tp::alni len = layer.data()->strokes.length();
-		file.write<tp::alni>(&len);
+		alni len = layer.data()->strokes.length();
+		file.write<alni>(&len);
 		for (auto stiter : layer.data()->strokes) {
 			stiter->save(file);
 		}
 	}
 }
 
-void Project::load(tp::File& file) {
-	file.read<tp::Camera>(&mCamera);
-	file.read<tp::rgba>(&mBackgroundColor);
-	file.read<tp::halni>(&mActiveLayer);
+void Project::load(File& file) {
+	file.read<Camera>(&mCamera);
+	file.read<rgba>(&mBackgroundColor);
+	file.read<halni>(&mActiveLayer);
 
-	tp::alni layers_len;
-	file.read<tp::alni>(&layers_len);
+	alni layers_len;
+	file.read<alni>(&layers_len);
 	mLayers.reserve(layers_len);
 
-	for (tp::alni idx = 0; idx < layers_len; idx++) {
+	for (alni idx = 0; idx < layers_len; idx++) {
 
-		tp::string key; key.load(&file);
+		string key; key.load(&file);
 		auto layer = new Layer();
 		layer->name = key;
 		mLayers[idx] = layer;
 
 		file.read<bool>(&layer->enabled);
 
-		tp::alni len;
-		file.read<tp::alni>(&len);
+		alni len;
+		file.read<alni>(&len);
 
-		for (tp::alni str_idx = 0; str_idx < len; str_idx++) {
+		for (alni str_idx = 0; str_idx < len; str_idx++) {
 			auto str = new Stroke();
 			layer->strokes.pushBack(str);
 			layer->strokes.last()->data->load(file);
@@ -200,22 +201,22 @@ void Project::load(tp::File& file) {
 */
 
 /*
-			void Stroke::save(tp::File& file) {
-				file.write<tp::rgba>(&mCol);
+			void Stroke::save(File& file) {
+				file.write<rgba>(&mCol);
 
-				tp::alni length = mPoints.length();
-				file.write<tp::alni>(&length);
+				alni length = mPoints.length();
+				file.write<alni>(&length);
 				for (auto piter : mPoints) {
 					file.write<Point>(&piter.data());
 				}
 			}
 
-			void Stroke::load(tp::File& file) {
-				tp::rgba color;
-				file.read<tp::rgba>(&color);
+			void Stroke::load(File& file) {
+				rgba color;
+				file.read<rgba>(&color);
 
-				tp::alni p_len;
-				file.read<tp::alni>(&p_len);
+				alni p_len;
+				file.read<alni>(&p_len);
 
 				mPoints.reserve(p_len);
 				for (auto piter : mPoints) {

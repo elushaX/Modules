@@ -49,7 +49,7 @@ namespace tp {
 			this->mArea = aArea;
 		}
 
-		virtual void draw(Canvas& canvas) const {
+		virtual void draw(Canvas& canvas) {
 			if (!mVisible) {
 				return;
 			}

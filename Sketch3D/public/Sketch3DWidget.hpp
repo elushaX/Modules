@@ -1,87 +1,86 @@
+#pragma once
 
-// #include "Fram.h"
+#include "Sketch3D.hpp"
+#include "Widgets.hpp"
 
-class Widget {
-	void destructor(StrokesWidget* self) {
-		self->mRenderer.~Renderer();
-		self->mImage.free(self->mDrawer);
-		self->mImage.~ImageHandle();
-	}
+namespace tp {
 
-	void procInputs(StrokesWidget* self, nd::GUIInputs* inputs) {
-		auto proj = self->getTargetProject();
-		if (!proj) {
-			return;
+	template <typename Events, typename Canvas>
+	class Sketch3DWidget : public Widget<Events, Canvas> {
+	public:
+
+		Canvas* mCanvas = nullptr;
+
+		Sketch3DWidget(Canvas& canvas, Vec2F renderResolution) :
+			mRenderer(renderResolution) { 
+			mImage = canvas.createImageFromTextId(mRenderer.getBuff()->texId(), mRenderer.getBuff()->getSize());
+			mCanvas = &canvas;
 		}
 
-		auto rec = self->getRect();
-		proj->mCamera.set_ratio(rec.w / rec.z);
-
-		auto col_obj_bg = self->getMember<obj::ColorObject>("bg_color");
-		if (col_obj_bg) {
-			proj->mBackgroundColor = col_obj_bg->mCol;
+		~Sketch3DWidget() { 
+			mCanvas->deleteImageHandle(mImage);
 		}
 
-		if (!rec.inside(inputs->mCrsPrev)) {
-			return;
-		}
+		void proc(const Events& events, const RectF& areaParent, const RectF& area) override {
 
-		auto pressure = inputs->mPressure;
-		if (!inputs->Anticipating()) {
-			pressure = 0.f;
-		}
+			this->mArea = area;
+			this->mVisible = area.isOverlap(areaParent);
+			if (!this->mVisible) return;
 
-		auto idx = proj->mBrushes.presents(proj->mActiveBrush);
-		if (idx) {
-			auto brush = proj->mBrushes.getSlotVal(idx);
-			auto crs = (inputs->mCrs - rec.pos);
-			crs.x /= rec.z;
-			crs.y /= rec.w;
-			crs = (crs - 0.5) * 2;
+			mProject.mCamera.setRatio(this->mArea.w / this->mArea.z);
 
-			if (brush->mType == "pencil") {
-				auto col_obj = self->getMember<obj::ColorObject>("draw_color");
-				if (col_obj) {
-					((strokes::PencilBrush*) brush)->mCol = col_obj->mCol;
-				}
+			// mProject.mBackgroundColor = col_obj_bg->mCol;
+
+			if (!this->mArea.isInside(events.getPos())) {
+				return;
 			}
 
-			brush->sample(proj, crs, pressure);
-		}
-	}
+			halnf pressure = 0.f;
 
-	void presentOutput(StrokesWidget* self, nd::GUIdrawer* drawer) {
-		auto proj = self->getTargetProject();
-		if (!proj) {
-			return;
-		}
+			auto idx = mProject.mBrushes.presents(mProject.mActiveBrush);
+			if (idx) {
+				auto brush = mProject.mBrushes.getSlotVal(idx);
+				auto crs = (events.getPos() - this->mArea.pos);
+				crs.x /= this->mArea.z;
+				crs.y /= this->mArea.w;
+				crs = (crs - 0.5) * 2;
 
-		if (!self->mImage.mId) {
-			self->mDrawer = drawer;
-			self->mImage.createFromBuff(self->mRenderer.getBuff(), drawer);
-		}
-
-		auto rec = self->getRect();
-		self->mRenderer.setViewport({ 0, 0, rec.z, rec.w });
-		self->mRenderer.setClearCol(proj->mBackgroundColor);
-		self->mRenderer.renderBegin();
-
-		for (auto lay : proj->mLayers) {
-			if (lay.data()->enabled) {
-				for (auto str : lay.data()->strokes) {
-					self->mRenderer.drawStroke(str.data(), &proj->mCamera);
+				if (brush->mType == "pencil") {
+					((tp::PencilBrush*) brush)->mCol = RGBA(1.f);
 				}
+
+				brush->sample(&mProject, crs, pressure);
 			}
 		}
 
-		auto idx = proj->mBrushes.presents(proj->mActiveBrush);
-		if (idx) {
-			auto brush = proj->mBrushes.getSlotVal(idx);
-			brush->draw(&self->mRenderer, &proj->mCamera);
+		void draw(Canvas& canvas) override {
+			
+			mRenderer.setViewport({ 0, 0, this->mArea.z, this->mArea.w });
+			mRenderer.setClearCol(mProject.mBackgroundColor);
+			mRenderer.renderBegin();
+
+			for (auto lay : mProject.mLayers) {
+				if (lay.data()->enabled) {
+					for (auto str : lay.data()->strokes) {
+						mRenderer.drawStroke(str.data(), &mProject.mCamera);
+					}
+				}
+			}
+
+			auto idx = mProject.mBrushes.presents(mProject.mActiveBrush);
+			if (idx) {
+				auto brush = mProject.mBrushes.getSlotVal(idx);
+				brush->draw(&mRenderer, &mProject.mCamera);
+			}
+
+			mRenderer.renderEnd();
+
+			canvas.drawImage(this->mArea, &mImage, 0, 1, 12);
 		}
 
-		self->mRenderer.renderEnd();
-
-		drawer->drawImage(rec, &self->mImage, 0, 1, 12);
-	}
-};
+	private:
+		Project mProject;
+		Renderer mRenderer;
+		Canvas::ImageHandle mImage;
+	};
+}
