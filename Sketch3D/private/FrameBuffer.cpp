@@ -2,7 +2,7 @@
 #include "FrameBuffer.hpp"
 #include "GraphicsApi.hpp"
 
-void glerr(GLenum type);
+void glerr(GLenum type) { printf("GL ERROR\n"); }
 #define AssertGL(x) { x; GLenum __gle = glGetError(); if (__gle != GL_NO_ERROR) glerr(__gle); }
 
 using namespace tp;
