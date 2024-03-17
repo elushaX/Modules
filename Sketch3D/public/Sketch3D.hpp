@@ -15,113 +15,40 @@ namespace tp {
 
 	class Renderer;
 	class Project;
+	class Stroke;
+	class Brush;
 
-	class Stroke {
-
-		friend Renderer;
-
-	public:
-		struct Point {
-			Vec3F pos = { 0, 0, 0 };
-			halnf thickness = NULL;
-		};
-
-		Buffer<Point> mPoints;
-		RGBA mCol;
-
-	private:
-		struct GLHandles {
-			GLuint VertexArrayID = 0;
-			GLuint vertexbuffer = 0;
-			GLuint vbo_len = 0;
-			GLHandles();
-			void sendDataToGPU(Buffer<Point>* mPoints);
-			~GLHandles();
-		} mGl;
-
-	public:
-
-		Stroke();
-
-		void denoisePos(halni passes);
-		void denoiseThickness(halni passes);
-		void compress(halnf factor);
-		void subdiv(halnf precition, Camera* cam, halni passes = 1);
-
-		void updateGpuBuffers();
-
-		Buffer<Point>& buff();
+	struct StrokePoint {
+		Vec3F pos = { 0, 0, 0 };
+		halnf thickness = NULL;
 	};
 
-	class Brush {
-	public:
-		String mType = "equal";
-		Brush() {}
-		virtual void sample(Project* proj, Vec2F crs, halnf pressure) {}
-		virtual void draw(Renderer* render, Camera* camera) {}
-		virtual ~Brush() {}
-	};
-
-	class PencilBrush : public Brush {
-
-		halnf mPrecision = 0.001f;
-
-		halni mDenoisePassesPos = 1;
-		halni mDenoisePassesThick = 3;
-		halnf mCompressionFactor = 0.0001f;
-		halni mSubdivPasses = 3;
-		bool mEnableCompression = true;
-
-		halni mMaxPoints = 100;
-
-		Stroke* mStroke = NULL;
-		Stroke mShowStroke;
-
-		void unsureReady(Stroke* stroke, Camera* cam, bool debug = false);
-
-	public:
-		
-		RGBA mCol = RGBA(1.0f);
-		halnf mSize = 0.01f;
-
-		PencilBrush();
-		virtual void sample(Project* proj, Vec2F crs, halnf pressure) override;
-		virtual void draw(Renderer* render, Camera* camera) override;
-		virtual ~PencilBrush();
-	};
-
-	struct EraserBrush : public Brush {
-		EraserBrush() { mType = "eraser"; }
-		virtual void sample(Project* proj, Vec2F crs, halnf pressure) override {}
-		virtual void draw(Renderer* render, Camera* camera) override {}
-		virtual ~EraserBrush() {}
-	};
-
-	class Project {
-		
-	public:
-
-		struct Layer {
-			String name = "new layer";
-			List<Stroke*> strokes;
-			bool enabled = true;
-			~Layer();
-		};
-
-		Buffer<Layer*> mLayers;
-		halni mActiveLayer = -1;
-
-		Camera mCamera;
-		RGBA mBackgroundColor = { 0.22f, 0.22f, 0.25f, 1.f };
-
-		Map<String, Brush*> mBrushes;
-		String mActiveBrush;
-
-		Project();
-		~Project();
+	struct StrokeGPUHandles {
+		GLuint VertexArrayID = 0;
+		GLuint vertexbuffer = 0;
+		GLuint vbo_len = 0;
+		StrokeGPUHandles();
+		void sendDataToGPU(Buffer<StrokePoint>* mPoints);
+		~StrokeGPUHandles();
 	};
 
 	class Renderer {
+	public:
+		Renderer(Vec2F size); // max render size
+		~Renderer();
+
+		void renderToTexture(const Project* project, Vec2F size); // needed size
+
+		void renderBegin();
+		void setViewport(RectF viewport);
+		void drawStroke(const Stroke* str, const Camera* camera);
+		void renderEnd();
+
+		void setClearCol(RGBA col);
+		uhalni getTextudeId();
+		RenderBuffer* getBuff();
+
+	private:
 		RenderBuffer mBufferDowncast;
 		RenderBuffer mBuffer;
 		RenderShader mShader;
@@ -133,96 +60,100 @@ namespace tp {
 		GLuint mTargetUniform = 0;
 		GLuint mBGColUniform = 0;
 
-	public:
-		Renderer(Vec2F size);
-
-		void renderBegin();
-		void setViewport(RectF viewport);
-		void drawStroke(Stroke* str, Camera* camera);
-		void renderEnd();
-
-		void setClearCol(RGBA col);
-		uhalni getTextudeId();
-		RenderBuffer* getBuff();
-
-		~Renderer();
+		Vec2F mMaxSize;
 	};
-};
 
-/*
-void Project::save(File& file) {
-	file.write<Camera>(&mCamera);
-	file.write<rgba>(&mBackgroundColor);
-	file.write<halni>(&mActiveLayer);
+	class Stroke {
+	public:
+		Stroke();
+		void denoisePos(halni passes);
+		void denoiseThickness(halni passes);
+		void compress(halnf factor);
+		void subdiv(halnf precition, const Camera* cam, halni passes = 1);
+		void updateGpuBuffers();
+		Buffer<StrokePoint>& getPoints();
+		const Buffer<StrokePoint>& getPoints() const;
+		void setColor(const RGBA& col);
+		const RGBA& getColor() const;
 
-	alni lay_len = mLayers.length();
-	file.write<alni>(&lay_len);
-	for (auto layer : mLayers) {
-		layer.data()->name.save(&file);
+	private:
+		Buffer<StrokePoint> mPoints;
+		RGBA mColor;
 
-		file.write<bool>(&layer.data()->enabled);
+		friend Renderer;
+		StrokeGPUHandles mGPUHandles;
+	};
 
-		alni len = layer.data()->strokes.length();
-		file.write<alni>(&len);
-		for (auto stiter : layer.data()->strokes) {
-			stiter->save(file);
-		}
-	}
+	struct Layer {
+		Layer() = default;
+		~Layer();
+
+		String name = "new layer";
+		List<Stroke*> strokes; // TODO use vector
+		bool enabled = true;
+	};
+
+	class Project {
+	public:
+		Project();
+		~Project();
+
+		// pos from -1 to 1 (left ot right bottom to top)
+		void sample(halnf pressure, halnf cameraRatio, Vec2F relativeCameraPos); 
+
+	public:
+		Buffer<Layer*> mLayers;
+		halni mActiveLayer = -1;
+
+		Camera mCamera;
+		RGBA mBackgroundColor = { 0.22f, 0.22f, 0.25f, 1.f };
+
+		Map<String, Brush*> mBrushes;
+		String mActiveBrush;
+	};
+
+	class Brush {
+	public:
+		String mType = "equal";
+		Brush() {}
+		virtual void sample(Project* proj, Vec2F crs, halnf pressure) {}
+		virtual void draw(Renderer* render, const Camera* camera) const {}
+		virtual ~Brush() {}
+	};
+
+	class PencilBrush : public Brush {
+	public:
+		PencilBrush();
+		virtual ~PencilBrush();
+
+		virtual void sample(Project* proj, Vec2F crs, halnf pressure) override;
+		virtual void draw(Renderer* render, const Camera* camera) const override;
+
+	private:
+		void ensureReady(Stroke* stroke, const Camera* cam, bool debug = false) const;
+
+	public:
+		RGBA mCol = RGBA(1.0f);
+		halnf mSize = 0.01f;
+
+	private:
+		halnf mPrecision = 0.001f;
+
+		halni mDenoisePassesPos = 1;
+		halni mDenoisePassesThick = 3;
+		halnf mCompressionFactor = 0.0001f;
+		halni mSubdivPasses = 3;
+		bool mEnableCompression = true;
+
+		halni mMaxPoints = 100;
+
+		Stroke* mStroke = NULL;
+	};
+
+	struct EraserBrush : public Brush {
+		EraserBrush() { mType = "eraser"; }
+		virtual void sample(Project* proj, Vec2F crs, halnf pressure) override {}
+		virtual void draw(Renderer* render, const Camera* camera) const override {}
+		virtual ~EraserBrush() {}
+	};
 }
-
-void Project::load(File& file) {
-	file.read<Camera>(&mCamera);
-	file.read<rgba>(&mBackgroundColor);
-	file.read<halni>(&mActiveLayer);
-
-	alni layers_len;
-	file.read<alni>(&layers_len);
-	mLayers.reserve(layers_len);
-
-	for (alni idx = 0; idx < layers_len; idx++) {
-
-		string key; key.load(&file);
-		auto layer = new Layer();
-		layer->name = key;
-		mLayers[idx] = layer;
-
-		file.read<bool>(&layer->enabled);
-
-		alni len;
-		file.read<alni>(&len);
-
-		for (alni str_idx = 0; str_idx < len; str_idx++) {
-			auto str = new Stroke();
-			layer->strokes.pushBack(str);
-			layer->strokes.last()->data->load(file);
-		}
-	}
-}
-*/
-
-/*
-			void Stroke::save(File& file) {
-				file.write<rgba>(&mCol);
-
-				alni length = mPoints.length();
-				file.write<alni>(&length);
-				for (auto piter : mPoints) {
-					file.write<Point>(&piter.data());
-				}
-			}
-
-			void Stroke::load(File& file) {
-				rgba color;
-				file.read<rgba>(&color);
-
-				alni p_len;
-				file.read<alni>(&p_len);
-
-				mPoints.reserve(p_len);
-				for (auto piter : mPoints) {
-					file.read<Point>(&piter.data());
-				}
-
-				updateGpuBuffers();
-			}
-		*/

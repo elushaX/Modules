@@ -13,7 +13,7 @@ void runApp() {
 	auto window = tp::Window::createWindow(800, 600, "Window 1");
 
 	{
-		tp::Sketch3DWidget<tp::Window::Events, tp::Graphics::Canvas> gui(window->getCanvas(), {800, 1000});
+		tp::Sketch3DWidget<tp::Window::Events, tp::Graphics::Canvas> gui(window->getCanvas(), {1800, 1000});
 
 		if (window) {
 			while (!window->shouldClose()) {
@@ -24,7 +24,7 @@ void runApp() {
 				gui.proc(window->getEvents(), { area.x, area.y, area.z, area.w }, { area.x, area.y, area.z, area.w });
 				gui.draw(window->getCanvas());
 
-				tp::sleep(100);
+				tp::sleep(10);
 
 				window->draw();
 			}

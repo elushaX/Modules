@@ -28,9 +28,9 @@ void Camera::setFar(halnf in) { mFar = in; }
 
 halnf Camera::getFOV() const { return mFOV; }
 
-Mat4F Camera::calculateTransformationMatrix() { return calculateProjectionMatrix() * calculateViewMatrix(); }
+Mat4F Camera::calculateTransformationMatrix() const { return calculateProjectionMatrix() * calculateViewMatrix(); }
 
-Mat4F Camera::calculateViewMatrix() {
+Mat4F Camera::calculateViewMatrix() const {
 	const Vec3F& F = (mPos - mTarget).unitV();
 	const Vec3F& S = mUp * F;
 	const Vec3F& U = F * S;
