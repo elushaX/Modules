@@ -1,7 +1,7 @@
 project(Graphics)
 
 ### ---------------------- Externals  ---------------------  ###
-set(BINDINGS_INCLUDE ../Externals/glfw/include ${GLEW_INCLUDE_DIR})
+set(BINDINGS_INCLUDE ../Externals/glfw/include ${GLEW_INCLUDE_DIR} ../Externals/easytab)
 set(BINDINGS_LIBS glfw Imgui Nanovg ${GLEW_LIB})
 
 ### ---------------------- Static Library  ---------------------  ###

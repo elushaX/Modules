@@ -45,7 +45,7 @@ namespace tp {
 		}
 
 		// takes whole area
-		void draw(Canvas& canvas) const override {
+		void draw(Canvas& canvas) override {
 			if (mResizeInProcess) canvas.rect(getHandle(), this->getColor("Resizing"));
 			else if (mIsHover) canvas.rect(getHandle(), this->getColor("Hovered"));
 			else canvas.rect(getHandle(), this->getColor("Handle"));

@@ -58,7 +58,7 @@ namespace tp {
 			ImGui::PopStyleVar(3);
 		}
 
-		void draw(Canvas& canvas) const override {
+		void draw(Canvas& canvas) override {
 			// canvas.rect(this->mArea, this->getColor("Base"));
 		}
 

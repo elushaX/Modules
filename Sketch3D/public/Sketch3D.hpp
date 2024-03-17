@@ -117,7 +117,7 @@ namespace tp {
 		String mType = "equal";
 		Brush() {}
 		virtual void sample(Project* proj, Vec2F crs, halnf pressure) {}
-		virtual void draw(Renderer* render, const Camera* camera) const {}
+		virtual void draw(Renderer* render, const Camera* camera) {}
 		virtual ~Brush() {}
 	};
 
@@ -127,7 +127,7 @@ namespace tp {
 		virtual ~PencilBrush();
 
 		virtual void sample(Project* proj, Vec2F crs, halnf pressure) override;
-		virtual void draw(Renderer* render, const Camera* camera) const override;
+		virtual void draw(Renderer* render, const Camera* camera) override;
 
 	private:
 		void ensureReady(Stroke* stroke, const Camera* cam, bool debug = false) const;
@@ -148,12 +148,13 @@ namespace tp {
 		halni mMaxPoints = 100;
 
 		Stroke* mStroke = NULL;
+		Stroke mTempDisplayStroke;
 	};
 
 	struct EraserBrush : public Brush {
 		EraserBrush() { mType = "eraser"; }
 		virtual void sample(Project* proj, Vec2F crs, halnf pressure) override {}
-		virtual void draw(Renderer* render, const Camera* camera) const override {}
+		virtual void draw(Renderer* render, const Camera* camera) override {}
 		virtual ~EraserBrush() {}
 	};
 }

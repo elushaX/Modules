@@ -41,7 +41,7 @@ namespace tp {
 			mLabel.proc(events, aArea, aArea);
 		}
 
-		void draw(Canvas& canvas) const override {
+		void draw(Canvas& canvas) override {
 			if (mIsPressed) {
 				canvas.rect(this->mArea, this->getColor("Pressed"), this->getValue("Rounding"));
 			} else if (mIsHover) {

@@ -68,7 +68,7 @@ namespace tp {
 			mPositionFraction = tp::clamp(mPositionFraction, 0.f, 1.f - mSizeFraction);
 		}
 
-		void draw(Canvas& canvas) const override {
+		void draw(Canvas& canvas) override {
 			auto area = getHandle();
 
 			if (mSizeFraction > 1.f) return;
@@ -162,7 +162,7 @@ namespace tp {
 			}
 		}
 
-		void draw(Canvas& canvas) const override {
+		void draw(Canvas& canvas) override {
 			if (!this->mVisible) return;
 			mScroller.draw(canvas);
 

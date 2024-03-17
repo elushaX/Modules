@@ -28,14 +28,12 @@ namespace tp {
 				return;
 			}
 
-			halnf pressure = 0.f;
-
 			auto crs = (events.getPos() - this->mArea.pos);
 			crs.x /= this->mArea.z;
 			crs.y /= this->mArea.w;
 			crs = (crs - 0.5) * 2;
 
-			mProject.sample(pressure, this->mArea.w / this->mArea.z, crs);
+			mProject.sample(events.pressure, this->mArea.w / this->mArea.z, crs);
 
 			// mProject.setBackGroundColor();
 		}
