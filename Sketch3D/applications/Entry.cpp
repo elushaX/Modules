@@ -1,34 +1,49 @@
 
-#include "nodes.h"
-#include "StrokesWidget.h"
+#include "Sketch3D.hpp"
 
-int main(int argc, char* argv[]) {
-	
-	auto nodes = (argc == 2) ? nd::NodesCore::createFast(argv[1]) : nd::NodesCore::createFast();
+#include "Graphics.hpp"
+#include "Window.hpp"
+#include "Widgets.hpp"
 
-	tp::init_utils();
+void runApp() {
 
-	obj::NDO->define(&obj::StrokesObject::TypeData);
-	obj::NDO->define(&nd::StrokesWidget::TypeData);
-	obj::NDO->type_groups.addType(&obj::StrokesObject::TypeData, { "Strokes", "StrokesProject" });
-	obj::NDO->type_groups.addType(&nd::StrokesWidget::TypeData, { "Strokes", "StrokesWidget" });
+	tp::GlobalGUIConfig config;
+	tp::gGlobalGUIConfig = &config;
 
-	nd::StrokesWidget::OpsInit();
-	nd::StrokesWidget::addShortcuts(nodes);
+	tp::LabelWidget<tp::Window::Events, tp::Graphics::Canvas> gui;
 
-	auto root_widget = NDO_CAST(nd::Widget, obj::NDO->create("RootWidget"));
+	auto window = tp::Window::createWindow(800, 600, "Window 1");
 
-	auto childs = root_widget->getMember<obj::ListObject>("childs");
-	
-	childs->pushBack(obj::NDO->create("StrokesWidget"));
-	
-	nodes->bindRootWindow(root_widget);
+	if (window) {
+		while (!window->shouldClose()) {
+			window->processEvents();
 
-	nodes->run();
+			auto area = window->getCanvas().getAvaliableArea();
 
-	nd::StrokesWidget::OpsUnInit();
-	tp::finalize_utils();
+			gui.proc(window->getEvents(), { area.x, area.y, area.z, area.w }, { area.x, area.y, area.z, area.w });
+			gui.draw(window->getCanvas());
 
-	nodes->destroyFast();
-	tp::terminate();
+			tp::sleep(100);
+
+			window->draw();
+		}
+	}
+
+	tp::Window::destroyWindow(window);
+}
+
+int main() {
+
+	tp::ModuleManifest* deps[] = { &tp::gModuleGraphics, &tp::gModuleStrings, &tp::gModuleWidgets, nullptr };
+	tp::ModuleManifest binModule("LibViewEntry", nullptr, nullptr, deps);
+
+	if (!binModule.initialize()) {
+		return 1;
+	}
+
+	tp::HeapAllocGlobal::disableCallstack();
+
+	runApp();
+
+	binModule.deinitialize();
 }

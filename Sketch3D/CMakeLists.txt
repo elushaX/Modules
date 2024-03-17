@@ -1,4 +1,4 @@
-project(Sketch3Dlib)
+project(Sketch3D)
 
 ### ---------------------- Externals  ---------------------  ###
 set(BINDINGS_INCLUDE ../Externals/glfw/include ${GLEW_INCLUDE_DIR})
@@ -14,9 +14,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC ./public/ ${BINDINGS_INCLUDE} 
 target_link_libraries(${PROJECT_NAME} PUBLIC Graphics Connection Widgets Math Strings)
 target_link_libraries(${PROJECT_NAME} PUBLIC ${BINDINGS_LIBS})
 
-file(COPY "rsc" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
-
 ### -------------------------- Applications  --------------------------  ###
-add_executable(Sketch3D ./applications/Entry.cpp)
-target_link_libraries(Sketch3D ${PROJECT_NAME})
+add_executable(Sketch3DApp ./applications/Entry.cpp)
+target_link_libraries(Sketch3DApp ${PROJECT_NAME})
  
+file(COPY "rsc" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
+file(COPY "applications/Font.ttf" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
