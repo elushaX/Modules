@@ -336,7 +336,7 @@ namespace tp {
 
 			void operator++() {
 				mSlot++;
-				while ((map->isDeletedNode(map->mTable[mSlot]) || !map->mTable[mSlot]) && (mSlot != map->mNSlots)) {
+				while ((map->isDeletedNode(map->mTable[mSlot]) || !map->mTable[mSlot]) && (mSlot != (map->mNSlots - 1))) {
 					mSlot++;
 				}
 				if (mSlot != map->mNSlots) {
