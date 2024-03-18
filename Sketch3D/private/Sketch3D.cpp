@@ -305,15 +305,7 @@ Project::Project() {
 
 	mActiveBrush = "pencil";
 
-	Stroke* debug = new Stroke();
-	debug->getPoints() = { { { 0, 0, 0 }, 1 }, { { 1, 1, 1 }, 1 } };
-	debug->updateGpuBuffers();
-
-	mLayers.last()->strokes.pushBack(debug);
-
-	auto vec = mCamera.project({0, 0, 0});
-	vec = mCamera.project({-1, 0, 0});
-	vec = mCamera.project({1, 0, 0});
+	mBackgroundColor = 0.f;
 }
 
 void Project::sample(halnf pressure, halnf cameraRatio, Vec2F relativeCameraPos) {
@@ -349,6 +341,9 @@ Renderer::Renderer(Vec2F size) :
 	mRatioUniform = mShader.getu("Ratio");
 	mTargetUniform = mShader.getu("Target");
 	mBGColUniform = mShader.getu("BGCol");
+
+	mBuffer.mClearCol = 0.f;
+	mBufferDowncast.mClearCol = 0.f;
 }
 
 void Renderer::renderToTexture(const Project* project, Vec2F size) {
