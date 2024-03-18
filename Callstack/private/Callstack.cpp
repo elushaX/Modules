@@ -117,6 +117,12 @@ CallStackCapture::~CallStackCapture() {
 #include <execinfo.h>
 #include <malloc.h>
 
+void CallStackCapture::platformInit() {
+}
+
+void CallStackCapture::platformDeinit() {
+}
+
 void CallStackCapture::platformWriteStackTrace(CallStack* stack) {
 	auto depth = backtrace((void**) stack->frames, (int) MAX_CALL_DEPTH_CAPTURE - 1);
 	stack->frames[depth] = 0;
@@ -138,7 +144,7 @@ static void getGetSourceFromBinaryAddress(const char* binary, const char* addres
 		if (linePtr != nullptr && buff[0] != '?' && buff[1] != '?' && buff[2] != ':') {
 			*linePtr = '\0';
 			auto sourceLen = std::strlen(buff);
-			std::strcpy(file, buff + ((sourceLen > MAX_DEBUG_INFO_LEN) ? (sourceLen - MAX_DEBUG_INFO_LEN) : 0));
+			std::strcpy(file, buff + ((sourceLen > CallStackCapture::MAX_DEBUG_INFO_LEN) ? (sourceLen - CallStackCapture::MAX_DEBUG_INFO_LEN) : 0));
 			*line = strtoul(linePtr + 1, nullptr, 10);
 			return;
 		}
@@ -150,18 +156,18 @@ static void getGetSourceFromBinaryAddress(const char* binary, const char* addres
 
 static void getDemangledName(const char* func, char* out) {
 	int status;
-	size_t funcDemangledSize = MAX_DEBUG_INFO_LEN;
+	size_t funcDemangledSize = CallStackCapture::MAX_DEBUG_INFO_LEN;
 	char* funcDemangled = (char*) malloc(funcDemangledSize);
 	char* ret = abi::__cxa_demangle(func, funcDemangled, &funcDemangledSize, &status);
 	if (status == 0) {
 		funcDemangled = ret;
 		auto funcLen = std::strlen(funcDemangled);
-		std::strcpy(out, funcDemangled + ((funcLen > MAX_DEBUG_INFO_LEN) ? (funcLen - MAX_DEBUG_INFO_LEN) : 0));
+		std::strcpy(out, funcDemangled + ((funcLen > CallStackCapture::MAX_DEBUG_INFO_LEN) ? (funcLen - CallStackCapture::MAX_DEBUG_INFO_LEN) : 0));
 		free(ret);
 		return;
 	}
 	auto funcLen = std::strlen(func);
-	std::strcpy(out, func + ((funcLen > MAX_DEBUG_INFO_LEN) ? (funcLen - MAX_DEBUG_INFO_LEN) : 0));
+	std::strcpy(out, func + ((funcLen > CallStackCapture::MAX_DEBUG_INFO_LEN) ? (funcLen - CallStackCapture::MAX_DEBUG_INFO_LEN) : 0));
 	free(funcDemangled);
 }
 
