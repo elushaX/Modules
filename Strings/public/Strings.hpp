@@ -62,6 +62,8 @@ namespace tp {
 			DEBUG_ASSERT(mReferenceCount == 1 && !mIsConst)
 			delete[] mBuff;
 			mBuff = new tChar[size + 1];
+			// set non-zero value so that size() function wont return size that may be less that actual
+			memSetVal(mBuff, size, 1);
 			mBuff[size] = Logic::getEndChar();
 		}
 	};

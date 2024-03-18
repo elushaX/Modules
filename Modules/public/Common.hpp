@@ -51,7 +51,7 @@ namespace tp {
 	ualni hash(alnf bytes);
 
 	template <typename T>
-	[[nodiscard]] T clamp(T v, T l, T u) {
+	T clamp(T v, T l, T u) {
 		if (v < l) {
 			v = l;
 		} else if (v > u) {

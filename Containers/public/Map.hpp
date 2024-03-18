@@ -348,7 +348,7 @@ namespace tp {
 
 		[[nodiscard]] Iterator begin() const { return Iterator(this); }
 
-		[[nodiscard]] ualni end() const { return mNSlots; }
+		[[nodiscard]] ualni end() const { return mNSlots - 1; }
 
 		template <class Archiver>
 		void archiveWrite(Archiver& ar) const {
