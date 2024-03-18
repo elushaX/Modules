@@ -14,7 +14,7 @@ void StrokeGPUHandles::sendDataToGPU(Buffer<StrokePoint>* mPoints) {
 	glBindVertexArray(VertexArrayID);
 	vbo_len = mPoints->size();
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(mPoints[0]) * vbo_len, mPoints->getBuff(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(StrokePoint) * vbo_len, mPoints->getBuff(), GL_STATIC_COPY);
 }
 
 StrokeGPUHandles::~StrokeGPUHandles() {
@@ -340,7 +340,7 @@ Project::~Project() {
 Renderer::Renderer(Vec2F size) : 
 	mBuffer(size, 4),
 	mBufferDowncast(size),
-	mShader(".\\rsc\\shaders\\stroke.vert", ".\\rsc\\shaders\\stroke.geom", ".\\rsc\\shaders\\stroke.frag") 
+	mShader("rsc/shaders/stroke.vert", "rsc/shaders/stroke.geom", "rsc/shaders/stroke.frag")
 {
 	mMaxSize = size;
 

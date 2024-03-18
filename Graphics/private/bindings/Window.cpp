@@ -7,8 +7,8 @@
 
 #include <cstdio>
 
-#define EASYTAB_IMPLEMENTATION
-#include "easytab.h"
+// #define EASYTAB_IMPLEMENTATION
+// #include "easytab.h"
 
 namespace tp {
 	class Graphics::GL::Context {
@@ -83,7 +83,7 @@ void Graphics::draw() {
 	mGui.draw();
 }
 
-Window::Window(int width, int height, const char* title) {
+tp::Window::Window(int width, int height, const char* title) {
 	mContext = new Context();
 
 	glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
@@ -110,13 +110,13 @@ Window::Window(int width, int height, const char* title) {
 	mEvents.mContext = mContext;
 
 	#ifdef ENV_OS_WINDOWS
-	EasyTab_Load(glfwGetWin32Window(mContext->window));
+	// EasyTab_Load(glfwGetWin32Window(mContext->window));
 	#endif
 }
 
-Window::~Window() {
+tp::Window::~Window() {
 	#ifdef ENV_OS_WINDOWS
-	EasyTab_Unload();
+	// EasyTab_Unload();
 	#endif
 
 	mGraphics.deinit();
@@ -124,7 +124,7 @@ Window::~Window() {
 	delete mContext;
 }
 
-Window* Window::createWindow(int width, int height, const char* title) {
+tp::Window* tp::Window::createWindow(int width, int height, const char* title) {
 	tp::HeapAllocGlobal::startIgnore();
 
 	static int count = 1;
@@ -149,23 +149,23 @@ Window* Window::createWindow(int width, int height, const char* title) {
 	return out;
 }
 
-void Window::destroyWindow(Window* window) {
+void tp::Window::destroyWindow(Window* window) {
 	delete window;
 	glfwTerminate();
 }
 
-bool Window::shouldClose() const { return glfwWindowShouldClose(mContext->window); }
+bool tp::Window::shouldClose() const { return glfwWindowShouldClose(mContext->window); }
 
-void Window::processEvents() {
+void tp::Window::processEvents() {
 	mContext->inputManager.isEvent = false;
 
 	#ifdef ENV_OS_WINDOWS
-	HWND w32window = glfwGetWin32Window(mContext->window);
-	MSG msg;
-	if (PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE)) {
-		if (EasyTab_HandleEvent(msg.hwnd, msg.message, msg.lParam, msg.wParam) == EASYTAB_OK)
-			mEvents.pressure = EasyTab->Pressure;
-	}
+	// HWND w32window = glfwGetWin32Window(mContext->window);
+	// MSG msg;
+	// if (PeekMessageW(&msg, NULL, 0, 0, PM_NOREMOVE)) {
+	//	if (EasyTab_HandleEvent(msg.hwnd, msg.message, msg.lParam, msg.wParam) == EASYTAB_OK)
+  //			mEvents.pressure = EasyTab->Pressure;
+	// }
 	#endif
 
 	glfwPollEvents();
@@ -192,24 +192,24 @@ void Window::processEvents() {
 	get_time();
 }
 
-void Window::draw() {
+void tp::Window::draw() {
 	mGraphics.draw();
 	glfwSwapBuffers(mContext->window);
 	mContext->inputManager.resetScroll();
 }
 
-auto Window::getContext() -> Context* { return mContext; }
-Graphics::Canvas& Window::getCanvas() { return mGraphics.mCanvas; }
-const Window::Events& Window::getEvents() { return mEvents; }
+auto tp::Window::getContext() -> Context* { return mContext; }
+Graphics::Canvas& tp::Window::getCanvas() { return mGraphics.mCanvas; }
+const tp::Window::Events& tp::Window::getEvents() { return mEvents; }
 
-const Vec2F& Window::Events::getPos() const { return mContext->inputManager.getPos(); }
+const Vec2F& tp::Window::Events::getPos() const { return mContext->inputManager.getPos(); }
 
-bool Window::Events::isPressed() const { return mContext->inputManager.isPressed(); }
+bool tp::Window::Events::isPressed() const { return mContext->inputManager.isPressed(); }
 
-bool Window::Events::isReleased() const { return mContext->inputManager.isReleased(); }
+bool tp::Window::Events::isReleased() const { return mContext->inputManager.isReleased(); }
 
-bool Window::Events::isDown() const { return mContext->inputManager.isDown(); }
+bool tp::Window::Events::isDown() const { return mContext->inputManager.isDown(); }
 
-halnf Window::Events::getScrollY() const { return mContext->inputManager.getScrollY(); }
+halnf tp::Window::Events::getScrollY() const { return mContext->inputManager.getScrollY(); }
 
-bool Window::Events::isEvent() const { return mContext->inputManager.isEvents(); }
+bool tp::Window::Events::isEvent() const { return mContext->inputManager.isEvents(); }

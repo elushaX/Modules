@@ -45,8 +45,8 @@ namespace tp {
 		}
 
 	private:
-		Project mProject;
 		Renderer mRenderer;
+		Project mProject;
 		Canvas::ImageHandle mImage;
 		Canvas* mCanvas = nullptr;
 	};
