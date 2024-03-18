@@ -2,6 +2,7 @@
 *tmp*
 bin
 build*
+*build*
 lib
 install
 .vscode
