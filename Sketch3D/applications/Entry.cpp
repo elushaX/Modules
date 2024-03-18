@@ -13,7 +13,7 @@ void runApp() {
 	auto window = tp::Window::createWindow(800, 600, "Window 1");
 
 	{
-		tp::Sketch3DWidget<tp::Window::Events, tp::Graphics::Canvas> gui(window->getCanvas(), {1800, 1000});
+		tp::Sketch3DGUI<tp::Window::Events, tp::Graphics::Canvas> gui(window->getCanvas(), {1920, 1080});
 
 		if (window) {
 			while (!window->shouldClose()) {
@@ -46,6 +46,8 @@ int main() {
 	tp::HeapAllocGlobal::disableCallstack();
 
 	runApp();
+
+	// FIXME : leaks in stacktrace itself
 
 	binModule.deinitialize();
 }

@@ -292,6 +292,7 @@ namespace tp {
 		Vec2<Type> operator-(Type val) const { return Vec2<Type>(x - val, y - val); }
 		Vec2<Type> operator*(Type val) const { return Vec2<Type>(x * val, y * val); }
 		Vec2<Type> operator/(Type val) const { return Vec2<Type>(x / val, y / val); }
+		Vec2<Type> operator/(Vec2<Type> val) const { return Vec2<Type>(x / val.x, y / val.y); }
 
 		//  write
 		void operator-=(Type val) {

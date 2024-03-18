@@ -8,6 +8,18 @@ namespace tp {
 	class ButtonWidget : public Widget<Events, Canvas> {
 	public:
 		ButtonWidget() {
+			this->mArea = { 0, 0, 100, 100 };
+			this->createConfig("Button");
+			this->addColor("Pressed", "Action");
+			this->addColor("Hovered", "Interaction");
+			this->addColor("Default", "Accent");
+			this->addValue("Rounding", "Rounding");
+		}
+
+		ButtonWidget(const String& label, const tp::RectF& aArea) {
+			this->mArea = aArea;
+			this->mLabel.mLabel = label;
+			
 			this->createConfig("Button");
 			this->addColor("Pressed", "Action");
 			this->addColor("Hovered", "Interaction");
