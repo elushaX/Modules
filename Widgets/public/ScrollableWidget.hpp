@@ -132,6 +132,12 @@ namespace tp {
 			this->addValue("Padding", "Padding");
 		}
 
+		~ScrollableWindow() {
+			for (auto content : mContents) {
+				delete content.data();
+			}
+		}
+
 		// takes whole area
 		void proc(const Events& events, const tp::RectF& areaParent, const tp::RectF& aArea) override {
 			this->mArea = aArea;

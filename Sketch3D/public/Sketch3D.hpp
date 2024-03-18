@@ -115,16 +115,16 @@ namespace tp {
 	class Brush {
 	public:
 		String mType = "equal";
-		Brush() {}
+		Brush() = default;
 		virtual void sample(Project* proj, Vec2F crs, halnf pressure) {}
 		virtual void draw(Renderer* render, const Camera* camera) {}
-		virtual ~Brush() {}
+		virtual ~Brush() = default;
 	};
 
 	class PencilBrush : public Brush {
 	public:
 		PencilBrush();
-		virtual ~PencilBrush();
+		~PencilBrush() override;
 
 		virtual void sample(Project* proj, Vec2F crs, halnf pressure) override;
 		virtual void draw(Renderer* render, const Camera* camera) override;
@@ -147,14 +147,14 @@ namespace tp {
 
 		halni mMaxPoints = 100;
 
-		Stroke* mStroke = NULL;
+		Stroke* mStroke = nullptr;
 		Stroke mTempDisplayStroke;
 	};
 
 	struct EraserBrush : public Brush {
 		EraserBrush() { mType = "eraser"; }
-		virtual void sample(Project* proj, Vec2F crs, halnf pressure) override {}
-		virtual void draw(Renderer* render, const Camera* camera) override {}
-		virtual ~EraserBrush() {}
+		void sample(Project* proj, Vec2F crs, halnf pressure) override {}
+		void draw(Renderer* render, const Camera* camera) override {}
+		~EraserBrush() override = default;
 	};
 }
