@@ -5,6 +5,8 @@
 #include "Rect.hpp"
 #include "Strings.hpp"
 
+#include "InputCodes.hpp"
+
 namespace tp {
 
 	extern ModuleManifest gModuleWidgets;

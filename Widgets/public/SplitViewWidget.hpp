@@ -23,9 +23,9 @@ namespace tp {
 				return;
 			}
 
-			mIsHover = getHandle().isInside(events.getPos());
+			mIsHover = getHandle().isInside(events.getPointer());
 
-			if (events.isPressed() && mIsHover) {
+			if (events.isPressed(InputID::MOUSE1) && mIsHover) {
 				mResizeInProcess = true;
 			} else if (!events.isDown()) {
 				mResizeInProcess = false;
