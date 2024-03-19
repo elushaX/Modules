@@ -12,31 +12,32 @@
 #include <nanovg_gl.h>
 
 namespace tp {
-	class Graphics::Canvas::Context {
+	class Canvas::Context {
 	public:
-		NVGcontext* vg;
+		NVGcontext* vg {};
+		Window* window {};
 	};
 }
 
 using namespace tp;
 
-Graphics::Canvas::Canvas() { mContext = new Context(); }
+Canvas::Canvas(Window* window) {
+	mContext = new Context();
+	mContext->window = window;
 
-Graphics::Canvas::~Canvas() { delete mContext; }
-
-void Graphics::Canvas::init() {
 	mContext->vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
 
 	if (nvgCreateFont(mContext->vg, "default", "Font.ttf") == -1) {
-		// TODO
+		ASSERT(!"Cant create NVG font")
 	}
 }
 
-void Graphics::Canvas::deinit() { nvgDeleteGL3(mContext->vg); }
+Canvas::~Canvas() {
+	nvgDeleteGL3(mContext->vg);
+	delete mContext;
+}
 
-RectF Graphics::Canvas::getAvaliableArea() { return { (halnf) 0, (halnf) 0, mWidth, mHeight }; }
-
-void Graphics::Canvas::rect(const RectF& rec, const RGBA& col, halnf round) {
+void Canvas::rect(const RectF& rec, const RGBA& col, halnf round) {
 	nvgBeginPath(mContext->vg);
 
 	if (round == 0) {
@@ -49,7 +50,7 @@ void Graphics::Canvas::rect(const RectF& rec, const RGBA& col, halnf round) {
 	nvgFill(mContext->vg);
 }
 
-void Graphics::Canvas::pushClamp(const RectF& rec) {
+void Canvas::pushClamp(const RectF& rec) {
 	RectF intersection = rec;
 	if (mScissors.size()) {
 		mScissors.last().calcIntersection(rec, intersection);
@@ -58,7 +59,7 @@ void Graphics::Canvas::pushClamp(const RectF& rec) {
 	mScissors.append(rec);
 }
 
-void Graphics::Canvas::popClamp() {
+void Canvas::popClamp() {
 	DEBUG_ASSERT(mScissors.size());
 	mIsClamping = false;
 	mScissors.pop();
@@ -70,7 +71,7 @@ void Graphics::Canvas::popClamp() {
 	}
 }
 
-void Graphics::Canvas::text(
+void Canvas::text(
 	const char* string, const RectF& aRec, halnf size, Align align, halnf marging, const RGBA& col
 ) {
 	RectF rec = { aRec.x + marging, aRec.y + marging, aRec.z - marging * 2, aRec.w - marging * 2 };
@@ -112,7 +113,7 @@ void Graphics::Canvas::text(
 	popClamp();
 }
 
-void Graphics::Canvas::drawImage(const RectF& rec, ImageHandle* image, halnf angle, halnf alpha, halnf rounding) {
+void Canvas::drawImage(const RectF& rec, ImageHandle* image, halnf angle, halnf alpha, halnf rounding) {
 	auto imgPaint = nvgImagePattern(mContext->vg, rec.x, rec.y, rec.z, rec.w, angle, image->id, alpha);
 	nvgBeginPath(mContext->vg);
 	nvgRoundedRect(mContext->vg, rec.x, rec.y, rec.z, rec.w, rounding);
@@ -120,7 +121,7 @@ void Graphics::Canvas::drawImage(const RectF& rec, ImageHandle* image, halnf ang
 	nvgFill(mContext->vg);
 }
 
- Graphics::Canvas::ImageHandle Graphics::Canvas::createImageFromTextId(ualni id, Vec2F size) {
+ Canvas::ImageHandle Canvas::createImageFromTextId(ualni id, Vec2F size) {
 #ifdef ENV_OS_ANDROID
 	 return { (ualni) nvglCreateImageFromHandleGLES3(mContext->vg, id, size.x, size.y, 0) };
 #else
@@ -128,12 +129,17 @@ void Graphics::Canvas::drawImage(const RectF& rec, ImageHandle* image, halnf ang
 #endif
 }
 
-void Graphics::Canvas::deleteImageHandle(ImageHandle image) {
+void Canvas::deleteImageHandle(ImageHandle image) {
 	if (image.id) {
 		nvgDeleteImage(mContext->vg, image.id);
 	}
 }
 
-void Graphics::Canvas::proc() { nvgBeginFrame(mContext->vg, mWidth, mHeight, 1.0); }
+void Canvas::proc() {
+	const auto size = mContext->window->getSize();
+	nvgBeginFrame(mContext->vg, size.x, size.y, 1.0);
+}
 
-void Graphics::Canvas::draw() { nvgEndFrame(mContext->vg); }
+void Canvas::draw() {
+	nvgEndFrame(mContext->vg);
+}

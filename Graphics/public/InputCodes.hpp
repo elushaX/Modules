@@ -2,10 +2,7 @@
 #pragma once
 
 namespace tp {
-
-	// basically copy of glfw keys
-	enum class Keycode {
-
+	enum class InputID : ualni {
 		/* Printable keys */
 		SPACE = 32,
 		APOSTROPHE = 39, /* ' */
@@ -145,22 +142,7 @@ namespace tp {
 		MOUSE5 = 505,
 		MOUSE_UP = 506,
 		MOUSE_DOWN = 507,
-	};
 
-	enum class KeyState {
-		PRESSED,
-		RELEASED,
-		HOLD,
-		REPEAT,
-		NONE,
+		LAST_KEY_CODE = 508,
 	};
-
-	struct KeyEvent {
-		Keycode  code;
-		enum class EventState {
-			RELEASED = 0,
-			PRESSED = 1,
-			REPEAT = 2,
-		} event_state;
-	};
-};
+}

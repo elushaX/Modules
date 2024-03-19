@@ -1,6 +1,7 @@
 #include "Window.hpp"
-
 #include "WindowContext.hpp"
+
+#include "Graphics.hpp"
 
 // -------- Debug UI -------- //
 #include <imgui.h>
@@ -9,7 +10,7 @@
 #include <imgui_internal.h>
 
 namespace tp {
-	class Graphics::GUI::Context {
+	class DebugGUI::Context {
 	public:
 		ImGuiIO* io{};
 		ImGuiContext* ctx{};
@@ -18,11 +19,9 @@ namespace tp {
 
 using namespace tp;
 
-Graphics::GUI::GUI() { mContext = new Context(); }
+DebugGUI::DebugGUI(Window* window) {
+	mContext = new Context();
 
-Graphics::GUI::~GUI() { delete mContext; }
-
-void Graphics::GUI::init(Window* window) {
 	IMGUI_CHECKVERSION();
 	mContext->ctx = ImGui::CreateContext();
 	mContext->io = &ImGui::GetIO();
@@ -38,13 +37,15 @@ void Graphics::GUI::init(Window* window) {
 	io.Fonts->AddFontFromFileTTF("Font.ttf", 20.f);
 }
 
-void Graphics::GUI::deinit() {
+DebugGUI::~DebugGUI() {
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
+
+	delete mContext;
 }
 
-void Graphics::GUI::proc() {
+void DebugGUI::proc() {
 	tp::HeapAllocGlobal::startIgnore();
 
 	ImGui_ImplOpenGL3_NewFrame();
@@ -54,7 +55,7 @@ void Graphics::GUI::proc() {
 	tp::HeapAllocGlobal::stopIgnore();
 }
 
-void Graphics::GUI::draw() {
+void DebugGUI::draw() {
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

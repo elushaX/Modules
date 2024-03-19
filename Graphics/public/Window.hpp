@@ -1,62 +1,38 @@
 #pragma once
 
-// TODO : fix this ugly shit
-
 #include "Buffer.hpp"
-#include "Graphics.hpp"
-#include "Keycodes.hpp"
+#include "EventHandler.hpp"
+#include "Strings.hpp"
 
 namespace tp {
+
+	extern ModuleManifest gModuleGraphics;
 
 	class Window {
 		class Context;
 
-	public:
-		struct Event {
-			enum Type {
-				KEY,
-				MOUSE,
-			};
-		};
-
-		struct Events {
-			Vec2F mPointer;
-			halnf pressure = 0;
-
-			const Vec2F& getPos() const;
-			bool isPressed() const;
-			bool isReleased() const;
-			bool isDown() const;
-			halnf getScrollY() const;
-			bool isEvent() const;
-
-		private:
-			friend Window;
-			Buffer<Event> mQueu;
-			Context* mContext;
-		};
-
 	private:
-		Window(int width, int height, const char* title);
+		Window(Vec2F size, const String& title);
 		~Window();
 
 	public:
-		static Window* createWindow(int width, int height, const char* title);
+		static Window* createWindow(Vec2F size = { 1000.f, 900.f }, const String& title = "Window");
 		static void destroyWindow(Window* window);
 
 	public:
 		void draw();
 		void processEvents();
+
+		void setEventHandler(EventHandler* eventHandler);
+		[[nodiscard]] EventHandler* getEventHandler();
+
+		Context* getContext();
 		[[nodiscard]] bool shouldClose() const;
-
-		auto getContext() -> Context*;
-
-		Graphics::Canvas& getCanvas();
-		const Events& getEvents();
+		[[nodiscard]] const Vec2F& getSize() const;
 
 	private:
+		Vec2F mSize;
 		Context* mContext;
-		Graphics mGraphics;
-		Events mEvents;
+		EventHandler* mEventHandler = nullptr;
 	};
 }
