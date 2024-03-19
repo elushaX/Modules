@@ -1,34 +1,10 @@
 
-#include "Window.hpp"
+#include "Graphics.hpp"
 
 #include "GUI.h"
 
 using namespace tp;
 using namespace obj;
-
-class GUIWindow {
-	Window* window;
-	ObjectsGUI gui;
-
-public:
-	GUIWindow() {
-		tp::HeapAllocGlobal::startIgnore();
-		window = Window::createWindow(1500, 900, "Objects GUI");
-		tp::HeapAllocGlobal::stopIgnore();
-
-		gui.cd(NDO->create("dict"), "root");
-	}
-
-	void run() {
-		while (!window->shouldClose()) {
-			window->processEvents();
-			gui.draw();
-			window->draw();
-		}
-	}
-
-	~GUIWindow() { Window::destroyWindow(window); }
-};
 
 int main() {
 
@@ -36,10 +12,25 @@ int main() {
 	tp::ModuleManifest module("ObjectsTests", nullptr, nullptr, deps);
 
 	if (module.initialize()) {
+		auto window = Window::createWindow({ 1500, 900 }, "Objects GUI");
+
 		{
-			GUIWindow window;
-			window.run();
+			Graphics graphics(window);
+			ObjectsGUI gui;
+
+			gui.cd(NDO->create("dict"), "root");
+
+			while (!window->shouldClose()) {
+				window->processEvents();
+				graphics.proc();
+				gui.draw();
+				graphics.draw();
+				window->draw();
+			}
 		}
+
+		Window::destroyWindow(window);
+
 		module.deinitialize();
 	}
 

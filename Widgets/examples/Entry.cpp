@@ -1,13 +1,14 @@
 
 #include "ExampleGUI.hpp"
-#include "Window.hpp"
+
+#include "Graphics.hpp"
 
 using namespace tp;
 
 void runApp() {
-	auto window = tp::Window::createWindow(800, 600, "Window 1");
+	auto window = tp::Window::createWindow({ 800, 600 }, "Window 1");
 
-	tp::ComplexWidget<tp::Window::Events, tp::Graphics::Canvas> gui;
+	tp::ComplexWidget<tp::EventHandler, tp::Canvas> gui;
 
 	if (window) {
 		while (!window->shouldClose()) {

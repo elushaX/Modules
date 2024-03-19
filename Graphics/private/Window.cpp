@@ -1,12 +1,9 @@
+
 #include "Window.hpp"
 #include "WindowContext.hpp"
 #include "Allocators.hpp"
 
-// -------- OpenGL -------- //
 #include <GL/glew.h>
-
-// -------- Window Context -------- //
-#include <GLFW/glfw3.h>
 
 #ifdef ENV_OS_WINDOWS
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -16,9 +13,7 @@
 #define GLFW_EXPOSE_NATIVE_WAYLAND
 #endif
 
-#include <GLFW/glfw3native.h>
-
-#include <array>
+#include <GLFW/glfw3.h>
 #include <cstdio>
 
 namespace tp {
