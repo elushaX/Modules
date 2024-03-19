@@ -63,7 +63,7 @@ namespace tp {
 	};
 
 	class Graphics {
-	private:
+	public:
 		explicit Graphics(Window* window) : mGui(window), mCanvas(window) {}
 
 		void proc() {

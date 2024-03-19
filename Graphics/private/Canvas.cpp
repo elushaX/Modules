@@ -4,7 +4,7 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-#include "WindowContext.hpp"
+#include "Graphics.hpp"
 
 // -------- Canvas -------- //
 #define NANOVG_GL3_IMPLEMENTATION

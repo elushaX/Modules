@@ -2,7 +2,6 @@
 
 #include "Buffer.hpp"
 #include "EventHandler.hpp"
-#include "Strings.hpp"
 
 namespace tp {
 
@@ -12,11 +11,11 @@ namespace tp {
 		class Context;
 
 	private:
-		Window(Vec2F size, const String& title);
+		Window(Vec2F size, const char* title);
 		~Window();
 
 	public:
-		static Window* createWindow(Vec2F size = { 1000.f, 900.f }, const String& title = "Window");
+		static Window* createWindow(Vec2F size = { 1000.f, 900.f }, const char* title = "Window");
 		static void destroyWindow(Window* window);
 
 	public:

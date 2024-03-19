@@ -56,7 +56,7 @@ namespace tp {
 	// Event posters has no access to any custom state and only report any changes in any way
 	class EventHandler {
 	public:
-		EventHandler() = default;
+		EventHandler();
 		~EventHandler();
 
 	public: // Event Poster Interface

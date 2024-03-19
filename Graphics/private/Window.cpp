@@ -1,5 +1,6 @@
 #include "Window.hpp"
 #include "WindowContext.hpp"
+#include "Allocators.hpp"
 
 // -------- OpenGL -------- //
 #include <GL/glew.h>
@@ -31,13 +32,13 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 static void scrollCallback(GLFWwindow* window, double xOffset, double yOffset);
 
-Window::Window(Vec2F size, const String& title) {
+Window::Window(Vec2F size, const char* title) {
 	mContext = new Context();
 
 	glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
 
 	// Create a window and OpenGL context
-	mContext->window = glfwCreateWindow((int) size.x, (int) size.y, title.read(), nullptr, nullptr);
+	mContext->window = glfwCreateWindow((int) size.x, (int) size.y, title, nullptr, nullptr);
 	if (!mContext->window) {
 		printf("Failed to create GLFW window\n");
 		return;
@@ -63,7 +64,7 @@ Window::~Window() {
 	delete mContext;
 }
 
-Window* Window::createWindow(Vec2F size, const String& title) {
+Window* Window::createWindow(Vec2F size, const char* title) {
 	HeapAllocGlobal::startIgnore();
 
 	static int count = 1;
