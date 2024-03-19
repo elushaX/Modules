@@ -29,8 +29,12 @@ namespace tp {
 		[[nodiscard]] bool shouldClose() const;
 		[[nodiscard]] const Vec2F& getSize() const;
 
+		void checkAxisUpdates();
+
 	private:
 		Vec2F mSize;
+		Vec2F mPointerPos;
+
 		Context* mContext;
 		EventHandler* mEventHandler = nullptr;
 	};
