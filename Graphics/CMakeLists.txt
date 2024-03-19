@@ -5,7 +5,7 @@ set(BINDINGS_INCLUDE ../Externals/glfw/include ${GLEW_INCLUDE_DIR})
 set(BINDINGS_LIBS glfw Imgui Nanovg ${GLEW_LIB})
 
 ### ---------------------- Static Library  ---------------------  ###
-file(GLOB SOURCES "./private/*.cpp" "./private/*/*.cpp")
+file(GLOB SOURCES "./private/*.cpp")
 file(GLOB HEADERS "./public/*.hpp")
 add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
 target_include_directories(${PROJECT_NAME} PUBLIC ./public/)
