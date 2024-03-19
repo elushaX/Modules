@@ -1,12 +1,13 @@
 #pragma once
 
+#include "Window.hpp"
+
 #include "Color.hpp"
 #include "Rect.hpp"
 
 #include "Buffer.hpp"
 
 namespace tp {
-	class Window;
 
 	class DebugGUI {
 		class Context;
