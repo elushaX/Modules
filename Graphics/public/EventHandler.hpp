@@ -60,11 +60,27 @@ namespace tp {
 		~EventHandler();
 
 	public: // Event Poster Interface
-		void postEvent(InputID inputID, InputEvent inputEvent); // Record event
+
+		// Record event
+		void postEvent(InputID inputID, InputEvent inputEvent) { 
+			mMutex.lock();
+			mEventQueue.pushBack({ inputID, inputEvent });
+			mMutex.unlock();
+		}
 
 	public: // User interface
-		bool isEvents() { return false; }
-		void processEvent() {}
+		bool isEvents() { 
+			mMutex.lock();
+			auto res = mEventQueue.length();
+			mMutex.unlock();
+			return res;
+		}
+
+		void processEvent() { 
+			mMutex.lock();
+			mEventQueue.popFront();
+			mMutex.unlock();
+		}
 
 		const Vec2F& getPointer() const;
 
@@ -78,7 +94,7 @@ namespace tp {
 		std::mutex mMutex = {};
 
 		// Store thread protected queue of posted events
-		List<InputEvent> mEventQueue;
+		List<std::pair<InputID, InputEvent>> mEventQueue;
 
 		// input states
 		Vec2F mPointer;

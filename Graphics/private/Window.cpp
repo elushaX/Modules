@@ -3,6 +3,8 @@
 #include "WindowContext.hpp"
 #include "Allocators.hpp"
 
+#include "Rect.hpp"
+
 #include <GL/glew.h>
 
 #ifdef ENV_OS_WINDOWS
@@ -92,11 +94,8 @@ void Window::destroyWindow(Window* window) {
 bool Window::shouldClose() const { return glfwWindowShouldClose(mContext->window); }
 
 void Window::processEvents() {
-	glfwPollEvents();
-
-	int w, h;
-	glfwGetWindowSize(mContext->window, &w, &h);
-	mSize = { (halnf) w, (halnf) h };
+	glfwWaitEvents();
+	checkAxisUpdates();
 }
 
 void Window::draw() {
@@ -111,6 +110,35 @@ void Window::setEventHandler(EventHandler* eventHandler) { mEventHandler = event
 EventHandler* Window::getEventHandler() { return mEventHandler; }
 
 
+void Window::checkAxisUpdates() {
+	if (!mEventHandler) return;
+
+	int w, h;
+	glfwGetWindowSize(mContext->window, &w, &h);
+
+	if (mSize != Vec2F((halnf) w, (halnf) h)) {
+		mSize = { (halnf) w, (halnf) h };
+		mEventHandler->postEvent(InputID::WINDOW_RESIZE, {});
+	}
+
+	double x, y;
+	glfwGetCursorPos(mContext->window, &x, &y);
+
+	int posX, posY;
+	glfwGetWindowPos(mContext->window, &posX, &posY);
+
+	if (mPointerPos != Vec2F{ (halnf) x, (halnf) y }) {
+		mPointerPos = { (halnf) x, (halnf) y };
+
+		auto pos = Vec2F{ (halnf) posX, (halnf) posY };
+		RectF windowRec = { { 0, 0 }, mSize };
+
+		if (windowRec.isInside(mPointerPos)) {
+			mEventHandler->postEvent(InputID::MOUSE1, { {}, {}, mPointerPos });
+		}
+	}
+}
+
 static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 
 	auto* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
@@ -118,6 +146,8 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 
 	EventHandler* eventHandler = self->getEventHandler();
 	if (!eventHandler) return;
+
+	self->checkAxisUpdates();
 
 	// post key event
 	/*
@@ -136,6 +166,8 @@ static void mouseButtonCallback(GLFWwindow* window, int button, int action, int 
 
 	EventHandler* eventHandler = self->getEventHandler();
 	if (!eventHandler) return;
+
+	self->checkAxisUpdates();
 
 	// post mouse button event
 	// inputManager->mouseButtonStates[button] = action;

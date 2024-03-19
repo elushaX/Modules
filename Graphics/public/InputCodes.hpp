@@ -146,5 +146,7 @@ namespace tp {
 		MOUSE_DOWN = 507,
 
 		LAST_KEY_CODE = 508,
+
+		WINDOW_RESIZE = 1000,
 	};
 }
