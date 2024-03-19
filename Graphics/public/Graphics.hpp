@@ -17,8 +17,11 @@ namespace tp {
 		explicit DebugGUI(Window* window);
 		~DebugGUI();
 
-		void proc();
-		void draw();
+		void procBegin() {}
+		void procEnd() {}
+
+		void drawBegin();
+		void drawEnd();
 	};
 
 	class Canvas {
@@ -29,8 +32,11 @@ namespace tp {
 		explicit Canvas(Window* window);
 		~Canvas();
 
-		void proc();
-		void draw();
+		void procBegin() {}
+		void procEnd() {}
+
+		void drawBegin();
+		void drawEnd();
 
 	public:
 		enum Align : int2 {
@@ -67,14 +73,28 @@ namespace tp {
 	public:
 		explicit Graphics(Window* window) : mGui(window), mCanvas(window) {}
 
-		void proc() {
-			mCanvas.proc();
-			mGui.proc();
+		void procBegin() {
+			mCanvas.procBegin();
+			mGui.procBegin();
 		}
 
-		void draw() {
-			mCanvas.draw();
-			mGui.draw();
+		void procEnd() {
+			mCanvas.procEnd();
+			mGui.procEnd();
+		}
+
+		void drawBegin() {
+			mCanvas.drawBegin();
+			mGui.drawBegin();
+		}
+
+		void drawEnd() { 
+			mCanvas.drawEnd();
+			mGui.drawEnd();
+		}
+
+		Canvas* getCanvas() { 
+			return &mCanvas;
 		}
 
 	private:

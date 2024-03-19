@@ -2,7 +2,7 @@
 
 #include "Window.hpp"
 
-class GLFWwindow;
+struct GLFWwindow;
 
 namespace tp {
 

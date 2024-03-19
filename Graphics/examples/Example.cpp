@@ -6,46 +6,124 @@
 
 #include "imgui.h"
 
-int main() {
-	tp::ModuleManifest* deps[] = { &tp::gModuleGraphics, nullptr };
-	tp::ModuleManifest testModule("Example", nullptr, nullptr, deps);
+using namespace tp;
 
-	if (!testModule.initialize()) {
-		return 1;
+class Application {
+public:
+	Application() :
+		mApplicaitonModule("Application", nullptr, nullptr, mModuleDeps) {
+		mInitialized = mApplicaitonModule.initialize();
+		if (!mInitialized) return;
+
+		mWindow = Window::createWindow();
+
+		mDrawTimer.setDuration(1000.f / mDrawPerSecond);
+		mProcTimer.setDuration(1000.f / mProcPerSecond);
+		mPerSecondTimer.setDuration(1000.f);
 	}
 
-	int frames = 0;
-	int fps = 0;
-	tp::Timer timer(1000);
+	void run() {
+		Graphics graphics(mWindow);
+		auto eventHandler = new EventHandler();
 
-	auto window = tp::Window::createWindow();
+		mWindow->setEventHandler(eventHandler);
 
-	{
-		tp::Graphics graphics(window);
+		mDrawTimer.reset();
+		mProcTimer.reset();
+		mPerSecondTimer.reset();
 
-		if (window) {
-			while (!window->shouldClose()) {
-				window->processEvents();
-				graphics.proc();
+		bool redrawNeeded = false;
 
-				ImGui::Text("fps: %i", fps);
+		while (!mWindow->shouldClose()) {
+			if (mProcTimer.isTimeout()) {
 
-				graphics.draw();
-				window->draw();
+				mWindow->processEvents();
 
-				if (timer.isTimeout()) {
-					fps = frames;
-					frames = 0;
-					timer.reset();
+				while (eventHandler->isEvents()) {
+					eventHandler->processEvent();
+					processFrame(eventHandler);
+
+					redrawNeeded = true;
+					mFramesProcessed++;
 				}
 
-				frames++;
+				// graphics.procBegin();
+				// graphics.procEnd();
+				redrawNeeded = true;
+				mFramesProcessed++;
+
+				mProcTimer.wait();
+				mProcTimer.reset();
+			}
+
+			if (mDrawTimer.isTimeout()) {
+				mDrawTimer.reset();
+
+				if (redrawNeeded) {
+					graphics.drawBegin();
+
+					drawFrame(graphics.getCanvas());
+
+					graphics.drawEnd();
+
+					mWindow->draw();
+
+					redrawNeeded = false;
+					mFramesDrawn++;
+				}
+			}
+
+			if (mPerSecondTimer.isTimeout()) {
+				mPerSecondTimer.reset();
+				
+				mFramesProcessedPerSecond = mFramesProcessed;
+				mFramesDrawnPerSecond = mFramesDrawn;
+
+				mFramesDrawn = 0;
+				mFramesProcessed = 0;
 			}
 		}
 
+		delete eventHandler;
 	}
 
-	tp::Window::destroyWindow(window);
+	virtual void processFrame(EventHandler* eventHandler) { 
+	}
 
-	testModule.deinitialize();
+	virtual void drawFrame(Canvas* canvas) {
+		ImGui::Text("Frames processed per second: %f", mFramesProcessedPerSecond);
+		ImGui::Text("Frames drawn per second: %f", mFramesDrawnPerSecond);
+	}
+
+	~Application() { 
+		if (!mInitialized) return;
+		Window::destroyWindow(mWindow);
+		mApplicaitonModule.deinitialize();
+	}
+
+private:
+	ModuleManifest* mModuleDeps[2] = { &gModuleGraphics, nullptr };
+	ModuleManifest mApplicaitonModule;
+
+	Window* mWindow = nullptr;
+
+	bool mInitialized = false;
+
+	ualni mDrawPerSecond = 60;
+	ualni mProcPerSecond = 1000;
+
+	Timer mDrawTimer;
+	Timer mProcTimer;
+	Timer mPerSecondTimer;
+
+	halnf mFramesProcessedPerSecond = 0;
+	halnf mFramesDrawnPerSecond = 0;
+
+	halnf mFramesProcessed = 0;
+	halnf mFramesDrawn = 0;
+};
+
+int main() { 
+	Application app;
+	app.run();
 }

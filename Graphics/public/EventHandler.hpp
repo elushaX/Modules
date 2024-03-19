@@ -63,8 +63,8 @@ namespace tp {
 		void postEvent(InputID inputID, InputEvent inputEvent); // Record event
 
 	public: // User interface
-		bool isEvents();
-		void processEvent();
+		bool isEvents() { return false; }
+		void processEvent() {}
 
 		const Vec2F& getPointer() const;
 
