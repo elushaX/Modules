@@ -47,7 +47,7 @@ DebugGUI::~DebugGUI() {
 	delete mContext;
 }
 
-void DebugGUI::proc() {
+void DebugGUI::drawBegin() {
 	tp::HeapAllocGlobal::startIgnore();
 
 	ImGui_ImplOpenGL3_NewFrame();
@@ -57,7 +57,7 @@ void DebugGUI::proc() {
 	tp::HeapAllocGlobal::stopIgnore();
 }
 
-void DebugGUI::draw() {
+void DebugGUI::drawEnd() {
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

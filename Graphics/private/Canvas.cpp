@@ -135,11 +135,11 @@ void Canvas::deleteImageHandle(ImageHandle image) {
 	}
 }
 
-void Canvas::proc() {
+void Canvas::drawBegin() {
 	const auto size = mContext->window->getSize();
 	nvgBeginFrame(mContext->vg, size.x, size.y, 1.0);
 }
 
-void Canvas::draw() {
+void Canvas::drawEnd() {
 	nvgEndFrame(mContext->vg);
 }
