@@ -1,32 +1,29 @@
 
 #include "ExampleGUI.hpp"
 
-#include "Graphics.hpp"
+#include "GraphicApplication.hpp"
 
 using namespace tp;
 
-void runApp() {
-	auto window = tp::Window::createWindow({ 800, 600 }, "Window 1");
-
-	tp::ComplexWidget<tp::EventHandler, tp::Canvas> gui;
-
-	if (window) {
-		while (!window->shouldClose()) {
-			window->processEvents();
-
-			auto area = window->getCanvas().getAvaliableArea();
-
-			gui.proc(window->getEvents(), {}, { area.x, area.y, area.z, area.w });
-			gui.draw(window->getCanvas());
-
-			tp::sleep(20);
-
-			window->draw();
-		}
+class ExampleGUI : public Application {
+public:
+	ExampleGUI() { 
+		gGlobalGUIConfig = &mConfig;
 	}
 
-	tp::Window::destroyWindow(window);
-}
+	void processFrame(EventHandler* eventHandler) override { 
+		auto rec = RectF( { 0, 0 }, mWindow->getSize() );
+		mGui.proc(*eventHandler, rec, rec);
+	}
+
+	void drawFrame(Canvas* canvas) override {
+		mGui.draw(*canvas);
+	}
+
+private:
+	GlobalGUIConfig mConfig;
+	ComplexWidget<EventHandler, Canvas> mGui;
+};
 
 int main() {
 
@@ -38,9 +35,8 @@ int main() {
 	}
 
 	{
-		tp::GlobalGUIConfig config;
-		tp::gGlobalGUIConfig = &config;
-		runApp();
+		ExampleGUI gui;
+		gui.run();
 	}
 
 	binModule.deinitialize();

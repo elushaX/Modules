@@ -18,9 +18,6 @@ namespace tp {
 		virtual ~Application();
 
 	protected:
-		ModuleManifest* mModuleDeps[2] = { &gModuleGraphics, nullptr };
-		ModuleManifest mApplicationModule;
-
 		Window* mWindow = nullptr;
 
 		bool mInitialized = false;

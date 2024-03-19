@@ -3,11 +3,7 @@
 
 using namespace tp;
 
-Application::Application() :
-	mApplicationModule("Application", nullptr, nullptr, mModuleDeps) {
-	mInitialized = mApplicationModule.initialize();
-	if (!mInitialized) return;
-
+Application::Application() {
 	mWindow = Window::createWindow();
 
 	mDrawTimer.setDuration(1000.f / mDrawPerSecond);
@@ -83,7 +79,5 @@ void Application::drawFrame(Canvas* canvas) {
 }
 
 Application::~Application() {
-	if (!mInitialized) return;
 	Window::destroyWindow(mWindow);
-	mApplicationModule.deinitialize();
 }

@@ -1,6 +1,5 @@
 
 #include "GraphicApplication.hpp"
-
 #include "imgui.h"
 
 using namespace tp;
@@ -22,6 +21,18 @@ public:
 };
 
 int main() { 
-	ExampleApplication app;
-	app.run();
+
+	ModuleManifest* deps[] = { &gModuleGraphics, nullptr };
+	ModuleManifest module("Eample", nullptr, nullptr, deps);
+
+	if (!module.initialize()) {
+		return 1;
+	}
+
+	{
+		ExampleApplication app;
+		app.run();
+	}
+
+	module.deinitialize();
 }
