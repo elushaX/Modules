@@ -1,5 +1,7 @@
 
 #include "Window.hpp"
+#include "Graphics.hpp"
+
 #include "Timing.hpp"
 
 #include "imgui.h"
@@ -16,15 +18,19 @@ int main() {
 	int fps = 0;
 	tp::Timer timer(1000);
 
+	auto window = tp::Window::createWindow();
+
 	{
-		auto window = tp::Window::createWindow(800, 600, "Window 1");
+		tp::Graphics graphics(window);
 
 		if (window) {
 			while (!window->shouldClose()) {
 				window->processEvents();
+				graphics.proc();
 
 				ImGui::Text("fps: %i", fps);
 
+				graphics.draw();
 				window->draw();
 
 				if (timer.isTimeout()) {
@@ -37,8 +43,9 @@ int main() {
 			}
 		}
 
-		tp::Window::destroyWindow(window);
 	}
+
+	tp::Window::destroyWindow(window);
 
 	testModule.deinitialize();
 }

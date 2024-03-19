@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include "Environment.hpp"
+
 namespace tp {
 	enum class InputID : ualni {
 		/* Printable keys */
