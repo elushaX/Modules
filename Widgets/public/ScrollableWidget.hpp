@@ -22,9 +22,11 @@ namespace tp {
 		// takes whole area
 		void proc(const Events& events, const tp::RectF& areaParent, const tp::RectF& aArea) override {
 			this->mArea = aArea;
+			this->mVisible = areaParent.isOverlap(aArea);
+			if (!this->mVisible) return;
 
 			auto area = getHandle();
-			mHovered = getHandleHandle().isInside(events.getPos());
+			mHovered = getHandleHandle().isInside(events.getPointer());
 
 			if (mSizeFraction > 1.f) {
 				mPositionFraction = 0;
@@ -36,7 +38,7 @@ namespace tp {
 				return;
 			}
 
-			if (events.getScrollY() != 0 && areaParent.isInside(events.getPos())) {
+			if (events.getScrollY() != 0 && areaParent.isInside(events.getPointer())) {
 				auto offset = events.getScrollY() < 0 ? 1.0f : -1.0f;
 				if (scrollInertia * offset > 0) {
 					scrollInertia += offset;
@@ -53,14 +55,14 @@ namespace tp {
 				return;
 			}
 
-			if (events.isPressed() && area.isInside(events.getPos())) {
+			if (events.isPressed(InputID::MOUSE1) && area.isInside(events.getPointer())) {
 				mIsScrolling = true;
-			} else if (!events.isDown()) {
+			} else if (events.isReleased(InputID::MOUSE1)) {
 				mIsScrolling = false;
 			}
 
 			if (mIsScrolling) {
-				tp::halnf pos = events.getPos().y;
+				tp::halnf pos = events.getPointer().y;
 				pos = (pos - area.y - mSizeFraction * area.w / 2.f) / area.w;
 				mPositionFraction = tp::clamp(pos, 0.f, 1.f - mSizeFraction);
 			}
@@ -69,6 +71,8 @@ namespace tp {
 		}
 
 		void draw(Canvas& canvas) override {
+			if (!this->mVisible) return;
+
 			auto area = getHandle();
 
 			if (mSizeFraction > 1.f) return;
@@ -142,7 +146,6 @@ namespace tp {
 		void proc(const Events& events, const tp::RectF& areaParent, const tp::RectF& aArea) override {
 			this->mArea = aArea;
 			this->mVisible = areaParent.isOverlap(aArea);
-
 			if (!this->mVisible) return;
 
 			updateContents();
@@ -170,6 +173,7 @@ namespace tp {
 
 		void draw(Canvas& canvas) override {
 			if (!this->mVisible) return;
+
 			mScroller.draw(canvas);
 
 			canvas.pushClamp(this->mArea);

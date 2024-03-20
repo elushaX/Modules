@@ -96,6 +96,8 @@ bool Window::shouldClose() const { return glfwWindowShouldClose(mContext->window
 void Window::processEvents() {
 	glfwWaitEvents();
 	checkAxisUpdates();
+
+	glViewport(0, 0, mSize.x, mSize.y);
 }
 
 void Window::draw() {
@@ -134,7 +136,7 @@ void Window::checkAxisUpdates() {
 		RectF windowRec = { { 0, 0 }, mSize };
 
 		if (windowRec.isInside(mPointerPos)) {
-			mEventHandler->postEvent(InputID::MOUSE1, { {}, {}, mPointerPos });
+			mEventHandler->postEvent(InputID::MOUSE1, { InputEvent::Type::MOUSE_POS, {}, mPointerPos });
 		}
 	}
 }
@@ -149,15 +151,11 @@ static void keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 
 	self->checkAxisUpdates();
 
-	// post key event
-	/*
 	if (action == GLFW_PRESS) {
-		inputManager->keyStates[key] = GLFW_PRESS;
+		eventHandler->postEvent((InputID) key, { InputEvent::Type::BUTTON_ACTION, InputEvent::ButtonAction::PRESS, {} });
 	} else if (action == GLFW_RELEASE) {
-		inputManager->keyStates[key] = GLFW_RELEASE;
+		eventHandler->postEvent((InputID) key, { InputEvent::Type::BUTTON_ACTION, InputEvent::ButtonAction::RELEASE, {} });
 	}
-	inputManager->isEvent = true;
-	*/
 }
 
 static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
@@ -169,9 +167,14 @@ static void mouseButtonCallback(GLFWwindow* window, int button, int action, int 
 
 	self->checkAxisUpdates();
 
-	// post mouse button event
-	// inputManager->mouseButtonStates[button] = action;
-	// inputManager->isEvent = true;
+	auto id = (InputID) ((int) InputID::MOUSE1 + button);
+
+	if (action == GLFW_PRESS) {
+		eventHandler->postEvent(id, { InputEvent::Type::BUTTON_ACTION, InputEvent::ButtonAction::PRESS, {} }
+		);
+	} else if (action == GLFW_RELEASE) {
+		eventHandler->postEvent(id, { InputEvent::Type::BUTTON_ACTION, InputEvent::ButtonAction::RELEASE, {} });
+	}
 }
 
 static void scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {

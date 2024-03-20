@@ -142,8 +142,6 @@ namespace tp {
 		MOUSE3 = 503,
 		MOUSE4 = 504,
 		MOUSE5 = 505,
-		MOUSE_UP = 506,
-		MOUSE_DOWN = 507,
 
 		LAST_KEY_CODE = 508,
 

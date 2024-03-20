@@ -29,6 +29,9 @@ namespace tp {
 
 		void proc(const Events& events, const tp::RectF& areaParent, const tp::RectF& aArea) override {
 			this->mArea = aArea;
+			this->mVisible = areaParent.isOverlap(aArea);
+			if (!this->mVisible) return;
+
 			mIsHover = false;
 
 			if (!areaParent.isOverlap(aArea)) {
@@ -37,13 +40,13 @@ namespace tp {
 				return;
 			}
 
-			mIsHover = aArea.isInside(events.getPos());
+			mIsHover = aArea.isInside(events.getPointer());
 
-			if (events.isPressed() && mIsHover) {
+			if (events.isPressed(InputID::MOUSE1) && mIsHover) {
 				mIsPressed = true;
 			}
 
-			if (mIsPressed && mIsHover && events.isReleased()) {
+			if (mIsPressed && mIsHover && events.isReleased(InputID::MOUSE1)) {
 				mIsReleased = true;
 				mIsPressed = false;
 			}
@@ -54,6 +57,8 @@ namespace tp {
 		}
 
 		void draw(Canvas& canvas) override {
+			if (!this->mVisible) return;
+
 			if (mIsPressed) {
 				canvas.rect(this->mArea, this->getColor("Pressed"), this->getValue("Rounding"));
 			} else if (mIsHover) {

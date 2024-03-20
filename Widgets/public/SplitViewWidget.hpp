@@ -17,8 +17,9 @@ namespace tp {
 
 		void proc(const Events& events, const tp::RectF& areaParent, const tp::RectF& aArea) override {
 			this->mArea = aArea;
+			this->mVisible = areaParent.isOverlap(aArea);
 
-			if (!areaParent.isOverlap(aArea)) {
+			if (!this->mVisible) {
 				mResizeInProcess = false;
 				return;
 			}
@@ -27,12 +28,12 @@ namespace tp {
 
 			if (events.isPressed(InputID::MOUSE1) && mIsHover) {
 				mResizeInProcess = true;
-			} else if (!events.isDown()) {
+			} else if (events.isReleased(InputID::MOUSE1)) {
 				mResizeInProcess = false;
 			}
 
 			if (mResizeInProcess) {
-				halnf pos = events.getPos().x;
+				halnf pos = events.getPointer().x;
 				auto diff = pos - (this->mArea.x + mFactor * this->mArea.z);
 				mFactor += diff / this->mArea.z;
 			}
@@ -46,6 +47,8 @@ namespace tp {
 
 		// takes whole area
 		void draw(Canvas& canvas) override {
+			if (!this->mVisible) return;
+
 			if (mResizeInProcess) canvas.rect(getHandle(), this->getColor("Resizing"));
 			else if (mIsHover) canvas.rect(getHandle(), this->getColor("Hovered"));
 			else canvas.rect(getHandle(), this->getColor("Handle"));
