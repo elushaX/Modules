@@ -7,9 +7,7 @@ using namespace tp;
 
 class ExampleGUI : public Application {
 public:
-	ExampleGUI() { 
-		gGlobalGUIConfig = &mConfig;
-	}
+	ExampleGUI() = default;
 
 	void processFrame(EventHandler* eventHandler) override { 
 		auto rec = RectF( { 0, 0 }, mWindow->getSize() );
@@ -21,7 +19,6 @@ public:
 	}
 
 private:
-	GlobalGUIConfig mConfig;
 	ComplexWidget<EventHandler, Canvas> mGui;
 };
 
@@ -35,8 +32,13 @@ int main() {
 	}
 
 	{
-		ExampleGUI gui;
-		gui.run();
+		GlobalGUIConfig mConfig;
+		gGlobalGUIConfig = &mConfig;
+
+		{
+			ExampleGUI gui;
+			gui.run();
+		}
 	}
 
 	binModule.deinitialize();

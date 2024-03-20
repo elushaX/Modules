@@ -20,6 +20,13 @@ namespace tp {
 
 		void proc(const Events& events, const tp::RectF& areaParent, const tp::RectF& aArea) override {
 			this->mArea = aArea;
+			this->mVisible = areaParent.isOverlap(aArea);
+			if (!this->mVisible) return;
+		}
+
+		void draw(Canvas& canvas) override {
+			if (!this->mVisible) return;
+
 			nChanged = false;
 
 			const auto col = this->getColor("Accent");
@@ -56,10 +63,6 @@ namespace tp {
 
 			ImGui::End();
 			ImGui::PopStyleVar(3);
-		}
-
-		void draw(Canvas& canvas) override {
-			// canvas.rect(this->mArea, this->getColor("Base"));
 		}
 
 		enum { mMaxBufferSize = 512 };

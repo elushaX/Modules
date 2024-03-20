@@ -37,6 +37,8 @@ DebugGUI::DebugGUI(Window* window) {
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.Fonts->AddFontFromFileTTF("Font.ttf", 20.f);
+
+	io.ConfigInputTrickleEventQueue = false;
 }
 
 DebugGUI::~DebugGUI() {

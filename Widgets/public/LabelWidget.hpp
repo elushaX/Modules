@@ -15,9 +15,13 @@ namespace tp {
 
 		void proc(const Events& events, const tp::RectF& areaParent, const tp::RectF& aArea) override {
 			this->mArea = aArea;
+			this->mVisible = areaParent.isOverlap(aArea);
+			if (!this->mVisible) return;
 		}
 
 		void draw(Canvas& canvas) override {
+			if (!this->mVisible) return;
+
 			canvas.text(
 				mLabel.read(),
 				this->mArea,
