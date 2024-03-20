@@ -69,11 +69,13 @@ namespace tp {
 		bool isEvents();
 		void processEvent();
 
-		const Vec2F& getPointer() const;
-		bool isPressed(InputID id) const;
-		bool isReleased(InputID id) const;
-		bool isDown(InputID id) const;
-		halnf getScrollY() const;
+		[[nodiscard]] const Vec2F& getPointer() const;
+		[[nodiscard]] bool isPressed(InputID id) const;
+		[[nodiscard]] bool isReleased(InputID id) const;
+		[[nodiscard]] bool isDown(InputID id) const;
+		[[nodiscard]] halnf getScrollY() const;
+
+		[[nodiscard]] halnf getPointerPressure() const;
 
 	private:
 		std::mutex mMutex = {};
@@ -83,7 +85,7 @@ namespace tp {
 
 		// input states
 		Vec2F mPointer;
-		halnf pressure = 0;
+		halnf mPointerPressure = 0;
 
 		InputState mInputStates[(int) InputID::LAST_KEY_CODE]{};
 	};

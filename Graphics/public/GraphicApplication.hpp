@@ -18,8 +18,6 @@ namespace tp {
 		virtual ~Application();
 
 	protected:
-		Window* mWindow = nullptr;
-
 		bool mInitialized = false;
 
 		ualni mDrawPerSecond = 60;
@@ -34,5 +32,8 @@ namespace tp {
 
 		halnf mFramesProcessed = 0;
 		halnf mFramesDrawn = 0;
+
+		Graphics* mGraphics = nullptr;
+		Window* mWindow = nullptr;
 	};
 }

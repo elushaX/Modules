@@ -181,7 +181,7 @@ namespace tp {
 		}
 
 	public:
-		Buffer<MessageWidget<Events, Canvas>*> mMessages;
+		Buffer<MessageWidget<Events, Canvas>> mMessages;
 		ScrollableWindow<Events, Canvas> mHistoryView;
 		TextInputWidget<Events, Canvas> mMessage;
 		ButtonWidget<Events, Canvas> mSend;
@@ -196,28 +196,28 @@ namespace tp {
 			this->addValue("Padding", "Padding");
 
 			// todo :  fetch code
-			mUsers.append(new UserWidget<Events, Canvas>());
-			mUsers.append(new UserWidget<Events, Canvas>());
-			mUsers.append(new UserWidget<Events, Canvas>());
+			mUsers.append(UserWidget<Events, Canvas>());
+			mUsers.append(UserWidget<Events, Canvas>());
+			mUsers.append(UserWidget<Events, Canvas>());
 
-			mUsers[0]->mArea = { 0, 0, 100, 100 };
-			mUsers[1]->mArea = { 0, 0, 100, 100 };
-			mUsers[2]->mArea = { 0, 0, 100, 100 };
+			mUsers[0].mArea = { 0, 0, 100, 100 };
+			mUsers[1].mArea = { 0, 0, 100, 100 };
+			mUsers[2].mArea = { 0, 0, 100, 100 };
 
 			for (auto message : mUsers) {
-				mSideView.mContents.append(message.data());
+				mSideView.mContents.append(&message.data());
 			}
 
-			mActive.mMessages.append(new MessageWidget<Events, Canvas>());
-			mActive.mMessages.append(new MessageWidget<Events, Canvas>());
-			mActive.mMessages.append(new MessageWidget<Events, Canvas>());
+			mActive.mMessages.append(MessageWidget<Events, Canvas>());
+			mActive.mMessages.append(MessageWidget<Events, Canvas>());
+			mActive.mMessages.append(MessageWidget<Events, Canvas>());
 
-			mActive.mMessages[0]->mArea = { 0, 0, 100, 100 };
-			mActive.mMessages[1]->mArea = { 0, 0, 100, 100 };
-			mActive.mMessages[2]->mArea = { 0, 0, 100, 100 };
+			mActive.mMessages[0].mArea = { 0, 0, 100, 100 };
+			mActive.mMessages[1].mArea = { 0, 0, 100, 100 };
+			mActive.mMessages[2].mArea = { 0, 0, 100, 100 };
 
 			for (auto message : mActive.mMessages) {
-				mActive.mHistoryView.mContents.append(message.data());
+				mActive.mHistoryView.mContents.append(&message.data());
 			}
 		}
 
@@ -240,7 +240,7 @@ namespace tp {
 		}
 
 	public:
-		Buffer<UserWidget<Events, Canvas>*> mUsers;
+		Buffer<UserWidget<Events, Canvas>> mUsers;
 		ScrollableWindow<Events, Canvas> mSideView;
 		ActiveChatWidget<Events, Canvas> mActive;
 		SplitView<Events, Canvas> mSplitView;

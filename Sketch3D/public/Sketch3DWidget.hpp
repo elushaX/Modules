@@ -26,27 +26,29 @@ namespace tp {
 			this->mVisible = area.isOverlap(areaParent);
 			if (!this->mVisible) return;
 
-			if (!this->mArea.isInside(events.getPos())) {
+			if (!this->mArea.isInside(events.getPointer())) {
 				return;
 			}
 
-			auto crs = (events.getPos() - this->mArea.pos);
+			auto crs = (events.getPointer() - this->mArea.pos);
 			crs.x /= this->mArea.z;
 			crs.y /= this->mArea.w;
 			crs = (crs - 0.5) * 2;
 
 			// TODO : make better api for events
-			Vec2F absolutePos = events.getPos() - this->mArea.pos;
+			Vec2F absolutePos = events.getPointer() - this->mArea.pos;
 
-			if (events.isPressed()) {
+			if (events.isPressed(InputID::MOUSE1)) {
 				mAction = true;
-			} else if (events.isReleased()) {
+			} else if (events.isReleased(InputID::MOUSE1)) {
 				mAction = false;
 			}
 
 			Vec2F relativePos = ((absolutePos / this->mArea.size) - 0.5f) * 2.f;
 			Vec2F relativePosPrev = ((mActionPosAbsolutePrev / this->mArea.size) - 0.5f) * 2.f;
 			Vec2F relativeDelta = relativePos - relativePosPrev;
+
+			mProject.mCamera.setRatio(this->mArea.w / this->mArea.z);
 
 			switch (mMode) {
 				case Mode::MOVE: {
@@ -63,7 +65,7 @@ namespace tp {
 						break;
 					}
 				case Mode::DRAW: {
-						mProject.sample(events.pressure, this->mArea.w / this->mArea.z, crs);
+						mProject.sample(events.getPointerPressure(), this->mArea.w / this->mArea.z, crs);
 						break;
 					}
 				default: break;

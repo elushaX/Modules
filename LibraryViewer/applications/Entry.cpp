@@ -1,6 +1,7 @@
 
 #include "GUI.hpp"
 #include "Player.hpp"
+#include "GraphicApplication.hpp"
 
 // 1) artworks
 // 2) how to easily add more songs?
@@ -13,36 +14,38 @@
 // 4) queue & repeat & shuffle...
 // 5) new database with history
 
-void runApp() {
+using namespace tp;
 
+class LibraryViewer : public Application {
+public:
+	LibraryViewer() : gui(&library, &player) {
+		library.loadJson(getHome() + "Library.json");
+		library.checkExisting();
+
+		gui.updateTracks();
+	}
+
+	void processFrame(EventHandler* eventHandler) override {
+		auto rec = RectF{ { 0, 0 }, mWindow->getSize() };
+		gui.proc(*eventHandler, rec, rec);
+	}
+
+	void drawFrame(Canvas* canvas) override {
+		gui.draw(*canvas);
+	}
+
+private:
 	Player player;
 	Library library;
-	library.loadJson(getHome() + "Library.json");
-	library.checkExisting();
+	LibraryWidget<EventHandler, Canvas> gui;
+};
 
+void runApp() {
 	tp::GlobalGUIConfig config;
 	tp::gGlobalGUIConfig = &config;
 
-	tp::LibraryWidget<tp::Window::Events, tp::Graphics::Canvas> gui(&library, &player);
-
-	auto window = tp::Window::createWindow(800, 600, "Window 1");
-
-	if (window) {
-		while (!window->shouldClose()) {
-			window->processEvents();
-
-			auto area = window->getCanvas().getAvaliableArea();
-
-			gui.proc(window->getEvents(), { area.x, area.y, area.z, area.w }, { area.x, area.y, area.z, area.w });
-			gui.draw(window->getCanvas());
-
-			// tp::sleep(100);
-
-			window->draw();
-		}
-	}
-
-	tp::Window::destroyWindow(window);
+	LibraryViewer lib;
+	lib.run();
 }
 
 int main() {
@@ -53,8 +56,6 @@ int main() {
 	if (!binModule.initialize()) {
 		return 1;
 	}
-
-	tp::HeapAllocGlobal::disableCallstack();
 
 	runApp();
 
