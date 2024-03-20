@@ -66,6 +66,10 @@ namespace tp {
 		}
 
 		Map<String, WidgetConfig> configs;
+
+		~GlobalGUIConfig() {
+			configs.removeAll();
+		}
 	};
 
 	extern GlobalGUIConfig* gGlobalGUIConfig;
