@@ -1,10 +1,28 @@
 
-#include "Graphics.hpp"
+#include "GraphicApplication.hpp"
 
 #include "GUI.h"
 
 using namespace tp;
 using namespace obj;
+
+class ExampleGUI : public Application {
+public:
+	ExampleGUI() {
+		gui.cd(NDO->create("dict"), "root");
+	}
+
+	void processFrame(EventHandler* eventHandler) override {
+	}
+
+	void drawFrame(Canvas* canvas) override {
+		canvas->rect({ { 0, 0 }, mWindow->getSize() }, RGBA(0.f, 0.f, 0.f, 1.f), 0);
+		gui.draw();
+	}
+
+private:
+	ObjectsGUI gui;
+};
 
 int main() {
 
@@ -12,25 +30,10 @@ int main() {
 	tp::ModuleManifest module("ObjectsTests", nullptr, nullptr, deps);
 
 	if (module.initialize()) {
-		auto window = Window::createWindow({ 1500, 900 }, "Objects GUI");
-
 		{
-			Graphics graphics(window);
-			ObjectsGUI gui;
-
-			gui.cd(NDO->create("dict"), "root");
-
-			while (!window->shouldClose()) {
-				window->processEvents();
-				graphics.proc();
-				gui.draw();
-				graphics.draw();
-				window->draw();
-			}
+			ExampleGUI gui;
+			gui.run();
 		}
-
-		Window::destroyWindow(window);
-
 		module.deinitialize();
 	}
 
