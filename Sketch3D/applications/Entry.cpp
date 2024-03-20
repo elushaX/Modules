@@ -1,37 +1,35 @@
 
-#include "Sketch3D.hpp"
+#include "GraphicApplication.hpp"
 
-#include "Graphics.hpp"
-#include "Window.hpp"
+#include "Sketch3D.hpp"
 #include "Sketch3DWidget.hpp"
 
-void runApp() {
+using namespace tp;
 
+class Sketch3DApplication : public Application {
+public:
+	Sketch3DApplication() : mGui(*mGraphics->getCanvas(), {1920, 1080}) {}
+
+	void processFrame(EventHandler* eventHandler) override {
+		auto rec = RectF( { 0, 0 }, mWindow->getSize() );
+		mGui.proc(*eventHandler, rec, rec);
+	}
+
+	void drawFrame(Canvas* canvas) override {
+		mGui.draw(*canvas);
+	}
+
+private:
+	Sketch3DGUI<EventHandler, Canvas> mGui;
+};
+
+
+void runApp() {
 	tp::GlobalGUIConfig config;
 	tp::gGlobalGUIConfig = &config;
 
-	auto window = tp::Window::createWindow(800, 600, "Window 1");
-
-	{
-		tp::Sketch3DGUI<tp::Window::Events, tp::Graphics::Canvas> gui(window->getCanvas(), {1920, 1080});
-
-		if (window) {
-			while (!window->shouldClose()) {
-				window->processEvents();
-
-				auto area = window->getCanvas().getAvaliableArea();
-
-				gui.proc(window->getEvents(), { area.x, area.y, area.z, area.w }, { area.x, area.y, area.z, area.w });
-				gui.draw(window->getCanvas());
-
-				tp::sleep(10);
-
-				window->draw();
-			}
-		}
-	}
-
-	tp::Window::destroyWindow(window);
+	Sketch3DApplication app;
+	app.run();
 }
 
 int main() {
@@ -43,11 +41,7 @@ int main() {
 		return 1;
 	}
 
-	tp::HeapAllocGlobal::disableCallstack();
-
 	runApp();
-
-	// FIXME : leaks in stacktrace itself
 
 	binModule.deinitialize();
 }

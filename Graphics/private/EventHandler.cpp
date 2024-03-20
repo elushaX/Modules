@@ -1,6 +1,8 @@
 
 #include "EventHandler.hpp"
 
+#include <stdio.h>
+
 using namespace tp;
 
 EventHandler::EventHandler() = default;
@@ -23,13 +25,13 @@ InputState::State transitions[4][4] = {
 	{ InputState::State::NONE, InputState::State::PRESSED, InputState::State::PRESSED, InputState::State::NONE },
 	{ InputState::State::PRESSED, InputState::State::PRESSED, InputState::State::HOLD, InputState::State::PRESSED },
 	{ InputState::State::HOLD, InputState::State::RELEASED, InputState::State::RELEASED, InputState::State::HOLD },
-	{ InputState::State::RELEASED, InputState::State::NONE, InputState::State::RELEASED, InputState::State::RELEASED },
+	{ InputState::State::RELEASED, InputState::State::NONE, InputState::State::NONE, InputState::State::RELEASED },
 };
 
 bool transitionsReduce[4][4] = {
 	{ true, true, false, true },
 	{ true, true, false, true },
-	{ true, false, true, true },
+	{ true, false, false, true },
 	{ true, false, true, true },
 };
 
@@ -69,6 +71,8 @@ void EventHandler::processEvent() {
 		}
 	}
 
+	mPointerPressure = mInputStates[(int) InputID::MOUSE1].mCurrentState != InputState::State::NONE;
+
 	mMutex.unlock();
 }
 
@@ -80,6 +84,10 @@ bool EventHandler::isPressed(InputID id) const {
 
 bool EventHandler::isReleased(InputID id) const {
 	return mInputStates[(int) id].mCurrentState == InputState::State::RELEASED;
+}
+
+halnf EventHandler::getPointerPressure() const {
+	return mPointerPressure;
 }
 
 bool EventHandler::isDown(InputID id) const {

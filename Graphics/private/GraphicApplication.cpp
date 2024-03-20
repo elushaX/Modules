@@ -5,6 +5,7 @@ using namespace tp;
 
 Application::Application() {
 	mWindow = Window::createWindow();
+	mGraphics = new Graphics(mWindow);
 
 	mDrawTimer.setDuration(1000.f / mDrawPerSecond);
 	mProcTimer.setDuration(1000.f / mProcPerSecond);
@@ -12,7 +13,6 @@ Application::Application() {
 }
 
 void Application::run() {
-	Graphics graphics(mWindow);
 	auto eventHandler = new EventHandler();
 
 	mWindow->setEventHandler(eventHandler);
@@ -44,11 +44,11 @@ void Application::run() {
 			mDrawTimer.reset();
 
 			if (redrawNeeded) {
-				graphics.drawBegin();
+				mGraphics->drawBegin();
 
-				drawFrame(graphics.getCanvas());
+				drawFrame(mGraphics->getCanvas());
 
-				graphics.drawEnd();
+				mGraphics->drawEnd();
 
 				mWindow->draw();
 
@@ -79,5 +79,6 @@ void Application::drawFrame(Canvas* canvas) {
 }
 
 Application::~Application() {
+	delete mGraphics;
 	Window::destroyWindow(mWindow);
 }

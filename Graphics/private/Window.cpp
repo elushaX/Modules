@@ -96,8 +96,6 @@ bool Window::shouldClose() const { return glfwWindowShouldClose(mContext->window
 void Window::processEvents() {
 	glfwWaitEvents();
 	checkAxisUpdates();
-
-	glViewport(0, 0, mSize.x, mSize.y);
 }
 
 void Window::draw() {

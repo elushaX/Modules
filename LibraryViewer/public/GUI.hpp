@@ -26,9 +26,9 @@ namespace tp {
 
 			if (!mTrack) return;
 			if (!areaParent.isOverlap(area)) return;
-			if (area.isInside(events.getPos())) {
+			if (area.isInside(events.getPointer())) {
 				col.set({ 0.15f, 0.15f, 0.15f, 1.f });
-				mSelected = events.isReleased();
+				mSelected = events.isReleased(InputID::MOUSE1);
 			} else {
 				col.set({ 0.15f, 0.15f, 0.15f, 0.f });
 			}
@@ -94,6 +94,7 @@ namespace tp {
 			if (!this->mVisible) return;
 			if (!mTrack) return;
 			// canvas.rect(this->mArea, { 0.13f, 0.13f, 0.13f, 1.f }, 4.f);
+			renderUI();
 		}
 
 		void renderUI() {
@@ -207,22 +208,22 @@ namespace tp {
 			mLibrary = (lib);
 			mPlayer = (player);
 
+			updateTracks();
+
+			mCurrentTrackInfo.mPlayer = mPlayer;
+		}
+
+		void updateTracks() {
+			mTracks.clear();
 			for (auto track : mLibrary->mTraks) {
 				mTracks.append(TrackWidget<Events, Canvas>(&track.data()));
 			}
-
-			mCurrentTrackInfo.mPlayer = mPlayer;
 		}
 
 		void proc(const Events& events, const RectF& areaParent, const RectF& aArea) override {
 			this->mArea = aArea;
 			this->mVisible = this->mArea.isOverlap(areaParent);
 			if (!this->mVisible) return;
-
-			mCurrentTrackInfo.renderUI();
-			mNeedRedraw = events.isEvent() || mCurrentTrackInfo.songFilter.IsActive();
-
-			if (!mNeedRedraw) return;
 
 			filter();
 
@@ -249,7 +250,6 @@ namespace tp {
 			mSplitView.draw(canvas);
 			mSongList.draw(canvas);
 			mCurrentTrackInfo.draw(canvas);
-			// mCurrentTrack.proc(canvas);
 		}
 
 		void filter() {
@@ -292,7 +292,5 @@ namespace tp {
 		ScrollableWindow<Events, Canvas> mSongList;
 		TrackInfoWidget<Events, Canvas> mCurrentTrackInfo;
 		TrackWidget<Events, Canvas> mCurrentTrack;
-
-		bool mNeedRedraw = false;
 	};
 }

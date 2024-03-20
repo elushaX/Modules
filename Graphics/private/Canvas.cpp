@@ -138,8 +138,11 @@ void Canvas::deleteImageHandle(ImageHandle image) {
 void Canvas::drawBegin() {
 	const auto size = mContext->window->getSize();
 	nvgBeginFrame(mContext->vg, size.x, size.y, 1.0);
+	glViewport(0, 0, size.x, size.y);
 }
 
 void Canvas::drawEnd() {
+	const auto size = mContext->window->getSize();
+	glViewport(0, 0, size.x, size.y);
 	nvgEndFrame(mContext->vg);
 }
