@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD 20)
 
 # set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/./tmp/install)
 # set(CMAKE_CXX_FLAGS "-fuse-ld=lld-15 ${CMAKE_CXX_FLAGS} -gdwarf-4 ")
-add_compile_definitions(MEM_DEBUG)
 
 project(ModulesRoot)
 

@@ -32,7 +32,7 @@ tp::MemHead* tp::HeapAllocGlobal::mEntry = nullptr;
 tp::ualni tp::HeapAllocGlobal::mNumAllocations = 0;
 std::mutex tp::HeapAllocGlobal::mMutex;
 bool tp::HeapAllocGlobal::mIgnore = true;
-bool tp::HeapAllocGlobal::mEnableCallstack = false;
+bool tp::HeapAllocGlobal::mEnableCallstack = true;
 
 #ifdef MEM_STACK_TRACE
 tp::CallStackCapture tp::HeapAllocGlobal::mCallstack;
@@ -57,6 +57,8 @@ namespace tp {
 		uhalni mIgnored;
 #ifdef MEM_STACK_TRACE
 		const CallStackCapture::CallStack* mCallStack;
+#else
+		void* p;
 #endif
 	};
 }

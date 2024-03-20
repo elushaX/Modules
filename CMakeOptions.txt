@@ -1,5 +1,5 @@
-option(MODULES_MEMORY_DEBUG "Debug memory" ON)
-option(MODULES_MEMORY_DEBUG_STACK_TRACE "Record stack info on memory debug" ON)
+option(MODULES_MEMORY_DEBUG "Debug memory" OFF)
+option(MODULES_MEMORY_DEBUG_STACK_TRACE "Record stack info on memory debug" OFF)
 
 set(WINDOWS_LIBRARIES "../../ModulesWindowsLibraries" CACHE STRING "Svn repository with windows libraries https://svn.riouxsvn.com/moduleswindowsl")
 
