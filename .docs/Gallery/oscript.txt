@@ -1,0 +1,16 @@
+method myLogFunction(value) {
+  print value;
+}
+
+myLogFunction("hello");
+
+var i = 10;
+
+if (i == 10) {
+  while (i > 0) {
+    print i;
+    i = i - 1;
+  }
+} else {
+  print "still doin' heavy calculations...";
+}
