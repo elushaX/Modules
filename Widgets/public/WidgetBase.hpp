@@ -7,7 +7,9 @@ namespace tp {
 	template <typename Events, typename Canvas>
 	class Widget {
 	public:
-		Widget() = default;
+		Widget() { 
+			this->mArea = { 0, 0, 100, 100 };
+		}
 
 		[[nodiscard]] const RGBA& getColor(const String& name) const {
 			const auto& node = cfg->values.get(name);

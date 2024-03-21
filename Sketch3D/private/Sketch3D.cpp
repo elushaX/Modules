@@ -315,10 +315,6 @@ void Project::sample(halnf pressure, halnf cameraRatio, Vec2F relativeCameraPos)
 	if (idx) {
 		auto brush = mBrushes.getSlotVal(idx);
 
-		if (brush->mType == "pencil") {
-			((tp::PencilBrush*) brush)->mCol = RGBA(1.f);
-		}
-
 		brush->sample(this, relativeCameraPos, pressure);
 	}
 }

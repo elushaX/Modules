@@ -80,6 +80,10 @@ namespace tp {
 			canvas.drawImage(this->mArea, &mImage, 0, 1, 12);
 		}
 
+		void setColor(const RGBA& color) {
+			((PencilBrush*) mProject.mBrushes.get("pencil"))->mCol = color;
+		}
+
 	public:
 		enum class Mode {
 			MOVE, ROTATE, ZOOM, DRAW, NONE
@@ -113,6 +117,21 @@ namespace tp {
 			mOptions.mContents.append(mMoveButton);
 			mOptions.mContents.append(mRotateButton);
 			mOptions.mContents.append(mZoomButton);
+
+			// add color sliders
+			mRed = new NamedSliderWidget < Events, Canvas >("Red");
+			mGreen = new NamedSliderWidget < Events, Canvas >("Green");
+			mBlue = new NamedSliderWidget < Events, Canvas >("Blue");
+
+			mOptions.mContents.append(mRed);
+			mOptions.mContents.append(mGreen);
+			mOptions.mContents.append(mBlue);
+		}
+
+		~Sketch3DGUI() { 
+			for (auto item : mOptions.mContents) {
+				delete item.data();
+			}
 		}
 
 		void proc(const Events& events, const RectF& areaParent, const RectF& area) override {
@@ -133,6 +152,8 @@ namespace tp {
 			} else if (mZoomButton->mIsPressed) {
 				mViewport.mMode = Sketch3DWidget<Events, Canvas>::Mode::ZOOM;
 			}
+
+			mViewport.setColor(RGBA(mRed->mSlider.mFactor, mGreen->mSlider.mFactor, mBlue->mSlider.mFactor, 1.f));
 		}
 
 		void draw(Canvas& canvas) override {
@@ -154,5 +175,9 @@ namespace tp {
 		ButtonWidget<Events, Canvas>* mMoveButton = nullptr;
 		ButtonWidget<Events, Canvas>* mRotateButton = nullptr;
 		ButtonWidget<Events, Canvas>* mZoomButton = nullptr;
+
+		NamedSliderWidget<Events, Canvas>* mRed = nullptr;
+		NamedSliderWidget<Events, Canvas>* mGreen = nullptr;
+		NamedSliderWidget<Events, Canvas>* mBlue = nullptr;
 	};
 }
