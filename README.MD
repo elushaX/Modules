@@ -34,3 +34,6 @@ Simple Ray-Tracer.
 
 ![Oscript](.docs/Gallery/Oscript.gif)
 Oscript.
+
+<img src=".docs/Gallery/Sketch3D.gif" alt="Sketch3d" style="zoom:150%;" />
+Sketch3D.
