@@ -29,5 +29,8 @@ To build and debug on windows clone svn repository (https://svn.riouxsvn.com/mod
 
 # **Gallery**
 
-![plot](.docs/Gallery/RayTracer.png)
+![RayTracer](.docs/Gallery/RayTracer.png)
 Simple Ray-Tracer.
+
+![Oscript](.docs/Gallery/Oscript.mp4)
+Oscript.
