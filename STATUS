@@ -4,25 +4,12 @@ Externals:
 Modules:
 	Base module 
 
-Strings:
-	Should be reconsidered
-	No tests
-
-Utils:
-	Baic Utils 
-	Many should be replaced with STD
-	No tests
-
 Math:
 	Basic math
 	No tests
 
-Allocators:
-	Used for memory debugging
-	Mostly Reliable
-	Seamless intergration
-
 Connection:
+    Should be removed
 	Questionable goals of abstracting all storages (remote local etc)
 	Mostly Reliable
 	Maybe hard to use
@@ -33,7 +20,7 @@ Containers:
 	Not enough test
 
 Graphics:
-	Cross-platform window and debug UI managment
+	Cross-platform window and debug UI management
 	No tests
 
 Widgets:
@@ -51,11 +38,11 @@ Objects:
 Language:
 	Not implemented yet
 
-DataAnalisys:
+DataAnalysis:
 	Toy AI number recognition
 
-LibraryViewver:
+LibraryViewer:
 	Toy Music player using graphics module
 	
 RayTracer:
-	Toy raytracer with lua scriting and object loader
+	Toy raytracer with lua scripting and object loader
