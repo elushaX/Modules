@@ -26,7 +26,7 @@ private:
 
 int main() {
 
-	tp::ModuleManifest* deps[] = { &gModuleObjects, &gModuleGraphics, nullptr };
+	tp::ModuleManifest* deps[] = { &gModuleObjects, nullptr };
 	tp::ModuleManifest module("ObjectsTests", nullptr, nullptr, deps);
 
 	if (module.initialize()) {

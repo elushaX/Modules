@@ -60,16 +60,5 @@ SUITE(FCNN) {
 }
 
 int main() {
-	tp::ModuleManifest* deps[] = { &tp::gModuleDataAnalysis, nullptr };
-	tp::ModuleManifest testModule("DataAnalysisTest", nullptr, nullptr, deps);
-
-	if (!testModule.initialize()) {
-		return 1;
-	}
-
-	bool res = UnitTest::RunAllTests();
-
-	testModule.deinitialize();
-
-	return res;
+	return UnitTest::RunAllTests();
 }

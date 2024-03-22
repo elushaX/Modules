@@ -23,23 +23,11 @@ private:
 };
 
 int main() {
-
-	tp::ModuleManifest* deps[] = { &tp::gModuleWidgets, nullptr };
-	tp::ModuleManifest binModule("Chat", nullptr, nullptr, deps);
-
-	if (!binModule.initialize()) {
-		return 1;
-	}
+	GlobalGUIConfig mConfig;
+	gGlobalGUIConfig = &mConfig;
 
 	{
-		GlobalGUIConfig mConfig;
-		gGlobalGUIConfig = &mConfig;
-
-		{
-			ExampleGUI gui;
-			gui.run();
-		}
+		ExampleGUI gui;
+		gui.run();
 	}
-
-	binModule.deinitialize();
 }

@@ -1,7 +1,6 @@
 
 #include "Window.hpp"
 #include "WindowContext.hpp"
-#include "Allocators.hpp"
 
 #include "Rect.hpp"
 
@@ -17,11 +16,6 @@
 
 #include <GLFW/glfw3.h>
 #include <cstdio>
-
-namespace tp {
-  static ModuleManifest* deps[] = { &gModuleAllocators, nullptr };
-  ModuleManifest gModuleGraphics = ModuleManifest("Graphics", nullptr, nullptr, deps);
-}
 
 using namespace tp;
 
@@ -62,8 +56,6 @@ Window::~Window() {
 }
 
 Window* Window::createWindow(Vec2F size, const char* title) {
-	HeapAllocGlobal::startIgnore();
-
 	static int count = 1;
 	if (!count) {
 		printf("Window class is a singleton\n");
@@ -82,7 +74,6 @@ Window* Window::createWindow(Vec2F size, const char* title) {
 
 	auto out = new Window(size, title);
 
-	HeapAllocGlobal::stopIgnore();
 	return out;
 }
 

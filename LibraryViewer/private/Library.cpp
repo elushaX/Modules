@@ -6,11 +6,6 @@
 #include "picojson.h"
 #include <filesystem>
 
-namespace tp {
-	static ModuleManifest* deps[] = { &gModuleGraphics, &gModuleStrings, &gModuleAllocators, nullptr };
-	ModuleManifest gModuleLibraryViewer = ModuleManifest("LibraryViewer", nullptr, nullptr, deps);
-}
-
 using namespace tp;
 
 #define AS_STR (int1*) trackProperty.second.to_str().c_str()

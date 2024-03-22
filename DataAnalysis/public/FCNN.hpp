@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Buffer.hpp"
-#include "DataAnalysisCommon.hpp"
 
 namespace tp {
 	// Fully connected neural network

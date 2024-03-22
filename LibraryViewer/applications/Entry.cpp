@@ -40,24 +40,10 @@ private:
 	LibraryWidget<EventHandler, Canvas> gui;
 };
 
-void runApp() {
+int main() {
 	tp::GlobalGUIConfig config;
 	tp::gGlobalGUIConfig = &config;
 
 	LibraryViewer lib;
 	lib.run();
-}
-
-int main() {
-
-	tp::ModuleManifest* deps[] = { &tp::gModuleLibraryViewer, nullptr };
-	tp::ModuleManifest binModule("LibViewEntry", nullptr, nullptr, deps);
-
-	if (!binModule.initialize()) {
-		return 1;
-	}
-
-	runApp();
-
-	binModule.deinitialize();
 }

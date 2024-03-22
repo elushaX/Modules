@@ -9,8 +9,6 @@
 
 namespace tp {
 
-	extern ModuleManifest gModuleWidgets;
-
 	struct WidgetConfig {
 		struct Node {
 			enum Type { NONE, VAL, COL, REF };

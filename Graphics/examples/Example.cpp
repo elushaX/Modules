@@ -21,18 +21,6 @@ public:
 };
 
 int main() { 
-
-	ModuleManifest* deps[] = { &gModuleGraphics, nullptr };
-	ModuleManifest module("Eample", nullptr, nullptr, deps);
-
-	if (!module.initialize()) {
-		return 1;
-	}
-
-	{
-		ExampleApplication app;
-		app.run();
-	}
-
-	module.deinitialize();
+	ExampleApplication app;
+	app.run();
 }
