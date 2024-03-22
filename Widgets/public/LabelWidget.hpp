@@ -23,7 +23,7 @@ namespace tp {
 			if (!this->mVisible) return;
 
 			canvas.text(
-				mLabel.read(),
+				mLabel.c_str(),
 				this->mArea,
 				this->getValue("Size"),
 				Canvas::CC,
@@ -33,6 +33,6 @@ namespace tp {
 		}
 
 	public:
-		String mLabel = "Label";
+		std::string mLabel = "Label";
 	};
 }

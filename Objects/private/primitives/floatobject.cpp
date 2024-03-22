@@ -16,9 +16,11 @@ void FloatObject::from_int(FloatObject* self, alni in) { self->val = alnf(in); }
 
 void FloatObject::from_float(FloatObject* self, alnf in) { self->val = in; }
 
-void FloatObject::from_string(FloatObject* self, String in) { self->val = alnf(in); }
+void FloatObject::from_string(FloatObject* self, const std::string& in) {
+	self->val = std::stof(in);
+}
 
-String FloatObject::to_string(FloatObject* self) { return String(self->val); }
+std::string FloatObject::to_string(FloatObject* self) { return std::to_string(self->val); }
 
 alni FloatObject::to_int(FloatObject* self) { return alni(self->val); }
 

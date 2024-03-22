@@ -17,15 +17,15 @@ namespace obj {
 
 		struct CallFrame {
 			enum { CALL_DEPTH = 1024 };
-			obj::Object* mSelf = NULL;
-			obj::MethodObject* mMethod = NULL;
+			obj::Object* mSelf = nullptr;
+			obj::MethodObject* mMethod = nullptr;
 			tp::ualni mIp = 0;
 		};
 
 		void enter(const CallFrame& frame);
 		void leave();
 		ByteCode* getBytecode();
-		tp::halni len() const;
+		[[nodiscard]] tp::halni len() const;
 
 		tp::ConstSizeBuffer<CallFrame, CallFrame::CALL_DEPTH> mStack;
 	};

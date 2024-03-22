@@ -10,13 +10,13 @@ namespace obj {
 		ScopeStack mScopeStack;
 		CallStack mCallStack;
 
-		obj::Object* mLastParent = NULL;
+		obj::Object* mLastParent = nullptr;
 		bool mIsTypeMethod = false;
-		const TypeMethod* mTypeMethod = NULL;
+		const TypeMethod* mTypeMethod = nullptr;
 
-		typedef struct { obj::Object* obj; tp::String id; } GlobalDef;
+		typedef struct { obj::Object* obj; std::string id; } GlobalDef;
 
-		void exec(obj::MethodObject* method, obj::ClassObject* self = NULL, obj::DictObject* globals = NULL, tp::InitialierList<GlobalDef> globals2 = {});
+		void exec(obj::MethodObject* method, obj::ClassObject* self = nullptr, obj::DictObject* globals = nullptr, tp::InitialierList<GlobalDef> globals2 = {});
 
 		void stepBytecode();
 		void stepBytecodeIn();
@@ -24,6 +24,6 @@ namespace obj {
 
 		bool finished();
 
-		void execAll(obj::MethodObject* method, obj::ClassObject* self = NULL, obj::DictObject* globals = NULL, tp::InitialierList<GlobalDef> globals2 = {});
+		void execAll(obj::MethodObject* method, obj::ClassObject* self = nullptr, obj::DictObject* globals = nullptr, tp::InitialierList<GlobalDef> globals2 = {});
 	};
 };

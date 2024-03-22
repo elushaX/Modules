@@ -7,7 +7,7 @@ file(GLOB HEADERS "./public/*.hpp" "./public/*/*.hpp" "./applications/*.hpp")
 add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ./public/ ${BINDINGS_INCLUDE})
-target_link_libraries(${PROJECT_NAME} PUBLIC Strings Math Connection LALR Strings)
+target_link_libraries(${PROJECT_NAME} PUBLIC Math Connection LALR)
 target_compile_definitions(${PROJECT_NAME} PUBLIC USERDATA_DESTROY_FAILED_TREE_ROOTS)
 
 ### -------------------------- Applications  --------------------------  ###

@@ -23,6 +23,6 @@ namespace obj {
 
 		void compile();
 
-		static MethodObject* create(tp::String script);
+		static MethodObject* create(const std::string& script);
 	};
 };

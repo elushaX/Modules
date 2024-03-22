@@ -17,12 +17,12 @@ SUITE(Core) {
 
 			integer->val = 10;
 
-			printf("%s\n", NDO->toString(integer).read());
+			printf("%s\n", NDO->toString(integer).c_str());
 
 			NDO->save(integer, "tmp.o");
 			auto savedInt = NDO->load("tmp.o");
 
-			printf("%s\n", NDO->toString(savedInt).read());
+			printf("%s\n", NDO->toString(savedInt).c_str());
 
 			CHECK(NDO->compare(integer, savedInt));
 			CHECK(NDO_CAST(IntObject, savedInt));

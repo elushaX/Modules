@@ -16,7 +16,7 @@ void NullObject::uninit() {
 
 void NullObject::destructor(Object* self) { DEBUG_ASSERT(uninit_flag && "Only one the instance of NullObject exists and thus it can't be destroyed"); }
 
-String to_string(NullObject* self) { return "NULL"; }
+std::string to_string(NullObject* self) { return "NULL"; }
 
 alni to_int(NullObject* self) { return 0; }
 

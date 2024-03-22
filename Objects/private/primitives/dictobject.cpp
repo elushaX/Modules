@@ -8,7 +8,7 @@ using namespace tp;
 void DictObject::constructor(Object* self) {
 	NDO_CASTV(DictObject, self, dict);
 
-	new (&dict->items) Map<String, Object*>();
+	new (&dict->items) Map<std::string, Object*>();
 }
 
 void DictObject::copy(Object* in, const Object* target) {
@@ -41,7 +41,7 @@ alni DictObject::save_size(DictObject* self) {
 
 	for (auto item : self->items) {
 		// string length
-		save_size += tp::SaveSizeCounter::calc(item->key);
+		save_size += save_string_size(item->key);
 
 		// object file adress
 		save_size += sizeof(alni);
@@ -63,12 +63,12 @@ void DictObject::save(DictObject* self, ArchiverOut& file_self) {
 		file_self << ndo_object_adress;
 
 		// item key
-		file_self << item->key;
+		save_string(file_self, item->key);
 	}
 }
 
 void DictObject::load(ArchiverIn& file_self, DictObject* self) {
-	new (&self->items) tp::Map<tp::String, Object*>();
+	new (&self->items) tp::Map<std::string, Object*>();
 
 	alni len;
 	file_self >> len;
@@ -81,8 +81,8 @@ void DictObject::load(ArchiverIn& file_self, DictObject* self) {
 		Object* val = NDO->load(file_self, ndo_object_adress);
 
 		// read key value
-		String key;
-		file_self >> key;
+		std::string key;
+		load_string(file_self, key);
 
 		// add to dictinary
 		self->put(key, val);
@@ -118,13 +118,13 @@ alni DictObject::allocated_size_recursive(DictObject* self) {
 	return out;
 }
 
-void DictObject::put(tp::String str, Object* obj) {
+void DictObject::put(const std::string& str, Object* obj) {
 	DEBUG_ASSERT(obj);
 	NDO->refinc(obj);
 	items.put(str, obj);
 }
 
-void DictObject::remove(tp::String str) {
+void DictObject::remove(const std::string& str) {
 	auto idx = items.presents(str);
 	if (idx) {
 		NDO->destroy(items.getSlotVal(idx));
@@ -132,13 +132,13 @@ void DictObject::remove(tp::String str) {
 	}
 }
 
-Object* DictObject::get(tp::String str) { return items.get(str); }
+Object* DictObject::get(const std::string& str) { return items.get(str); }
 
-tp::Map<tp::String, Object*>::Idx DictObject::presents(tp::String str) { return items.presents(str); }
+tp::Map<std::string, Object*>::Idx DictObject::presents(const std::string& str) { return items.presents(str); }
 
-Object* DictObject::getSlotVal(tp::Map<tp::String, Object*>::Idx idx) { return items.getSlotVal(idx); }
+Object* DictObject::getSlotVal(tp::Map<std::string, Object*>::Idx idx) { return items.getSlotVal(idx); }
 
-const tp::Map<tp::String, Object*>& DictObject::getItems() const { return items; }
+const tp::Map<std::string, Object*>& DictObject::getItems() const { return items; }
 
 static auto tm_get = TypeMethod{ .nameid = "get",
 																 .descr = "gets the object",

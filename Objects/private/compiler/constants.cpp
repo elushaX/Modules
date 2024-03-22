@@ -60,7 +60,7 @@ ConstObject* ConstObjectsPool::get(tp::alni val) {
 	return const_obj;
 }
 
-ConstObject* ConstObjectsPool::get(tp::String val) {
+ConstObject* ConstObjectsPool::get(const std::string& val) {
 	auto idx = mStrings.presents(val);
 	ConstObject* const_obj = NULL;
 	if (idx) {
@@ -100,7 +100,7 @@ ConstObject* ConstObjectsPool::get(bool val) {
 	}
 }
 
-ConstObject* ConstObjectsPool::addMethod(tp::String method_id, obj::Object* method) {
+ConstObject* ConstObjectsPool::addMethod(const std::string& method_id, obj::Object* method) {
 	ASSERT(NDO_CAST(MethodObject, method) && "Object is not a method object");
 	ASSERT(!mMethods.presents(method_id) && "Method Redefinition");
 	auto out = registerObject(method);

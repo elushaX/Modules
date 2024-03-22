@@ -6,7 +6,7 @@ using namespace BCgen;
 Expression::Expression(Type type) :
 	mType(type) {}
 
-ExpressionChild* Expression::ExprChild(const tp::String& id) { return new ExpressionChild(this, id); }
+ExpressionChild* Expression::ExprChild(const std::string& id) { return new ExpressionChild(this, id); }
 
 ExpressionCall* Expression::ExprCall(ExpressionList* args) { return new ExpressionCall(this, args); }
 
@@ -46,13 +46,13 @@ ExpressionList::~ExpressionList() {
 	}
 }
 
-ExpressionNew::ExpressionNew(const tp::String& type) :
+ExpressionNew::ExpressionNew(const std::string& type) :
 	Expression(Type::NEW),
 	mNewType(type) {}
 
 ExpressionNew::~ExpressionNew() = default;
 
-ExpressionLocal::ExpressionLocal(const tp::String& id) :
+ExpressionLocal::ExpressionLocal(const std::string& id) :
 	Expression(Type::LOCAL),
 	mLocalId(id) {}
 
@@ -61,7 +61,7 @@ ExpressionLocal::~ExpressionLocal() = default;
 ExpressionSelf::ExpressionSelf() :
 	Expression(Type::SELF) {}
 
-ExpressionChild::ExpressionChild(Expression* mParent, const tp::String& id) :
+ExpressionChild::ExpressionChild(Expression* mParent, const std::string& id) :
 	Expression(Type::CHILD),
 	mParent(mParent),
 	mLocalId(id) {}
@@ -79,13 +79,13 @@ ExpressionArithmetics::~ExpressionArithmetics() {
 	delete mRight;
 }
 
-ExpressionFunc::ExpressionFunc(const tp::String& id) :
+ExpressionFunc::ExpressionFunc(const std::string& id) :
 	Expression(Type::FUNC),
 	mFuncId(id) {}
 
 ExpressionFunc::~ExpressionFunc() = default;
 
-ExpressionConst::ExpressionConst(const tp::String& val) :
+ExpressionConst::ExpressionConst(const std::string& val) :
 	Expression(Type::CONST_EXPR),
 	mConstType(STR),
 	str(val) {}

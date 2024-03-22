@@ -17,15 +17,15 @@ namespace obj {
 		static tp::alni allocated_size(DictObject* self);
 		static tp::alni allocated_size_recursive(DictObject* self);
 
-		void put(tp::String, Object*);
-		void remove(tp::String);
-		Object* get(tp::String);
-		tp::Map<tp::String, Object*>::Idx presents(tp::String);
-		Object* getSlotVal(tp::Map<tp::String, Object*>::Idx);
+		void put(const std::string&, Object*);
+		void remove(const std::string&);
+		Object* get(const std::string&);
+		tp::Map<std::string, Object*>::Idx presents(const std::string&);
+		Object* getSlotVal(tp::Map<std::string, Object*>::Idx);
 
-		const tp::Map<tp::String, Object*>& getItems() const;
+		[[nodiscard]] const tp::Map<std::string, Object*>& getItems() const;
 
 	private:
-		tp::Map<tp::String, Object*> items;
+		tp::Map<std::string, Object*> items;
 	};
 };

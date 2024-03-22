@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "Strings.hpp"
+#include <string>
 #include "List.hpp"
 #include "Map.hpp"
 
@@ -16,17 +16,17 @@ namespace obj {
 
 		struct FunctionDefinition {
 			
-			FunctionDefinition* mPrnt = NULL;
+			FunctionDefinition* mPrnt = nullptr;
 
 			// signature
-			tp::String mFunctionId;
+			std::string mFunctionId;
 			tp::List<ConstObject*> mArgsOrder;
 
 			ConstObjectsPool mConstants;
-			tp::Map<tp::String, ConstObject*> mLocals;
+			tp::Map<std::string, ConstObject*> mLocals;
 			tp::List<Instruction> mInstructions;
 
-			FunctionDefinition(tp::String function_id, tp::Buffer<tp::String> args, FunctionDefinition* prnt);
+			FunctionDefinition(const std::string& function_id, tp::Buffer<std::string> args, FunctionDefinition* prnt);
 			FunctionDefinition() {}
 
 			void generateByteCode(ByteCode& out);
@@ -36,7 +36,7 @@ namespace obj {
 			void EvalExpr(Expression* expr);
 			void EvalStatement(Statement* expr);
 
-			ConstObject* defineLocal(tp::String id);
+			ConstObject* defineLocal(const std::string& id);
 		};
 
 		void init();

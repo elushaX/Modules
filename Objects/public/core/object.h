@@ -5,7 +5,6 @@
 #include "Map.hpp"
 #include "List.hpp"
 #include "Buffer.hpp"
-#include "Strings.hpp"
 #include "LocalConnection.hpp"
 
 #include "core/typegroups.h"
@@ -13,6 +12,8 @@
 
 #include "Archiver.hpp"
 #include "SizeCounter.hpp"
+
+#include <string>
 
 //#include "interpreter/interpreter.h"
 
@@ -37,6 +38,7 @@ implement construct, destruct and copy methods */
 #define NDO_FROM_MEMH(ndo_ptr) ((Object*)(ndo_ptr + 1))
 
 namespace obj {
+
 
 	template<bool tRead>
 	class Archiver : public tp::ArchiverTemplate<tRead> {
@@ -84,6 +86,10 @@ namespace obj {
 	using ArchiverIn = Archiver<true>;
 	using ArchiverOut = Archiver<false>;
 
+	void save_string(ArchiverOut& file, const std::string& string);
+	tp::ualni save_string_size(const std::string& string);
+	void load_string(ArchiverIn& file, std::string& out);
+
 	extern tp::ModuleManifest gModuleObjects;
 
 	extern struct objects_api* NDO;
@@ -101,8 +107,8 @@ namespace obj {
 
 	typedef void (*object_from_int)(Object* self, tp::alni in);
 	typedef void (*object_from_float)(Object* self, tp::alnf in);
-	typedef void (*object_from_string)(Object* self, tp::String in);
-	typedef tp::String(*object_to_string)(Object* self);
+	typedef void (*object_from_string)(Object* self, const std::string& in);
+	typedef std::string(*object_to_string)(Object* self);
 	typedef tp::alni(*object_to_int)(Object* self);
 	typedef tp::alnf(*object_to_float)(Object* self);
 
@@ -142,23 +148,23 @@ namespace obj {
 	typedef tp::alni (*object_allocated_size_recursive)(Object*); // default value = object_allocated_size
 
 	struct ObjectType {
-		const ObjectType* base = NULL;
-		object_constructor constructor = NULL;
-		object_destructor destructor = NULL;
-		object_copy copy = NULL;
+		const ObjectType* base = nullptr;
+		object_constructor constructor = nullptr;
+		object_destructor destructor = nullptr;
+		object_copy copy = nullptr;
 		tp::alni size = 0;
 		const char* name;
-		const ObjectTypeConversions* convesions = NULL;
-		const ObjectTypeAriphmetics* ariphmetics = NULL;
-		object_save_size save_size = NULL;
-		object_save save = NULL;
-		object_load load = NULL;
-		object_compare comparison = NULL;
-		void* vtable = NULL;
-		const char* description = NULL;
-		object_debug_all_childs_retrival childs_retrival = NULL;
-		object_allocated_size allocated_size = NULL;
-		object_allocated_size_recursive allocated_size_recursive = NULL;
+		const ObjectTypeConversions* convesions = nullptr;
+		const ObjectTypeAriphmetics* ariphmetics = nullptr;
+		object_save_size save_size = nullptr;
+		object_save save = nullptr;
+		object_load load = nullptr;
+		object_compare comparison = nullptr;
+		void* vtable = nullptr;
+		const char* description = nullptr;
+		object_debug_all_childs_retrival childs_retrival = nullptr;
+		object_allocated_size allocated_size = nullptr;
+		object_allocated_size_recursive allocated_size_recursive = nullptr;
 		TypeMethods type_methods;
 	};
 
@@ -182,26 +188,26 @@ namespace obj {
 
 	struct objects_api {
 
-		tp::Map<tp::String, const ObjectType*> types;
+		tp::Map<std::string, const ObjectType*> types;
 		obj::TypeGroups type_groups;
-		Interpreter* interp = NULL;
+		Interpreter* interp = nullptr;
 
 		objects_api();
 		~objects_api();
 
 		void define(ObjectType* type);
-		Object* create(const tp::String& name);
+		Object* create(const std::string& name);
 		Object* copy(Object* self, const Object* in);
 		bool compare(Object* first, Object* second);
 		Object* instatiate(Object*);
 		void set(Object* self, tp::alni val);
 		void set(Object* self, tp::alnf val);
-		void set(Object* self, tp::String val);
+		void set(Object* self, const std::string& val);
 
 		tp::alni toInt(Object* self);
 		tp::alnf toFloat(Object* self);
 		bool toBool(Object* self);
-		tp::String toString(Object* self);
+		std::string toString(Object* self);
 
 		void clear_object_flags();
 
@@ -225,8 +231,8 @@ namespace obj {
 		tp::alni objsize_ram_recursive_util(Object* self, const ObjectType* type, bool different_object = true);
 		tp::alni objsize_ram_recursive(Object* self);
 
-		bool save(Object*, tp::String path, bool compressed = true);
-		Object* load(tp::String path);
+		bool save(Object*, const std::string& path, bool compressed = true);
+		Object* load(const std::string& path);
 		tp::alni save(ArchiverOut&, Object*);
 		Object* load(ArchiverIn&, tp::alni file_adress);
 	};

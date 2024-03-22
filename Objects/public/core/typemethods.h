@@ -2,7 +2,7 @@
 #pragma once
 
 #include "Buffer.hpp"
-#include "Strings.hpp"
+#include <string>
 
 namespace obj {
 
@@ -13,19 +13,19 @@ namespace obj {
 	struct TypeMethod {
 		enum { MAX_ARGS = 8 };
 		struct Arg {
-			const char* descr = NULL;
-			mutable Object* obj = NULL;
+			const char* descr = nullptr;
+			mutable Object* obj = nullptr;
 		};
 
-		const char* nameid = NULL;
-		const char* descr = NULL;
+		const char* nameid = nullptr;
+		const char* descr = nullptr;
 
-		mutable Object* self = NULL;
+		mutable Object* self = nullptr;
 		Arg args[MAX_ARGS];
 		
 		tp::int1 mNargs = 0;
 
-		void (*exec)(const TypeMethod* tm) = NULL;
+		void (*exec)(const TypeMethod* tm) = nullptr;
 
 		mutable Arg ret;
 
@@ -48,7 +48,7 @@ namespace obj {
 			operator bool() { return key != -1; }
 		};
 
-		static LookupKey presents(const ObjectType*, tp::String);
+		static LookupKey presents(const ObjectType*, const std::string&);
 		static const TypeMethod* getMethod(const ObjectType*, LookupKey);
 
 		void init();
@@ -56,7 +56,7 @@ namespace obj {
 		tp::halni nMethods() const;
 
 	private:
-		tp::int2 presents(tp::String) const;
+		tp::int2 presents(const std::string&) const;
 		const TypeMethod* getMethod(tp::int2) const;
 	};
 	

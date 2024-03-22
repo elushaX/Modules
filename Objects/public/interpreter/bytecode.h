@@ -7,7 +7,7 @@
 #include "primitives/stringobject.h"
 
 #include "Buffer.hpp"
-#include "Strings.hpp"
+#include <string>
 
 namespace obj {
 

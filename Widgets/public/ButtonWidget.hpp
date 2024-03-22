@@ -16,7 +16,7 @@ namespace tp {
 			this->addValue("Rounding", "Rounding");
 		}
 
-		ButtonWidget(const String& label, const tp::RectF& aArea) {
+		ButtonWidget(const std::string& label, const tp::RectF& aArea) {
 			this->mArea = aArea;
 			this->mLabel.mLabel = label;
 			

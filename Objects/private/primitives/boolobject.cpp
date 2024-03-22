@@ -18,9 +18,11 @@ void BoolObject::from_int(BoolObject* self, alni in) { self->val = in; }
 
 void BoolObject::from_float(BoolObject* self, alnf in) { self->val = alni(bool(in)); }
 
-void BoolObject::from_string(BoolObject* self, String in) { self->val = alni(bool(in)); }
+void BoolObject::from_string(BoolObject* self, const std::string& in) {
+	self->val = in == "true" || in == "True";
+}
 
-String BoolObject::to_string(BoolObject* self) { return String(bool(self->val)); }
+std::string BoolObject::to_string(BoolObject* self) { return std::to_string(bool(self->val)); }
 
 alni BoolObject::to_int(BoolObject* self) { return self->val; }
 
@@ -42,9 +44,9 @@ struct ObjectTypeConversions BoolObjectTypeConversions = {
 };
 
 struct obj::ObjectType obj::BoolObject::TypeData = {
-	.base = NULL,
+	.base = nullptr,
 	.constructor = (object_constructor) BoolObject::constructor,
-	.destructor = NULL,
+	.destructor = nullptr,
 	.copy = (object_copy) BoolObject::copy,
 	.size = sizeof(BoolObject),
 	.name = "bool",

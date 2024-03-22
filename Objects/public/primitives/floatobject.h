@@ -18,8 +18,8 @@ namespace obj {
 
 		static void from_int(FloatObject* self, tp::alni in);
 		static void from_float(FloatObject* self, tp::alnf in);
-		static void from_string(FloatObject* self, tp::String in);
-		static tp::String to_string(FloatObject* self);
+		static void from_string(FloatObject* self, const std::string& in);
+		static std::string to_string(FloatObject* self);
 		static tp::alni to_int(FloatObject* self);
 		static tp::alnf to_float(FloatObject* self);
 	};

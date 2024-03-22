@@ -17,7 +17,7 @@ void ColorObject::from_int(ColorObject* self, alni in) { self->mCol = tp::RGBA((
 
 void ColorObject::from_float(ColorObject* self, alnf in) { NDO_CAST(ColorObject, self)->mCol = tp::RGBA(tp::clamp((tp::halnf) in, 0.f, 1.f)); }
 
-String ColorObject::to_string(ColorObject* self) {
+std::string ColorObject::to_string(ColorObject* self) {
 	// auto &col = NDO_CAST(ColorObject, self)->mCol;
 	// return tp::sfmt("%i:%i:%i:%i", (tp::alni) (col.r * 255), (tp::alni)(col.g * 255), (tp::alni)(col.b * 255), (tp::alni)(col.a * 255));
 	// TODO : implement
@@ -33,10 +33,10 @@ static void load(ArchiverIn& file_self, ColorObject* self) { file_self >> self->
 struct ObjectTypeConversions ColorObjectTypeConversions = {
 	.from_int = (object_from_int) ColorObject::from_int,
 	.from_float = (object_from_float) ColorObject::from_float,
-	.from_string = NULL,
+	.from_string = nullptr,
 	.to_string = (object_to_string) ColorObject::to_string,
-	.to_int = NULL,
-	.to_float = NULL,
+	.to_int = nullptr,
+	.to_float = nullptr,
 };
 
 void sub(ColorObject* self, ColorObject* in) { self->mCol = in->mCol - self->mCol; }
@@ -46,14 +46,14 @@ void add(ColorObject* self, ColorObject* in) { self->mCol = in->mCol + self->mCo
 struct ObjectTypeAriphmetics ColorObject::TypeAriphm = {
 	.add = (object_add) add,
 	.sub = (object_sub) sub,
-	.mul = (object_mul) NULL,
-	.div = (object_div) NULL,
+	.mul = (object_mul) nullptr,
+	.div = (object_div) nullptr,
 };
 
 struct obj::ObjectType obj::ColorObject::TypeData = {
-	.base = NULL,
+	.base = nullptr,
 	.constructor = ColorObject::constructor,
-	.destructor = NULL,
+	.destructor = nullptr,
 	.copy = (object_copy) ColorObject::copy,
 	.size = sizeof(ColorObject),
 	.name = "RGBA",

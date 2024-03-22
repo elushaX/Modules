@@ -17,7 +17,7 @@ namespace obj {
 
 		static void from_int(ColorObject* self, tp::alni in);
 		static void from_float(ColorObject* self, tp::alnf in);
-		static tp::String to_string(ColorObject* self);
+		static std::string to_string(ColorObject* self);
 
 		static ColorObject* create(tp::RGBA in);
 	};

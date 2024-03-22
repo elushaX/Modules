@@ -23,8 +23,8 @@ namespace obj {
 
 		static void from_int(EnumObject* self, tp::alni in);
 		static void from_float(EnumObject* self, tp::alnf in);
-		static void from_string(EnumObject* self, tp::String in);
-		static tp::String to_string(EnumObject* self);
+		static void from_string(EnumObject* self, const std::string& in);
+		static std::string to_string(EnumObject* self);
 		static tp::alni to_int(EnumObject* self);
 		static tp::alnf to_float(EnumObject* self);
 

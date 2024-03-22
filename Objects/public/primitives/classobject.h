@@ -16,11 +16,11 @@ namespace obj {
 
 		DictObject* members;
 
-		void addMember(Object* obj, tp::String id);
-		void createMember(tp::String type, tp::String id);
+		void addMember(Object* obj, const std::string& id);
+		void createMember(const std::string& type, const std::string& id);
 
 		template<typename Type>
-		Type* createMember(tp::String id) {
+		Type* createMember(const std::string& id) {
 			auto out = NDO->create(Type::TypeData.name);
 			addMember(out, id);
 			NDO->destroy(out);
@@ -28,7 +28,7 @@ namespace obj {
 		}
 
 		template<typename Type>
-		Type* getMember(const tp::String& id) {
+		Type* getMember(const std::string& id) {
 			auto idx = members->presents(id);
 			if (bool(idx)) {
 				return ((Type*)obj::ndo_cast(members->getSlotVal(idx), &Type::TypeData));
@@ -37,7 +37,7 @@ namespace obj {
 		}
 
 		template<typename Type>
-		Type* getMemberAssert(const tp::String& id) {
+		Type* getMemberAssert(const std::string& id) {
 			auto out = getMember<Type>(id);
 			assert(out && "invalid member access");
 			return out;

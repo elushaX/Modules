@@ -12,9 +12,9 @@ Scope::~Scope() {
 	}
 }
 
-obj::Object* ScopeStack::getLocalUtil(Scope& scope, tp::String* id) {
+obj::Object* ScopeStack::getLocalUtil(Scope& scope, const std::string& id) {
 
-	auto idx = scope.mLocals.presents(*id);
+	auto idx = scope.mLocals.presents(id);
 
 	if (idx) {
 		return scope.mLocals.getSlotVal(idx);
@@ -62,7 +62,7 @@ void ScopeStack::addTempReturn(obj::Object* ret) {
 	}
 }
 
-void ScopeStack::addLocal(obj::Object* local, tp::String id) {
+void ScopeStack::addLocal(obj::Object* local, const std::string& id) {
 	DEBUG_ASSERT(mIdx != 0 && "No scope given");
 	Scope::ObjDict& locals = mBuff[mIdx - 1].mLocals;
 	auto idx = locals.presents(id);
@@ -73,9 +73,9 @@ void ScopeStack::addLocal(obj::Object* local, tp::String id) {
 	locals.put(id, local);
 }
 
-obj::Object* ScopeStack::getLocal(tp::String& str) {
+obj::Object* ScopeStack::getLocal(const std::string& str) {
 	mIterIdx = mIdx - 1;
-	return getLocalUtil(mBuff[mIdx - 1], &str);
+	return getLocalUtil(mBuff[mIdx - 1], str);
 }
 
 Scope* ScopeStack::getCurrentScope() { return &mBuff[mIdx - 1]; }

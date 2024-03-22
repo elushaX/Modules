@@ -3,14 +3,14 @@
 using namespace obj;
 using namespace BCgen;
 
-StatementFuncDef::StatementFuncDef(const tp::String& function_id) :
+StatementFuncDef::StatementFuncDef(const std::string& function_id) :
 	Statement(Type::DEF_FUNC) {
 	mFunctionId = function_id;
 }
 
 StatementFuncDef::~StatementFuncDef() { delete mStatements; }
 
-StatementLocalDef::StatementLocalDef(const tp::String& id, Expression* value) :
+StatementLocalDef::StatementLocalDef(const std::string& id, Expression* value) :
 	mLocalId(id),
 	Statement(Type::DEF_LOCAL) {
 
@@ -96,7 +96,7 @@ StatementIgnore::StatementIgnore(Expression* expr) :
 
 StatementIgnore::~StatementIgnore() { delete mExpr; }
 
-StatementClassDef::StatementClassDef(const tp::String& class_id, StatementScope* scope) :
+StatementClassDef::StatementClassDef(const std::string& class_id, StatementScope* scope) :
 	Statement(Type::CLASS_DEF) {
 	mClassId = class_id;
 	mScope = scope;

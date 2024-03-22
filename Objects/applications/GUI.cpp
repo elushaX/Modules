@@ -121,14 +121,14 @@ obj::Object* imgui_object_create_menu(obj::TypeGroups* type_group = NULL) {
 	for (auto childo : *type_group->getChilds()) {
 
 		if (childo->val->isGroup()) {
-			if (ImGui::BeginMenu((childo->key).read())) {
+			if (ImGui::BeginMenu((childo->key).c_str())) {
 				newo = imgui_object_create_menu(childo->val);
 				ImGui::EndMenu();
 			}
 			continue;
 		}
 
-		if (ImGui::Button((childo->key).read(), { 100, 0 })) {
+		if (ImGui::Button((childo->key).c_str(), { 100, 0 })) {
 			if (childo->key == "null") {
 				newo = NDO_NULL;
 			} else {
@@ -142,7 +142,7 @@ obj::Object* imgui_object_create_menu(obj::TypeGroups* type_group = NULL) {
 
 obj::ObjectsGUI::ObjectsGUI() { assert(obj::NDO && "Objects library is not initialized"); }
 
-void obj::ObjectsGUI::cd(obj::Object* child, tp::String name) {
+void obj::ObjectsGUI::cd(obj::Object* child, const std::string& name) {
 	mActive = child;
 	mViewStack.pushBack({ mActive, name });
 	obj::NDO->refinc(child);
@@ -198,8 +198,8 @@ void obj::ObjectsGUI::preview(obj::Object* obj) {
 		NDO_CASTV(obj::StringObject, obj, stringo);
 		static char val[2048] = { " " };
 		if (stringo->val != val) {
-			assert(tp::String::Logic::calcLength(stringo->val.read()) < 2048);
-			tp::memCopy(val, stringo->val.read(), stringo->val.size() + 1);
+			assert(stringo->val.size() < 2048);
+			tp::memCopy(val, stringo->val.c_str(), stringo->val.size() + 1);
 		}
 		ImGui::InputText("", val, 2048);
 		if (stringo->val != val) {
@@ -301,7 +301,7 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::interpreterView(obj::Interpreter
 			}
 
 			// INFO
-			auto hd = HoverPopupBegin(tp::String((tp::alni) ip).read(), { 400, 250 });
+			auto hd = HoverPopupBegin(std::to_string((tp::alni) ip).c_str(), { 400, 250 });
 			if (hd) {
 				Text(info.desc);
 				if (info.operands.len) {
@@ -365,20 +365,20 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::interpreterView(obj::Interpreter
 	Begin("ScopeStack");
 	{
 		for (auto i = 0; i < interp.mScopeStack.mIdx; i++) {
-			if (TreeNode(tp::String((tp::alni) i).read())) {
+			if (TreeNode(std::to_string((tp::alni) i).c_str())) {
 
 				auto& scope = interp.mScopeStack.mBuff[i];
 
 				if (TreeNode("Locals")) {
 					for (auto local : scope.mLocals) {
-						if (Selectable(local->key.read(), false, 0, ImVec2(100, 0))) {
+						if (Selectable(local->key.c_str(), false, 0, ImVec2(100, 0))) {
 							TreePop();
 							TreePop();
 							End();
 							return { local->val, local->key };
 						}
 
-						PushID(local->key.read());
+						PushID(local->key.c_str());
 						SameLine();
 						preview(local->val);
 						PopID();
@@ -389,7 +389,7 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::interpreterView(obj::Interpreter
 				if (TreeNode("Temps")) {
 					tp::alni idx = 0;
 					for (auto tmp : scope.mTemps) {
-						if (Selectable(tp::String(idx).read(), false, 0, ImVec2(100, 0))) {
+						if (Selectable(std::to_string(idx).c_str(), false, 0, ImVec2(100, 0))) {
 							TreePop();
 							TreePop();
 							End();
@@ -429,7 +429,7 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::interpreterView(obj::Interpreter
 			if (Button(const_obj.data()->type->name)) {
 				End();
 				PopID();
-				return { const_obj.data(), tp::String(idx) };
+				return { const_obj.data(), std::to_string(idx) };
 			}
 			SameLine();
 			preview(const_obj.data());
@@ -531,11 +531,11 @@ void obj::ObjectsGUI::dictViewDrawCreate(obj::DictObject* dict) {
 		if (mClipboard) {
 			if (ImGui::Selectable("Paste")) {
 				tp::alni idx = 1;
-				tp::String name_base = tp::String("clipboard ") + tp::String(mClipboard->type->name) + tp::String(" ");
-				tp::String name_out = name_base;
+				auto name_base = std::string("clipboard ") + std::string(mClipboard->type->name) + " ";
+				auto name_out = name_base;
 
 				while (dict->presents(name_out)) {
-					name_out = name_base + tp::String(idx);
+					name_out = name_base + std::to_string(idx);
 					idx++;
 				}
 
@@ -549,11 +549,11 @@ void obj::ObjectsGUI::dictViewDrawCreate(obj::DictObject* dict) {
 
 			if (newo) {
 				tp::alni idx = 1;
-				tp::String name_base = tp::String("new ") + tp::String(newo->type->name) + tp::String(" ");
-				tp::String name_out = name_base;
+				auto name_base = std::string("new ") + std::string(newo->type->name) + " ";
+				auto name_out = name_base;
 
 				while (dict->presents(name_out)) {
-					name_out = name_base + tp::String(idx);
+					name_out = name_base + std::to_string(idx);
 					idx++;
 				}
 
@@ -567,8 +567,8 @@ void obj::ObjectsGUI::dictViewDrawCreate(obj::DictObject* dict) {
 	}
 }
 
-void obj::ObjectsGUI::dictViewEdit(obj::DictObject* dict, tp::String key, obj::Object* obj, bool& popup) {
-	if (ImGui::BeginPopupContextItem(key.read(), ImGuiPopupFlags_MouseButtonRight)) {
+void obj::ObjectsGUI::dictViewEdit(obj::DictObject* dict, const std::string& key, obj::Object* obj, bool& popup) {
+	if (ImGui::BeginPopupContextItem(key.c_str(), ImGuiPopupFlags_MouseButtonRight)) {
 		popup = true;
 
 		ImGui::Text("%s at %x", obj->type->name, obj);
@@ -578,7 +578,7 @@ void obj::ObjectsGUI::dictViewEdit(obj::DictObject* dict, tp::String key, obj::O
 		} else {
 
 			if (mLastNameEditObject != obj) {
-				tp::memCopy(mNameEdit, key.read(), key.size() + 1);
+				tp::memCopy(mNameEdit, key.c_str(), key.size() + 1);
 				mLastNameEditObject = obj;
 			}
 
@@ -589,7 +589,7 @@ void obj::ObjectsGUI::dictViewEdit(obj::DictObject* dict, tp::String key, obj::O
 				} else {
 					obj::NDO->refinc(obj);
 					dict->remove(key);
-					auto id = tp::String(mNameEdit);
+					auto id = std::string(mNameEdit);
 					dict->put(id, obj);
 					obj::NDO->destroy(obj);
 				}
@@ -626,16 +626,16 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::dictView(obj::DictObject* obj) {
 				ImGui::TableNextRow(0, 30);
 				ImGui::TableSetColumnIndex(0);
 
-				if (ImGui::Selectable(childo->key.read())) {
+				if (ImGui::Selectable(childo->key.c_str())) {
 					ImGui::EndTable();
 					ImGui::EndChild();
-					return { childo->val, { tp::String(childo->val->type->name) + tp::String(" ") + childo->key } };
+					return { childo->val, { std::string(childo->val->type->name) + " " + childo->key } };
 				}
 
 				dictViewEdit(obj, childo->key, childo->val, popup);
 
 				ImGui::TableSetColumnIndex(1);
-				ImGui::PushID((int) childo->key.read()[0]);
+				ImGui::PushID((int) childo->key.c_str()[0]);
 				preview(childo->val);
 				ImGui::PopID();
 			}
@@ -670,13 +670,13 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::listView(obj::ListObject* obj) {
 			ImGui::TableNextRow(0, 36);
 
 			ImGui::TableSetColumnIndex(0);
-			if (ImGui::Selectable(tp::String(idx).read())) {
-				out = ViewStackNode(childo.data(), { tp::String(childo->type->name) + tp::String("at") + tp::String(idx) });
+			if (ImGui::Selectable(std::to_string(idx).c_str())) {
+				out = ViewStackNode(childo.data(), { std::string(childo->type->name) + "at" + std::to_string(idx) });
 				break;
 			}
 
 			{
-				if (ImGui::BeginPopupContextItem(tp::String(idx).read(), ImGuiPopupFlags_MouseButtonRight)) {
+				if (ImGui::BeginPopupContextItem(std::to_string(idx).c_str(), ImGuiPopupFlags_MouseButtonRight)) {
 					popup = true;
 
 					ImGui::Text("%s at %x", childo->type->name, childo.data());
@@ -742,12 +742,12 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::listView(obj::ListObject* obj) {
 	return out;
 }
 
-void drawStrView(tp::String& in) {
+void drawStrView(std::string& in) {
 	static char val[2048] = { " " };
 
 	if (in != val) {
-		assert(tp::String::Logic::calcLength(in.read()) < 2048);
-		tp::memCopy(val, in.read(), in.size() + 1);
+		assert(in.size() < 2048);
+		tp::memCopy(val, in.c_str(), in.size() + 1);
 	}
 
 	ImGui::BeginChild("str_edit");
@@ -800,11 +800,11 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::classView(obj::ClassObject* self
 				ImGui::TableNextRow(0, 30);
 				ImGui::TableSetColumnIndex(0);
 
-				if (ImGui::Selectable(childo->key.read())) {
+				if (ImGui::Selectable(childo->key.c_str())) {
 					ImGui::EndTable();
 					ImGui::TreePop();
 					ImGui::EndChild();
-					return { childo->val, { tp::String(childo->val->type->name) + childo->key } };
+					return { childo->val, { std::string(childo->val->type->name) + childo->key } };
 				}
 
 				dictViewEdit(dict, childo->key, childo->val, popup);
@@ -824,10 +824,10 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::classView(obj::ClassObject* self
 	if (n_methods && ImGui::TreeNodeBehavior(window->GetID("Methods"), tree_flags, "Methods", 0)) {
 		for (auto childo : dict->getItems()) {
 			if (childo->val->type == &obj::MethodObject::TypeData) {
-				if (ImGui::Selectable(childo->key.read())) {
+				if (ImGui::Selectable(childo->key.c_str())) {
 					ImGui::TreePop();
 					ImGui::EndChild();
-					return { childo->val, { tp::String(childo->val->type->name) + childo->key } };
+					return { childo->val, { std::string(childo->val->type->name) + childo->key } };
 				}
 				dictViewEdit(dict, childo->key, childo->val, popup);
 			}
@@ -896,10 +896,10 @@ void obj::ObjectsGUI::explorer() {
 		ImGui::PushID((int) idx);
 		bool go_back = false;
 		if (childo == rev_path.last()) {
-			go_back = ImGui::Button(childo->data->id.read());
+			go_back = ImGui::Button(childo->data->id.c_str());
 			ImGui::SameLine();
 		} else {
-			go_back = ImGui::Button((childo->data->id).read());
+			go_back = ImGui::Button((childo->data->id).c_str());
 			ImGui::SameLine();
 		}
 		ImGui::PopID();

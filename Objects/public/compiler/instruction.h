@@ -35,11 +35,11 @@ namespace obj {
 			tp::alni mParam = 0;
 			tp::alni mParamBytes = 1;
 
-			ConstObject* mConstData = NULL;
-			ConstObject* mConstData2 = NULL;
+			ConstObject* mConstData = nullptr;
+			ConstObject* mConstData2 = nullptr;
 
 			tp::alni mInstIdx = 0;
-			Instruction* mInstTarget = NULL;
+			Instruction* mInstTarget = nullptr;
 
 			Instruction();
 			Instruction(ConstObject* constData);

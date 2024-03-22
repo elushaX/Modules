@@ -15,7 +15,7 @@ obj::TypeGroups::TypeGroups(bool is_group) :
 	if (is_group) {
 		new (&childs) Dict();
 	} else {
-		type = NULL;
+		type = nullptr;
 	}
 }
 
@@ -43,7 +43,7 @@ void obj::TypeGroups::addType(ObjectType* type, tp::InitialierList<const char*> 
 		return;
 	}
 
-	TypeGroups* group = NULL;
+	TypeGroups* group = nullptr;
 	tp::alni index = 0;
 
 	for (auto dir : path) {

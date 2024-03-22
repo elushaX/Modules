@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "Strings.hpp"
+#include <string>
 #include "Buffer.hpp"
 
 #include "interpreter/opcodes.h"
@@ -28,7 +28,7 @@ namespace obj::BCgen {
 		explicit Expression(Type type);
 		virtual ~Expression() = default;
 
-		struct ExpressionChild* ExprChild(const tp::String& id);
+		struct ExpressionChild* ExprChild(const std::string& id);
 		struct ExpressionCall* ExprCall(class ExpressionList* args);
 	};
 
@@ -39,28 +39,28 @@ namespace obj::BCgen {
 	};
 
 	struct ExpressionNew : public Expression {
-		tp::String mNewType;
-		explicit ExpressionNew(const tp::String& type);
+		std::string mNewType;
+		explicit ExpressionNew(const std::string& type);
 		~ExpressionNew() override;
 	};
 
 	struct ExpressionLocal : public Expression {
-		tp::String mLocalId;
-		explicit ExpressionLocal(const tp::String& id);
+		std::string mLocalId;
+		explicit ExpressionLocal(const std::string& id);
 		~ExpressionLocal() override;
 	};
 
 	struct ExpressionFunc : public Expression {
-		tp::String mFuncId;
-		explicit ExpressionFunc(const tp::String& id);
+		std::string mFuncId;
+		explicit ExpressionFunc(const std::string& id);
 		~ExpressionFunc() override;
 	};
 
 	struct ExpressionChild : public Expression {
 		Expression* mParent = nullptr;
-		tp::String mLocalId;
+		std::string mLocalId;
 		bool mMethod = false;
-		ExpressionChild(Expression* mParent, const tp::String& id);
+		ExpressionChild(Expression* mParent, const std::string& id);
 		~ExpressionChild() override;
 	};
 
@@ -102,12 +102,12 @@ namespace obj::BCgen {
 
 	struct ExpressionConst : public Expression {
 		enum ConstType { STR, INT, BOOL, FLT } mConstType;
-		tp::String str;
+		std::string str;
 		tp::alni integer = 0;
 		tp::alnf floating = 0;
 		bool boolean = false;
 
-		explicit ExpressionConst(const tp::String& val);
+		explicit ExpressionConst(const std::string& val);
 		explicit ExpressionConst(const char* val);
 		explicit ExpressionConst(tp::alni val);
 		explicit ExpressionConst(tp::int4 val);

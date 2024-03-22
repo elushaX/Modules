@@ -56,8 +56,8 @@ namespace tp {
 			const RectF textAreaName = { textArea.x, textArea.y, textArea.z, textArea.w * 0.5f };
 			const RectF textAreaAuthor = { textArea.x, textArea.y + textArea.w * 0.5f, textArea.z, textArea.w * 0.5f };
 
-			canvas.text(mTrack->mName.read(), textAreaName, 15.f, Canvas::LC, 4.f, { 0.9f, 0.9f, 0.9f, 1.f });
-			canvas.text(mTrack->mArtist.read(), textAreaAuthor, 12.f, Canvas::LC, 4.f, { 0.8f, 0.8f, 0.8f, 1.f });
+			canvas.text(mTrack->mName.c_str(), textAreaName, 15.f, Canvas::LC, 4.f, { 0.9f, 0.9f, 0.9f, 1.f });
+			canvas.text(mTrack->mArtist.c_str(), textAreaAuthor, 12.f, Canvas::LC, 4.f, { 0.8f, 0.8f, 0.8f, 1.f });
 		}
 
 	public:
@@ -70,7 +70,7 @@ namespace tp {
 	template <typename Events, typename Canvas>
 	class TrackInfoWidget : public Widget<Events, Canvas> {
 		struct SortType {
-			String text;
+			std::string text;
 			bool dec = false;
 			bool inc = false;
 		};
@@ -140,15 +140,15 @@ namespace tp {
 
 			ImGui::Text("Song Info:");
 			if (mTrack) {
-				ImGui::Text("Name : %s", mTrack->mName.read());
-				ImGui::Text("Author : %s", mTrack->mArtist.read());
+				ImGui::Text("Name : %s", mTrack->mName.c_str());
+				ImGui::Text("Author : %s", mTrack->mArtist.c_str());
 				ImGui::Text("Love : %s", mTrack->mLoved ? "true" : "false");
 				ImGui::Text("Id : %lli", mTrack->mId);
 				ImGui::Text("Total Time : %lli", mTrack->mTotalTime);
 				ImGui::Text("Play Count : %lli", mTrack->mPlayCount);
 				ImGui::Text("Skip Count : %lli", mTrack->mSkipCount);
-				ImGui::Text("Date Added : %s", mTrack->mDateAdded.read());
-				ImGui::Text("Album : %s", mTrack->mAlbum.read());
+				ImGui::Text("Date Added : %s", mTrack->mDateAdded.c_str());
+				ImGui::Text("Album : %s", mTrack->mAlbum.c_str());
 			} else {
 				ImGui::Text("Not Selected");
 			}
@@ -168,7 +168,7 @@ namespace tp {
 			sortFilter.Draw("Sorting Type");
 
 			for (int i = 0; i < items.size(); ++i) {
-				if (!sortFilter.PassFilter(items[i].text.read())) continue;
+				if (!sortFilter.PassFilter(items[i].text.c_str())) continue;
 
 				ImGui::PushID(i);
 
@@ -182,7 +182,7 @@ namespace tp {
 
 				ImGui::AlignTextToFramePadding();
 				ImGui::SameLine();
-				ImGui::Text("%s", items[i].text.read());
+				ImGui::Text("%s", items[i].text.c_str());
 				ImGui::PopID();
 			}
 
@@ -258,7 +258,8 @@ namespace tp {
 			mSongList.mContents.clear();
 
 			for (auto track : mTracks) {
-				if (!mCurrentTrackInfo.songFilter.PassFilter(track->mTrack->mName.read()) && !mCurrentTrackInfo.songFilter.PassFilter(track->mTrack->mArtist.read())) {
+				if (!mCurrentTrackInfo.songFilter.PassFilter(track->mTrack->mName.c_str()) &&
+						!mCurrentTrackInfo.songFilter.PassFilter(track->mTrack->mArtist.c_str())) {
 					continue;
 				}
 

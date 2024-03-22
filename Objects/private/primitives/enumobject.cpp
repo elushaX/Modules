@@ -2,6 +2,7 @@
 #include "primitives/enumobject.h"
 
 #include <malloc.h>
+#include <cstring>
 
 using namespace obj;
 using namespace tp;
@@ -37,7 +38,7 @@ void obj::EnumObject::init(tp::InitialierList<const char*> list) {
 	alni* entry = entries;
 	for (auto elem : list) {
 
-		alni len = tp::String::Logic::calcLength(elem);
+		alni len = std::strlen(elem);
 		if (len > ENV_ALNI_SIZE_B - 1) len = ENV_ALNI_SIZE_B - 1;
 
 		tp::memCopy(entry, elem, len);
@@ -69,11 +70,11 @@ void EnumObject::from_float(EnumObject* self, alnf in) {
 	}
 }
 
-void EnumObject::from_string(EnumObject* self, String in) {
+void EnumObject::from_string(EnumObject* self, const std::string& in) {
 	if (self->entries) {
 		alni* entry = self->entries;
 		for (uhalni i = 0; i < self->nentries; i++) {
-			if (tp::String::Logic::isEqualLogic((const char*) entry, in.read())) {
+			if (in == ((const char*) entry)) {
 				self->active = i;
 			}
 			entry += 1;
@@ -81,12 +82,12 @@ void EnumObject::from_string(EnumObject* self, String in) {
 	}
 }
 
-String EnumObject::to_string(EnumObject* self) {
+std::string EnumObject::to_string(EnumObject* self) {
 	if (!self->entries) {
-		return tp::String();
+		return {};
 	}
 	auto val = (const char*) (&self->entries[self->active]);
-	return String(val);
+	return val;
 }
 
 alni EnumObject::to_int(EnumObject* self) {

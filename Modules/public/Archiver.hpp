@@ -51,6 +51,8 @@ namespace tp {
 		// check if type has explicit write method. if not write as bytes
 		template <typename Type>
 		void operator<<(const Type& val) {
+			static_assert(!std::is_same<Type, std::string>::value);
+
 			static_assert(!tRead);
 			static_assert(HasFunc::template AssertCombinations<Type>::assert());
 			if constexpr (HasFunc::template Write<Type>::value) {
@@ -63,6 +65,8 @@ namespace tp {
 		// check if type has explicit read method. if not read as bytes
 		template <typename Type>
 		void operator>>(Type& val) {
+			static_assert(!std::is_same<Type, std::string>::value);
+
 			static_assert(tRead);
 			static_assert(HasFunc::template AssertCombinations<Type>::assert());
 			if constexpr (HasFunc::template Read<Type>::value) {
@@ -75,6 +79,8 @@ namespace tp {
 		// check if type has explicit archive method. if not read/write as bytes
 		template <typename Type>
 		void operator%(Type& val) {
+			static_assert(!std::is_same<Type, std::string>::value);
+
 			static_assert(HasFunc::template AssertCombinations<Type>::assert());
 			if constexpr (HasFunc::template Archive<Type>::value) {
 				val.archive(*this);
@@ -89,6 +95,8 @@ namespace tp {
 
 		template <typename Type>
 		void operator%(const Type& val) {
+			static_assert(!std::is_same<Type, std::string>::value);
+
 			static_assert(HasFunc::template AssertCombinations<Type>::assert());
 			if constexpr (HasFunc::template Archive<Type>::value) {
 				((Type&) val).archive(*this);
@@ -131,30 +139,5 @@ namespace tp {
 	private:
 		ualni mAddress = 0;
 		ualni mFirstNotWritten = 0;
-	};
-
-	struct StringArchiver {
-		std::string* val;
-
-		StringArchiver(std::string& val) { this->val = &val; }
-
-		template <typename tArchiver>
-		void archiveRead(tArchiver& ar) {
-			ualni len;
-			ar >> len;
-			val->resize(len);
-			for (ualni i = 0; i < len; i++) {
-				ar >> (*val)[i];
-			}
-		}
-
-		template <typename tArchiver>
-		void archiveWrite(tArchiver& ar) const {
-			ualni len = val->size();
-			ar << len;
-			for (ualni i = 0; i < len; i++) {
-				ar << (*val)[i];
-			}
-		}
 	};
 }

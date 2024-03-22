@@ -11,7 +11,7 @@ namespace tp {
 			this->mArea = { 0, 0, 100, 100 };
 		}
 
-		[[nodiscard]] const RGBA& getColor(const String& name) const {
+		[[nodiscard]] const RGBA& getColor(const std::string& name) const {
 			const auto& node = cfg->values.get(name);
 			if (node.type == WidgetConfig::Node::REF) {
 				return globalCfg->configs.get(node.refGroup).values.get(node.refName).color;
@@ -19,7 +19,7 @@ namespace tp {
 			return cfg->values.get(name).color;
 		}
 
-		[[nodiscard]] halnf getValue(const String& name) const {
+		[[nodiscard]] halnf getValue(const std::string& name) const {
 			const auto& node = cfg->values.get(name);
 			if (node.type == WidgetConfig::Node::REF) {
 				return globalCfg->configs.get(node.refGroup).values.get(node.refName).value;
@@ -27,17 +27,17 @@ namespace tp {
 			return cfg->values.get(name).value;
 		}
 
-		void addColor(const String& name, const RGBA& val) { cfg->values.put(name, WidgetConfig::Node(val)); }
-		void addValue(const String& name, halnf val) { cfg->values.put(name, WidgetConfig::Node(val)); }
+		void addColor(const std::string& name, const RGBA& val) { cfg->values.put(name, WidgetConfig::Node(val)); }
+		void addValue(const std::string& name, halnf val) { cfg->values.put(name, WidgetConfig::Node(val)); }
 
-		void addColor(const String& name, const String& presetName) {
+		void addColor(const std::string& name, const std::string& presetName) {
 			cfg->values.put(name, WidgetConfig::Node(presetName));
 		}
-		void addValue(const String& name, const String& presetName) {
+		void addValue(const std::string& name, const std::string& presetName) {
 			cfg->values.put(name, WidgetConfig::Node(presetName));
 		}
 
-		void createConfig(const String& name) {
+		void createConfig(const std::string& name) {
 			globalCfg->configs.put(name, {});
 			cfg = &globalCfg->configs.get(name);
 		}

@@ -17,8 +17,8 @@ namespace obj {
 
 		ObjectsFileHeader(bool default_val = true) {
 			if (default_val) {
-				tp::memCopy(&name, "objects", tp::String::Logic::calcLength("objects") + 1);
-				tp::memCopy(&version, "0", tp::String::Logic::calcLength("0") + 1);
+				tp::memCopy(&name, "objects", 8);
+				tp::memCopy(&version, "0", 2);
 			}
 		}
 	};
@@ -26,10 +26,10 @@ namespace obj {
 	Object* ObjectMemAllocate(const ObjectType* type) {
 		ObjectMemHead* memh = (ObjectMemHead*) malloc(type->size + sizeof(ObjectMemHead));
 		if (!memh) {
-			return NULL;
+			return nullptr;
 		}
 
-		memh->down = NULL;
+		memh->down = nullptr;
 		memh->flags = 0;
 
 		memh->refc = (tp::alni) 1;
@@ -235,10 +235,11 @@ namespace obj {
 		// save file object header
 		ObjectFileHead ofh = { 0, getrefc(in) };
 		ndf << ofh;
-		ndf << tp::String(in->type->name);
+
+		save_string(ndf, in->type->name);
 
 		// allocate for object file header
-		ndf.setFreeAddress(ndf.getFreeAddress() + sizeof(ObjectFileHead) + tp::SaveSizeCounter::calc(tp::String(in->type->name)));
+		ndf.setFreeAddress(ndf.getFreeAddress() + sizeof(ObjectFileHead) + save_string_size(in->type->name));
 
 		// calc max size needed for saving all hierarchy of types
 		tp::alni file_alloc_size = objsize_file_util(in, in->type);
@@ -281,14 +282,14 @@ namespace obj {
 		ObjectFileHead ofh;
 		ndf >> ofh;
 
-		tp::String type_name;
-		ndf >> type_name;
+		std::string type_name;
+		load_string(ndf, type_name);
 
 		const ObjectType* object_type = NDO->types.get(type_name);
 		Object* out = ObjectMemAllocate(object_type);
 
 		if (!out) {
-			return NULL;
+			return nullptr;
 		}
 
 		setrefc(out, 0);
@@ -312,8 +313,8 @@ namespace obj {
 		return out;
 	}
 
-	bool objects_api::save(Object* in, tp::String path, bool compressed) {
-		ArchiverOut ndf(path.read());
+	bool objects_api::save(Object* in, const std::string& path, bool compressed) {
+		ArchiverOut ndf(path.c_str());
 
 		if (!ndf.isOpened()) {
 			return false;
@@ -365,22 +366,22 @@ namespace obj {
 		return true;
 	}
 
-	Object* objects_api::load(tp::String path) {
+	Object* objects_api::load(const std::string& path) {
 		/*
 		auto temp_file_name = path + ".unz";
 		bool unz_res = tp::decompressF2F(path.cstr(), temp_file_name.cstr());
 
 		if (!unz_res) {
-			return NULL;
+			return nullptr;
 		}
 
 		File ndf(temp_file_name.cstr(), tp::osfile_openflags::LOAD);
 		*/
 
-		ArchiverIn ndf(path.read());
+		ArchiverIn ndf(path.c_str());
 
 		if (!ndf.isOpened()) {
-			return NULL;
+			return nullptr;
 		}
 
 		// check for compatibility
@@ -390,7 +391,7 @@ namespace obj {
 		ndf >> loaded_header;
 
 		if (!tp::memEqual(&current_header, &loaded_header, sizeof(ObjectsFileHeader))) {
-			return NULL;
+			return nullptr;
 		}
 
 		ndf.setAddress(0);
@@ -423,7 +424,7 @@ namespace obj {
 		/*
 		ndf.close();
 
-		if (unz_res == NULL) {
+		if (unz_res == nullptr) {
 			File::remove(temp_file_name.cstr());
 		}
 		*/

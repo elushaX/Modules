@@ -2,7 +2,7 @@
 #pragma once
 
 #include "Map.hpp"
-#include "Strings.hpp"
+#include <string>
 
 namespace obj {
 
@@ -13,13 +13,13 @@ namespace obj {
 
 	public:
 
-		typedef tp::Map<tp::String, obj::TypeGroups*> Dict;
+		typedef tp::Map<std::string, obj::TypeGroups*> Dict;
 
 		TypeGroups();
 
 		friend struct obj::objects_api;
 
-		TypeGroups(bool is_group);
+		explicit TypeGroups(bool is_group);
 
 		void addType(ObjectType* type, tp::InitialierList<const char*> path, tp::alni cur_arg = 0);
 		void setType(ObjectType* type);

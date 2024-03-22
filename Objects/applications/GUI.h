@@ -6,7 +6,7 @@
 
 #include "compiler/function.h"
 
-#include "Strings.hpp"
+#include <string>
 
 namespace obj {
 
@@ -18,9 +18,9 @@ namespace obj {
 
 		struct ViewStackNode {
 			obj::Object* obj;
-			tp::String id;
+			std::string id;
 			ViewStackNode() { obj = NULL; }
-			ViewStackNode(obj::Object* obj, tp::String id) : obj(obj), id(id) {}
+			ViewStackNode(obj::Object* obj, const std::string& id) : obj(obj), id(id) {}
 			operator bool() { return obj; }
 		};
 
@@ -42,7 +42,7 @@ namespace obj {
 		ObjectsGUI();
 		~ObjectsGUI();
 
-		void cd(obj::Object* child, tp::String name);
+		void cd(obj::Object* child, const std::string& name);
 		void cdup();
 
 		void clearEvents();
@@ -67,7 +67,7 @@ namespace obj {
 		ViewStackNode methodView(obj::MethodObject* in);
 		ViewStackNode colorView(obj::ColorObject* in);
 		ViewStackNode interpreterView(obj::InterpreterObject* in);
-		void dictViewEdit(obj::DictObject* dict, tp::String item_id, obj::Object* obj, bool& popup);
+		void dictViewEdit(obj::DictObject* dict, const std::string& item_id, obj::Object* obj, bool& popup);
 		void dictViewDrawCreate(obj::DictObject* dict);
 	}; 
 };

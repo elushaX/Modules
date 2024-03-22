@@ -3,7 +3,6 @@
 #include "Animations.hpp"
 #include "Map.hpp"
 #include "Rect.hpp"
-#include "Strings.hpp"
 
 #include "InputCodes.hpp"
 
@@ -18,8 +17,8 @@ namespace tp {
 
 			Type type = NONE;
 
-			String refGroup;
-			String refName;
+			std::string refGroup;
+			std::string refName;
 
 			Node() = default;
 
@@ -33,14 +32,14 @@ namespace tp {
 				color = val;
 			}
 
-			explicit Node(const String& val) {
+			explicit Node(const std::string& val) {
 				refGroup = "Presets";
 				refName = val;
 				type = REF;
 			}
 		};
 
-		Map<String, Node> values;
+		Map<std::string, Node> values;
 	};
 
 	struct GlobalGUIConfig {
@@ -54,16 +53,16 @@ namespace tp {
 			presets.values.put("Padding", WidgetConfig::Node(5.f));
 			presets.values.put("HandleSize", WidgetConfig::Node(5.f));
 
-			presets.values.put("Background", WidgetConfig::Node({ 0.03f, 0.03f, 0.03f, 1.f }));
-			presets.values.put("Base", WidgetConfig::Node({ 0.07f, 0.07f, 0.07f, 1.f }));
-			presets.values.put("Accent", WidgetConfig::Node({ 0.13f, 0.13f, 0.13f, 1.f }));
-			presets.values.put("Interaction", WidgetConfig::Node({ 0.33f, 0.33f, 0.3f, 1.f }));
-			presets.values.put("Action", WidgetConfig::Node({ 0.44f, 0.44f, 0.4f, 1.f }));
-			presets.values.put("Front", WidgetConfig::Node({ 1.f, 1.f, 1.f, 1.f }));
-			presets.values.put("FrontDim", WidgetConfig::Node({ 0.7f, 0.7f, 0.7f, 1.f }));
+			presets.values.put("Background", WidgetConfig::Node(RGBA{ 0.03f, 0.03f, 0.03f, 1.f }));
+			presets.values.put("Base", WidgetConfig::Node(RGBA{ 0.07f, 0.07f, 0.07f, 1.f }));
+			presets.values.put("Accent", WidgetConfig::Node(RGBA{ 0.13f, 0.13f, 0.13f, 1.f }));
+			presets.values.put("Interaction", WidgetConfig::Node(RGBA{ 0.33f, 0.33f, 0.3f, 1.f }));
+			presets.values.put("Action", WidgetConfig::Node(RGBA{ 0.44f, 0.44f, 0.4f, 1.f }));
+			presets.values.put("Front", WidgetConfig::Node(RGBA{ 1.f, 1.f, 1.f, 1.f }));
+			presets.values.put("FrontDim", WidgetConfig::Node(RGBA{ 0.7f, 0.7f, 0.7f, 1.f }));
 		}
 
-		Map<String, WidgetConfig> configs;
+		Map<std::string, WidgetConfig> configs;
 
 		~GlobalGUIConfig() {
 			configs.removeAll();

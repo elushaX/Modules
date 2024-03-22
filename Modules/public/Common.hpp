@@ -6,6 +6,7 @@
 #include <initializer_list>
 #include <typeinfo>
 #include <utility>
+#include <string>
 
 namespace tp {
 	template <typename Type>
@@ -49,6 +50,7 @@ namespace tp {
 	ualni hash(uhalni bytes);
 	ualni hash(ualni bytes);
 	ualni hash(alnf bytes);
+	ualni hash(const std::string& in);
 
 	template <typename T>
 	T clamp(T v, T l, T u) {

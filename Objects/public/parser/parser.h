@@ -12,11 +12,11 @@ namespace obj {
 		struct Result {
 			obj::BCgen::StatementScope* scope = nullptr;
 			bool isError = false;
-			tp::String description;
+			std::string description;
 			tp::halni line = 0;
 			tp::halni column = 0;
 		};
 
-		Result parse(const tp::String& stream);
+		Result parse(const std::string& stream);
 	};
 };
