@@ -40,9 +40,3 @@ namespace tp {
 #else
 #define DEBUG_BREAK(expr) ()
 #endif
-
-#define SWITCH_NO_DEF                   \
-	default:                              \
-		{                                   \
-			FAIL("No Default Case Possible"); \
-		}

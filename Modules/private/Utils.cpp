@@ -1,22 +1,6 @@
 
 #include "Utils.hpp"
 
-#include <ctime>
-#include <random>
-
-void initializeCallStackCapture();
-void deinitializeCallStackCapture();
-
-static bool initialize(const tp::ModuleManifest*) {
-	initializeCallStackCapture();
-	// std::srand(std::time(nullptr));
-	return true;
-}
-
-static void deinitialize(const tp::ModuleManifest*) {
-	deinitializeCallStackCapture();
-}
-
 namespace tp {
 
 	void memSetVal(void* p, uhalni byteSize, uint1 val) {
