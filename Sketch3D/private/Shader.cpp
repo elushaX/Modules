@@ -1,6 +1,5 @@
 
 
-#include "Strings.hpp"
 #include "Buffer.hpp"
 #include "LocalConnection.hpp"
 #include "Shader.hpp"
@@ -96,7 +95,7 @@ void RenderShader::load(const char* pvert, const char* pgeom, const char* pfrag,
 
 	if (paths) {
 
-		String content;
+		std::string content;
 
 		auto loadFile = [&](const char* path) {
 			LocalConnection file;
@@ -105,26 +104,30 @@ void RenderShader::load(const char* pvert, const char* pgeom, const char* pfrag,
 				return false;
 			}
 
-			content.resize(file.size());
-			file.readBytes(content.write(), content.size());
+			const auto size = file.size();
+			auto tmp = new char[size + 1];
+			tmp[size] = 0;
+			file.readBytes(tmp, size);
+			content = tmp;
+			delete[] tmp;
 			return true;
 		};
 
 		printf("Compiling shader : %s\n", pvert);
 		if (loadFile(pvert)) {
-			compile_shader(content.read(), VertexShaderID);
+			compile_shader(content.c_str(), VertexShaderID);
 		}
 
 		if (GeometryShaderID) {
 			printf("Compiling shader : %s\n", pgeom);
 			if (loadFile(pgeom)) {
-				compile_shader(content.read(), GeometryShaderID);
+				compile_shader(content.c_str(), GeometryShaderID);
 			}
 		}
 
 		printf("Compiling shader : %s\n", pfrag);
 		if (loadFile(pfrag)) {
-			compile_shader(content.read(), FragmentShaderID);
+			compile_shader(content.c_str(), FragmentShaderID);
 		}
 	}
 	else {

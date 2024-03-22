@@ -3,8 +3,6 @@
 
 #include "Map.hpp"
 
-#include "Strings.hpp"
-
 #include "Shader.hpp"
 
 #include "GraphicsApi.hpp"
@@ -71,7 +69,7 @@ void RenderTexture::draw(const GLuint& out) {
 
 struct texture_drawer_data {
 
-	Map<String, GLuint> textures;
+	Map<std::string, GLuint> textures;
 
 	GLuint quad_VertexArrayID;
 	GLuint quad_vertexbuffer;
@@ -147,7 +145,7 @@ void RenderTexture::draw_texture(uint4 out, uint4 in) {
 	texdd->shader.unbind();
 }
 
-GLuint load_texture(const String& name) {
+GLuint load_texture(const std::string& name) {
 	GLuint tex_2d = 0;
 
 	ASSERT(0 && "incomplete compilation - no SOIL support added");

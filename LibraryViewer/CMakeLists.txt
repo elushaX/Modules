@@ -11,7 +11,7 @@ file(GLOB HEADERS "./public/*.hpp" "./public/*/*.hpp" "./applications/*.hpp")
 add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ./public/ ${BINDINGS_INCLUDE} ./ext/)
-target_link_libraries(${PROJECT_NAME} PUBLIC Graphics Connection Widgets Strings)
+target_link_libraries(${PROJECT_NAME} PUBLIC Graphics Connection Widgets)
 target_link_libraries(${PROJECT_NAME} PUBLIC ${BINDINGS_LIBS})
 
 file(COPY "library" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}")

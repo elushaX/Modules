@@ -3,7 +3,7 @@
 
 using namespace obj;
 
-ScriptSection* gScriptSection = NULL;
+ScriptSection* gScriptSection = nullptr;
 
 struct script_data_head {
 	tp::alni refc = 0;
@@ -19,7 +19,7 @@ Script* ScriptSection::createScript() {
 	auto out = (Script*) (sdhead + 1);
 
 	if (!sdhead) {
-		return NULL;
+		return nullptr;
 	}
 
 	sdhead->refc = 1;
@@ -215,7 +215,7 @@ Script* ScriptSection::get_scritp_from_file_adress(tp::alni file_adress) {
 			return iter.data();
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 ScriptSection::~ScriptSection() {
@@ -229,8 +229,8 @@ obj::save_load_callbacks ScriptSection::slcb_script_section = {
 	.pre_save = (obj::pre_save_callback*) ScriptSection::save_script_table_to_file,
 	.size = (obj::slcb_size_callback*) ScriptSection::save_script_table_to_file_size,
 	.pre_load = (obj::pre_load_callback*) ScriptSection::load_script_table_from_file,
-	.post_save = NULL,
-	.post_load = NULL,
+	.post_save = nullptr,
+	.post_load = nullptr,
 };
 
 void ScriptSection::initialize() {

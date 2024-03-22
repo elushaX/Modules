@@ -1,6 +1,7 @@
 #pragma once
 
 #include "WidgetBase.hpp"
+#include "Buffer.hpp"
 
 namespace tp {
 

@@ -15,10 +15,10 @@ class Context {
 public:
 	Context() = default;
 
-	bool preloadInfo(const tp::String& path, MusicStream* owner) {
+	bool preloadInfo(const std::string& path, MusicStream* owner) {
 		mOwner = owner;
 
-		pFlac = drflac_open_file((path + ".flac").read(), NULL);
+		pFlac = drflac_open_file((path + ".flac").c_str(), NULL);
 
 		if (pFlac == NULL) {
 			return false;

@@ -54,7 +54,7 @@ void MethodObject::UnInitialize() { obj::ScriptSection::uninitialize(); }
 
 void MethodObject::compile() { BCgen::Compile(this); }
 
-MethodObject* MethodObject::create(tp::String script) {
+MethodObject* MethodObject::create(const std::string& script) {
 	auto out = (MethodObject*) NDO->create(MethodObject::TypeData.name);
 	out->mScript->mReadable->val = script;
 	out->compile();

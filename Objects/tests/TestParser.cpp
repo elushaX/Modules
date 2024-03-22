@@ -13,7 +13,7 @@ SUITE(Parser) {
 		{
 			Parser parser;
 
-			String stream = "";
+			std::string stream = "";
 			auto res = parser.parse(stream);
 
 			CHECK(!res.isError);
@@ -24,7 +24,7 @@ SUITE(Parser) {
 		{
 			Parser parser;
 
-			String stream = "var i = true;";
+			std::string stream = "var i = true;";
 			auto res = parser.parse(stream);
 
 			CHECK(!res.isError);
@@ -35,7 +35,7 @@ SUITE(Parser) {
 		{
 			Parser parser;
 
-			String stream = "var i = true; print (i + 1) * 10;";
+			std::string stream = "var i = true; print (i + 1) * 10;";
 			auto res = parser.parse(stream);
 
 			CHECK(!res.isError);
@@ -51,7 +51,7 @@ SUITE(Parser) {
 
 		{
 			Parser parser;
-			String stream = "var i = true; print (i + 1) * 10; invalidCharacter ";
+			std::string stream = "var i = true; print (i + 1) * 10; invalidCharacter ";
 			auto res = parser.parse(stream);
 
 			CHECK(res.isError);

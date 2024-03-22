@@ -11,10 +11,29 @@
 
 namespace obj {
 
+	void save_string(ArchiverOut& file, const std::string& string) {
+		file << string.size();
+		file.writeBytes(string.c_str(), string.size());
+	}
+
+	tp::ualni save_string_size(const std::string& string) {
+		return string.size() + sizeof(string.size());
+	}
+
+	void load_string(ArchiverIn& file, std::string& out) {
+		typeof(out.size()) size;
+		file >> size;
+		auto buff = new char[size + 1];
+		file.readBytes(buff, size);
+		buff[size] = 0;
+		out = buff;
+		delete[] buff;
+	}
+
 	Object* ObjectMemAllocate(const ObjectType* type);
 	void ObjectMemDeallocate(Object* in);
 
-	objects_api* NDO = NULL;
+	objects_api* NDO = nullptr;
 
 	void hierarchy_copy(Object* self, const Object* in, const ObjectType* type);
 	void hierarchy_construct(Object* self, const ObjectType* type);
@@ -36,7 +55,7 @@ namespace obj {
 		type->type_methods.init();
 	}
 
-	Object* objects_api::create(const tp::String& name) {
+	Object* objects_api::create(const std::string& name) {
 		MODULE_SANITY_CHECK(gModuleObjects);
 
 		const ObjectType* type = types.get(name);
@@ -44,7 +63,7 @@ namespace obj {
 		Object* obj_instance = ObjectMemAllocate(type);
 
 		if (!obj_instance) {
-			return NULL;
+			return nullptr;
 		}
 
 		hierarchy_construct(obj_instance, obj_instance->type);
@@ -69,7 +88,7 @@ namespace obj {
 
 	Object* objects_api::copy(Object* self, const Object* in) {
 		if (self->type != in->type) {
-			return NULL;
+			return nullptr;
 		}
 
 		hierarchy_copy(self, in, self->type);
@@ -110,7 +129,7 @@ namespace obj {
 		}
 	}
 
-	void objects_api::set(Object* self, tp::String val) {
+	void objects_api::set(Object* self, const std::string& val) {
 		if (self->type->convesions && self->type->convesions->from_string) {
 			self->type->convesions->from_string(self, val);
 			return;
@@ -134,7 +153,7 @@ namespace obj {
 		return true;
 	}
 
-	tp::String objects_api::toString(Object* self) {
+	std::string objects_api::toString(Object* self) {
 		DEBUG_ASSERT(self->type->convesions && self->type->convesions->to_string);
 		return self->type->convesions->to_string(self);
 	}
@@ -217,6 +236,6 @@ namespace obj {
 			}
 			typeiter = typeiter->base;
 		}
-		return NULL;
+		return nullptr;
 	}
 };

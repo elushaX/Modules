@@ -23,7 +23,7 @@ namespace obj {
 		static void save(ListObject* self, ArchiverOut& file_self);
 		static tp::alni save_size(ListObject* self);
 
-		const tp::List<Object*>& getItems() const;
+		[[nodiscard]] const tp::List<Object*>& getItems() const;
 
 		void pushBack(Object* obj);
 		void pushFront(Object* obj);

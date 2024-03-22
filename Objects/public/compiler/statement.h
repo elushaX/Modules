@@ -36,21 +36,21 @@ namespace obj::BCgen {
 	};
 
 	struct StatementFuncDef : public Statement {
-		tp::Buffer<tp::String> mArgs;
-		tp::String mFunctionId;
+		tp::Buffer<std::string> mArgs;
+		std::string mFunctionId;
 		StatementScope* mStatements = nullptr;
 
-		explicit StatementFuncDef(const tp::String& function_id);
+		explicit StatementFuncDef(const std::string& function_id);
 		~StatementFuncDef() override;
 	};
 
 	struct StatementLocalDef : public Statement {
-		tp::String mLocalId;
+		std::string mLocalId;
 		Expression* mNewExpr = nullptr;
 		ExpressionConst* mConstExpr = nullptr;
 		bool mIsConstExpr = false;
 
-		StatementLocalDef(const tp::String& id, Expression* value);
+		StatementLocalDef(const std::string& id, Expression* value);
 		~StatementLocalDef() override;
 	};
 
@@ -102,10 +102,10 @@ namespace obj::BCgen {
 	};
 
 	struct StatementClassDef : public Statement {
-		tp::String mClassId;
+		std::string mClassId;
 		StatementScope* mScope = nullptr;
 
-		StatementClassDef(const tp::String& class_id, StatementScope* scope);
+		StatementClassDef(const std::string& class_id, StatementScope* scope);
 		~StatementClassDef() override;
 	};
 }

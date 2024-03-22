@@ -1,14 +1,13 @@
 #pragma once
 
 #include "Window.hpp"
-#include "Strings.hpp"
 
 typedef tp::ualni SongId;
 enum class SONG_FORMAT { WAV, FLAC, NONE };
 
-tp::String getHome();
-tp::String getSongLocalPath(SongId id);
-SONG_FORMAT getSongFormat(const tp::String& path);
+std::string getHome();
+std::string getSongLocalPath(SongId id);
+SONG_FORMAT getSongFormat(const std::string& path);
 
 class Track {
 public:
@@ -16,23 +15,23 @@ public:
 
 public:
 	SongId mId = 0;
-	tp::String mName = "undef";
-	tp::String mArtist = "undef";
-	tp::String mAlbumArtist = "undef";
-  tp::String mComposer = "undef";
-  tp::String mAlbum = "undef";
-  tp::String mGenre = "undef";
+	std::string mName = "undef";
+	std::string mArtist = "undef";
+	std::string mAlbumArtist = "undef";
+  std::string mComposer = "undef";
+  std::string mAlbum = "undef";
+  std::string mGenre = "undef";
   tp::ualni mSize = 0;
   tp::ualni mTotalTime = 0;
   tp::ualni mYear = 0;
-  tp::String mDateModified = "undef";
-  tp::String mDateAdded = "undef";
+  std::string mDateModified = "undef";
+  std::string mDateAdded = "undef";
   tp::ualni mPlayCount = 0;
-  tp::String mPlayDate = "undef";
-  tp::String mPlayDateUTC = "undef";
+  std::string mPlayDate = "undef";
+  std::string mPlayDateUTC = "undef";
   tp::ualni mSkipCount = 0;
-  tp::String mSkipDate = "undef";
-  tp::String mReleaseDate = "undef";
+  std::string mSkipDate = "undef";
+  std::string mReleaseDate = "undef";
   tp::ualni mAlbumRating = 0;
   bool mAlbumRatingComputed = false;
   bool mLoved = false;
@@ -46,7 +45,7 @@ public:
 	Library() = default;
 
 public:
-	bool loadJson(const tp::String& path);
+	bool loadJson(const std::string& path);
   void checkExisting();
 
 public:

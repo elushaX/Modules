@@ -45,4 +45,5 @@ namespace tp {
 	ualni hash(halni bytes) { return hash(alni(bytes)); }
 	ualni hash(uhalni bytes) { return hash(alni(bytes)); }
 	ualni hash(ualni bytes) { return hash(alni(bytes)); }
+	ualni hash(const std::string& in) { return hash(in.c_str()); }
 }

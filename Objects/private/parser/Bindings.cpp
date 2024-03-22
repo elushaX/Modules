@@ -82,7 +82,7 @@ static UserData id_list_append(const UserData* start, const Node* nodes, size_t)
 }
 
 static UserData id_list_create(const UserData*, const Node* nodes, size_t) {
-	return new tp::Buffer<tp::String>({ (char*) nodes[0].lexeme().c_str() });
+	return new tp::Buffer<std::string>({ (char*) nodes[0].lexeme().c_str() });
 }
 
 static UserData expr_function(const UserData* start, const Node*, size_t) {

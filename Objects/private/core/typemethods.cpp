@@ -14,7 +14,7 @@ TypeMethod obj::gDefaultTypeMethods[] = {
 		.nameid = "type",
 		.descr = "retrieves typeobject",
 		.exec = [](const TypeMethod* tm) { tm->ret.obj = TypeObject::create(tm->self->type); },
-		.ret = { "typeobject", NULL },
+		.ret = { "typeobject", nullptr },
 	},
 	{
 		.nameid = "to_str",
@@ -25,7 +25,7 @@ TypeMethod obj::gDefaultTypeMethods[] = {
 					tm->ret.obj = StringObject::create(NDO->toString(tm->self));
 				}
 			},
-		.ret = { "string object", NULL },
+		.ret = { "string object", nullptr },
 	},
 	{
 		.nameid = "to_float",
@@ -36,11 +36,11 @@ TypeMethod obj::gDefaultTypeMethods[] = {
 					tm->ret.obj = FloatObject::create(NDO->toFloat(tm->self));
 				}
 			},
-		.ret = { "string object", NULL },
+		.ret = { "string object", nullptr },
 	},
 };
 
-tp::int2 TypeMethods::presents(tp::String id) const {
+tp::int2 TypeMethods::presents(const std::string& id) const {
 	for (tp::int2 idx = 0; idx < mNMethods; idx++) {
 		if (id == methods[idx]->nameid) {
 			return idx;
@@ -58,7 +58,7 @@ tp::int2 TypeMethods::presents(tp::String id) const {
 	return -1;
 }
 
-TypeMethods::LookupKey TypeMethods::presents(const ObjectType* type, tp::String id) {
+TypeMethods::LookupKey TypeMethods::presents(const ObjectType* type, const std::string& id) {
 
 	tp::int2 depth = 0;
 	tp::int2 idx = 0;

@@ -13,11 +13,11 @@ using namespace tp;
 #define AS_BOOL trackProperty.second.evaluate_as_boolean()
 #define PROP(name) trackProperty.first == #name
 
-tp::String getHome() {
+std::string getHome() {
 	const char* envVarName = "LIB_VIEW_HOME";
 	char* envVarValue = std::getenv(envVarName);
 	if (envVarValue != nullptr) {
-		tp::String out;
+		std::string out;
 		out = (int1*) (std::string(envVarValue) + "/").c_str();
 		return out;
 	} else {
@@ -25,11 +25,11 @@ tp::String getHome() {
 	}
 }
 
-tp::String getSongLocalPath(SongId id) { return getHome() + "tracks/" + tp::String((tp::alni) id); }
+std::string getSongLocalPath(SongId id) { return getHome() + "tracks/" + std::to_string((tp::alni) id); }
 
-SONG_FORMAT getSongFormat(const String& localPath) {
-	std::filesystem::path wavFormat((localPath + ".wav").read());
-	std::filesystem::path flacFormat((localPath + ".flac").read());
+SONG_FORMAT getSongFormat(const std::string& localPath) {
+	std::filesystem::path wavFormat((localPath + ".wav").c_str());
+	std::filesystem::path flacFormat((localPath + ".flac").c_str());
 	if (std::filesystem::exists(flacFormat)) return SONG_FORMAT::FLAC;
 	if (std::filesystem::exists(wavFormat)) return SONG_FORMAT::WAV;
 	return SONG_FORMAT::NONE;
@@ -42,11 +42,11 @@ void Library::checkExisting() {
 	}
 }
 
-bool Library::loadJson(const String& path) {
+bool Library::loadJson(const std::string& path) {
 	LocalConnection libraryFile;
 	Buffer<int1> libraryFileMem;
 
-	if (!libraryFile.connect(LocalConnection::Location(path.read()), LocalConnection::Type(true))) return false;
+	if (!libraryFile.connect(LocalConnection::Location(path.c_str()), LocalConnection::Type(true))) return false;
 
 	libraryFileMem.reserve(libraryFile.size());
 	libraryFile.readBytes(libraryFileMem.getBuff(), libraryFile.size());
@@ -56,8 +56,8 @@ bool Library::loadJson(const String& path) {
 	std::string err = picojson::parse(jsonNode, json);
 
 	if (!err.empty()) {
-		printf("Given path - %s\n", path.read());
-		printf("Home for library is - '%s'. Set it in the env as LIB_VIEW_HOME \n", getHome().read());
+		printf("Given path - %s\n", path.c_str());
+		printf("Home for library is - '%s'. Set it in the env as LIB_VIEW_HOME \n", getHome().c_str());
 		printf("Error parsing json library file - check your paths and files\n %s \n", err.c_str());
 		return false;
 	}

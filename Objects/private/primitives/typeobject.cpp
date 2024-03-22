@@ -12,18 +12,16 @@ TypeObject* TypeObject::create(const ObjectType* type) {
 }
 
 static alni save_size(TypeObject* self) {
-	tp::String const nameid(self->mTypeRef->name);
-	return nameid.size() + sizeof(nameid.size());
+	return save_string_size(self->mTypeRef->name);
 }
 
 static void save(TypeObject* self, ArchiverOut& file_self) {
-	tp::String const nameid(self->mTypeRef->name);
-	file_self << nameid;
+	save_string(file_self, self->mTypeRef->name);
 }
 
 static void load(ArchiverIn& file_self, TypeObject* self) {
-	tp::String nameid;
-	file_self >> nameid;
+	std::string nameid;
+	load_string(file_self, nameid);
 
 	auto idx = NDO->types.presents(nameid);
 
@@ -36,7 +34,7 @@ static void load(ArchiverIn& file_self, TypeObject* self) {
 
 static alni allocated_size(TypeObject* self) { return sizeof(alni); }
 
-static void from_string(TypeObject* self, tp::String in) {
+static void from_string(TypeObject* self, const std::string& in) {
 	auto idx = NDO->types.presents(in);
 
 	if (idx) {
@@ -46,7 +44,7 @@ static void from_string(TypeObject* self, tp::String in) {
 	}
 }
 
-static String to_string(TypeObject* self) { return self->mTypeRef->name; }
+static std::string to_string(TypeObject* self) { return self->mTypeRef->name; }
 
 bool comparator(TypeObject* left, TypeObject* right) { return left->mTypeRef == right->mTypeRef; }
 

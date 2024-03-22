@@ -17,9 +17,11 @@ void IntObject::from_int(Object* self, alni in) { NDO_CAST(IntObject, self)->val
 
 void IntObject::from_float(Object* self, alnf in) { NDO_CAST(IntObject, self)->val = (alni) in; }
 
-void IntObject::from_string(Object* self, String in) { NDO_CAST(IntObject, self)->val = alni(in); }
+void IntObject::from_string(Object* self, const std::string& in) {
+	NDO_CAST(IntObject, self)->val = std::stol(in);
+}
 
-String IntObject::to_string(Object* self) { return String(NDO_CAST(IntObject, self)->val); }
+std::string IntObject::to_string(Object* self) { return std::to_string(NDO_CAST(IntObject, self)->val); }
 
 alni IntObject::to_int(Object* self) { return alni(NDO_CAST(IntObject, self)->val); }
 

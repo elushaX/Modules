@@ -5,7 +5,6 @@
 #include "Map.hpp"
 #include "Topology.hpp"
 #include "Color.hpp"
-#include "Strings.hpp"
 
 #include "GraphicsApi.hpp"
 #include "FrameBuffer.hpp"
@@ -88,7 +87,7 @@ namespace tp {
 		Layer() = default;
 		~Layer();
 
-		String name = "new layer";
+		std::string name = "new layer";
 		List<Stroke*> strokes; // TODO use vector
 		bool enabled = true;
 	};
@@ -108,13 +107,13 @@ namespace tp {
 		Camera mCamera;
 		RGBA mBackgroundColor = { 0.22f, 0.22f, 0.25f, 1.f };
 
-		Map<String, Brush*> mBrushes;
-		String mActiveBrush;
+		Map<std::string, Brush*> mBrushes;
+		std::string mActiveBrush;
 	};
 
 	class Brush {
 	public:
-		String mType = "equal";
+		std::string mType = "equal";
 		Brush() = default;
 		virtual void sample(Project* proj, Vec2F crs, halnf pressure) {}
 		virtual void draw(Renderer* render, const Camera* camera) {}

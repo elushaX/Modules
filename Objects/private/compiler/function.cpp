@@ -4,8 +4,6 @@
 #include "primitives/methodobject.h"
 #include "primitives/primitives.h"
 
-#include "Logging.hpp"
-
 #include "parser/parser.h"
 
 using namespace obj;
@@ -27,7 +25,7 @@ void obj::BCgen::Genereate(ByteCode& out, StatementScope* body) {
 	root.generateByteCode(out);
 }
 
-ConstObject* FunctionDefinition::defineLocal(tp::String id) {
+ConstObject* FunctionDefinition::defineLocal(const std::string& id) {
 	auto idx = mLocals.presents(id);
 	// RelAssert(!idx && "Local Redefinition");
 	auto const_str_id = mConstants.get(id);
@@ -35,7 +33,7 @@ ConstObject* FunctionDefinition::defineLocal(tp::String id) {
 	return const_str_id;
 }
 
-FunctionDefinition::FunctionDefinition(tp::String function_id, tp::Buffer<tp::String> args, FunctionDefinition* prnt) {
+FunctionDefinition::FunctionDefinition(const std::string& function_id, tp::Buffer<std::string> args, FunctionDefinition* prnt) {
 	mFunctionId = function_id;
 	inst(Instruction(OpCode::SAVE_ARGS, args.size(), 1));
 	for (auto id : args) {
@@ -190,7 +188,7 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 
 				} else {
 
-					tp::String type;
+					std::string type;
 					switch (stm_local_def->mConstExpr->mConstType) {
 						case ExpressionConst::BOOL:
 							{

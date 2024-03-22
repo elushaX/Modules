@@ -3,8 +3,6 @@
 
 #include "primitives/primitives.h"
 
-#include "Logging.hpp"
-
 #include "Timing.hpp"
 
 using namespace obj;
@@ -224,9 +222,9 @@ void Interpreter::stepBytecodeIn() {
 				auto obj = mOperandsStack.getOperand();
 				if (obj->type->convesions && obj->type->convesions->to_string) {
 					auto str = NDO->toString(obj);
-					gLogger->write(str, true);
+					printf("%s\n", str.c_str());
 				} else {
-					gLogger->write(String(obj->type->name), true);
+					printf("Object with type '%s' has no string representation.\n", obj->type->name);
 				}
 				break;
 			}

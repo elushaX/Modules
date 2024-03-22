@@ -17,9 +17,9 @@ void ClassObject::copy(ClassObject* self, const ClassObject* blueprint) { NDO->c
 
 void ClassObject::destructor(ClassObject* self) { NDO->destroy(self->members); }
 
-void ClassObject::addMember(Object* obj, tp::String id) { members->put(id, obj); }
+void ClassObject::addMember(Object* obj, const std::string& id) { members->put(id, obj); }
 
-void ClassObject::createMember(tp::String type, tp::String id) {
+void ClassObject::createMember(const std::string& type, const std::string& id) {
 	auto newo = NDO->create(type);
 	members->put(id, newo);
 }
@@ -55,7 +55,7 @@ alni allocated_size_recursive(ClassObject* self) {
 	return out;
 }
 
-struct ObjectType ClassObject::TypeData = { .base = NULL,
+struct ObjectType ClassObject::TypeData = { .base = nullptr,
 																						.constructor = (object_constructor) ClassObject::constructor,
 																						.destructor = (object_destructor) ClassObject::destructor,
 																						.copy = (object_copy) ClassObject::copy,

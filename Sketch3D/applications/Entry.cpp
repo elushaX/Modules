@@ -33,15 +33,5 @@ void runApp() {
 }
 
 int main() {
-
-	tp::ModuleManifest* deps[] = { &tp::gModuleStrings, nullptr };
-	tp::ModuleManifest binModule("LibViewEntry", nullptr, nullptr, deps);
-
-	if (!binModule.initialize()) {
-		return 1;
-	}
-
 	runApp();
-
-	binModule.deinitialize();
 }

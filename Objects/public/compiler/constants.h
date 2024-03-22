@@ -9,7 +9,7 @@ namespace obj {
 
 		class ConstObject {
 		public:
-			obj::Object* mObj = NULL;
+			obj::Object* mObj = nullptr;
 			tp::alni mConstIdx = 0;
 
 			ConstObject();
@@ -19,8 +19,8 @@ namespace obj {
 
 		class ConstObjectsPool {
 		public:
-			tp::Map<tp::String, ConstObject*> mMethods;
-			tp::Map<tp::String, ConstObject*> mStrings;
+			tp::Map<std::string, ConstObject*> mMethods;
+			tp::Map<std::string, ConstObject*> mStrings;
 			tp::Map<tp::alni, ConstObject*> mIntegers;
 			tp::Map<tp::alnf, ConstObject*> mFloats;
 			ConstObject mBoolTrue;
@@ -30,11 +30,11 @@ namespace obj {
 			tp::alni mTotalObjects = 0;
 
 			ConstObject* get(tp::alni val);
-			ConstObject* get(tp::String val);
+			ConstObject* get(const std::string& val);
 			ConstObject* get(tp::alnf val);
 			ConstObject* get(bool val);
 
-			ConstObject* addMethod(tp::String method_id, obj::Object* method);
+			ConstObject* addMethod(const std::string& method_id, obj::Object* method);
 			ConstObject* registerObject(obj::Object* obj);
 			void save(tp::Buffer<ConstData>& out);
 

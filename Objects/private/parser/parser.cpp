@@ -22,7 +22,7 @@ public:
 	virtual void lalr_vprintf(const char* format, va_list args) override { printf(format, args); }
 };
 
-Parser::Result Parser::parse(const tp::String& stream) {
+Parser::Result Parser::parse(const std::string& stream) {
 
 	CustomErrorPolicy errorPolicy;
 
@@ -30,8 +30,8 @@ Parser::Result Parser::parse(const tp::String& stream) {
 
 	bind(parser);
 
-	std::string streamStd(stream.read());
-	streamStd += "\n"; // for windows os to make happy
+	std::string streamStd(stream.c_str());
+	streamStd += "\n"; // for windows os to be happy
 
 	ASSERT(parser.valid());
 

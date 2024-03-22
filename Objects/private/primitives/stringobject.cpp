@@ -5,13 +5,13 @@
 using namespace obj;
 using namespace tp;
 
-void StringObject::constructor(Object* self) { new (&NDO_CAST(StringObject, self)->val) String(); }
+void StringObject::constructor(Object* self) { new (&NDO_CAST(StringObject, self)->val) std::string(); }
 
-void StringObject::destructor(StringObject* self) { self->val.~String(); }
+void StringObject::destructor(StringObject* self) { self->val.~basic_string(); }
 
 void StringObject::copy(Object* self, const Object* in) { NDO_CAST(StringObject, self)->val = NDO_CAST(StringObject, in)->val; }
 
-StringObject* StringObject::create(String in) {
+StringObject* StringObject::create(const std::string& in) {
 	NDO_CASTV(StringObject, NDO->create("str"), out)->val = in;
 	return out;
 }
@@ -24,23 +24,27 @@ void StringObject::from_float(StringObject* self, alnf in) {
 	// self->val = in;
 }
 
-void StringObject::from_string(StringObject* self, String in) {
+void StringObject::from_string(StringObject* self, const std::string& in) {
 	// self->val = in;
 }
 
-String StringObject::to_string(StringObject* self) { return self->val; }
+std::string StringObject::to_string(StringObject* self) { return self->val; }
 
-alni StringObject::to_int(StringObject* self) { return alni(self->val); }
+alni StringObject::to_int(StringObject* self) { return std::stoi(self->val); }
 
-alnf StringObject::to_float(StringObject* self) { return alnf(self->val); }
+alnf StringObject::to_float(StringObject* self) { return std::stof(self->val); }
 
-static alni save_size(StringObject* self) { return tp::SaveSizeCounter::calc(self->val); }
+static alni save_size(StringObject* self) {
+	return save_string_size(self->val);
+}
 
-static void save(StringObject* self, ArchiverOut& file_self) { file_self << self->val; }
+static void save(StringObject* self, ArchiverOut& file_self) {
+	save_string(file_self, self->val);
+}
 
 static void load(ArchiverIn& file_self, StringObject* self) {
-	new (&self->val) tp::String();
-	file_self >> self->val;
+	new (&self->val) std::string();
+	load_string(file_self, self->val);
 }
 
 alni allocated_size(StringObject* self) {

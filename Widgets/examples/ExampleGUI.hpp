@@ -35,11 +35,11 @@ namespace tp {
 			const auto size = this->getValue("Size");
 			const auto colUser = this->getColor("ColUser");
 
-			canvas.text(mUser.read(), this->mArea, size, Canvas::CC, padding, colUser);
+			canvas.text(mUser.c_str(), this->mArea, size, Canvas::CC, padding, colUser);
 		}
 
 	public:
-		String mUser = "UserName";
+		std::string mUser = "UserName";
 		bool mIsHover = false;
 	};
 
@@ -83,13 +83,13 @@ namespace tp {
 			content.y = userName.y + userName.w;
 			content.w = this->mArea.w - userName.w;
 
-			canvas.text(mContent.read(), content, size, Canvas::LC, padding, col);
-			canvas.text(mUser.read(), userName, sizeUser, Canvas::LC, padding, colUser);
+			canvas.text(mContent.c_str(), content, size, Canvas::LC, padding, col);
+			canvas.text(mUser.c_str(), userName, sizeUser, Canvas::LC, padding, colUser);
 		}
 
 	public:
-		String mContent = "Message Content";
-		String mUser = "UserName";
+		std::string mContent = "Message Content";
+		std::string mUser = "UserName";
 		bool mIsHover = false;
 	};
 

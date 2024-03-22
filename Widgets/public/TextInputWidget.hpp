@@ -43,7 +43,7 @@ namespace tp {
 
 			// ImGui::PushID((int) alni(this));
 			ImGui::Begin(
-				mId.read(),
+				mId.c_str(),
 				0,
 				ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground |
 					ImGuiWindowFlags_NoResize
@@ -55,7 +55,7 @@ namespace tp {
 					nChanged = true;
 				}
 			} else {
-				if (ImGui::InputTextEx("input", mId.read(), mBuff, mMaxBufferSize, { this->mArea.z, this->mArea.w }, 0)) {
+				if (ImGui::InputTextEx("input", mId.c_str(), mBuff, mMaxBufferSize, { this->mArea.z, this->mArea.w }, 0)) {
 					mValue = mBuff;
 					nChanged = true;
 				}
@@ -68,8 +68,8 @@ namespace tp {
 		enum { mMaxBufferSize = 512 };
 		char mBuff[mMaxBufferSize] = "";
 		bool nChanged = false;
-		String mValue;
-		String mId = "id";
+		std::string mValue;
+		std::string mId = "id";
 		bool mMultiline = false;
 	};
 }

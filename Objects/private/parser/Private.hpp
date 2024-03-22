@@ -12,7 +12,7 @@
 struct UserNode {
 	obj::BCgen::Expression* expression = nullptr;
 	obj::BCgen::Statement* statement = nullptr;
-	tp::Buffer<tp::String>* arguments = nullptr;
+	tp::Buffer<std::string>* arguments = nullptr;
 
 	UserNode(obj::BCgen::Statement* stm) :
 		statement(stm) {}
@@ -20,7 +20,7 @@ struct UserNode {
 	UserNode(obj::BCgen::Expression* expr) :
 		expression(expr) {}
 
-	UserNode(tp::Buffer<tp::String>* argList) :
+	UserNode(tp::Buffer<std::string>* argList) :
 		arguments(argList) {}
 
 	UserNode() = default;
