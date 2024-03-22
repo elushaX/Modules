@@ -1,6 +1,4 @@
 
-#include "HeapAllocatorGlobal.hpp"
-
 #include "core/scriptsection.h"
 
 using namespace obj;
@@ -17,7 +15,7 @@ void set_script_head_store_adress(Script* in, tp::alni address) { ((script_data_
 tp::alni get_script_head_store_adress(Script* in) { return ((script_data_head*) in - 1)->store_adress; }
 
 Script* ScriptSection::createScript() {
-	auto sdhead = (script_data_head*) tp::HeapAllocGlobal::allocate(sizeof(script_data_head) + sizeof(Script));
+	auto sdhead = (script_data_head*) malloc(sizeof(script_data_head) + sizeof(Script));
 	auto out = (Script*) (sdhead + 1);
 
 	if (!sdhead) {
@@ -39,7 +37,7 @@ void ScriptSection::delete_script(Script* script) {
 	script->~Script();
 	obj::NDO->destroy(script->mReadable);
 
-	tp::HeapAllocGlobal::deallocate((((script_data_head*) script) - 1));
+	free((((script_data_head*) script) - 1));
 }
 
 void ScriptSection::reference_script(Script* script) { (((script_data_head*) script) - 1)->refc++; }

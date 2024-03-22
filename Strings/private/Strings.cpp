@@ -1,6 +1,5 @@
 
 #include "Strings.hpp"
-#include "Allocators.hpp"
 #include "Logging.hpp"
 
 using namespace tp;
@@ -12,6 +11,6 @@ bool initialize(const ModuleManifest*) {
 
 void deinitialize(const ModuleManifest*) { Logger::deinitializeGlobal(); }
 
-static tp::ModuleManifest* sModuleDependencies[] = { &tp::gModuleAllocators, nullptr };
+static tp::ModuleManifest* sModuleDependencies[] = { nullptr };
 
 ModuleManifest tp::gModuleStrings = ModuleManifest("Strings", initialize, deinitialize, sModuleDependencies);

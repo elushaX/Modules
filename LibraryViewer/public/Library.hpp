@@ -10,10 +10,6 @@ tp::String getHome();
 tp::String getSongLocalPath(SongId id);
 SONG_FORMAT getSongFormat(const tp::String& path);
 
-namespace tp {
-	extern ModuleManifest gModuleLibraryViewer;
-}
-
 class Track {
 public:
 	Track() = default;

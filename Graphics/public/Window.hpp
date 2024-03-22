@@ -4,9 +4,6 @@
 #include "EventHandler.hpp"
 
 namespace tp {
-
-	extern ModuleManifest gModuleGraphics;
-
 	class Window {
 		class Context;
 

@@ -4,8 +4,6 @@
 
 #include "primitives/nullobject.h"
 
-#include "HeapAllocatorGlobal.hpp"
-
 #include <malloc.h>
 
 namespace obj {
@@ -26,7 +24,7 @@ namespace obj {
 	};
 
 	Object* ObjectMemAllocate(const ObjectType* type) {
-		ObjectMemHead* memh = (ObjectMemHead*) tp::HeapAllocGlobal::allocate(type->size + sizeof(ObjectMemHead));
+		ObjectMemHead* memh = (ObjectMemHead*) malloc(type->size + sizeof(ObjectMemHead));
 		if (!memh) {
 			return NULL;
 		}
@@ -62,7 +60,7 @@ namespace obj {
 			bottom = memh->up;
 		}
 
-		tp::HeapAllocGlobal::deallocate(memh);
+		free(memh);
 
 		count--;
 	}

@@ -27,7 +27,7 @@ obj::Object* ScopeStack::getLocalUtil(Scope& scope, tp::String* id) {
 }
 
 ScopeStack::ScopeStack() {
-	mBuff = (Scope*) tp::HeapAllocGlobal::allocate(sizeof(Scope) * MAX_STACK_SIZE);
+	mBuff = (Scope*) malloc(sizeof(Scope) * MAX_STACK_SIZE);
 	mIdx = 0;
 	mIterIdx = 0;
 }
@@ -80,4 +80,4 @@ obj::Object* ScopeStack::getLocal(tp::String& str) {
 
 Scope* ScopeStack::getCurrentScope() { return &mBuff[mIdx - 1]; }
 
-ScopeStack::~ScopeStack() { tp::HeapAllocGlobal::deallocate(mBuff); }
+ScopeStack::~ScopeStack() { free(mBuff); }

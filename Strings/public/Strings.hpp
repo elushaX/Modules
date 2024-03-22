@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Allocators.hpp"
 #include "StringLogic.hpp"
 
 namespace tp {
@@ -81,7 +80,7 @@ namespace tp {
 			MAX_BOOL_STRING_LENGTH = 10,
 			MAX_FLOAT_STRING_LENGTH = 10,
 		};
-		static PoolAlloc<StringData<tChar>, STRINGS_POOL_SIZE> sStringPool;
+
 		static Data sNullString;
 
 	private:
@@ -100,16 +99,18 @@ namespace tp {
 			incReference(mData);
 		}
 
+		void* alloc() { return malloc(sizeof(StringData<tChar>)); }
+
 		// Creates new string data from raw data pointer.
 		// Does not own string buffer - string buffer will not be freed. Initializes as const memory.
 		StringTemplate(const tChar* raw) {
-			mData = new (sStringPool.allocate(0)) StringData(raw, true);
+			mData = new (alloc()) StringData(raw, true);
 			incReference(mData);
 		}
 
 		// Copies raw data and claims ownership over it
 		StringTemplate(tChar* raw) {
-			mData = new (sStringPool.allocate(0)) StringData(raw);
+			mData = new (alloc()) StringData(raw);
 			incReference(mData);
 		}
 
@@ -123,7 +124,7 @@ namespace tp {
 			dp->mReferenceCount--;
 			if (!dp->mReferenceCount) {
 				mData->~StringData();
-				sStringPool.deallocate(mData);
+				free(mData);
 			}
 		}
 
@@ -150,7 +151,7 @@ namespace tp {
 			// We have no rights to modify if someone references that memory too
 			// So we need to create new copy of StringData
 			if (mData->mReferenceCount > 1) {
-				mData = new (sStringPool.allocate(0)) StringData(mData->mBuff);
+				mData = new (alloc()) StringData(mData->mBuff);
 				incReference(mData);
 				return;
 			}
@@ -158,7 +159,7 @@ namespace tp {
 			// Also if initial raw data was marked as const - create copy of raw data
 			// Note - raw data will be lost at this point if no other record of such is stored
 			if (mData->mIsConst) {
-				mData = new (sStringPool.allocate(0)) StringData(mData->mBuff);
+				mData = new (alloc()) StringData(mData->mBuff);
 				incReference(mData);
 			}
 		}
@@ -182,21 +183,21 @@ namespace tp {
 		explicit StringTemplate(alni val) {
 			tChar raw[MAX_INT_STRING_LENGTH];
 			Logic::convertValueToString(val, raw, MAX_INT_STRING_LENGTH);
-			mData = new (sStringPool.allocate(0)) StringData(raw);
+			mData = new (alloc()) StringData(raw);
 			incReference(mData);
 		}
 
 		explicit StringTemplate(alnf val) {
 			tChar raw[MAX_INT_STRING_LENGTH];
 			Logic::convertValueToString(val, raw, MAX_FLOAT_STRING_LENGTH);
-			mData = new (sStringPool.allocate(0)) StringData(raw);
+			mData = new (alloc()) StringData(raw);
 			incReference(mData);
 		}
 
 		explicit StringTemplate(bool val) {
 			tChar raw[MAX_INT_STRING_LENGTH];
 			Logic::convertValueToString(val, raw, MAX_BOOL_STRING_LENGTH);
-			mData = new (sStringPool.allocate(0)) StringData(raw);
+			mData = new (alloc()) StringData(raw);
 			incReference(mData);
 		}
 
@@ -259,9 +260,6 @@ namespace tp {
 		[[nodiscard]] ualni getReferenceCount() const { return mData->mReferenceCount; }
 		[[nodiscard]] bool getIsConstFlag() const { return mData->mIsConst; }
 	};
-
-	template <typename tChar>
-	PoolAlloc<StringData<tChar>, StringTemplate<tChar>::STRINGS_POOL_SIZE> StringTemplate<tChar>::sStringPool;
 
 	template <typename tChar>
 	StringData<tChar> StringTemplate<tChar>::sNullString;

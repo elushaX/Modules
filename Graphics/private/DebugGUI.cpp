@@ -1,8 +1,6 @@
 #include "Window.hpp"
 #include "WindowContext.hpp"
 
-#include "Allocators.hpp"
-
 #include "Graphics.hpp"
 
 // -------- Debug UI -------- //
@@ -50,13 +48,9 @@ DebugGUI::~DebugGUI() {
 }
 
 void DebugGUI::drawBegin() {
-	tp::HeapAllocGlobal::startIgnore();
-
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
-
-	tp::HeapAllocGlobal::stopIgnore();
 }
 
 void DebugGUI::drawEnd() {

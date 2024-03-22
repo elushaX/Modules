@@ -34,7 +34,7 @@ void runApp() {
 
 int main() {
 
-	tp::ModuleManifest* deps[] = { &tp::gModuleGraphics, &tp::gModuleStrings, &tp::gModuleWidgets, nullptr };
+	tp::ModuleManifest* deps[] = { &tp::gModuleStrings, nullptr };
 	tp::ModuleManifest binModule("LibViewEntry", nullptr, nullptr, deps);
 
 	if (!binModule.initialize()) {
