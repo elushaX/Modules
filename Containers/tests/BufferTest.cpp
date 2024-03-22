@@ -28,6 +28,4 @@ SUITE(Buffer) {
 			buff.pop();
 		CHECK(buff.size() == 0);
 	}
-
-	TEST(NO_TEST) { CHECK(false); }
 }

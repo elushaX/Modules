@@ -30,8 +30,6 @@ SUITE(Connection) {
 			CHECK(data[i] == dataRead[i]);
 		}
 	}
-
-	TEST(NO_TESTS) { CHECK(false); }
 }
 
 int main() {

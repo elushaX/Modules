@@ -13,8 +13,7 @@ Many modules were intentionally developed to gain a better understanding of a to
 For more information on some modules see TODO and STATUS
 
 # **Building**
-
-On Linux with clang with some libraries installed. See workflow in git actions.
+Check git actions if some libraries are missing. <br>
 
 To build and debug on windows clone svn repository (https://svn.riouxsvn.com/moduleswindowsl) alongside this repo and check WINDOWS_LIBRARIES option in cmake
 

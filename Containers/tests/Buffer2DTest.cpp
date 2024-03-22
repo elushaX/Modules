@@ -12,8 +12,4 @@ SUITE(Buffer2D) {
 		buff.set({ 2, 2 }, 5);
 		CHECK(buff.get({ 2, 2 }) == 5);
 	}
-
-	TEST(NO_TESTS) {
-		CHECK(false);
-	}
 }

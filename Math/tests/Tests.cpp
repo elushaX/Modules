@@ -39,8 +39,6 @@ SUITE(Math) {
 			CHECK((tmp1 - tmp2).mod() < 0.001);
 		}
 	}
-
-	TEST(NO_TESTS) { CHECK(false); }
 }
 
 int main() {

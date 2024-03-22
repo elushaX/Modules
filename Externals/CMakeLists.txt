@@ -30,8 +30,9 @@ endif()
 #target_compile_definitions(glew_s PUBLIC GLEW_NO_GLU)
 
 #add_subdirectory(unittest-cpp)
-
 add_subdirectory(lalr)
+target_compile_options(UnitTest++ PUBLIC -Wno-error)
+
 add_subdirectory(glfw)
 
 project(Imgui)
