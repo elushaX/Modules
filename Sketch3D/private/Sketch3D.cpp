@@ -323,6 +323,9 @@ Project::~Project() {
 	for (auto brush : mBrushes) {
 		delete brush->val;
 	}
+	for (auto layer : mLayers) {
+		delete layer.data();
+	}
 }
 
 Renderer::Renderer(Vec2F size) : 
