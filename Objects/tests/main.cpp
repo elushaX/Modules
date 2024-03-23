@@ -1,7 +1,7 @@
 
 #include "ObjectTests.hpp"
 
-#include "primitives/primitives.h"
+#include "primitives/PrimitiveObjects.hpp"
 
 tp::ModuleManifest* objDeps[] = { &obj::gModuleObjects, nullptr };
 tp::ModuleManifest objTestModule("ObjectsTests", nullptr, nullptr, objDeps);

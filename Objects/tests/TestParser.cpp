@@ -1,7 +1,7 @@
 
 #include "ObjectTests.hpp"
 
-#include "parser/parser.h"
+#include "parser/Parser.hpp"
 
 using namespace tp;
 using namespace obj;

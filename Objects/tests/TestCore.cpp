@@ -1,9 +1,9 @@
 
 #include "ObjectTests.hpp"
 
-#include "core/object.h"
+#include "core/Object.hpp"
 
-#include "primitives/intobject.h"
+#include "primitives/IntObject.hpp"
 
 using namespace tp;
 using namespace obj;
