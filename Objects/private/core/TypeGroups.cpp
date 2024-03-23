@@ -3,6 +3,7 @@
 
 #include "core/Object.hpp"
 
+using namespace tp;
 using namespace obj;
 
 obj::TypeGroups::TypeGroups() :
@@ -31,10 +32,10 @@ void obj::TypeGroups::setType(ObjectType* type) {
 	this->type = type;
 }
 
-void obj::TypeGroups::addType(ObjectType* type, tp::InitialierList<const char*> path, tp::alni cur_dir_idx) {
+void obj::TypeGroups::addType(ObjectType* type, InitialierList<const char*> path, alni cur_dir_idx) {
 	DEBUG_ASSERT(is_group);
 
-	tp::alni dir_len = (tp::alni) path.size();
+	alni dir_len = (alni) path.size();
 
 	if (dir_len == cur_dir_idx) {
 		TypeGroups* type_ref = new TypeGroups(false);
@@ -44,7 +45,7 @@ void obj::TypeGroups::addType(ObjectType* type, tp::InitialierList<const char*> 
 	}
 
 	TypeGroups* group = nullptr;
-	tp::alni index = 0;
+	alni index = 0;
 
 	for (auto dir : path) {
 		if (index != cur_dir_idx) {

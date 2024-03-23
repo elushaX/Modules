@@ -1,7 +1,5 @@
-
 #pragma once
 
-#include <string>
 #include "List.hpp"
 #include "Map.hpp"
 
@@ -9,39 +7,38 @@
 #include "Statements.hpp"
 #include "Constants.hpp"
 
-namespace obj {
+#include <string>
+
+namespace tp::obj {
 	struct MethodObject;
 
-	namespace BCgen {
+	struct FunctionDefinition {
 
-		struct FunctionDefinition {
-			
-			FunctionDefinition* mPrnt = nullptr;
+		FunctionDefinition* mPrnt = nullptr;
 
-			// signature
-			std::string mFunctionId;
-			tp::List<ConstObject*> mArgsOrder;
+		// signature
+		std::string mFunctionId;
+		List<ConstObject*> mArgsOrder;
 
-			ConstObjectsPool mConstants;
-			tp::Map<std::string, ConstObject*> mLocals;
-			tp::List<Instruction> mInstructions;
+		ConstObjectsPool mConstants;
+		Map<std::string, ConstObject*> mLocals;
+		List<Instruction> mInstructions;
 
-			FunctionDefinition(const std::string& function_id, tp::Buffer<std::string> args, FunctionDefinition* prnt);
-			FunctionDefinition() {}
+		FunctionDefinition(const std::string& function_id, const Buffer<std::string>& args, FunctionDefinition* prnt);
+		FunctionDefinition() {}
 
-			void generateByteCode(ByteCode& out);
+		void generateByteCode(ByteCode& out);
 
-			tp::List<Instruction>::Node* inst(Instruction inst);
-			
-			void EvalExpr(Expression* expr);
-			void EvalStatement(Statement* expr);
+		List<Instruction>::Node* inst(Instruction inst);
 
-			ConstObject* defineLocal(const std::string& id);
-		};
+		void EvalExpr(Expression* expr);
+		void EvalStatement(Statement* expr);
 
-		void init();
-		void deinit();
-		void Genereate(ByteCode& out, StatementScope* body);
-		bool Compile(MethodObject* obj);
+		ConstObject* defineLocal(const std::string& id);
 	};
-};
+
+	void initialize();
+	void finalize();
+	void Generate(ByteCode& out, StatementScope* body);
+	bool Compile(MethodObject* obj);
+}

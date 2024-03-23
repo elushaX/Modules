@@ -8,6 +8,9 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 
+using namespace tp;
+using namespace obj;
+
 namespace ImGui {
 
 	bool SubMenuBegin(const char* desc, int level);
@@ -104,7 +107,7 @@ void obj::ObjectsGUI::setClipboard(obj::Object* obj) {
 	mClipboard = obj;
 
 	if (mClipboard) {
-		obj::NDO->refinc(obj);
+		obj::NDO->increaseReferenceCount(obj);
 	}
 }
 
@@ -145,7 +148,7 @@ obj::ObjectsGUI::ObjectsGUI() { assert(obj::NDO && "Objects library is not initi
 void obj::ObjectsGUI::cd(obj::Object* child, const std::string& name) {
 	mActive = child;
 	mViewStack.pushBack({ mActive, name });
-	obj::NDO->refinc(child);
+	obj::NDO->increaseReferenceCount(child);
 }
 
 void obj::ObjectsGUI::cdup() {
@@ -587,7 +590,7 @@ void obj::ObjectsGUI::dictViewEdit(obj::DictObject* dict, const std::string& key
 				if (bool(idx)) {
 					// Notify("Object with such name Already Exists");
 				} else {
-					obj::NDO->refinc(obj);
+					obj::NDO->increaseReferenceCount(obj);
 					dict->remove(key);
 					auto id = std::string(mNameEdit);
 					dict->put(id, obj);
@@ -915,7 +918,7 @@ void obj::ObjectsGUI::explorer() {
 			}
 
 			if (ImGui::Selectable("Instantiate  ")) {
-				setClipboard(obj::NDO->instatiate(curretn_object));
+				setClipboard(obj::NDO->instantiate(curretn_object));
 				// Notify("Object copied to clipboard");
 			}
 
@@ -1005,7 +1008,7 @@ void obj::ObjectsGUI::properties(const obj::ObjectType* type, bool top_of_tree_v
 	assert(mActive);
 	if (mActive->type != type) return;
 
-	ImGui::Text(" RefCount : %i", obj::NDO->getrefc(mActive));
+	ImGui::Text(" RefCount : %i", obj::NDO->getReferenceCount(mActive));
 
 	ImGui::Text("  Type : %s", type->name);
 

@@ -1,45 +1,42 @@
-
 #pragma once
 
-#include "interpreter/ByteCode.hpp"
 #include "core/Object.hpp"
+#include "interpreter/ByteCode.hpp"
 
-namespace obj {
-	namespace BCgen {
+namespace tp::obj {
 
-		class ConstObject {
-		public:
-			obj::Object* mObj = nullptr;
-			tp::alni mConstIdx = 0;
+	class ConstObject {
+	public:
+		Object* mObj = nullptr;
+		alni mConstIdx = 0;
 
-			ConstObject();
-			ConstObject(obj::Object* mObj);
-		};
-
-
-		class ConstObjectsPool {
-		public:
-			tp::Map<std::string, ConstObject*> mMethods;
-			tp::Map<std::string, ConstObject*> mStrings;
-			tp::Map<tp::alni, ConstObject*> mIntegers;
-			tp::Map<tp::alnf, ConstObject*> mFloats;
-			ConstObject mBoolTrue;
-			ConstObject mBoolFalse;
-
-			bool mDelete = true;
-			tp::alni mTotalObjects = 0;
-
-			ConstObject* get(tp::alni val);
-			ConstObject* get(const std::string& val);
-			ConstObject* get(tp::alnf val);
-			ConstObject* get(bool val);
-
-			ConstObject* addMethod(const std::string& method_id, obj::Object* method);
-			ConstObject* registerObject(obj::Object* obj);
-			void save(tp::Buffer<ConstData>& out);
-
-			ConstObjectsPool() = default;
-			~ConstObjectsPool();
-		};
+		ConstObject();
+		ConstObject(Object* mObj);
 	};
-};
+
+
+	class ConstObjectsPool {
+	public:
+		Map<std::string, ConstObject*> mMethods;
+		Map<std::string, ConstObject*> mStrings;
+		Map<alni, ConstObject*> mIntegers;
+		Map<alnf, ConstObject*> mFloats;
+		ConstObject mBoolTrue;
+		ConstObject mBoolFalse;
+
+		bool mDelete = true;
+		alni mTotalObjects = 0;
+
+		ConstObject* get(alni val);
+		ConstObject* get(const std::string& val);
+		ConstObject* get(alnf val);
+		ConstObject* get(bool val);
+
+		ConstObject* addMethod(const std::string& method_id, Object* method);
+		ConstObject* registerObject(Object* obj);
+		void save(Buffer<ConstData>& out);
+
+		ConstObjectsPool() = default;
+		~ConstObjectsPool();
+	};
+}

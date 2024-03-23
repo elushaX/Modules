@@ -2,8 +2,8 @@
 
 #include "primitives/BoolObject.hpp"
 
-using namespace obj;
 using namespace tp;
+using namespace obj;
 
 void BoolObject::constructor(BoolObject* self) { self->val = false; }
 

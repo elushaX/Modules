@@ -2,8 +2,8 @@
 #include "primitives/DictObject.hpp"
 #include "primitives/StringObject.hpp"
 
-using namespace obj;
 using namespace tp;
+using namespace obj;
 
 void DictObject::constructor(Object* self) {
 	NDO_CASTV(DictObject, self, dict);
@@ -19,7 +19,7 @@ void DictObject::copy(Object* in, const Object* target) {
 	constructor(self);
 
 	for (auto item : src->items) {
-		auto instance = NDO->instatiate(item->val);
+		auto instance = NDO->instantiate(item->val);
 		self->items.put(item->key, instance);
 	}
 }
@@ -120,7 +120,7 @@ alni DictObject::allocated_size_recursive(DictObject* self) {
 
 void DictObject::put(const std::string& str, Object* obj) {
 	DEBUG_ASSERT(obj);
-	NDO->refinc(obj);
+	NDO->increaseReferenceCount(obj);
 	items.put(str, obj);
 }
 

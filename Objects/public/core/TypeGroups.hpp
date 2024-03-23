@@ -4,7 +4,7 @@
 #include "Map.hpp"
 #include <string>
 
-namespace obj {
+namespace tp::obj {
 
 	struct ObjectType;
 	struct objects_api;
@@ -13,15 +13,15 @@ namespace obj {
 
 	public:
 
-		typedef tp::Map<std::string, obj::TypeGroups*> Dict;
+		typedef Map<std::string, TypeGroups*> Dict;
 
 		TypeGroups();
 
-		friend struct obj::objects_api;
+		friend struct objects_api;
 
 		explicit TypeGroups(bool is_group);
 
-		void addType(ObjectType* type, tp::InitialierList<const char*> path, tp::alni cur_arg = 0);
+		void addType(ObjectType* type, InitialierList<const char*> path, alni cur_arg = 0);
 		void setType(ObjectType* type);
 		bool isGroup();
 		Dict* getChilds();
@@ -36,5 +36,4 @@ namespace obj {
 			const obj::ObjectType* type;
 		};
 	};
-
-};
+}

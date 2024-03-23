@@ -1,8 +1,8 @@
 
 #include "primitives/ColorObject.hpp"
 
-using namespace obj;
 using namespace tp;
+using namespace obj;
 
 void ColorObject::constructor(Object* self) { NDO_CAST(ColorObject, self)->mCol = tp::RGBA(1.f); }
 

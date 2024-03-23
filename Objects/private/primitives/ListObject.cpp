@@ -2,8 +2,8 @@
 #include "primitives/IntObject.hpp"
 #include "primitives/ListObject.hpp"
 
-using namespace obj;
 using namespace tp;
+using namespace obj;
 
 void ListObject::constructor(Object* in) {
 	NDO_CASTV(ListObject, in, self);
@@ -17,7 +17,7 @@ void ListObject::copy(Object* in, const Object* target) {
 	destructor(in);
 
 	for (auto item : src->items) {
-		self->pushBack(NDO->instatiate(item.data()));
+		self->pushBack(NDO->instantiate(item.data()));
 	}
 }
 
@@ -84,12 +84,12 @@ alni ListObject::allocated_size_recursive(ListObject* self) {
 }
 
 void ListObject::pushBack(Object* obj) {
-	obj::NDO->refinc(obj);
+	obj::NDO->increaseReferenceCount(obj);
 	items.pushBack(obj);
 }
 
 void ListObject::pushFront(Object* obj) {
-	obj::NDO->refinc(obj);
+	obj::NDO->increaseReferenceCount(obj);
 	items.pushFront(obj);
 }
 

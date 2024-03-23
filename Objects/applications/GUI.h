@@ -8,7 +8,7 @@
 
 #include <string>
 
-namespace obj {
+namespace tp::obj {
 
 	class ObjectsGUI {
 		
@@ -24,7 +24,7 @@ namespace obj {
 			operator bool() { return obj; }
 		};
 
-		tp::List<ViewStackNode> mViewStack;
+		List<ViewStackNode> mViewStack;
 		obj::Object* mRoot = NULL;
 		obj::Object* mActive = NULL;
 		obj::Object* mClipboard = NULL;

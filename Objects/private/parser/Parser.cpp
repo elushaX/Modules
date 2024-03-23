@@ -3,6 +3,7 @@
 
 #include "Private.hpp"
 
+using namespace tp;
 using namespace obj;
 
 lalr::ErrorPolicy::~ErrorPolicy() = default;
@@ -37,10 +38,10 @@ Parser::Result Parser::parse(const std::string& stream) {
 
 	parser.parse(streamStd.begin(), streamStd.end());
 
-	BCgen::StatementScope* out = nullptr;
+	StatementScope* out = nullptr;
 
 	if (parser.accepted() && parser.full()) {
-		out = (BCgen::StatementScope*) parser.user_data().statement;
+		out = (StatementScope*) parser.user_data().statement;
 	}
 
 	return { out, !(parser.accepted() && parser.full()) };

@@ -3,6 +3,7 @@
 #include "core/ScriptSection.hpp"
 #include "primitives/MethodObject.hpp"
 
+using namespace tp;
 using namespace obj;
 
 struct ObjectType MethodObject::TypeData = {
@@ -52,7 +53,7 @@ void MethodObject::Initialize() {
 
 void MethodObject::UnInitialize() { obj::ScriptSection::uninitialize(); }
 
-void MethodObject::compile() { BCgen::Compile(this); }
+void MethodObject::compile() { Compile(this); }
 
 MethodObject* MethodObject::create(const std::string& script) {
 	auto out = (MethodObject*) NDO->create(MethodObject::TypeData.name);

@@ -1,7 +1,8 @@
 
 #include "Private.hpp"
 
-using namespace obj::BCgen;
+using namespace tp;
+using namespace obj;
 
 typedef lalr::ParserNode<SymbolType> Node;
 
@@ -189,7 +190,7 @@ static UserData tmp(const UserData* start, const Node*, size_t) {
 
 #define BIND(name) parser.set_action_handler(#name, &(name))
 
-void bind(LalrParser& parser) {
+void obj::bind(LalrParser& parser) {
 	BIND(scope);
 
 	BIND(stm_list_append);

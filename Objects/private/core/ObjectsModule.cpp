@@ -16,8 +16,8 @@
 #include "primitives/StringObject.hpp"
 #include "primitives/TypeObject.hpp"
 
-using namespace obj;
 using namespace tp;
+using namespace obj;
 
 static void defineTypes() {
 	NDO->define(&DictObject::TypeData);
@@ -50,9 +50,9 @@ static void defineGroups() {
 	NDO->type_groups.addType(&InterpreterObject::TypeData, { "scripting" });
 }
 
-static bool init(const tp::ModuleManifest*) {
+static bool init(const ModuleManifest*) {
 	if (!NDO) NDO = new objects_api();
-	obj::BCgen::init();
+	obj::initialize();
 
 	MethodObject::Initialize();
 
@@ -62,12 +62,12 @@ static bool init(const tp::ModuleManifest*) {
 	return true;
 }
 
-static void deinit(const tp::ModuleManifest*) {
+static void deinit(const ModuleManifest*) {
 
 	NullObject::uninit();
 	MethodObject::UnInitialize();
 
-	obj::BCgen::deinit();
+	obj::finalize();
 
 	assertNoLeaks();
 
@@ -75,8 +75,8 @@ static void deinit(const tp::ModuleManifest*) {
 	NDO = nullptr;
 }
 
-static tp::ModuleManifest* sModuleDependencies[] = {
+static ModuleManifest* sModuleDependencies[] = {
 	nullptr
 };
 
-tp::ModuleManifest obj::gModuleObjects = tp::ModuleManifest("Objects", init, deinit, sModuleDependencies);
+ModuleManifest obj::gModuleObjects = ModuleManifest("Objects", init, deinit, sModuleDependencies);

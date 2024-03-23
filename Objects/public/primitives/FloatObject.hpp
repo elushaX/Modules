@@ -3,10 +3,10 @@
 
 #include "core/Object.hpp"
 
-namespace obj {
+namespace tp::obj {
 
 	struct FloatObject : Object {
-		tp::alnf val;
+		alnf val;
 
 		static ObjectType TypeData;
 		static ObjectTypeAriphmetics TypeAriphm;
@@ -14,13 +14,13 @@ namespace obj {
 
 		static void constructor(FloatObject* self);
 		static void copy(FloatObject* self, const FloatObject* in);
-		static FloatObject* create(tp::alnf in);
+		static FloatObject* create(alnf in);
 
-		static void from_int(FloatObject* self, tp::alni in);
-		static void from_float(FloatObject* self, tp::alnf in);
+		static void from_int(FloatObject* self, alni in);
+		static void from_float(FloatObject* self, alnf in);
 		static void from_string(FloatObject* self, const std::string& in);
 		static std::string to_string(FloatObject* self);
-		static tp::alni to_int(FloatObject* self);
-		static tp::alnf to_float(FloatObject* self);
+		static alni to_int(FloatObject* self);
+		static alnf to_float(FloatObject* self);
 	};
-};
+}

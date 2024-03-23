@@ -6,12 +6,10 @@
 
 #include "parser/Parser.hpp"
 
-using namespace obj;
 using namespace tp;
 using namespace obj;
-using namespace BCgen;
 
-void obj::BCgen::Genereate(ByteCode& out, StatementScope* body) {
+void obj::Generate(ByteCode& out, StatementScope* body) {
 	auto root = FunctionDefinition();
 
 	root.inst(Instruction(OpCode::SCOPE_IN));
@@ -26,18 +24,18 @@ void obj::BCgen::Genereate(ByteCode& out, StatementScope* body) {
 }
 
 ConstObject* FunctionDefinition::defineLocal(const std::string& id) {
-	auto idx = mLocals.presents(id);
+	// auto idx = mLocals.presents(id);
 	// RelAssert(!idx && "Local Redefinition");
 	auto const_str_id = mConstants.get(id);
 	mLocals.put(id, const_str_id);
 	return const_str_id;
 }
 
-FunctionDefinition::FunctionDefinition(const std::string& function_id, tp::Buffer<std::string> args, FunctionDefinition* prnt) {
+FunctionDefinition::FunctionDefinition(const std::string& function_id, const Buffer<std::string>& args, FunctionDefinition*) {
 	mFunctionId = function_id;
-	inst(Instruction(OpCode::SAVE_ARGS, args.size(), 1));
+	inst(Instruction(OpCode::SAVE_ARGS, (alni) args.size(), 1));
 	for (auto id : args) {
-		ASSERT(!mLocals.presents(id.data()) && "Argument Redefinition");
+		ASSERT(!mLocals.presents(id.data()) && "Argument Redefinition")
 		auto const_data = mConstants.get(id.data());
 		mArgsOrder.pushBack(const_data);
 		mLocals.put(id.data(), const_data);
@@ -124,7 +122,7 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 
 				// define method as local
 				auto idx = mLocals.presents(func.mFunctionId);
-				ASSERT(!idx && "Local Redefinition with function name");
+				ASSERT(!idx && "Local Redefinition with function name")
 				mLocals.put(func.mFunctionId, mConstants.get(func.mFunctionId));
 
 				// create and register const func object
@@ -152,7 +150,7 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 
 				// define method as local
 				auto idx = mLocals.presents(func.mFunctionId);
-				ASSERT(!idx && "Local Redefinition with function name");
+				ASSERT(!idx && "Local Redefinition with function name")
 				mLocals.put(func.mFunctionId, mConstants.get(func.mFunctionId));
 
 				// create and register const func object
@@ -164,7 +162,7 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 					// check for return statements
 					ASSERT(
 						child_stm.data()->mType != Statement::Type::RET && "return statements are not allowed in class definition"
-					);
+					)
 					func.EvalStatement(child_stm.data());
 				}
 				// create one last instruction - constructing class from function execution state
@@ -280,10 +278,10 @@ void FunctionDefinition::EvalExpr(Expression* expr) {
 			}
 		case Expression::Type::ARITHMETICS:
 			{
-				auto ariphm = (ExpressionArithmetics*) expr;
-				EvalExpr(ariphm->mRight);
-				EvalExpr(ariphm->mLeft);
-				inst(Instruction(ariphm->mOpType));
+				auto arithmeticExpression = (ExpressionArithmetics*) expr;
+				EvalExpr(arithmeticExpression->mRight);
+				EvalExpr(arithmeticExpression->mLeft);
+				inst(Instruction(arithmeticExpression->mOpType));
 				break;
 			}
 		case Expression::Type::NEW:
@@ -302,29 +300,29 @@ void FunctionDefinition::EvalExpr(Expression* expr) {
 			}
 		case Expression::Type::CONST_EXPR:
 			{
-				auto constobj = (ExpressionConst*) expr;
-				switch (constobj->mConstType) {
+				auto constObject = (ExpressionConst*) expr;
+				switch (constObject->mConstType) {
 					case ExpressionConst::STR:
 						{
-							inst(Instruction(OpCode::LOAD_CONST, mConstants.get(constobj->str)));
+							inst(Instruction(OpCode::LOAD_CONST, mConstants.get(constObject->str)));
 							break;
 						}
 					case ExpressionConst::INT:
 						{
-							inst(Instruction(OpCode::LOAD_CONST, mConstants.get(constobj->integer)));
+							inst(Instruction(OpCode::LOAD_CONST, mConstants.get(constObject->integer)));
 							break;
 						}
 					case ExpressionConst::FLT:
 						{
-							inst(Instruction(OpCode::LOAD_CONST, mConstants.get(constobj->floating)));
+							inst(Instruction(OpCode::LOAD_CONST, mConstants.get(constObject->floating)));
 							break;
 						}
 					case ExpressionConst::BOOL:
 						{
-							inst(Instruction(OpCode::LOAD_CONST, mConstants.get(constobj->boolean)));
+							inst(Instruction(OpCode::LOAD_CONST, mConstants.get(constObject->boolean)));
 							break;
 						}
-				};
+				}
 				break;
 			}
 		case Expression::Type::CHILD:
@@ -343,7 +341,7 @@ void FunctionDefinition::EvalExpr(Expression* expr) {
 		case Expression::Type::CALL:
 			{
 				auto call = (ExpressionCall*) expr;
-				inst(Instruction(OpCode::PUSH_ARGS, call->mArgs->mItems.size(), 1));
+				inst(Instruction(OpCode::PUSH_ARGS, (alni) call->mArgs->mItems.size(), 1));
 				for (auto arg : call->mArgs->mItems) {
 					EvalExpr(arg.data());
 				}
@@ -356,13 +354,13 @@ void FunctionDefinition::EvalExpr(Expression* expr) {
 	}
 }
 
-tp::alni instSize(const Instruction& inst) {
+alni instSize(const Instruction& inst) {
 	switch (inst.mInstType) {
 		case Instruction::InstType::JUMP:
 		case Instruction::InstType::JUMP_IF_NOT:
 		case Instruction::InstType::JUMP_IF:
 			{
-				// 2 bytes for offset 1 byte for instrtuction
+				// 2 bytes for offset 1 byte for instruction
 				return 3;
 			}
 		case Instruction::InstType::PURE_CONST:
@@ -371,7 +369,7 @@ tp::alni instSize(const Instruction& inst) {
 			}
 		case Instruction::InstType::EXEC:
 			{
-				tp::alni out = 1;
+				alni out = 1;
 				switch (inst.mArgType) {
 					case Instruction::ArgType::PARAM:
 						{
@@ -392,7 +390,7 @@ tp::alni instSize(const Instruction& inst) {
 						}
 					default:
 						{
-							ASSERT(0);
+							ASSERT(0)
 						}
 				}
 			}
@@ -402,30 +400,30 @@ tp::alni instSize(const Instruction& inst) {
 			}
 		default:
 			{
-				ASSERT(0);
+				ASSERT(0)
 			}
 	}
 
-	ASSERT(0);
+	ASSERT(0)
 	return 0;
 }
 
-void writeConst(ByteCode& out, tp::alni& idx, tp::uint2 data) {
-	for (auto byte : tp::Range(sizeof(tp::uint2))) {
-		out.mInstructions[idx] = OpCode((tp::int1)(data >> byte * 8));
+void writeConst(ByteCode& out, alni& idx, uint2 data) {
+	for (auto byte : Range(sizeof(uint2))) {
+		out.mInstructions[idx] = OpCode((int1)(data >> byte * 8));
 		idx++;
 	}
 }
 
-void writeParam(ByteCode& out, tp::alni& idx, tp::int1* data, tp::alni size) {
-	for (auto byte : tp::Range(size)) {
+void writeParam(ByteCode& out, alni& idx, const int1* data, alni size) {
+	for (auto byte : Range(size)) {
 		out.mInstructions[idx] = OpCode(data[byte]);
 		idx++;
 	}
 }
 
-tp::alni calcOffset(tp::List<Instruction>::Node* jump_inst, Instruction* to) {
-	tp::alni offset = 0;
+alni calcOffset(List<Instruction>::Node* jump_inst, Instruction* to) {
+	alni offset = 0;
 	bool reversed = jump_inst->data.mInstIdx > to->mInstIdx;
 	auto iter_node = reversed ? jump_inst : jump_inst->next;
 	while (&iter_node->data != to) {
@@ -445,13 +443,13 @@ void FunctionDefinition::generateByteCode(ByteCode& out) {
 
 	mConstants.save(out.mConstants);
 
-	tp::alni inst_len = 0;
+	alni inst_len = 0;
 	for (auto inst_iter : mInstructions) {
 		inst_len += instSize(inst_iter.data());
 	}
 	out.mInstructions.reserve(inst_len);
 
-	tp::alni idx = 0;
+	alni idx = 0;
 	for (auto inst_iter : mInstructions) {
 		auto inst = inst_iter.data();
 
@@ -460,7 +458,7 @@ void FunctionDefinition::generateByteCode(ByteCode& out) {
 			case Instruction::InstType::JUMP_IF_NOT:
 			case Instruction::InstType::JUMP:
 				{
-					tp::alni offset = calcOffset(inst_iter.node(), inst.mInstTarget);
+					alni offset = calcOffset(inst_iter.node(), inst.mInstTarget);
 
 					if (offset == 0) {
 						out.mInstructions[idx] = OpCode::NONE;
@@ -490,14 +488,14 @@ void FunctionDefinition::generateByteCode(ByteCode& out) {
 
 					idx++;
 
-					tp::alni offset_mod = abs(offset);
-					tp::uint2 offset_param = (tp::uint2) offset_mod;
-					writeParam(out, idx, (tp::int1*) &offset_param, 2);
+					alni offset_mod = abs(offset);
+					auto offset_param = (uint2) offset_mod;
+					writeParam(out, idx, (int1*) &offset_param, 2);
 					break;
 				}
 			case Instruction::InstType::PURE_CONST:
 				{
-					writeConst(out, idx, (tp::uint2) inst.mConstData->mConstIdx);
+					writeConst(out, idx, (uint2) inst.mConstData->mConstIdx);
 					break;
 				}
 			case Instruction::InstType::EXEC:
@@ -507,14 +505,14 @@ void FunctionDefinition::generateByteCode(ByteCode& out) {
 					switch (inst.mArgType) {
 						case Instruction::ArgType::PARAM:
 							{
-								writeParam(out, idx, (tp::int1*) &inst.mParam, inst.mParamBytes);
+								writeParam(out, idx, (int1*) &inst.mParam, inst.mParamBytes);
 								break;
 							}
 						case Instruction::ArgType::CONST_ARG:
 							{
-								writeConst(out, idx, (tp::uint2) inst.mConstData->mConstIdx);
+								writeConst(out, idx, (uint2) inst.mConstData->mConstIdx);
 								if (inst.mConstData2) {
-									writeConst(out, idx, (tp::uint2) inst.mConstData2->mConstIdx);
+									writeConst(out, idx, (uint2) inst.mConstData2->mConstIdx);
 								}
 								break;
 							}
@@ -524,14 +522,14 @@ void FunctionDefinition::generateByteCode(ByteCode& out) {
 							}
 						default:
 							{
-								ASSERT(0);
+								ASSERT(0)
 							}
 					}
 					break;
 				}
 			default:
 				{
-					ASSERT(0);
+					ASSERT(0)
 				}
 			case Instruction::InstType::NONE:
 				{
@@ -540,18 +538,18 @@ void FunctionDefinition::generateByteCode(ByteCode& out) {
 	}
 }
 
-tp::List<Instruction>::Node* FunctionDefinition::inst(Instruction inst) {
+List<Instruction>::Node* FunctionDefinition::inst(Instruction inst) {
 	mInstructions.pushBack(inst);
 	auto out = &mInstructions.last()->data;
-	out->mInstIdx = mInstructions.length() - 1;
+	out->mInstIdx = (alni) mInstructions.length() - 1;
 	return mInstructions.last();
 }
 
-void obj::BCgen::init() {}
+void obj::initialize() {}
 
-void obj::BCgen::deinit() {}
+void obj::finalize() {}
 
-bool obj::BCgen::Compile(obj::MethodObject* method) {
+bool obj::Compile(obj::MethodObject* method) {
 
 	Parser parser;
 
@@ -563,7 +561,7 @@ bool obj::BCgen::Compile(obj::MethodObject* method) {
 		return false;
 	}
 
-	BCgen::Genereate(method->mScript->mBytecode, res.scope);
+	Generate(method->mScript->mBytecode, res.scope);
 
 	delete res.scope;
 

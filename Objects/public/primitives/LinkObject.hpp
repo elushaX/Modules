@@ -3,7 +3,7 @@
 
 #include "core/Object.hpp"
 
-namespace obj {
+namespace tp::obj {
 
 	struct LinkObject : Object {
 		static ObjectType TypeData;
@@ -12,12 +12,12 @@ namespace obj {
 		static void copy(Object* self, const Object* in);
 		static LinkObject* create(Object* in);
 
-		static tp::alni save_size(LinkObject* self);
+		static alni save_size(LinkObject* self);
 		static void save(LinkObject* self, ArchiverOut& file_self);
 		static void load(ArchiverIn& file_self, LinkObject* self);
-		static tp::alni allocated_size(LinkObject* self);
-		static tp::alni allocated_size_recursive(LinkObject* self);
-		static tp::Buffer<Object*> childs_retrival(LinkObject* self);
+		static alni allocated_size(LinkObject* self);
+		static alni allocated_size_recursive(LinkObject* self);
+		static Buffer<Object*> childs_retrival(LinkObject* self);
 
 		Object* getLink();
 		void setLink(Object* obj);
@@ -25,5 +25,4 @@ namespace obj {
 	private:
 		Object* link;
 	};
-
-};
+}

@@ -5,11 +5,8 @@
 
 #include "Map.hpp"
 
-namespace obj {
+namespace tp::obj {
 	struct MethodObject;
-};
-
-namespace obj {
 
 	struct ByteCode;
 
@@ -17,16 +14,16 @@ namespace obj {
 
 		struct CallFrame {
 			enum { CALL_DEPTH = 1024 };
-			obj::Object* mSelf = nullptr;
-			obj::MethodObject* mMethod = nullptr;
-			tp::ualni mIp = 0;
+			Object* mSelf = nullptr;
+			MethodObject* mMethod = nullptr;
+			ualni mIp = 0;
 		};
 
 		void enter(const CallFrame& frame);
 		void leave();
 		ByteCode* getBytecode();
-		[[nodiscard]] tp::halni len() const;
+		[[nodiscard]] halni len() const;
 
-		tp::ConstSizeBuffer<CallFrame, CallFrame::CALL_DEPTH> mStack;
+		ConstSizeBuffer<CallFrame, CallFrame::CALL_DEPTH> mStack;
 	};
-};
+}

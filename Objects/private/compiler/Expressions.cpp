@@ -1,7 +1,9 @@
 #include "compiler/Expressions.hpp"
 
+#include <utility>
+
+using namespace tp;
 using namespace obj;
-using namespace BCgen;
 
 Expression::Expression(Type type) :
 	mType(type) {}
@@ -46,25 +48,25 @@ ExpressionList::~ExpressionList() {
 	}
 }
 
-ExpressionNew::ExpressionNew(const std::string& type) :
+ExpressionNew::ExpressionNew(std::string  type) :
 	Expression(Type::NEW),
-	mNewType(type) {}
+	mNewType(std::move(type)) {}
 
 ExpressionNew::~ExpressionNew() = default;
 
-ExpressionLocal::ExpressionLocal(const std::string& id) :
+ExpressionLocal::ExpressionLocal(std::string  id) :
 	Expression(Type::LOCAL),
-	mLocalId(id) {}
+	mLocalId(std::move(id)) {}
 
 ExpressionLocal::~ExpressionLocal() = default;
 
 ExpressionSelf::ExpressionSelf() :
 	Expression(Type::SELF) {}
 
-ExpressionChild::ExpressionChild(Expression* mParent, const std::string& id) :
+ExpressionChild::ExpressionChild(Expression* mParent, std::string  id) :
 	Expression(Type::CHILD),
 	mParent(mParent),
-	mLocalId(id) {}
+	mLocalId(std::move(id)) {}
 
 ExpressionChild::~ExpressionChild() { delete mParent; }
 
@@ -79,38 +81,38 @@ ExpressionArithmetics::~ExpressionArithmetics() {
 	delete mRight;
 }
 
-ExpressionFunc::ExpressionFunc(const std::string& id) :
+ExpressionFunc::ExpressionFunc(std::string  id) :
 	Expression(Type::FUNC),
-	mFuncId(id) {}
+	mFuncId(std::move(id)) {}
 
 ExpressionFunc::~ExpressionFunc() = default;
 
-ExpressionConst::ExpressionConst(const std::string& val) :
+ExpressionConst::ExpressionConst(std::string  val) :
 	Expression(Type::CONST_EXPR),
 	mConstType(STR),
-	str(val) {}
+	str(std::move(val)) {}
 
 ExpressionConst::ExpressionConst(const char* val) :
 	Expression(Type::CONST_EXPR),
 	mConstType(STR),
 	str(val) {}
 
-ExpressionConst::ExpressionConst(tp::int4 val) :
+ExpressionConst::ExpressionConst(int4 val) :
 	Expression(Type::CONST_EXPR),
 	mConstType(INT),
 	integer(val) {}
 
-ExpressionConst::ExpressionConst(tp::flt4 val) :
+ExpressionConst::ExpressionConst(flt4 val) :
 	Expression(Type::CONST_EXPR),
 	mConstType(FLT),
 	floating(val) {}
 
-ExpressionConst::ExpressionConst(tp::alni val) :
+ExpressionConst::ExpressionConst(alni val) :
 	Expression(Type::CONST_EXPR),
 	mConstType(INT),
 	integer(val) {}
 
-ExpressionConst::ExpressionConst(tp::alnf val) :
+ExpressionConst::ExpressionConst(alnf val) :
 	Expression(Type::CONST_EXPR),
 	mConstType(FLT),
 	floating(val) {}

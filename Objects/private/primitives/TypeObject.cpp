@@ -2,8 +2,8 @@
 #include "primitives/TypeObject.hpp"
 #include "primitives/NullObject.hpp"
 
-using namespace obj;
 using namespace tp;
+using namespace obj;
 
 TypeObject* TypeObject::create(const ObjectType* type) {
 	NDO_CASTV(TypeObject, NDO->create("typeobject"), out);

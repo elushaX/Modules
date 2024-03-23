@@ -2,11 +2,11 @@
 
 #include "interpreter/ByteCode.hpp"
 
-namespace obj {
+namespace tp::obj {
 	struct Script {
-		obj::StringObject* mReadable;
+		StringObject* mReadable;
 		ByteCode mBytecode;
 
 		void compile();
 	};
-};
+}

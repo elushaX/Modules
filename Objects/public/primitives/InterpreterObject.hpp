@@ -3,7 +3,7 @@
 #include "interpreter/Interpreter.hpp"
 #include "primitives/ClassObject.hpp"
 
-namespace obj {
+namespace tp::obj {
 	struct InterpreterObject : ClassObject {
 		static ObjectType TypeData;
 		Interpreter mInterpreter;
@@ -12,8 +12,8 @@ namespace obj {
 		static void constructor(InterpreterObject* self);
 		static void load(ArchiverIn& file_self, InterpreterObject* self);
 
-		void exec(obj::ClassObject* self = nullptr, tp::InitialierList<Interpreter::GlobalDef> globals = {});
+		void exec(obj::ClassObject* self = nullptr, InitialierList<Interpreter::GlobalDef> globals = {});
 		void debug();
 		bool running();
 	};
-};
+}

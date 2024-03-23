@@ -3,7 +3,7 @@
 #include "primitives/StringObject.hpp"
 #include "interpreter/Script.hpp"
 
-namespace obj {
+namespace tp::obj {
 
 	struct MethodObject : Object {
 
@@ -14,7 +14,7 @@ namespace obj {
 		static void constructor(MethodObject* self);
 		static void copy(MethodObject* self, MethodObject* in);
 		static void destructor(MethodObject* self);
-		static tp::alni save_size(MethodObject* self);
+		static alni save_size(MethodObject* self);
 		static void save(MethodObject* self, ArchiverOut& file_self);
 		static void load(ArchiverIn& file_self, obj::MethodObject* self);
 
@@ -25,4 +25,4 @@ namespace obj {
 
 		static MethodObject* create(const std::string& script);
 	};
-};
+}

@@ -7,6 +7,7 @@
 
 #include "interpreter/Interpreter.hpp"
 
+using namespace tp;
 using namespace obj;
 
 TypeMethod obj::gDefaultTypeMethods[] = {
@@ -40,17 +41,17 @@ TypeMethod obj::gDefaultTypeMethods[] = {
 	},
 };
 
-tp::int2 TypeMethods::presents(const std::string& id) const {
-	for (tp::int2 idx = 0; idx < mNMethods; idx++) {
+int2 TypeMethods::presents(const std::string& id) const {
+	for (int2 idx = 0; idx < mNMethods; idx++) {
 		if (id == methods[idx]->nameid) {
 			return idx;
 		}
 	}
 
-	tp::int2 idx = 0;
+	int2 idx = 0;
 	for (auto& tm : gDefaultTypeMethods) {
 		if (id == tm.nameid) {
-			return { tp::int2(idx + MAX_TYPE_METHODS) };
+			return { int2(idx + MAX_TYPE_METHODS) };
 		}
 		idx++;
 	}
@@ -60,8 +61,8 @@ tp::int2 TypeMethods::presents(const std::string& id) const {
 
 TypeMethods::LookupKey TypeMethods::presents(const ObjectType* type, const std::string& id) {
 
-	tp::int2 depth = 0;
-	tp::int2 idx = 0;
+	int2 depth = 0;
+	int2 idx = 0;
 
 	for (auto iter_type = type; iter_type; iter_type = iter_type->base) {
 		idx = iter_type->type_methods.presents(id);
@@ -74,7 +75,7 @@ TypeMethods::LookupKey TypeMethods::presents(const ObjectType* type, const std::
 	return { idx, depth };
 }
 
-const TypeMethod* TypeMethods::getMethod(tp::int2 key) const {
+const TypeMethod* TypeMethods::getMethod(int2 key) const {
 	if (key < MAX_TYPE_METHODS) {
 		return methods[key];
 	}
@@ -94,14 +95,14 @@ void TypeMethods::init() {
 		mNMethods++;
 	}
 
-	for (tp::int1 i = 0; i < mNMethods; i++) {
+	for (int1 i = 0; i < mNMethods; i++) {
 		methods[i]->init();
 	}
 
 	// initialize and use finate state automata to lookup methods
 }
 
-tp::halni TypeMethods::nMethods() const { return mNMethods; }
+halni TypeMethods::nMethods() const { return mNMethods; }
 
 void TypeMethod::operator()(Interpreter* interp) const {
 	for (auto i = 1; i <= mNargs; i++) {
