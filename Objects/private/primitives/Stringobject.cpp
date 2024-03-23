@@ -64,7 +64,7 @@ struct ObjectTypeConversions StringObjectTypeConversions = {
 };
 
 struct obj::ObjectType StringObject::TypeData = {
-	.base = NULL,
+	.base = nullptr,
 	.constructor = StringObject::constructor,
 	.destructor = (object_destructor) StringObject::destructor,
 	.copy = StringObject::copy,

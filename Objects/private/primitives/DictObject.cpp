@@ -142,7 +142,7 @@ const tp::Map<std::string, Object*>& DictObject::getItems() const { return items
 
 static auto tm_get = TypeMethod{ .nameid = "get",
 																 .descr = "gets the object",
-																 .args = { { "str key", NULL } },
+																 .args = { { "str key", nullptr } },
 																 .exec =
 																	 [](const TypeMethod* tm) {
 																		 auto const self = (DictObject*) tm->self;
@@ -156,12 +156,12 @@ static auto tm_get = TypeMethod{ .nameid = "get",
 																			 tm->ret.obj = self->getSlotVal(idx);
 																		 }
 																	 },
-																 .ret = { "object", NULL } };
+																 .ret = { "object", nullptr } };
 
 static auto tm_put = TypeMethod{
 	.nameid = "put",
 	.descr = "puts the object into the dictinary",
-	.args = { { "key", NULL }, { "object", NULL } },
+	.args = { { "key", nullptr }, { "object", nullptr } },
 	.exec =
 		[](const TypeMethod* tm) {
 			auto const self = (DictObject*) tm->self;
@@ -180,7 +180,7 @@ static auto tm_remove = TypeMethod{
 	.nameid = "remove",
 	.descr = "remove the object from the dictinary",
 	.args = {
-		{ "key", NULL },
+		{ "key", nullptr },
 	},
 	.exec = [](const TypeMethod* tm) {
 		auto const self = (DictObject*)tm->self;
@@ -194,7 +194,7 @@ static auto tm_remove = TypeMethod{
 	},
 };
 
-struct obj::ObjectType DictObject::TypeData = { .base = NULL,
+struct obj::ObjectType DictObject::TypeData = { .base = nullptr,
 																								.constructor = DictObject::constructor,
 																								.destructor = DictObject::destructor,
 																								.copy = DictObject::copy,

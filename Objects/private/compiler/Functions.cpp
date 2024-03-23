@@ -62,13 +62,13 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 
 				EvalExpr(stm_while->mCondition);
 
-				auto jump_if_inst = inst(Instruction(NULL, Instruction::InstType::JUMP_IF_NOT));
+				auto jump_if_inst = inst(Instruction(nullptr, Instruction::InstType::JUMP_IF_NOT));
 
 				if (stm_while->mScope) {
 					EvalStatement(stm_while->mScope);
 				}
 
-				auto jump_inst = inst(Instruction(NULL, Instruction::InstType::JUMP));
+				auto jump_inst = inst(Instruction(nullptr, Instruction::InstType::JUMP));
 				auto end_mark = inst(Instruction());
 
 				jump_if_inst->data.mInstTarget = &end_mark->data;
@@ -82,13 +82,13 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 
 				EvalExpr(stm_if->mCondition);
 
-				auto jump_if_inst = inst(Instruction(NULL, Instruction::InstType::JUMP_IF_NOT));
+				auto jump_if_inst = inst(Instruction(nullptr, Instruction::InstType::JUMP_IF_NOT));
 
 				if (stm_if->mOnTrue) {
 					EvalStatement(stm_if->mOnTrue);
 				}
 
-				auto jump_inst = inst(Instruction(NULL, Instruction::InstType::JUMP));
+				auto jump_inst = inst(Instruction(nullptr, Instruction::InstType::JUMP));
 				auto else_mark = inst(Instruction());
 
 				if (stm_if->mOnFalse) {

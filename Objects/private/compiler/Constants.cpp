@@ -50,7 +50,7 @@ ConstObject* ConstObjectsPool::registerObject(obj::Object* obj) {
 
 ConstObject* ConstObjectsPool::get(tp::alni val) {
 	auto idx = mIntegers.presents(val);
-	ConstObject* const_obj = NULL;
+	ConstObject* const_obj = nullptr;
 	if (idx) {
 		const_obj = mIntegers.getSlotVal(idx);
 	} else {
@@ -62,7 +62,7 @@ ConstObject* ConstObjectsPool::get(tp::alni val) {
 
 ConstObject* ConstObjectsPool::get(const std::string& val) {
 	auto idx = mStrings.presents(val);
-	ConstObject* const_obj = NULL;
+	ConstObject* const_obj = nullptr;
 	if (idx) {
 		const_obj = mStrings.getSlotVal(idx);
 	} else {
@@ -74,7 +74,7 @@ ConstObject* ConstObjectsPool::get(const std::string& val) {
 
 ConstObject* ConstObjectsPool::get(tp::alnf val) {
 	auto idx = mFloats.presents(val);
-	ConstObject* const_obj = NULL;
+	ConstObject* const_obj = nullptr;
 	if (idx) {
 		const_obj = mFloats.getSlotVal(idx);
 	} else {

@@ -6,13 +6,13 @@
 using namespace obj;
 
 struct ObjectType MethodObject::TypeData = {
-	.base = NULL,
+	.base = nullptr,
 	.constructor = (object_constructor) MethodObject::constructor,
 	.destructor = (object_destructor) MethodObject::destructor,
 	.copy = (object_copy) MethodObject::copy,
 	.size = sizeof(MethodObject),
 	.name = "method",
-	.convesions = NULL,
+	.convesions = nullptr,
 	.save_size = (object_save_size) MethodObject::save_size,
 	.save = (object_save) MethodObject::save,
 	.load = (object_load) MethodObject::load,

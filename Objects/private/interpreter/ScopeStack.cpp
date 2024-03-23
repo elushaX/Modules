@@ -40,7 +40,7 @@ void ScopeStack::enterScope(bool aChildReachable) {
 }
 
 void ScopeStack::leaveScope() {
-	ASSERT(mIdx != NULL && "stack overflow");
+	ASSERT(mIdx != 0 && "stack overflow");
 	mBuff[mIdx - 1].~Scope();
 	mIdx--;
 }

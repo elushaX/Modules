@@ -57,9 +57,9 @@ struct ObjectTypeAriphmetics FloatObject::TypeAriphm = {
 };
 
 struct obj::ObjectType obj::FloatObject::TypeData = {
-	.base = NULL,
+	.base = nullptr,
 	.constructor = (object_constructor) FloatObject::constructor,
-	.destructor = NULL,
+	.destructor = nullptr,
 	.copy = (object_copy) FloatObject::copy,
 	.size = sizeof(FloatObject),
 	.name = "float",

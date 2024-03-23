@@ -31,7 +31,7 @@ Parser::Result Parser::parse(const std::string& stream) {
 	bind(parser);
 
 	std::string streamStd(stream.c_str());
-	streamStd += "\n"; // for windows os to be happy
+	streamStd += "\n"; // for Windows os to be happy
 
 	ASSERT(parser.valid());
 
