@@ -2,8 +2,8 @@
 
 #include "primitives/NullObject.hpp"
 
-using namespace obj;
 using namespace tp;
+using namespace obj;
 
 obj::NullObject* obj::NdoNull_globalInstance = nullptr;
 bool uninit_flag = false;

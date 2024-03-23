@@ -1,6 +1,7 @@
 
 #include "interpreter/ScopeStack.hpp"
 
+using namespace tp;
 using namespace obj;
 
 Scope::~Scope() {
@@ -46,7 +47,7 @@ void ScopeStack::leaveScope() {
 }
 
 void ScopeStack::addTemp(obj::Object* tmp) {
-	obj::NDO->refinc(tmp);
+	obj::NDO->increaseReferenceCount(tmp);
 	mBuff[mIdx - 1].mTemps.pushBack(tmp);
 }
 
@@ -57,7 +58,7 @@ void ScopeStack::popTemp() {
 
 void ScopeStack::addTempReturn(obj::Object* ret) {
 	if (mIdx >= 2) {
-		obj::NDO->refinc(ret);
+		obj::NDO->increaseReferenceCount(ret);
 		mBuff[mIdx - 2].mTemps.pushBack(ret);
 	}
 }
@@ -69,7 +70,7 @@ void ScopeStack::addLocal(obj::Object* local, const std::string& id) {
 	if (idx) {
 		obj::NDO->destroy(locals.getSlotVal(idx));
 	}
-	obj::NDO->refinc(local);
+	obj::NDO->increaseReferenceCount(local);
 	locals.put(id, local);
 }
 

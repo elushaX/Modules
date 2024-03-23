@@ -1,12 +1,10 @@
-
 #pragma once
 
-#include <string>
 #include "Buffer.hpp"
-
 #include "interpreter/OperatoinCodes.hpp"
+#include <string>
 
-namespace obj::BCgen {
+namespace tp::obj {
 
 	struct Expression {
 		enum class Type {
@@ -33,26 +31,26 @@ namespace obj::BCgen {
 	};
 
 	struct ExpressionList : public Expression {
-		tp::Buffer<Expression*> mItems;
+		Buffer<Expression*> mItems;
 		ExpressionList();
 		~ExpressionList() override;
 	};
 
 	struct ExpressionNew : public Expression {
 		std::string mNewType;
-		explicit ExpressionNew(const std::string& type);
+		explicit ExpressionNew(std::string  type);
 		~ExpressionNew() override;
 	};
 
 	struct ExpressionLocal : public Expression {
 		std::string mLocalId;
-		explicit ExpressionLocal(const std::string& id);
+		explicit ExpressionLocal(std::string  id);
 		~ExpressionLocal() override;
 	};
 
 	struct ExpressionFunc : public Expression {
 		std::string mFuncId;
-		explicit ExpressionFunc(const std::string& id);
+		explicit ExpressionFunc(std::string  id);
 		~ExpressionFunc() override;
 	};
 
@@ -60,7 +58,7 @@ namespace obj::BCgen {
 		Expression* mParent = nullptr;
 		std::string mLocalId;
 		bool mMethod = false;
-		ExpressionChild(Expression* mParent, const std::string& id);
+		ExpressionChild(Expression* mParent, std::string  id);
 		~ExpressionChild() override;
 	};
 
@@ -83,7 +81,7 @@ namespace obj::BCgen {
 		Expression* mLeft = nullptr;
 		Expression* mRight = nullptr;
 
-		enum class BoolType : tp::uint1 {
+		enum class BoolType : uint1 {
 			AND = 24U,
 			OR,
 			EQUAL,
@@ -103,16 +101,16 @@ namespace obj::BCgen {
 	struct ExpressionConst : public Expression {
 		enum ConstType { STR, INT, BOOL, FLT } mConstType;
 		std::string str;
-		tp::alni integer = 0;
-		tp::alnf floating = 0;
+		alni integer = 0;
+		alnf floating = 0;
 		bool boolean = false;
 
-		explicit ExpressionConst(const std::string& val);
+		explicit ExpressionConst(std::string  val);
 		explicit ExpressionConst(const char* val);
-		explicit ExpressionConst(tp::alni val);
-		explicit ExpressionConst(tp::int4 val);
-		explicit ExpressionConst(tp::flt4 val);
-		explicit ExpressionConst(tp::alnf val);
+		explicit ExpressionConst(alni val);
+		explicit ExpressionConst(int4 val);
+		explicit ExpressionConst(flt4 val);
+		explicit ExpressionConst(alnf val);
 		explicit ExpressionConst(bool val);
 
 		~ExpressionConst() override;

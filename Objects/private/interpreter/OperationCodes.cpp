@@ -3,18 +3,17 @@
 
 #include "interpreter/OperatoinCodes.hpp"
 
-namespace obj {
-	OpcodeInfos gOpcodeInfos;
-};
-
+using namespace tp;
 using namespace obj;
+
+OpcodeInfos tp::obj::gOpcodeInfos;
 
 #define CONST_IDX_BYTES 2
 
 #define OP(opcode, name, desc, ops, params) add(opcode, { #name, #desc, ops, params });
 
 OpcodeInfos::OperandsInfo::OperandsInfo() {}
-OpcodeInfos::OperandsInfo::OperandsInfo(tp::InitialierList<Operand> list) {
+OpcodeInfos::OperandsInfo::OperandsInfo(InitialierList<Operand> list) {
 	DEBUG_ASSERT(MAX_OPERANDS >= list.size());
 	for (auto item : list) {
 		buff[len] = item;
@@ -23,7 +22,7 @@ OpcodeInfos::OperandsInfo::OperandsInfo(tp::InitialierList<Operand> list) {
 }
 
 OpcodeInfos::ParamsInfo::ParamsInfo() {}
-OpcodeInfos::ParamsInfo::ParamsInfo(tp::InitialierList<Param> list) {
+OpcodeInfos::ParamsInfo::ParamsInfo(InitialierList<Param> list) {
 	DEBUG_ASSERT(MAX_PARAMS >= list.size());
 	for (auto item : list) {
 		buff[len] = item;
@@ -31,8 +30,8 @@ OpcodeInfos::ParamsInfo::ParamsInfo(tp::InitialierList<Param> list) {
 	}
 }
 
-tp::uint1 OpcodeInfos::OpInfo::opsize() {
-	tp::uint1 out = 1;
+uint1 OpcodeInfos::OpInfo::opsize() {
+	uint1 out = 1;
 	for (auto i = 0; i < params.len; i++) {
 		out += params.buff[i].bytes;
 	}
@@ -364,8 +363,8 @@ OpcodeInfos::OpcodeInfos() {
 }
 
 OpcodeInfos::OpInfo OpcodeInfos::fetch(OpCode code) {
-	DEBUG_ASSERT((tp::alni) code >= 0 && (tp::alni) code < (tp::alni) OpCode::END_OPCODES);
-	return buff[(tp::alni) code];
+	DEBUG_ASSERT((alni) code >= 0 && (alni) code < (alni) OpCode::END_OPCODES);
+	return buff[(alni) code];
 }
 
-void OpcodeInfos::add(OpCode code, const OpInfo& info) { buff[(tp::alni) code] = info; }
+void OpcodeInfos::add(OpCode code, const OpInfo& info) { buff[(alni) code] = info; }

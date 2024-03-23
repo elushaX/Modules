@@ -5,20 +5,21 @@
 
 #include "Timing.hpp"
 
+using namespace tp;
 using namespace obj;
 
-inline tp::uint1 read_byte(ByteCode* bytecode) {
-	auto out = (tp::uint1) bytecode->mInstructions[bytecode->mInstructionIdx];
+inline uint1 read_byte(ByteCode* bytecode) {
+	auto out = (uint1) bytecode->mInstructions[bytecode->mInstructionIdx];
 	bytecode->mInstructionIdx++;
 	return out;
 }
 
 // exeption for opcodes
 // reads 2 bytes from instructions in order to load constant onto operands stack
-tp::uint2 loadConstDataIdx(ByteCode* bytecode) {
-	tp::uint2 out = 0;
-	out |= ((tp::uint2) read_byte(bytecode));
-	out |= ((tp::uint2) read_byte(bytecode) << 8);
+uint2 loadConstDataIdx(ByteCode* bytecode) {
+	uint2 out = 0;
+	out |= ((uint2) read_byte(bytecode));
+	out |= ((uint2) read_byte(bytecode) << 8);
 	return out;
 }
 
@@ -26,9 +27,9 @@ tp::uint2 loadConstDataIdx(ByteCode* bytecode) {
 // reads 2 bytes from instructions in order to load constant onto operands stack
 void skip_param(ByteCode* bytecode) { bytecode->mInstructionIdx += 2; }
 
-tp::uint2 param(ByteCode* bytecode) { return loadConstDataIdx(bytecode); }
+uint2 param(ByteCode* bytecode) { return loadConstDataIdx(bytecode); }
 
-void Interpreter::exec(obj::MethodObject* method, obj::ClassObject* self, obj::DictObject* globals, tp::InitialierList<GlobalDef> globals2) {
+void Interpreter::exec(obj::MethodObject* method, obj::ClassObject* self, obj::DictObject* globals, InitialierList<GlobalDef> globals2) {
 	if (!method->mScript->mBytecode.mInstructions.size()) {
 		return;
 	}
@@ -52,7 +53,7 @@ void Interpreter::exec(obj::MethodObject* method, obj::ClassObject* self, obj::D
 bool Interpreter::finished() { return !mCallStack.len(); }
 
 void Interpreter::stepBytecode() {
-	tp::halni call_depth = mCallStack.len();
+	halni call_depth = mCallStack.len();
 	do {
 		stepBytecodeIn();
 		if (finished()) {
@@ -66,7 +67,7 @@ void Interpreter::stepBytecodeOut() {
 		return;
 	}
 
-	tp::halni call_depth = mCallStack.len();
+	halni call_depth = mCallStack.len();
 	if (!call_depth) {
 		return;
 	}
@@ -87,7 +88,7 @@ void Interpreter::stepBytecodeIn() {
 
 	auto bytecode = mCallStack.getBytecode();
 
-	if (bytecode->mInstructionIdx >= (tp::ualni) bytecode->mInstructions.size()) {
+	if (bytecode->mInstructionIdx >= (ualni) bytecode->mInstructions.size()) {
 		// just return
 		if (mScopeStack.mIdx) {
 			mScopeStack.leaveScope();
@@ -114,14 +115,14 @@ void Interpreter::stepBytecodeIn() {
 		case OpCode::HALT:
 			{
 				while (true) {
-					tp::sleep(3);
+					sleep(3);
 				}
 				break;
 			}
 
 		case OpCode::TERMINATE:
 			{
-				// tp::terminate(0);
+				// terminate(0);
 			}
 
 		case OpCode::IGNORE:
@@ -242,7 +243,7 @@ void Interpreter::stepBytecodeIn() {
 				auto id = mOperandsStack.getOperand<StringObject>();
 				auto obj = mOperandsStack.getOperand();
 				mScopeStack.addLocal(obj, id->val);
-				NDO->refinc(obj);
+				NDO->increaseReferenceCount(obj);
 				// mScopeStack.popTemp();
 				break;
 			}
@@ -270,7 +271,7 @@ void Interpreter::stepBytecodeIn() {
 				// class is a function - execute it as a constructor
 
 				// PUSH_ARGS protocol
-				tp::uint2 len = 0;
+				uint2 len = 0;
 				mOperandsStack.push((Object*) len);
 				mOperandsStack.push(nullptr);
 
@@ -318,7 +319,7 @@ void Interpreter::stepBytecodeIn() {
 				// +4) object2
 				// ...
 
-				tp::uint2 len = read_byte(bytecode);
+				uint2 len = read_byte(bytecode);
 				mOperandsStack.push((Object*) len);
 				mOperandsStack.push(nullptr);
 				break;
@@ -326,11 +327,11 @@ void Interpreter::stepBytecodeIn() {
 
 		case OpCode::SAVE_ARGS:
 			{
-				tp::uint2 args_len = read_byte(bytecode);
+				uint2 args_len = read_byte(bytecode);
 				auto argument = mOperandsStack.getOperand();
 
 				while (argument) {
-					NDO->refinc(argument);
+					NDO->increaseReferenceCount(argument);
 
 					auto argument_id = bytecode->mConstants[loadConstDataIdx(bytecode)];
 					NDO_CASTV(StringObject, argument_id, id);
@@ -340,7 +341,7 @@ void Interpreter::stepBytecodeIn() {
 					argument = mOperandsStack.getOperand();
 				}
 
-				tp::uint2 saved_len = tp::uint2(tp::ualni(mOperandsStack.getOperand()));
+				uint2 saved_len = uint2(ualni(mOperandsStack.getOperand()));
 				ASSERT(args_len == saved_len && "invalid number of arguments passefd");
 
 				break;
@@ -388,7 +389,7 @@ void Interpreter::stepBytecodeIn() {
 				ASSERT(left->type == right->type && "addition of different types is not implemented");
 				ASSERT(left->type->ariphmetics && left->type->ariphmetics->add && "cannot add object of this type");
 
-				auto res = NDO->instatiate(left);
+				auto res = NDO->instantiate(left);
 				res->type->ariphmetics->add(res, right);
 
 				mScopeStack.addTemp(res);
@@ -403,7 +404,7 @@ void Interpreter::stepBytecodeIn() {
 				ASSERT(left->type == right->type && "addition of different types is not implemented");
 				ASSERT(left->type->ariphmetics && left->type->ariphmetics->add && "cannot add object of this type");
 
-				auto res = NDO->instatiate(left);
+				auto res = NDO->instantiate(left);
 				res->type->ariphmetics->sub(res, right);
 
 				mScopeStack.addTemp(res);
@@ -418,7 +419,7 @@ void Interpreter::stepBytecodeIn() {
 				ASSERT(left->type == right->type && "addition of different types is not implemented");
 				ASSERT(left->type->ariphmetics && left->type->ariphmetics->add && "cannot add object of this type");
 
-				auto res = NDO->instatiate(left);
+				auto res = NDO->instantiate(left);
 				res->type->ariphmetics->mul(res, right);
 
 				mScopeStack.addTemp(res);
@@ -433,7 +434,7 @@ void Interpreter::stepBytecodeIn() {
 				ASSERT(left->type == right->type && "addition of different types is not implemented");
 				ASSERT(left->type->ariphmetics && left->type->ariphmetics->add && "cannot add object of this type");
 
-				auto res = NDO->instatiate(left);
+				auto res = NDO->instantiate(left);
 				res->type->ariphmetics->div(res, right);
 
 				mScopeStack.addTemp(res);
@@ -593,7 +594,7 @@ void Interpreter::stepBytecodeIn() {
 	}
 }
 
-void Interpreter::execAll(obj::MethodObject* method, obj::ClassObject* self, obj::DictObject* globals, tp::InitialierList<GlobalDef> globals2) {
+void Interpreter::execAll(obj::MethodObject* method, obj::ClassObject* self, obj::DictObject* globals, InitialierList<GlobalDef> globals2) {
 	if (!method->mScript->mBytecode.mInstructions.size()) {
 		return;
 	}

@@ -2,7 +2,7 @@
 
 #include "primitives/DictObject.hpp"
 
-namespace obj {
+namespace tp::obj {
 
 	struct ClassObject : Object {
 
@@ -10,7 +10,7 @@ namespace obj {
 		static void copy(ClassObject* self, const ClassObject* in);
 		static void destructor(ClassObject* self);
 		static void constructor(ClassObject* self);
-		static tp::alni save_size(ClassObject* self);
+		static alni save_size(ClassObject* self);
 		static void save(ClassObject* self, ArchiverOut& file_self);
 		static void load(ArchiverIn& file_self, ClassObject* self);
 
@@ -31,7 +31,7 @@ namespace obj {
 		Type* getMember(const std::string& id) {
 			auto idx = members->presents(id);
 			if (bool(idx)) {
-				return ((Type*)obj::ndo_cast(members->getSlotVal(idx), &Type::TypeData));
+				return ((Type*)ndo_cast(members->getSlotVal(idx), &Type::TypeData));
 			}
 			return NULL;
 		}
@@ -43,4 +43,4 @@ namespace obj {
 			return out;
 		}
 	};
-};
+}

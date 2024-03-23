@@ -1,8 +1,8 @@
 
 #include "primitives/IntObject.hpp"
 
-using namespace obj;
 using namespace tp;
+using namespace obj;
 
 void IntObject::constructor(Object* self) { NDO_CAST(IntObject, self)->val = 0; }
 

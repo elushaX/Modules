@@ -3,7 +3,7 @@
 
 #include "core/Object.hpp"
 
-namespace obj {
+namespace tp::obj {
 
 	enum ListMethods {
 		LISTOBJECT_PUSH_BACK,
@@ -16,21 +16,21 @@ namespace obj {
 		static void copy(Object* self, const Object* in);
 		static void destructor(Object* self);
 
-		static tp::alni allocated_size_recursive(ListObject* self);
-		static tp::alni allocated_size(ListObject* self);
-		static tp::Buffer<Object*> childs_retrival(ListObject* self);
+		static alni allocated_size_recursive(ListObject* self);
+		static alni allocated_size(ListObject* self);
+		static Buffer<Object*> childs_retrival(ListObject* self);
 		static void load(ArchiverIn& file_self, ListObject* self);
 		static void save(ListObject* self, ArchiverOut& file_self);
-		static tp::alni save_size(ListObject* self);
+		static alni save_size(ListObject* self);
 
-		[[nodiscard]] const tp::List<Object*>& getItems() const;
+		[[nodiscard]] const List<Object*>& getItems() const;
 
 		void pushBack(Object* obj);
 		void pushFront(Object* obj);
 		void popBack();
-		void delNode(tp::List<Object*>::Node*);
+		void delNode(List<Object*>::Node*);
 
 	private:
-		tp::List<Object*> items;
+		List<Object*> items;
 	};
-};
+}

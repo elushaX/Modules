@@ -1,7 +1,8 @@
 #include "compiler/Statements.hpp"
+#include <utility>
 
+using namespace tp;
 using namespace obj;
-using namespace BCgen;
 
 StatementFuncDef::StatementFuncDef(const std::string& function_id) :
 	Statement(Type::DEF_FUNC) {
@@ -10,8 +11,8 @@ StatementFuncDef::StatementFuncDef(const std::string& function_id) :
 
 StatementFuncDef::~StatementFuncDef() { delete mStatements; }
 
-StatementLocalDef::StatementLocalDef(const std::string& id, Expression* value) :
-	mLocalId(id),
+StatementLocalDef::StatementLocalDef(std::string  id, Expression* value) :
+	mLocalId(std::move(id)),
 	Statement(Type::DEF_LOCAL) {
 
 	if (value->mType == Expression::Type::CONST_EXPR) {
@@ -53,7 +54,7 @@ StatementPrint::StatementPrint(Expression* target) :
 
 StatementPrint::~StatementPrint() { delete mTarget; }
 
-StatementScope::StatementScope(tp::InitialierList<Statement*> statements, bool aPushToScopeStack) :
+StatementScope::StatementScope(InitialierList<Statement*> statements, bool aPushToScopeStack) :
 	Statement(Type::SCOPE) {
 	mStatements = statements;
 	mPushToScopeStack = aPushToScopeStack;

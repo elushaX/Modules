@@ -2,8 +2,8 @@
 
 #include "primitives/StringObject.hpp"
 
-using namespace obj;
 using namespace tp;
+using namespace obj;
 
 void StringObject::constructor(Object* self) { new (&NDO_CAST(StringObject, self)->val) std::string(); }
 

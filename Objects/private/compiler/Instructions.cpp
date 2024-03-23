@@ -1,9 +1,8 @@
 
 #include "compiler/Instructions.hpp"
 
-using namespace obj;
 using namespace tp;
-using namespace BCgen;
+using namespace obj;
 
 Instruction::Instruction(OpCode op) :
 	mOp(op),

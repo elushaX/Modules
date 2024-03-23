@@ -4,8 +4,8 @@
 #include <malloc.h>
 #include <cstring>
 
-using namespace obj;
 using namespace tp;
+using namespace obj;
 
 void EnumObject::constructor(EnumObject* self) {
 	self->active = 0;

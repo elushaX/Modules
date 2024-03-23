@@ -4,6 +4,7 @@
 #include "interpreter/ByteCode.hpp"
 #include "primitives/MethodObject.hpp"
 
+using namespace tp;
 using namespace obj;
 
 void CallStack::enter(const CallStack::CallFrame& frame) {
@@ -14,7 +15,7 @@ void CallStack::enter(const CallStack::CallFrame& frame) {
 
 	frame.mMethod->mScript->mBytecode.mArgumentsLoaded = 0;
 	frame.mMethod->mScript->mBytecode.mInstructionIdx = 0;
-	obj::NDO->refinc(frame.mMethod);
+	obj::NDO->increaseReferenceCount(frame.mMethod);
 	mStack.append(frame);
 }
 
@@ -31,4 +32,4 @@ void CallStack::leave() {
 
 ByteCode* CallStack::getBytecode() { return &mStack.last().mMethod->mScript->mBytecode; }
 
-tp::halni CallStack::len() const { return mStack.size(); }
+halni CallStack::len() const { return mStack.size(); }

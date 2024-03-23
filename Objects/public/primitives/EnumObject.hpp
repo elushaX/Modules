@@ -3,32 +3,32 @@
 
 #include "core/Object.hpp"
 
-namespace obj {
+namespace tp::obj {
 
 	struct EnumObject : Object {
 
 		// one entry is 2 * sizeof(alni) in size
-		tp::uhalni active;
-		tp::uhalni nentries;
-		tp::alni* entries;
+		uhalni active;
+		uhalni nentries;
+		alni* entries;
 
 		static ObjectType TypeData;
 		static void constructor(EnumObject* self);
 		static void destructor(EnumObject* self);
 		static void copy(EnumObject* self, const EnumObject* in);
 
-		void init(tp::InitialierList<const char*> list);
+		void init(InitialierList<const char*> list);
 		const char* getActiveName();
-		const char* getItemName(tp::uhalni idx);
+		const char* getItemName(uhalni idx);
 
-		static void from_int(EnumObject* self, tp::alni in);
-		static void from_float(EnumObject* self, tp::alnf in);
+		static void from_int(EnumObject* self, alni in);
+		static void from_float(EnumObject* self, alnf in);
 		static void from_string(EnumObject* self, const std::string& in);
 		static std::string to_string(EnumObject* self);
-		static tp::alni to_int(EnumObject* self);
-		static tp::alnf to_float(EnumObject* self);
+		static alni to_int(EnumObject* self);
+		static alnf to_float(EnumObject* self);
 
 		static bool compare(EnumObject* first, EnumObject* second);
-		static EnumObject* create(tp::InitialierList<const char*> list);
+		static EnumObject* create(InitialierList<const char*> list);
 	};
-};
+}

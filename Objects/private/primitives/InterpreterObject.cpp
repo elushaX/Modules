@@ -3,8 +3,8 @@
 #include "primitives/LinkObject.hpp"
 #include "primitives/MethodObject.hpp"
 
-using namespace obj;
 using namespace tp;
+using namespace obj;
 
 void InterpreterObject::constructor(InterpreterObject* self) {
 	new (&self->mInterpreter) Interpreter();

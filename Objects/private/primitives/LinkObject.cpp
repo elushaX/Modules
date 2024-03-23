@@ -1,8 +1,8 @@
 
 #include "primitives/LinkObject.hpp"
 
-using namespace obj;
 using namespace tp;
+using namespace obj;
 
 void LinkObject::constructor(Object* self) { NDO_CAST(LinkObject, self)->link = 0; }
 
@@ -38,7 +38,7 @@ void LinkObject::load(ArchiverIn& file_self, LinkObject* self) {
 		self->link = nullptr;
 	} else {
 		self->link = NDO->load(file_self, saved_object_adress);
-		NDO->refinc(self->link);
+		NDO->increaseReferenceCount(self->link);
 	}
 }
 
@@ -62,7 +62,7 @@ Object* LinkObject::getLink() { return link; }
 
 void LinkObject::setLink(Object* obj) {
 	if (link) NDO->destroy(link);
-	if (obj) NDO->refinc(obj);
+	if (obj) NDO->increaseReferenceCount(obj);
 	link = obj;
 }
 

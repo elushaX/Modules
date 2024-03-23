@@ -3,21 +3,21 @@
 #include "ByteCode.hpp"
 #include "core/Object.hpp"
 
-namespace obj {
+namespace tp::obj {
 
 	// can be other aligned value as well
-	typedef obj::Object* Operand;
+	typedef Object* Operand;
 
 	class OperandStack {
 
-		enum : tp::alni {
+		enum : alni {
 			MAX_STACK_SIZE = 512
 		};
 
 	public:
 
 		Operand* mBuff;
-		tp::ualni mIdx;
+		ualni mIdx;
 
 		OperandStack();
 		void push(Operand operand);
@@ -35,5 +35,4 @@ namespace obj {
 
 		~OperandStack();
 	};
-
-};
+}

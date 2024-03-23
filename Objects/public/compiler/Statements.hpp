@@ -3,7 +3,7 @@
 
 #include "Expressions.hpp"
 
-namespace obj::BCgen {
+namespace tp::obj {
 	struct Statement {
 
 		enum class Type {
@@ -28,15 +28,15 @@ namespace obj::BCgen {
 	};
 
 	struct StatementScope : public Statement {
-		tp::Buffer<Statement*> mStatements;
+		Buffer<Statement*> mStatements;
 		bool mPushToScopeStack = false;
 
-		StatementScope(tp::InitialierList<Statement*> statements, bool aPushToScopeStack);
+		StatementScope(InitialierList<Statement*> statements, bool aPushToScopeStack);
 		~StatementScope() override;
 	};
 
 	struct StatementFuncDef : public Statement {
-		tp::Buffer<std::string> mArgs;
+		Buffer<std::string> mArgs;
 		std::string mFunctionId;
 		StatementScope* mStatements = nullptr;
 
@@ -50,7 +50,7 @@ namespace obj::BCgen {
 		ExpressionConst* mConstExpr = nullptr;
 		bool mIsConstExpr = false;
 
-		StatementLocalDef(const std::string& id, Expression* value);
+		StatementLocalDef(std::string  id, Expression* value);
 		~StatementLocalDef() override;
 	};
 

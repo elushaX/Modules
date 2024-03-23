@@ -12,11 +12,11 @@
 // 2) Index of bytecode->ConstData from bytecode->Instruction (ConstData)
 // 3) Raw Bytes from bytecode->Instruction (Param)
 
-namespace obj {
+namespace tp::obj {
 
 	extern struct OpcodeInfos gOpcodeInfos;
 
-	enum class OpCode : tp::uint1 {
+	enum class OpCode : uint1 {
 
 		NONE = 0x00,
 		HALT,
@@ -118,24 +118,24 @@ namespace obj {
 
 			enum { MAX_OPERANDS = 5 };
 			Operand buff[MAX_OPERANDS];
-			tp::halni len = 0;
+			halni len = 0;
 
 			OperandsInfo();
-			OperandsInfo(tp::InitialierList<Operand> list);
+			OperandsInfo(InitialierList<Operand> list);
 		};
 
 		struct ParamsInfo {
 			struct Param {
 				const char* desc = nullptr;
-				tp::halni bytes = 1;
+				halni bytes = 1;
 			};
 
 			enum { MAX_PARAMS = 5 };
 			Param buff[MAX_PARAMS];
-			tp::halni len = 0;
+			halni len = 0;
 
 			ParamsInfo();
-			ParamsInfo(tp::InitialierList<Param> list);
+			ParamsInfo(InitialierList<Param> list);
 		};
 
 		struct OpInfo {
@@ -144,14 +144,14 @@ namespace obj {
 			OperandsInfo operands;
 			ParamsInfo params;
 
-			tp::uint1 opsize();
+			uint1 opsize();
 		};
 
 		OpcodeInfos();
 		OpInfo fetch(OpCode code);
 
 	private:
-		OpInfo buff[(tp::alni)OpCode::END_OPCODES];
+		OpInfo buff[(alni)OpCode::END_OPCODES];
 
 		void add(OpCode code, const OpInfo& info);
 	};

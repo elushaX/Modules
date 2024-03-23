@@ -1,6 +1,7 @@
 
 #include "interpreter/OperandsStack.hpp"
 
+using namespace tp;
 using namespace obj;
 
 OperandStack::OperandStack() {

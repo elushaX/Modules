@@ -9,15 +9,15 @@
 #include "Buffer.hpp"
 #include <string>
 
-namespace obj {
+namespace tp::obj {
 
 	typedef Object* ConstData;
 
 	struct ByteCode {
-		tp::Buffer<ConstData> mConstants;
-		tp::Buffer<OpCode> mInstructions;
-		tp::ualni mInstructionIdx = 0;
-		tp::ualni mArgumentsLoaded = 0;
+		Buffer<ConstData> mConstants;
+		Buffer<OpCode> mInstructions;
+		ualni mInstructionIdx = 0;
+		ualni mArgumentsLoaded = 0;
 
 		~ByteCode() {
 			for (auto const_obj : mConstants) {
@@ -25,4 +25,4 @@ namespace obj {
 			}
 		}
 	};
-};
+}

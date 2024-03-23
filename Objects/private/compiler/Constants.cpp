@@ -2,12 +2,11 @@
 #include "primitives/MethodObject.hpp"
 #include "primitives/PrimitiveObjects.hpp"
 
-using namespace obj;
 using namespace tp;
-using namespace BCgen;
+using namespace obj;
 
-ConstObject::ConstObject() {}
-ConstObject::ConstObject(obj::Object* mObj) :
+ConstObject::ConstObject() = default;
+ConstObject::ConstObject(Object* mObj) :
 	mObj(mObj) {}
 
 ConstObjectsPool::~ConstObjectsPool() {
@@ -42,15 +41,15 @@ ConstObjectsPool::~ConstObjectsPool() {
 	}
 }
 
-ConstObject* ConstObjectsPool::registerObject(obj::Object* obj) {
-	ConstObject* out = new ConstObject(obj);
+ConstObject* ConstObjectsPool::registerObject(Object* obj) {
+	auto out = new ConstObject(obj);
 	mTotalObjects++;
 	return out;
 }
 
-ConstObject* ConstObjectsPool::get(tp::alni val) {
+ConstObject* ConstObjectsPool::get(alni val) {
 	auto idx = mIntegers.presents(val);
-	ConstObject* const_obj = nullptr;
+	ConstObject* const_obj;
 	if (idx) {
 		const_obj = mIntegers.getSlotVal(idx);
 	} else {
@@ -62,7 +61,7 @@ ConstObject* ConstObjectsPool::get(tp::alni val) {
 
 ConstObject* ConstObjectsPool::get(const std::string& val) {
 	auto idx = mStrings.presents(val);
-	ConstObject* const_obj = nullptr;
+	ConstObject* const_obj;
 	if (idx) {
 		const_obj = mStrings.getSlotVal(idx);
 	} else {
@@ -72,9 +71,9 @@ ConstObject* ConstObjectsPool::get(const std::string& val) {
 	return const_obj;
 }
 
-ConstObject* ConstObjectsPool::get(tp::alnf val) {
+ConstObject* ConstObjectsPool::get(alnf val) {
 	auto idx = mFloats.presents(val);
-	ConstObject* const_obj = nullptr;
+	ConstObject* const_obj;
 	if (idx) {
 		const_obj = mFloats.getSlotVal(idx);
 	} else {
@@ -100,17 +99,17 @@ ConstObject* ConstObjectsPool::get(bool val) {
 	}
 }
 
-ConstObject* ConstObjectsPool::addMethod(const std::string& method_id, obj::Object* method) {
-	ASSERT(NDO_CAST(MethodObject, method) && "Object is not a method object");
-	ASSERT(!mMethods.presents(method_id) && "Method Redefinition");
+ConstObject* ConstObjectsPool::addMethod(const std::string& method_id, Object* method) {
+	ASSERT(NDO_CAST(MethodObject, method) && "Object is not a method object")
+	ASSERT(!mMethods.presents(method_id) && "Method Redefinition")
 	auto out = registerObject(method);
 	mMethods.put(method_id, out);
 	return out;
 }
 
-void ConstObjectsPool::save(tp::Buffer<ConstData>& out) {
+void ConstObjectsPool::save(Buffer<ConstData>& out) {
 	out.reserve(mTotalObjects);
-	tp::alni data_idx = 0;
+	alni data_idx = 0;
 	for (auto obj : mMethods) {
 		out[data_idx] = obj->val->mObj;
 		obj->val->mConstIdx = data_idx;

@@ -3,11 +3,11 @@
 #include "core/Object.hpp"
 #include "Map.hpp"
 
-namespace obj {
+namespace tp::obj {
 
 	struct Scope {
-		typedef tp::Map<std::string, obj::Object*> ObjDict;
-		typedef tp::List<obj::Object*> ObjList;
+		typedef Map<std::string, Object*> ObjDict;
+		typedef List<Object*> ObjList;
 
 		ObjDict mLocals;
 		ObjList mTemps;
@@ -18,29 +18,28 @@ namespace obj {
 
 	class ScopeStack {
 
-		enum : tp::alni {
+		enum : alni {
 			MAX_STACK_SIZE = 1024 * 4
 		};
 
 	public:
 
 		Scope* mBuff;
-		tp::ualni mIdx;
-		tp::ualni mIterIdx;
+		ualni mIdx;
+		ualni mIterIdx;
 
 		ScopeStack();
 		void enterScope(bool aChildReachable);
 		void leaveScope();
-		void addLocal(obj::Object* local, const std::string& id);
-		void addTemp(obj::Object* tmp);
+		void addLocal(Object* local, const std::string& id);
+		void addTemp(Object* tmp);
 		void popTemp();
-		void addTempReturn(obj::Object* ret);
-		obj::Object* getLocal(const std::string& str);
+		void addTempReturn(Object* ret);
+		Object* getLocal(const std::string& str);
 		Scope* getCurrentScope();
 		~ScopeStack();
 
 	private:
-		obj::Object* getLocalUtil(Scope& scope, const std::string& id);
+		Object* getLocalUtil(Scope& scope, const std::string& id);
 	};
-
-};
+}

@@ -3,8 +3,8 @@
 #include "primitives/DictObject.hpp"
 #include "primitives/NullObject.hpp"
 
-using namespace obj;
 using namespace tp;
+using namespace obj;
 
 void ClassObject::constructor(ClassObject* self) {
 	self->members = NDO_CAST(DictObject, NDO->create("dict"));
@@ -38,7 +38,7 @@ void ClassObject::load(ArchiverIn& file_self, ClassObject* self) {
 	alni ndo_object_adress;
 	file_self >> ndo_object_adress;
 	self->members = NDO_CAST(DictObject, NDO->load(file_self, ndo_object_adress));
-	NDO->refinc(self->members);
+	NDO->increaseReferenceCount(self->members);
 }
 
 tp::Buffer<Object*> childs_retrival(ClassObject* self) {

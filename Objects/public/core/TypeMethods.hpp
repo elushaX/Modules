@@ -4,7 +4,7 @@
 #include "Buffer.hpp"
 #include <string>
 
-namespace obj {
+namespace tp::obj {
 
 	struct Interpreter;
 	struct Object;
@@ -23,7 +23,7 @@ namespace obj {
 		mutable Object* self = nullptr;
 		Arg args[MAX_ARGS];
 		
-		tp::int1 mNargs = 0;
+		int1 mNargs = 0;
 
 		void (*exec)(const TypeMethod* tm) = nullptr;
 
@@ -37,14 +37,14 @@ namespace obj {
 	extern TypeMethod gDefaultTypeMethods[3];
 
 	struct TypeMethods {
-		enum : tp::int2 { MAX_TYPE_METHODS = 128 };
+		enum : int2 { MAX_TYPE_METHODS = 128 };
 
 		TypeMethod* methods[MAX_TYPE_METHODS];
-		tp::halni mNMethods = 0;
+		halni mNMethods = 0;
 
 		struct LookupKey {
-			tp::int2 key = -1;
-			tp::int2 type_depth = -1;
+			int2 key = -1;
+			int2 type_depth = -1;
 			operator bool() { return key != -1; }
 		};
 
@@ -53,11 +53,10 @@ namespace obj {
 
 		void init();
 
-		tp::halni nMethods() const;
+		halni nMethods() const;
 
 	private:
-		tp::int2 presents(const std::string&) const;
-		const TypeMethod* getMethod(tp::int2) const;
+		int2 presents(const std::string&) const;
+		const TypeMethod* getMethod(int2) const;
 	};
-	
-};
+}

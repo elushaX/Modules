@@ -1,7 +1,7 @@
 #include "primitives/FloatObject.hpp"
 
-using namespace obj;
 using namespace tp;
+using namespace obj;
 
 void FloatObject::constructor(FloatObject* self) { self->val = 0; }
 

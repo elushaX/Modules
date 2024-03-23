@@ -4,19 +4,19 @@
 #include "ScopeStack.hpp"
 #include "CallStack.hpp"
 
-namespace obj {
+namespace tp::obj {
 	struct Interpreter {
 		OperandStack mOperandsStack;
 		ScopeStack mScopeStack;
 		CallStack mCallStack;
 
-		obj::Object* mLastParent = nullptr;
+		Object* mLastParent = nullptr;
 		bool mIsTypeMethod = false;
 		const TypeMethod* mTypeMethod = nullptr;
 
-		typedef struct { obj::Object* obj; std::string id; } GlobalDef;
+		typedef struct { Object* obj; std::string id; } GlobalDef;
 
-		void exec(obj::MethodObject* method, obj::ClassObject* self = nullptr, obj::DictObject* globals = nullptr, tp::InitialierList<GlobalDef> globals2 = {});
+		void exec(MethodObject* method, ClassObject* self = nullptr, DictObject* globals = nullptr, InitialierList<GlobalDef> globals2 = {});
 
 		void stepBytecode();
 		void stepBytecodeIn();
@@ -24,6 +24,6 @@ namespace obj {
 
 		bool finished();
 
-		void execAll(obj::MethodObject* method, obj::ClassObject* self = nullptr, obj::DictObject* globals = nullptr, tp::InitialierList<GlobalDef> globals2 = {});
+		void execAll(MethodObject* method, ClassObject* self = nullptr, DictObject* globals = nullptr, InitialierList<GlobalDef> globals2 = {});
 	};
-};
+}
