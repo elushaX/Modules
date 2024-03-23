@@ -7,17 +7,17 @@
 using namespace tp;
 using namespace obj;
 
-void EnumObject::constructor(EnumObject* self) {
+void EnumObject::constructor(ObjectsContext* context, EnumObject* self) {
 	self->active = 0;
 	self->nentries = 0;
 	self->entries = nullptr;
 }
 
-void obj::EnumObject::destructor(EnumObject* self) {
+void obj::EnumObject::destructor(ObjectsContext* context, EnumObject* self) {
 	if (self->entries) free(self->entries);
 }
 
-void EnumObject::copy(EnumObject* self, const EnumObject* in) {
+void EnumObject::copy(ObjectsContext* context, EnumObject* self, const EnumObject* in) {
 	if (self->entries) free(self->entries);
 	self->active = in->active;
 	self->nentries = in->nentries;
@@ -111,7 +111,7 @@ static alni save_size(EnumObject* self) {
 	return sizeof(uhalni) + sizeof(uhalni) + sizeof(alni) * self->nentries;
 }
 
-static void save(EnumObject* self, ArchiverOut& file_self) {
+static void save(ObjectsContext* context, EnumObject* self, ArchiverOut& file_self) {
 	if (!self->entries) {
 		uhalni empty_code = -1;
 		file_self << empty_code;
@@ -122,7 +122,7 @@ static void save(EnumObject* self, ArchiverOut& file_self) {
 	file_self.writeBytes((tp::int1*) self->entries, self->nentries * ENV_ALNI_SIZE_B);
 }
 
-static void load(ArchiverIn& file_self, EnumObject* self) {
+static void load(ObjectsContext* context, ArchiverIn& file_self, EnumObject* self) {
 	file_self >> self->active;
 	if (self->active == -1) {
 		self->nentries = 0;
@@ -136,8 +136,8 @@ static void load(ArchiverIn& file_self, EnumObject* self) {
 
 bool obj::EnumObject::compare(EnumObject* first, EnumObject* second) { return first->entries != nullptr && second->entries != nullptr && first->active == second->active; }
 
-EnumObject* obj::EnumObject::create(tp::InitialierList<const char*> list) {
-	auto enum_object = (EnumObject*) obj::NDO->create("enum");
+EnumObject* obj::EnumObject::create(ObjectsContext* context, tp::InitialierList<const char*> list) {
+	auto enum_object = (EnumObject*) context->create("enum");
 	enum_object->init(list);
 	return enum_object;
 }

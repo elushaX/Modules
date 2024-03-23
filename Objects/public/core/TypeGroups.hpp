@@ -7,7 +7,7 @@
 namespace tp::obj {
 
 	struct ObjectType;
-	struct objects_api;
+	struct ObjectsContext;
 
 	class TypeGroups {
 
@@ -17,7 +17,7 @@ namespace tp::obj {
 
 		TypeGroups();
 
-		friend struct objects_api;
+		friend struct ObjectsContext;
 
 		explicit TypeGroups(bool is_group);
 

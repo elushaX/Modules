@@ -4,24 +4,26 @@
 using namespace tp;
 using namespace obj;
 
-void LinkObject::constructor(Object* self) { NDO_CAST(LinkObject, self)->link = 0; }
+void LinkObject::constructor(ObjectsContext* context, Object* self) { NDO_CAST(LinkObject, self)->link = 0; }
 
-void LinkObject::destructor(LinkObject* self) {
-	if (self->link) NDO->destroy(self->link);
+void LinkObject::destructor(ObjectsContext* context, LinkObject* self) {
+	if (self->link) context->destroy(self->link);
 }
 
-void LinkObject::copy(Object* self, const Object* in) { NDO_CAST(LinkObject, self)->setLink(NDO_CAST(LinkObject, in)->link); }
+void LinkObject::copy(ObjectsContext* context, Object* self, const Object* in) {
+	NDO_CAST(LinkObject, self)->setLink(context, NDO_CAST(LinkObject, in)->link);
+}
 
-LinkObject* LinkObject::create(Object* in) {
-	NDO_CASTV(LinkObject, NDO->create("link"), out)->link = in;
-	return out;
+LinkObject* LinkObject::set(Object* in) {
+	link = in;
+	return this;
 }
 
 alni LinkObject::save_size(LinkObject* self) { return sizeof(alni); }
 
-void LinkObject::save(LinkObject* self, ArchiverOut& file_self) {
+void LinkObject::save(ObjectsContext* context, LinkObject* self, ArchiverOut& file_self) {
 	if (self->link != nullptr) {
-		alni link_object_save_adress = NDO->save(file_self, self->link);
+		alni link_object_save_adress = context->save(file_self, self->link);
 		file_self << link_object_save_adress;
 	} else {
 		alni null = -1;
@@ -29,7 +31,7 @@ void LinkObject::save(LinkObject* self, ArchiverOut& file_self) {
 	}
 }
 
-void LinkObject::load(ArchiverIn& file_self, LinkObject* self) {
+void LinkObject::load(ObjectsContext* context, ArchiverIn& file_self, LinkObject* self) {
 
 	alni saved_object_adress;
 	file_self >> saved_object_adress;
@@ -37,8 +39,8 @@ void LinkObject::load(ArchiverIn& file_self, LinkObject* self) {
 	if (saved_object_adress == -1) {
 		self->link = nullptr;
 	} else {
-		self->link = NDO->load(file_self, saved_object_adress);
-		NDO->increaseReferenceCount(self->link);
+		self->link = context->load(file_self, saved_object_adress);
+		tp::obj::ObjectsContext::increaseReferenceCount(self->link);
 	}
 }
 
@@ -51,25 +53,26 @@ tp::Buffer<Object*> LinkObject::childs_retrival(LinkObject* self) {
 alni LinkObject::allocated_size(LinkObject* self) { return sizeof(Object*); }
 
 alni LinkObject::allocated_size_recursive(LinkObject* self) {
-	alni out = sizeof(Object*);
-	if (self->link) {
-		out += NDO->objsize_ram_recursive_util(self->link, self->link->type);
-	}
-	return out;
+	// alni out = sizeof(Object*);
+	// if (self->link) {
+		// out += con->objsize_ram_recursive_util(self->link, self->link->type);
+	// }
+	return 0;
 }
 
 Object* LinkObject::getLink() { return link; }
 
-void LinkObject::setLink(Object* obj) {
-	if (link) NDO->destroy(link);
-	if (obj) NDO->increaseReferenceCount(obj);
+void LinkObject::setLink(ObjectsContext* context, Object* obj) {
+	if (link) context->destroy(link);
+	if (obj) tp::obj::ObjectsContext::increaseReferenceCount(obj);
 	link = obj;
 }
 
 static auto tm_set = TypeMethod{ .nameid = "set", .descr = "sets the link", .args = { { "target", nullptr } }, .exec = [](const TypeMethod* tm) {
 																	auto const self = (LinkObject*) tm->self;
 																	auto const target = tm->args[0].obj;
-																	self->setLink(target);
+																	ASSERT(false);
+																	// self->setLink(target);
 																} };
 
 static auto tm_get = TypeMethod{ .nameid = "get",

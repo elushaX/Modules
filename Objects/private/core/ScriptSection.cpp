@@ -4,8 +4,6 @@
 using namespace tp;
 using namespace obj;
 
-ScriptSection* gScriptSection = nullptr;
-
 struct script_data_head {
 	alni refc = 0;
 	alni store_adress = 0;
@@ -30,13 +28,13 @@ Script* ScriptSection::createScript() {
 
 	new (out) Script();
 	out->mReadable = obj::StringObject::create("");
-	obj::NDO->increaseReferenceCount(out->mReadable);
+	context->increaseReferenceCount(out->mReadable);
 	return out;
 }
 
 void ScriptSection::delete_script(Script* script) {
 	script->~Script();
-	obj::NDO->destroy(script->mReadable);
+	context->destroy(script->mReadable);
 
 	free((((script_data_head*) script) - 1));
 }
@@ -99,7 +97,7 @@ void ScriptSection::save_script_table_to_file(ScriptSection* self, ArchiverOut& 
 	for (auto iter : self->mScripts) {
 
 		// scripts string obj ref
-		auto obj_addres = obj::NDO->save(file, iter->mReadable);
+		auto obj_addres = self->context->save(file, iter->mReadable);
 		file << obj_addres;
 
 		// constants length
@@ -108,7 +106,7 @@ void ScriptSection::save_script_table_to_file(ScriptSection* self, ArchiverOut& 
 
 		for (auto const_obj : iter->mBytecode.mConstants) {
 			// constant object addres
-			auto obj_addres = obj::NDO->save(file, const_obj.data());
+			auto obj_addres = self->context->save(file, const_obj.data());
 			file << obj_addres;
 		}
 
@@ -123,7 +121,7 @@ void ScriptSection::save_script_table_to_file(ScriptSection* self, ArchiverOut& 
 	file << objects_mem_offset;
 }
 
-void load_constants(ScriptSection* self, ArchiverIn& file, alni start_addr) {
+void load_constants(ObjectsContext* context, ScriptSection* self, ArchiverIn& file, alni start_addr) {
 	auto addres = file.getAddress();
 
 	file.setAddress(start_addr);
@@ -140,15 +138,15 @@ void load_constants(ScriptSection* self, ArchiverIn& file, alni start_addr) {
 		alni str_addr;
 		file >> str_addr;
 
-		NDO->destroy(script->mReadable); // we already have string object in the script when creating script
-		script->mReadable = NDO_CAST(obj::StringObject, obj::NDO->load(file, str_addr));
+		context->destroy(script->mReadable); // we already have string object in the script when creating script
+		script->mReadable = NDO_CAST(obj::StringObject, context->load(file, str_addr));
 
 		file.setAddress(file.getAddress() + sizeof(alni)); // constants length
 
 		for (auto const_obj : script->mBytecode.mConstants) {
 			alni consts_addr;
 			file >> consts_addr;
-			const_obj.data() = obj::NDO->load(file, consts_addr);
+			const_obj.data() = context->load(file, consts_addr);
 		}
 
 		// instructions
@@ -199,7 +197,7 @@ void ScriptSection::load_script_table_from_file(ScriptSection* self, ArchiverIn&
 		file >> new_script->mBytecode.mInstructions;
 	}
 
-	load_constants(self, file, section_start_addr);
+	load_constants(self->context, self, file, section_start_addr);
 
 	// header
 	file.setAddress(file.getAddress() + 5);
@@ -225,29 +223,22 @@ ScriptSection::~ScriptSection() {
 	}
 }
 
-obj::save_load_callbacks ScriptSection::slcb_script_section = {
-	.self = gScriptSection,
-	.pre_save = (obj::pre_save_callback*) ScriptSection::save_script_table_to_file,
-	.size = (obj::slcb_size_callback*) ScriptSection::save_script_table_to_file_size,
-	.pre_load = (obj::pre_load_callback*) ScriptSection::load_script_table_from_file,
-	.post_save = nullptr,
-	.post_load = nullptr,
-};
+void ScriptSection::initialize(ObjectsContext* aContext) {
+	context = aContext;
 
-void ScriptSection::initialize() {
-	ASSERT(!gScriptSection);
-	gScriptSection = new ScriptSection();
+	slcb_script_section = {
+		.self = nullptr,
+		.pre_save = (obj::pre_save_callback*) ScriptSection::save_script_table_to_file,
+		.size = (obj::slcb_size_callback*) ScriptSection::save_script_table_to_file_size,
+		.pre_load = (obj::pre_load_callback*) ScriptSection::load_script_table_from_file,
+		.post_save = nullptr,
+		.post_load = nullptr,
+	};
 
-	ASSERT(obj::NDO && "Forgot to initialize objects?");
+	slcb_script_section.self = this;
 
-	slcb_script_section.self = gScriptSection;
-	obj::NDO->add_sl_callbacks(&slcb_script_section);
+	context->add_sl_callbacks(&slcb_script_section);
 }
 
 void ScriptSection::uninitialize() {
-	ASSERT(gScriptSection);
-	delete gScriptSection;
-	gScriptSection = nullptr;
 }
-
-ScriptSection* ScriptSection::globalHandle() { return gScriptSection; }

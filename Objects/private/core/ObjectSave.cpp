@@ -2,8 +2,6 @@
 
 #include "core/Object.hpp"
 
-#include "primitives/NullObject.hpp"
-
 #include <malloc.h>
 
 using namespace tp;
@@ -33,7 +31,7 @@ Object* ObjectMemAllocate(const ObjectType* type) {
 	memh->down = nullptr;
 	memh->flags = 0;
 
-	memh->refc = (alni) 1;
+	memh->referenceCount = (alni) 1;
 
 	if (bottom) {
 		bottom->down = memh;
@@ -81,7 +79,7 @@ void obj::assertNoLeaks() {
 		printf("ERROR : not all objects are destroyed\n");
 		ualni idx = 0;
 		for (ObjectMemHead* memh = bottom; memh; memh = memh->up) {
-			printf(" ===== Object - %i. Ref count - %i ===== \n", idx, memh->refc);
+			printf(" ===== Object - %i. Ref count - %i ===== \n", idx, memh->referenceCount);
 			logTypeData(NDO_FROM_MEMH(memh)->type);
 			idx++;
 		}
@@ -95,7 +93,7 @@ struct ObjectFileHead {
 
 int1* loaded_file = nullptr;
 
-void objects_api::clear_object_flags() {
+void ObjectsContext::clear_object_flags() {
 	// clear all object flags
 	for (ObjectMemHead* iter = bottom; iter; iter = iter->up) {
 		iter->flags = -1;
@@ -122,9 +120,9 @@ alni objsize_ram_util(Object* self, const ObjectType* type) {
 	return out;
 }
 
-alni objects_api::objsize_ram(Object* self) { return objsize_ram_util(self, self->type); }
+alni ObjectsContext::objsize_ram(Object* self) { return objsize_ram_util(self, self->type); }
 
-alni objects_api::objsize_ram_recursive_util(Object* self, const ObjectType* type, bool different_object) {
+alni ObjectsContext::objsize_ram_recursive_util(Object* self, const ObjectType* type, bool different_object) {
 	alni out = 0;
 
 	if (different_object) {
@@ -154,7 +152,7 @@ alni objects_api::objsize_ram_recursive_util(Object* self, const ObjectType* typ
 	return out;
 }
 
-alni objects_api::objsize_ram_recursive(Object* self) {
+alni ObjectsContext::objsize_ram_recursive(Object* self) {
 	clear_object_flags();
 	return objsize_ram_recursive_util(self, self->type);
 }
@@ -172,7 +170,7 @@ alni objsize_file_util(Object* self, const ObjectType* type) {
 	return out;
 }
 
-alni objects_api::objsize_file(Object* self) { return objsize_file_util(self, self->type); }
+alni ObjectsContext::objsize_file(Object* self) { return objsize_file_util(self, self->type); }
 
 alni objsize_file_recursive_util(Object* self, const ObjectType* type) {
 	alni out = 0;
@@ -199,23 +197,23 @@ alni objsize_file_recursive_util(Object* self, const ObjectType* type) {
 	return out;
 }
 
-alni objects_api::objsize_file_recursive(Object* self) {
+alni ObjectsContext::objsize_file_recursive(Object* self) {
 	clear_object_flags();
 	return objsize_file_recursive_util(self, self->type);
 }
 
-void object_recursive_save(ArchiverOut& ndf, Object* self, const ObjectType* type) {
+void ObjectsContext::object_recursive_save(ArchiverOut& ndf, Object* self, const ObjectType* type) {
 	if (type->base) {
 		object_recursive_save(ndf, self, type->base);
 	}
 
 	// automatically offsets for parent type to write
 	if (type->save) {
-		type->save(self, ndf);
+		type->save(this, self, ndf);
 	}
 }
 
-alni objects_api::save(ArchiverOut& ndf, Object* in) {
+alni ObjectsContext::save(ArchiverOut& ndf, Object* in) {
 	// if already saved return file_adress
 	if (NDO_MEMH_FROM_NDO(in)->flags != -1) {
 		return NDO_MEMH_FROM_NDO(in)->flags;
@@ -257,18 +255,18 @@ alni objects_api::save(ArchiverOut& ndf, Object* in) {
 	return save_adress;
 }
 
-void object_recursive_load(ArchiverIn& ndf, Object* out, const ObjectType* type) {
+void ObjectsContext::object_recursive_load(ArchiverIn& ndf, Object* out, const ObjectType* type) {
 	if (type->base) {
 		object_recursive_load(ndf, out, type->base);
 	}
 
 	// automatically offsets for parent type to read
 	if (type->load) {
-		type->load(ndf, out);
+		type->load(this, ndf, out);
 	}
 }
 
-Object* objects_api::load(ArchiverIn& ndf, alni file_adress) {
+Object* ObjectsContext::load(ArchiverIn& ndf, alni file_adress) {
 	// check if already saved
 	if (((ObjectFileHead*) (loaded_file + file_adress))->load_head_adress) {
 		return ((ObjectFileHead*) (loaded_file + file_adress))->load_head_adress;
@@ -286,7 +284,7 @@ Object* objects_api::load(ArchiverIn& ndf, alni file_adress) {
 	std::string type_name;
 	load_string(ndf, type_name);
 
-	const ObjectType* object_type = NDO->types.get(type_name);
+	const ObjectType* object_type = types.get(type_name);
 	Object* out = ObjectMemAllocate(object_type);
 
 	if (!out) {
@@ -296,10 +294,10 @@ Object* objects_api::load(ArchiverIn& ndf, alni file_adress) {
 	setReferenceCount(out, 0);
 
 	// check for null object
-	if (out->type == &NullObject::TypeData) {
-		ObjectMemDeallocate(out);
-		out = NdoNull_globalInstance;
-	}
+	// if (out->type == &NullObject::TypeData) {
+	//	ObjectMemDeallocate(out);
+	//	out = NdoNull_globalInstance;
+	// }
 
 	// save heap adress in "loaded_file"
 	((ObjectFileHead*) (loaded_file + file_adress))->load_head_adress = out;
@@ -314,7 +312,7 @@ Object* objects_api::load(ArchiverIn& ndf, alni file_adress) {
 	return out;
 }
 
-bool objects_api::save(Object* in, const std::string& path, bool compressed) {
+bool ObjectsContext::save(Object* in, const std::string& path, bool compressed) {
 	ArchiverOut ndf(path.c_str());
 
 	if (!ndf.isOpened()) {
@@ -367,7 +365,7 @@ bool objects_api::save(Object* in, const std::string& path, bool compressed) {
 	return true;
 }
 
-Object* objects_api::load(const std::string& path) {
+Object* ObjectsContext::load(const std::string& path) {
 	/*
 	auto temp_file_name = path + ".unz";
 	bool unz_res = decompressF2F(path.cstr(), temp_file_name.cstr());
@@ -433,7 +431,7 @@ Object* objects_api::load(const std::string& path) {
 	return out;
 }
 
-void objects_api::add_sl_callbacks(save_load_callbacks* in) {
+void ObjectsContext::add_sl_callbacks(save_load_callbacks* in) {
 	sl_callbacks[sl_callbacks_load_idx] = in;
 	sl_callbacks_load_idx++;
 }

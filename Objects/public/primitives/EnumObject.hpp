@@ -13,9 +13,9 @@ namespace tp::obj {
 		alni* entries;
 
 		static ObjectType TypeData;
-		static void constructor(EnumObject* self);
-		static void destructor(EnumObject* self);
-		static void copy(EnumObject* self, const EnumObject* in);
+		static void constructor(ObjectsContext* context, EnumObject* self);
+		static void destructor(ObjectsContext* context, EnumObject* self);
+		static void copy(ObjectsContext* context, EnumObject* self, const EnumObject* in);
 
 		void init(InitialierList<const char*> list);
 		const char* getActiveName();
@@ -29,6 +29,6 @@ namespace tp::obj {
 		static alnf to_float(EnumObject* self);
 
 		static bool compare(EnumObject* first, EnumObject* second);
-		static EnumObject* create(InitialierList<const char*> list);
+		static EnumObject* create(ObjectsContext* context, InitialierList<const char*> list);
 	};
 }

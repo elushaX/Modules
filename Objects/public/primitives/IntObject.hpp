@@ -11,9 +11,9 @@ namespace tp::obj {
 		static ObjectType TypeData;
 		static ObjectTypeAriphmetics TypeAriphm;
 
-		static void constructor(Object* self);
-		static void copy(IntObject* self, const IntObject* in);
-		static IntObject* create(alni in);
+		static void constructor(ObjectsContext* context, Object* self);
+		static void copy(ObjectsContext* context, IntObject* self, const IntObject* in);
+		IntObject* set(alni in);
 
 		static void from_int(Object* self, alni in);
 		static void from_float(Object* self, alnf in);

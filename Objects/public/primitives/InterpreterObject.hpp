@@ -8,9 +8,9 @@ namespace tp::obj {
 		static ObjectType TypeData;
 		Interpreter mInterpreter;
 
-		static void destructor(InterpreterObject* self);
-		static void constructor(InterpreterObject* self);
-		static void load(ArchiverIn& file_self, InterpreterObject* self);
+		static void destructor(ObjectsContext* context, InterpreterObject* self);
+		static void constructor(ObjectsContext* context, InterpreterObject* self);
+		static void load(ObjectsContext* context, ArchiverIn& file_self, InterpreterObject* self);
 
 		void exec(obj::ClassObject* self = nullptr, InitialierList<Interpreter::GlobalDef> globals = {});
 		void debug();

@@ -4,13 +4,13 @@
 using namespace tp;
 using namespace obj;
 
-void ColorObject::constructor(Object* self) { NDO_CAST(ColorObject, self)->mCol = tp::RGBA(1.f); }
+void ColorObject::constructor(ObjectsContext* context, Object* self) { NDO_CAST(ColorObject, self)->mCol = tp::RGBA(1.f); }
 
-void ColorObject::copy(ColorObject* self, const ColorObject* in) { self->mCol = in->mCol; }
+void ColorObject::copy(ObjectsContext* context, ColorObject* self, const ColorObject* in) { self->mCol = in->mCol; }
 
-ColorObject* ColorObject::create(tp::RGBA in) {
-	NDO_CASTV(ColorObject, NDO->create("RGBA"), out)->mCol = in;
-	return out;
+ColorObject* ColorObject::set(tp::RGBA in) {
+	mCol = in;
+	return this;
 }
 
 void ColorObject::from_int(ColorObject* self, alni in) { self->mCol = tp::RGBA((tp::halnf) tp::clamp(in, (tp::alni) 0, (tp::alni) 1)); }
@@ -26,9 +26,9 @@ std::string ColorObject::to_string(ColorObject* self) {
 
 static alni save_size(ColorObject* self) { return sizeof(tp::RGBA); }
 
-static void save(ColorObject* self, ArchiverOut& file_self) { file_self << self->mCol; }
+static void save(ObjectsContext* context, ColorObject* self, ArchiverOut& file_self) { file_self << self->mCol; }
 
-static void load(ArchiverIn& file_self, ColorObject* self) { file_self >> self->mCol; }
+static void load(ObjectsContext* context, ArchiverIn& file_self, ColorObject* self) { file_self >> self->mCol; }
 
 struct ObjectTypeConversions ColorObjectTypeConversions = {
 	.from_int = (object_from_int) ColorObject::from_int,

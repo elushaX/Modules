@@ -3,13 +3,13 @@
 using namespace tp;
 using namespace obj;
 
-void FloatObject::constructor(FloatObject* self) { self->val = 0; }
+void FloatObject::constructor(ObjectsContext* context, FloatObject* self) { self->val = 0; }
 
-void FloatObject::copy(FloatObject* self, const FloatObject* in) { self->val = in->val; }
+void FloatObject::copy(ObjectsContext* context, FloatObject* self, const FloatObject* in) { self->val = in->val; }
 
-FloatObject* FloatObject::create(alnf in) {
-	NDO_CASTV(FloatObject, NDO->create("float"), out)->val = alnf(in);
-	return out;
+FloatObject* FloatObject::set(alnf in) {
+	val = in;
+	return this;
 }
 
 void FloatObject::from_int(FloatObject* self, alni in) { self->val = alnf(in); }
@@ -28,9 +28,9 @@ alnf FloatObject::to_float(FloatObject* self) { return self->val; }
 
 static alni save_size(FloatObject* self) { return sizeof(alnf); }
 
-static void save(FloatObject* self, ArchiverOut& file_self) { file_self << self->val; }
+static void save(ObjectsContext* context, FloatObject* self, ArchiverOut& file_self) { file_self << self->val; }
 
-static void load(ArchiverIn& file_self, FloatObject* self) { file_self >> self->val; }
+static void load(ObjectsContext* context, ArchiverIn& file_self, FloatObject* self) { file_self >> self->val; }
 
 struct ObjectTypeConversions FloatObjectTypeConversions = {
 	.from_int = (object_from_int) FloatObject::from_int,

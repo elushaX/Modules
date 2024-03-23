@@ -7,6 +7,8 @@ namespace tp::obj {
 	// global singleton API for method object to manage the script
 	struct ScriptSection {
 
+		ObjectsContext* context = nullptr;
+
 		List<Script*> mScripts;
 		
 		Script* createScript();
@@ -18,13 +20,13 @@ namespace tp::obj {
 
 		~ScriptSection();
 
-		static void initialize();
-		static void uninitialize();
+		void initialize(ObjectsContext* context);
+		void uninitialize();
 		static ScriptSection* globalHandle();
 
 	private:
 
-		static obj::save_load_callbacks slcb_script_section;
+		obj::save_load_callbacks slcb_script_section;
 
 		void delete_script(Script* script);
 		void reference_script(Script* script);

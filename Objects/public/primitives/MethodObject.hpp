@@ -11,12 +11,12 @@ namespace tp::obj {
 
 		Script* mScript;
 
-		static void constructor(MethodObject* self);
-		static void copy(MethodObject* self, MethodObject* in);
-		static void destructor(MethodObject* self);
+		static void constructor(ObjectsContext* context, MethodObject* self);
+		static void copy(ObjectsContext* context, MethodObject* self, MethodObject* in);
+		static void destructor(ObjectsContext* context, MethodObject* self);
 		static alni save_size(MethodObject* self);
-		static void save(MethodObject* self, ArchiverOut& file_self);
-		static void load(ArchiverIn& file_self, obj::MethodObject* self);
+		static void save(ObjectsContext* context, MethodObject* self, ArchiverOut& file_self);
+		static void load(ObjectsContext* context, ArchiverIn& file_self, obj::MethodObject* self);
 
 		static void Initialize();
 		static void UnInitialize();

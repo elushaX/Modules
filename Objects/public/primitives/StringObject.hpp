@@ -9,9 +9,9 @@ namespace tp::obj {
 		std::string val;
 
 		static ObjectType TypeData;
-		static void constructor(Object* self);
-		static void destructor(StringObject* self);
-		static void copy(Object* self, const Object* in);
+		static void constructor(ObjectsContext* context, Object* self);
+		static void destructor(ObjectsContext* context, StringObject* self);
+		static void copy(ObjectsContext* context, Object* self, const Object* in);
 		static StringObject* create(const std::string& in);
 
 		static void from_int(StringObject* self, alni in);

@@ -19,25 +19,25 @@ struct ObjectType MethodObject::TypeData = {
 	.load = (object_load) MethodObject::load,
 };
 
-void MethodObject::constructor(MethodObject* self) { self->mScript = obj::ScriptSection::globalHandle()->createScript(); }
+void MethodObject::constructor(ObjectsContext* context, MethodObject* self) { self->mScript = obj::ScriptSection::globalHandle()->createScript(); }
 
-void MethodObject::copy(MethodObject* self, MethodObject* in) { obj::ScriptSection::globalHandle()->changeScript(&self->mScript, &in->mScript); }
+void MethodObject::copy(ObjectsContext* context, MethodObject* self, MethodObject* in) { obj::ScriptSection::globalHandle()->changeScript(&self->mScript, &in->mScript); }
 
-void MethodObject::destructor(MethodObject* self) { obj::ScriptSection::globalHandle()->abandonScript(self->mScript); }
+void MethodObject::destructor(ObjectsContext* context, MethodObject* self) { obj::ScriptSection::globalHandle()->abandonScript(self->mScript); }
 
 tp::alni MethodObject::save_size(MethodObject* self) {
 	// script_table_file_address & script string object address
 	return sizeof(tp::alni);
 }
 
-void MethodObject::save(MethodObject* self, ArchiverOut& file_self) {
+void MethodObject::save(ObjectsContext* context, MethodObject* self, ArchiverOut& file_self) {
 	auto script_section = obj::ScriptSection::globalHandle();
 	// script_table_file_address
 	tp::alni script_table_file_address = script_section->get_script_file_adress(self->mScript);
 	file_self << script_table_file_address;
 }
 
-void MethodObject::load(ArchiverIn& file_self, obj::MethodObject* self) {
+void MethodObject::load(ObjectsContext* context, ArchiverIn& file_self, obj::MethodObject* self) {
 	auto script_section = obj::ScriptSection::globalHandle();
 	// script_table_file_address
 	tp::alni script_table_file_address;

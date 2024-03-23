@@ -5,26 +5,26 @@
 using namespace tp;
 using namespace obj;
 
-void ListObject::constructor(Object* in) {
+void ListObject::constructor(ObjectsContext* context, Object* in) {
 	NDO_CASTV(ListObject, in, self);
 	new (&self->items) List<Object*>();
 }
 
-void ListObject::copy(Object* in, const Object* target) {
+void ListObject::copy(ObjectsContext* context, Object* in, const Object* target) {
 	NDO_CASTV(ListObject, in, self);
 	NDO_CASTV(ListObject, target, src);
 
 	destructor(in);
 
 	for (auto item : src->items) {
-		self->pushBack(NDO->instantiate(item.data()));
+		self->pushBack(context->instantiate(item.data()));
 	}
 }
 
-void ListObject::destructor(Object* in) {
+void ListObject::destructor(ObjectsContext* context, Object* in) {
 	NDO_CASTV(ListObject, in, self);
 	for (auto item : self->items) {
-		NDO->destroy(item.data());
+		context->destroy(item.data());
 	}
 	self->items.removeAll();
 }
@@ -34,17 +34,17 @@ alni ListObject::save_size(ListObject* self) {
 	return (len + 1) * sizeof(alni);
 }
 
-void ListObject::save(ListObject* self, ArchiverOut& file_self) {
+void ListObject::save(ObjectsContext* context, ListObject* self, ArchiverOut& file_self) {
 	alni len = self->items.length();
 	file_self << len;
 
 	for (auto item : self->items) {
-		alni ndo_object_adress = NDO->save(file_self, item.data());
+		alni ndo_object_adress = context->save(file_self, item.data());
 		file_self << ndo_object_adress;
 	}
 }
 
-void ListObject::load(ArchiverIn& file_self, ListObject* self) {
+void ListObject::load(ObjectsContext* context, ArchiverIn& file_self, ListObject* self) {
 	new (&self->items) tp::List<Object*>();
 
 	alni len;
@@ -53,7 +53,7 @@ void ListObject::load(ArchiverIn& file_self, ListObject* self) {
 	for (alni i = 0; i < len; i++) {
 		alni ndo_object_adress;
 		file_self >> ndo_object_adress;
-		self->pushBack(NDO->load(file_self, ndo_object_adress));
+		self->pushBack(context->load(file_self, ndo_object_adress));
 	}
 }
 
@@ -84,23 +84,23 @@ alni ListObject::allocated_size_recursive(ListObject* self) {
 }
 
 void ListObject::pushBack(Object* obj) {
-	obj::NDO->increaseReferenceCount(obj);
+	ObjectsContext::increaseReferenceCount(obj);
 	items.pushBack(obj);
 }
 
 void ListObject::pushFront(Object* obj) {
-	obj::NDO->increaseReferenceCount(obj);
+	ObjectsContext::increaseReferenceCount(obj);
 	items.pushFront(obj);
 }
 
-void ListObject::delNode(tp::List<Object*>::Node* node) {
-	obj::NDO->destroy(node->data);
+void ListObject::delNode(ObjectsContext* context, tp::List<Object*>::Node* node) {
+	context->destroy(node->data);
 	items.deleteNode(node);
 }
 
-void ListObject::popBack() {
+void ListObject::popBack(ObjectsContext* context) {
 	auto obj = items.last();
-	if (obj) obj::NDO->destroy(obj->data);
+	if (obj) context->destroy(obj->data);
 	items.popBack();
 }
 

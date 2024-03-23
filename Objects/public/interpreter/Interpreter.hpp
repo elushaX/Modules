@@ -6,6 +6,8 @@
 
 namespace tp::obj {
 	struct Interpreter {
+		ObjectsContext* context = nullptr;
+
 		OperandStack mOperandsStack;
 		ScopeStack mScopeStack;
 		CallStack mCallStack;
@@ -22,7 +24,7 @@ namespace tp::obj {
 		void stepBytecodeIn();
 		void stepBytecodeOut();
 
-		bool finished();
+		[[nodiscard]] bool finished() const;
 
 		void execAll(MethodObject* method, ClassObject* self = nullptr, DictObject* globals = nullptr, InitialierList<GlobalDef> globals2 = {});
 	};

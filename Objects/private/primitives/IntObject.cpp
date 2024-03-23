@@ -4,13 +4,13 @@
 using namespace tp;
 using namespace obj;
 
-void IntObject::constructor(Object* self) { NDO_CAST(IntObject, self)->val = 0; }
+void IntObject::constructor(ObjectsContext* context, Object* self) { NDO_CAST(IntObject, self)->val = 0; }
 
-void IntObject::copy(IntObject* self, const IntObject* in) { self->val = in->val; }
+void IntObject::copy(ObjectsContext* context, IntObject* self, const IntObject* in) { self->val = in->val; }
 
-IntObject* IntObject::create(alni in) {
-	NDO_CASTV(IntObject, NDO->create("int"), out)->val = in;
-	return out;
+IntObject* IntObject::set(alni in) {
+	val = in;
+	return this;
 }
 
 void IntObject::from_int(Object* self, alni in) { NDO_CAST(IntObject, self)->val = in; }
@@ -29,9 +29,9 @@ alnf IntObject::to_float(Object* self) { return alnf(NDO_CAST(IntObject, self)->
 
 static alni save_size(IntObject* self) { return sizeof(alni); }
 
-static void save(IntObject* self, ArchiverOut& file_self) { file_self << self->val; }
+static void save(ObjectsContext* context, IntObject* self, ArchiverOut& file_self) { file_self << self->val; }
 
-static void load(ArchiverIn& file_self, IntObject* self) { file_self >> self->val; }
+static void load(ObjectsContext* context, ArchiverIn& file_self, IntObject* self) { file_self >> self->val; }
 
 struct ObjectTypeConversions IntObjectTypeConversions = {
 	.from_int = IntObject::from_int,

@@ -6,6 +6,8 @@
 namespace tp::obj {
 
 	struct Scope {
+		ObjectsContext* context = nullptr;
+
 		typedef Map<std::string, Object*> ObjDict;
 		typedef List<Object*> ObjList;
 
@@ -24,6 +26,8 @@ namespace tp::obj {
 
 	public:
 
+		ObjectsContext* context = nullptr;
+
 		Scope* mBuff;
 		ualni mIdx;
 		ualni mIterIdx;
@@ -36,7 +40,7 @@ namespace tp::obj {
 		void popTemp();
 		void addTempReturn(Object* ret);
 		Object* getLocal(const std::string& str);
-		Scope* getCurrentScope();
+		Scope* getCurrentScope() const;
 		~ScopeStack();
 
 	private:

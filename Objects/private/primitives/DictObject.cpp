@@ -5,29 +5,24 @@
 using namespace tp;
 using namespace obj;
 
-void DictObject::constructor(Object* self) {
-	NDO_CASTV(DictObject, self, dict);
-
-	new (&dict->items) Map<std::string, Object*>();
+void DictObject::constructor(ObjectsContext* context, DictObject* self) {
+	new (&self->items) Map<std::string, Object*>();
 }
 
-void DictObject::copy(Object* in, const Object* target) {
-	NDO_CASTV(DictObject, in, self);
-	NDO_CASTV(DictObject, target, src);
+void DictObject::copy(ObjectsContext* context, DictObject* self, const DictObject* target) {
+	destructor(context, self);
+	constructor(context, self);
 
-	destructor(self);
-	constructor(self);
-
-	for (auto item : src->items) {
-		auto instance = NDO->instantiate(item->val);
+	for (auto item : target->items) {
+		auto instance = context->instantiate(item->val);
 		self->items.put(item->key, instance);
 	}
 }
 
-void DictObject::destructor(Object* self) {
+void DictObject::destructor(ObjectsContext* context, DictObject* self) {
 	NDO_CASTV(DictObject, self, dict);
 	for (auto item : dict->items) {
-		NDO->destroy(item->val);
+		context->destroy(item->val);
 	}
 	dict->items.~Map();
 }
@@ -50,7 +45,7 @@ alni DictObject::save_size(DictObject* self) {
 	return save_size;
 }
 
-void DictObject::save(DictObject* self, ArchiverOut& file_self) {
+void DictObject::save(ObjectsContext* context, DictObject* self, ArchiverOut& file_self) {
 
 	// write size
 	alni len = self->items.size();
@@ -59,7 +54,7 @@ void DictObject::save(DictObject* self, ArchiverOut& file_self) {
 	// save hashmap pairs
 	for (auto item : self->items) {
 		// item val
-		alni ndo_object_adress = NDO->save(file_self, item->val);
+		alni ndo_object_adress = context->save(file_self, item->val);
 		file_self << ndo_object_adress;
 
 		// item key
@@ -67,7 +62,7 @@ void DictObject::save(DictObject* self, ArchiverOut& file_self) {
 	}
 }
 
-void DictObject::load(ArchiverIn& file_self, DictObject* self) {
+void DictObject::load(ObjectsContext* context, ArchiverIn& file_self, DictObject* self) {
 	new (&self->items) tp::Map<std::string, Object*>();
 
 	alni len;
@@ -78,7 +73,7 @@ void DictObject::load(ArchiverIn& file_self, DictObject* self) {
 		// read val
 		alni ndo_object_adress;
 		file_self >> ndo_object_adress;
-		Object* val = NDO->load(file_self, ndo_object_adress);
+		Object* val = context->load(file_self, ndo_object_adress);
 
 		// read key value
 		std::string key;
@@ -111,23 +106,23 @@ alni DictObject::allocated_size(DictObject* self) {
 }
 
 alni DictObject::allocated_size_recursive(DictObject* self) {
-	alni out = allocated_size(self);
-	for (auto item : self->items) {
-		out += NDO->objsize_ram_recursive_util(item->val, item->val->type);
-	}
-	return out;
+	// alni out = allocated_size(self);
+	// for (auto item : self->items) {
+		// out += NDO->objsize_ram_recursive_util(item->val, item->val->type);
+	// }
+	return 0;
 }
 
 void DictObject::put(const std::string& str, Object* obj) {
 	DEBUG_ASSERT(obj);
-	NDO->increaseReferenceCount(obj);
+	ObjectsContext::increaseReferenceCount(obj);
 	items.put(str, obj);
 }
 
-void DictObject::remove(const std::string& str) {
+void DictObject::remove(ObjectsContext* context, const std::string& str) {
 	auto idx = items.presents(str);
 	if (idx) {
-		NDO->destroy(items.getSlotVal(idx));
+		context->destroy(items.getSlotVal(idx));
 		items.remove(str);
 	}
 }
@@ -172,7 +167,7 @@ static auto tm_put = TypeMethod{
 			NDO_CASTV(StringObject, str_key, key);
 			ASSERT(key);
 
-			self->put(key->val, obj);
+			// self->put(key->val, obj);
 		},
 };
 
@@ -190,14 +185,14 @@ static auto tm_remove = TypeMethod{
 		NDO_CASTV(StringObject, str_key, key);
 		ASSERT(key);
 
-		self->remove(key->val);
+		// self->remove(key->val);
 	},
 };
 
 struct obj::ObjectType DictObject::TypeData = { .base = nullptr,
-																								.constructor = DictObject::constructor,
-																								.destructor = DictObject::destructor,
-																								.copy = DictObject::copy,
+																								.constructor = (object_constructor) DictObject::constructor,
+																								.destructor = (object_destructor) DictObject::destructor,
+																								.copy = (object_copy) DictObject::copy,
 																								.size = sizeof(DictObject),
 																								.name = "dict",
 																								.save_size = (object_save_size) DictObject::save_size,

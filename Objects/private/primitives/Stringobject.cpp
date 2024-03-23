@@ -5,11 +5,11 @@
 using namespace tp;
 using namespace obj;
 
-void StringObject::constructor(Object* self) { new (&NDO_CAST(StringObject, self)->val) std::string(); }
+void StringObject::constructor(ObjectsContext* context, Object* self) { new (&NDO_CAST(StringObject, self)->val) std::string(); }
 
-void StringObject::destructor(StringObject* self) { self->val.~basic_string(); }
+void StringObject::destructor(ObjectsContext* context, StringObject* self) { self->val.~basic_string(); }
 
-void StringObject::copy(Object* self, const Object* in) { NDO_CAST(StringObject, self)->val = NDO_CAST(StringObject, in)->val; }
+void StringObject::copy(ObjectsContext* context, Object* self, const Object* in) { NDO_CAST(StringObject, self)->val = NDO_CAST(StringObject, in)->val; }
 
 StringObject* StringObject::create(const std::string& in) {
 	NDO_CASTV(StringObject, NDO->create("str"), out)->val = in;
@@ -38,11 +38,11 @@ static alni save_size(StringObject* self) {
 	return save_string_size(self->val);
 }
 
-static void save(StringObject* self, ArchiverOut& file_self) {
+static void save(ObjectsContext* context, StringObject* self, ArchiverOut& file_self) {
 	save_string(file_self, self->val);
 }
 
-static void load(ArchiverIn& file_self, StringObject* self) {
+static void load(ObjectsContext* context, ArchiverIn& file_self, StringObject* self) {
 	new (&self->val) std::string();
 	load_string(file_self, self->val);
 }

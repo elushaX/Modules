@@ -6,16 +6,16 @@
 using namespace tp;
 using namespace obj;
 
-void InterpreterObject::constructor(InterpreterObject* self) {
+void InterpreterObject::constructor(ObjectsContext* context, InterpreterObject* self) {
 	new (&self->mInterpreter) Interpreter();
 
-	self->createMember("dict", "globals");
-	self->createMember("link", "target method");
+	self->createMember(context, "dict", "globals");
+	self->createMember(context, "link", "target method");
 }
 
-void InterpreterObject::destructor(InterpreterObject* self) { self->mInterpreter.~Interpreter(); }
+void InterpreterObject::destructor(ObjectsContext* context, InterpreterObject* self) { self->mInterpreter.~Interpreter(); }
 
-void InterpreterObject::load(ArchiverIn& file_self, InterpreterObject* self) { new (&self->mInterpreter) Interpreter(); }
+void InterpreterObject::load(ObjectsContext* context, ArchiverIn& file_self, InterpreterObject* self) { new (&self->mInterpreter) Interpreter(); }
 
 bool InterpreterObject::running() { return !mInterpreter.finished(); }
 

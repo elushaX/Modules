@@ -17,6 +17,8 @@ namespace tp::obj {
 
 	class ConstObjectsPool {
 	public:
+		ObjectsContext* context = nullptr;
+
 		Map<std::string, ConstObject*> mMethods;
 		Map<std::string, ConstObject*> mStrings;
 		Map<alni, ConstObject*> mIntegers;

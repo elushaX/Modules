@@ -25,11 +25,11 @@ implement construct, destruct and copy methods */
 
 
 #ifdef _DEBUG
-#define NDO_CAST(cast_type, ptr) ((cast_type*)ndo_cast(ptr, &cast_type::TypeData))
-#define NDO_CAST_ASSERT(cast_type, ptr) {assert(ndo_cast(ptr, &cast_type::TypeData))}
+#define NDO_CAST(cast_type, ptr) ((cast_type*)castObject(ptr, &cast_type::TypeData))
+#define NDO_CAST_ASSERT(cast_type, ptr) {assert(castObject(ptr, &cast_type::TypeData))}
 #else
-#define NDO_CAST_ASSERT(cast_type, ptr) {assert(ndo_cast(ptr, &cast_type::TypeData))}
-#define NDO_CAST(cast_type, ptr) ((cast_type*)ndo_cast(ptr, &cast_type::TypeData))
+#define NDO_CAST_ASSERT(cast_type, ptr) {assert(castObject(ptr, &cast_type::TypeData))}
+#define NDO_CAST(cast_type, ptr) ((cast_type*)castObject(ptr, &cast_type::TypeData))
 #endif
 
 #define NDO_CASTV(cast_type, ptr, var_name) cast_type* var_name = NDO_CAST(cast_type, ptr); var_name
@@ -39,15 +39,11 @@ implement construct, destruct and copy methods */
 
 namespace tp::obj {
 
-	extern ModuleManifest gModuleObjects;
-
-	extern struct objects_api* NDO;
-
 	struct ObjectMemHead {
 		ObjectMemHead* up;
 		ObjectMemHead* down;
 		alni flags;
-		alni refc;
+		alni referenceCount;
 	};
 
 	struct Object {
@@ -82,13 +78,13 @@ namespace tp::obj {
 		object_div div;
 	};
 
-	typedef void (*object_constructor)(Object* self);
-	typedef void (*object_destructor)(Object* self);
-	typedef void (*object_copy)(Object* self, const Object* target);
+	typedef void (*object_constructor)(ObjectsContext*, Object* self);
+	typedef void (*object_destructor)(ObjectsContext*, Object* self);
+	typedef void (*object_copy)(ObjectsContext*, Object* self, const Object* target);
 
 	typedef alni(*object_save_size)(Object* self);
-	typedef void (*object_save)(Object*, ArchiverOut&);
-	typedef void (*object_load)(ArchiverIn&, Object*);
+	typedef void (*object_save)(ObjectsContext* context, Object*, ArchiverOut&);
+	typedef void (*object_load)(ObjectsContext* context, ArchiverIn&, Object*);
 
 	typedef bool (*object_compare)(Object*, Object*);
 
@@ -135,20 +131,20 @@ namespace tp::obj {
 	};
 
 
-	struct objects_api {
+	struct ObjectsContext {
 
 		Map<std::string, const ObjectType*> types;
 		TypeGroups type_groups;
 		Interpreter* interp = nullptr;
 
-		objects_api();
-		~objects_api();
+		ObjectsContext();
+		~ObjectsContext();
 
 		void define(ObjectType* type);
 		Object* create(const std::string& name);
-		static Object* copy(Object* self, const Object* in);
+		Object* copy(Object* self, const Object* in);
 		static bool compare(Object* first, Object* second);
-		static Object* instantiate(Object*);
+		Object* instantiate(Object*);
 		static void set(Object* self, alni val);
 		static void set(Object* self, alnf val);
 		static void set(Object* self, const std::string& val);
@@ -160,7 +156,7 @@ namespace tp::obj {
 
 		void clear_object_flags();
 
-		void destroy(Object* in) const;
+		void destroy(Object* in);
 
 		static void increaseReferenceCount(Object* in);
 		static halni getReferenceCount(Object* in);
@@ -184,16 +180,22 @@ namespace tp::obj {
 		Object* load(const std::string& path);
 		alni save(ArchiverOut&, Object*);
 		Object* load(ArchiverIn&, alni file_adress);
+
+		template <typename Type>
+		Type* create() {
+			return (Type*)create(Type::TypeData.name);
+		}
+
+		void hierarchy_copy(Object* self, const Object* in, const ObjectType* type);
+		void hierarchy_construct(Object* self, const ObjectType* type);
+
+		void object_recursive_save(ArchiverOut& ndf, Object* self, const ObjectType* type);
+		void object_recursive_load(ArchiverIn& ndf, Object* out, const ObjectType* type);
 	};
 
 	void logTypeData(const ObjectType* type);
 	void assertNoLeaks();
 	ualni getObjCount();
 
-	Object* ndo_cast(const Object* in, const ObjectType* to_type);
-
-	template <typename Type>
-	Type* create() {
-		return (Type*)NDO->create(Type::TypeData.name);
-	}
+	Object* castObject(const Object* in, const ObjectType* to_type);
 }

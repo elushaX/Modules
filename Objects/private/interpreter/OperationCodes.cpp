@@ -12,7 +12,7 @@ OpcodeInfos tp::obj::gOpcodeInfos;
 
 #define OP(opcode, name, desc, ops, params) add(opcode, { #name, #desc, ops, params });
 
-OpcodeInfos::OperandsInfo::OperandsInfo() {}
+OpcodeInfos::OperandsInfo::OperandsInfo() = default;
 OpcodeInfos::OperandsInfo::OperandsInfo(InitialierList<Operand> list) {
 	DEBUG_ASSERT(MAX_OPERANDS >= list.size());
 	for (auto item : list) {
@@ -21,7 +21,7 @@ OpcodeInfos::OperandsInfo::OperandsInfo(InitialierList<Operand> list) {
 	}
 }
 
-OpcodeInfos::ParamsInfo::ParamsInfo() {}
+OpcodeInfos::ParamsInfo::ParamsInfo() = default;
 OpcodeInfos::ParamsInfo::ParamsInfo(InitialierList<Param> list) {
 	DEBUG_ASSERT(MAX_PARAMS >= list.size());
 	for (auto item : list) {
@@ -363,7 +363,7 @@ OpcodeInfos::OpcodeInfos() {
 }
 
 OpcodeInfos::OpInfo OpcodeInfos::fetch(OpCode code) {
-	DEBUG_ASSERT((alni) code >= 0 && (alni) code < (alni) OpCode::END_OPCODES);
+	DEBUG_ASSERT((alni) code >= 0 && (alni) code < (alni) OpCode::END_OPCODES)
 	return buff[(alni) code];
 }
 

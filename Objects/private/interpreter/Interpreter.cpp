@@ -23,7 +23,7 @@ uint2 loadConstDataIdx(ByteCode* bytecode) {
 	return out;
 }
 
-// exeption for opcodes
+// exception for opcodes
 // reads 2 bytes from instructions in order to load constant onto operands stack
 void skip_param(ByteCode* bytecode) { bytecode->mInstructionIdx += 2; }
 
@@ -45,12 +45,12 @@ void Interpreter::exec(obj::MethodObject* method, obj::ClassObject* self, obj::D
 		}
 	}
 
-	for (auto global_def : globals2) {
+	for (const auto& global_def : globals2) {
 		mScopeStack.addLocal(global_def.obj, global_def.id);
 	}
 }
 
-bool Interpreter::finished() { return !mCallStack.len(); }
+bool Interpreter::finished() const { return !mCallStack.len(); }
 
 void Interpreter::stepBytecode() {
 	halni call_depth = mCallStack.len();
@@ -84,7 +84,7 @@ void Interpreter::stepBytecodeIn() {
 	using namespace obj;
 	using namespace tp;
 
-	DEBUG_BREAK(finished());
+	DEBUG_BREAK(finished())
 
 	auto bytecode = mCallStack.getBytecode();
 
@@ -97,7 +97,7 @@ void Interpreter::stepBytecodeIn() {
 		mCallStack.leave();
 
 		if (mCallStack.len()) {
-			mOperandsStack.push(NDO_NULL_REF);
+			mOperandsStack.push(context->create<NullObject>());
 		}
 		return;
 	}
@@ -144,7 +144,7 @@ void Interpreter::stepBytecodeIn() {
 				auto idx = loadConstDataIdx(bytecode);
 				auto const_obj = bytecode->mConstants[idx];
 				NDO_CASTV(StringObject, const_obj, local_id);
-				ASSERT(local_id && "Invalid Object Type");
+				ASSERT(local_id && "Invalid Object Type")
 				auto local = mScopeStack.getLocal(local_id->val);
 				mOperandsStack.push(local);
 				break;
@@ -165,7 +165,7 @@ void Interpreter::stepBytecodeIn() {
 		case OpCode::JUMP_IF:
 			{
 				auto cond = mOperandsStack.getOperand();
-				if (NDO->toBool(cond)) {
+				if (ObjectsContext::toBool(cond)) {
 					bytecode->mInstructionIdx += param(bytecode);
 				} else {
 					skip_param(bytecode);
@@ -176,7 +176,7 @@ void Interpreter::stepBytecodeIn() {
 		case OpCode::JUMP_IF_NOT:
 			{
 				auto cond = mOperandsStack.getOperand();
-				if (!NDO->toBool(cond)) {
+				if (!ObjectsContext::toBool(cond)) {
 					bytecode->mInstructionIdx += param(bytecode);
 				} else {
 					skip_param(bytecode);
@@ -193,7 +193,7 @@ void Interpreter::stepBytecodeIn() {
 		case OpCode::JUMP_IF_R:
 			{
 				auto cond = mOperandsStack.getOperand();
-				if (NDO->toBool(cond)) {
+				if (ObjectsContext::toBool(cond)) {
 					bytecode->mInstructionIdx -= param(bytecode);
 				} else {
 					skip_param(bytecode);
@@ -204,7 +204,7 @@ void Interpreter::stepBytecodeIn() {
 		case OpCode::JUMP_IF_NOT_R:
 			{
 				auto cond = mOperandsStack.getOperand();
-				if (!NDO->toBool(cond)) {
+				if (!ObjectsContext::toBool(cond)) {
 					bytecode->mInstructionIdx -= param(bytecode);
 				} else {
 					skip_param(bytecode);
@@ -222,7 +222,7 @@ void Interpreter::stepBytecodeIn() {
 			{
 				auto obj = mOperandsStack.getOperand();
 				if (obj->type->convesions && obj->type->convesions->to_string) {
-					auto str = NDO->toString(obj);
+					auto str = ObjectsContext::toString(obj);
 					printf("%s\n", str.c_str());
 				} else {
 					printf("Object with type '%s' has no string representation.\n", obj->type->name);
@@ -234,7 +234,7 @@ void Interpreter::stepBytecodeIn() {
 			{
 				auto type = mOperandsStack.getOperand<StringObject>();
 				auto id = mOperandsStack.getOperand<StringObject>();
-				mScopeStack.addLocal(NDO->create(type->val), id->val);
+				mScopeStack.addLocal(context->create(type->val), id->val);
 				break;
 			}
 
@@ -243,7 +243,7 @@ void Interpreter::stepBytecodeIn() {
 				auto id = mOperandsStack.getOperand<StringObject>();
 				auto obj = mOperandsStack.getOperand();
 				mScopeStack.addLocal(obj, id->val);
-				NDO->increaseReferenceCount(obj);
+				ObjectsContext::increaseReferenceCount(obj);
 				// mScopeStack.popTemp();
 				break;
 			}
@@ -254,9 +254,9 @@ void Interpreter::stepBytecodeIn() {
 				Object* new_obj = nullptr;
 
 				// basic types
-				auto idx = NDO->types.presents(type->val);
+				auto idx = context->types.presents(type->val);
 				if (idx) {
-					auto new_obj = NDO->create(type->val);
+					new_obj = context->create(type->val);
 
 					mOperandsStack.push(new_obj);
 					mScopeStack.addTemp(new_obj);
@@ -266,13 +266,13 @@ void Interpreter::stepBytecodeIn() {
 				// class creation
 				auto local_class = mScopeStack.getLocal(type->val);
 				NDO_CASTV(MethodObject, local_class, method);
-				ASSERT(method);
+				ASSERT(method)
 
 				// class is a function - execute it as a constructor
 
 				// PUSH_ARGS protocol
 				uint2 len = 0;
-				mOperandsStack.push((Object*) len);
+				mOperandsStack.push(Operand((Object*) (ualni)len));
 				mOperandsStack.push(nullptr);
 
 				// CALL protocol
@@ -283,7 +283,7 @@ void Interpreter::stepBytecodeIn() {
 
 		case OpCode::CLASS_CONSTRUCT:
 			{
-				auto class_obj = (ClassObject*) NDO->create("class");
+				auto class_obj = (ClassObject*) context->create("class");
 
 				for (auto local : mScopeStack.getCurrentScope()->mLocals) {
 					class_obj->addMember(local->val, local->key);
@@ -303,7 +303,7 @@ void Interpreter::stepBytecodeIn() {
 				mScopeStack.leaveScope();
 				mCallStack.leave();
 				if (mCallStack.len()) {
-					mOperandsStack.push(NDO_NULL_REF);
+					mOperandsStack.push(context->create<NullObject>());
 				}
 				break;
 			}
@@ -320,7 +320,7 @@ void Interpreter::stepBytecodeIn() {
 				// ...
 
 				uint2 len = read_byte(bytecode);
-				mOperandsStack.push((Object*) len);
+				mOperandsStack.push(Operand((Object*) (ualni) len));
 				mOperandsStack.push(nullptr);
 				break;
 			}
@@ -331,18 +331,18 @@ void Interpreter::stepBytecodeIn() {
 				auto argument = mOperandsStack.getOperand();
 
 				while (argument) {
-					NDO->increaseReferenceCount(argument);
+					tp::obj::ObjectsContext::increaseReferenceCount(argument);
 
 					auto argument_id = bytecode->mConstants[loadConstDataIdx(bytecode)];
 					NDO_CASTV(StringObject, argument_id, id);
-					DEBUG_ASSERT(id);
+					DEBUG_ASSERT(id)
 					mScopeStack.addLocal(argument, id->val);
 					bytecode->mArgumentsLoaded++;
 					argument = mOperandsStack.getOperand();
 				}
 
-				uint2 saved_len = uint2(ualni(mOperandsStack.getOperand()));
-				ASSERT(args_len == saved_len && "invalid number of arguments passefd");
+				auto saved_len = uint2(ualni(mOperandsStack.getOperand()));
+				ASSERT(args_len == saved_len && "invalid number of arguments passed")
 
 				break;
 			}
@@ -386,10 +386,10 @@ void Interpreter::stepBytecodeIn() {
 				auto left = mOperandsStack.getOperand();
 				auto right = mOperandsStack.getOperand();
 
-				ASSERT(left->type == right->type && "addition of different types is not implemented");
-				ASSERT(left->type->ariphmetics && left->type->ariphmetics->add && "cannot add object of this type");
+				ASSERT(left->type == right->type && "addition of different types is not implemented")
+				ASSERT(left->type->ariphmetics && left->type->ariphmetics->add && "cannot add object of this type")
 
-				auto res = NDO->instantiate(left);
+				auto res = context->instantiate(left);
 				res->type->ariphmetics->add(res, right);
 
 				mScopeStack.addTemp(res);
@@ -401,10 +401,10 @@ void Interpreter::stepBytecodeIn() {
 				auto left = mOperandsStack.getOperand();
 				auto right = mOperandsStack.getOperand();
 
-				ASSERT(left->type == right->type && "addition of different types is not implemented");
-				ASSERT(left->type->ariphmetics && left->type->ariphmetics->add && "cannot add object of this type");
+				ASSERT(left->type == right->type && "addition of different types is not implemented")
+				ASSERT(left->type->ariphmetics && left->type->ariphmetics->add && "cannot add object of this type")
 
-				auto res = NDO->instantiate(left);
+				auto res = context->instantiate(left);
 				res->type->ariphmetics->sub(res, right);
 
 				mScopeStack.addTemp(res);
@@ -416,10 +416,10 @@ void Interpreter::stepBytecodeIn() {
 				auto left = mOperandsStack.getOperand();
 				auto right = mOperandsStack.getOperand();
 
-				ASSERT(left->type == right->type && "addition of different types is not implemented");
-				ASSERT(left->type->ariphmetics && left->type->ariphmetics->add && "cannot add object of this type");
+				ASSERT(left->type == right->type && "addition of different types is not implemented")
+				ASSERT(left->type->ariphmetics && left->type->ariphmetics->add && "cannot add object of this type")
 
-				auto res = NDO->instantiate(left);
+				auto res = context->instantiate(left);
 				res->type->ariphmetics->mul(res, right);
 
 				mScopeStack.addTemp(res);
@@ -431,10 +431,10 @@ void Interpreter::stepBytecodeIn() {
 				auto left = mOperandsStack.getOperand();
 				auto right = mOperandsStack.getOperand();
 
-				ASSERT(left->type == right->type && "addition of different types is not implemented");
-				ASSERT(left->type->ariphmetics && left->type->ariphmetics->add && "cannot add object of this type");
+				ASSERT(left->type == right->type && "addition of different types is not implemented")
+				ASSERT(left->type->ariphmetics && left->type->ariphmetics->add && "cannot add object of this type")
 
-				auto res = NDO->instantiate(left);
+				auto res = context->instantiate(left);
 				res->type->ariphmetics->div(res, right);
 
 				mScopeStack.addTemp(res);
@@ -446,7 +446,7 @@ void Interpreter::stepBytecodeIn() {
 			{
 				auto left = mOperandsStack.getOperand();
 				auto right = mOperandsStack.getOperand();
-				NDO->copy(left, right);
+				context->copy(left, right);
 				break;
 			}
 
@@ -469,9 +469,9 @@ void Interpreter::stepBytecodeIn() {
 
 				} else {
 					NDO_CASTV(ClassObject, parent, class_obj);
-					ASSERT(class_obj && "not a class object");
+					ASSERT(class_obj && "not a class object")
 					auto idx = class_obj->members->presents(child_id->val);
-					ASSERT(idx && "No child with such id");
+					ASSERT(idx && "No child with such id")
 					child = class_obj->members->getSlotVal(idx);
 				}
 
@@ -484,7 +484,7 @@ void Interpreter::stepBytecodeIn() {
 		case OpCode::SELF:
 			{
 				// mScopeStack.addTemp(obj);
-				ASSERT(mCallStack.mStack.last().mSelf);
+				ASSERT(mCallStack.mStack.last().mSelf)
 				mOperandsStack.push(mCallStack.mStack.last().mSelf);
 				break;
 			}
@@ -492,7 +492,7 @@ void Interpreter::stepBytecodeIn() {
 		case OpCode::OBJ_LOAD:
 			{
 				auto path = mOperandsStack.getOperand<StringObject>();
-				auto obj = NDO->load(path->val);
+				auto obj = context->load(path->val);
 				mScopeStack.addTemp(obj);
 				mOperandsStack.push(obj);
 				break;
@@ -501,32 +501,32 @@ void Interpreter::stepBytecodeIn() {
 			{
 				auto path = mOperandsStack.getOperand<StringObject>();
 				auto target = mOperandsStack.getOperand();
-				NDO->save(target, path->val);
+				context->save(target, path->val);
 				break;
 			}
 
 		case OpCode::AND:
 			{
-				auto left = NDO->toBool(mOperandsStack.getOperand());
-				auto right = NDO->toBool(mOperandsStack.getOperand());
-				auto out = BoolObject::create(left && right);
+				auto left = ObjectsContext::toBool(mOperandsStack.getOperand());
+				auto right = ObjectsContext::toBool(mOperandsStack.getOperand());
+				auto out = context->create<BoolObject>()->set(left && right);
 				mScopeStack.addTemp(out);
 				mOperandsStack.push(out);
 				break;
 			}
 		case OpCode::OR:
 			{
-				auto left = NDO->toBool(mOperandsStack.getOperand());
-				auto right = NDO->toBool(mOperandsStack.getOperand());
-				auto out = BoolObject::create(left || right);
+				auto left = ObjectsContext::toBool(mOperandsStack.getOperand());
+				auto right = ObjectsContext::toBool(mOperandsStack.getOperand());
+				auto out = context->create<BoolObject>()->set(left || right);
 				mScopeStack.addTemp(out);
 				mOperandsStack.push(out);
 				break;
 			}
 		case OpCode::NOT:
 			{
-				auto inv = NDO->toBool(mOperandsStack.getOperand());
-				auto out = BoolObject::create(!inv);
+				auto inv = ObjectsContext::toBool(mOperandsStack.getOperand());
+				auto out = context->create<BoolObject>()->set(!inv);
 				mScopeStack.addTemp(out);
 				mOperandsStack.push(out);
 				break;
@@ -535,7 +535,7 @@ void Interpreter::stepBytecodeIn() {
 			{
 				auto left = mOperandsStack.getOperand();
 				auto right = mOperandsStack.getOperand();
-				auto out = BoolObject::create(!NDO->compare(left, right));
+				auto out = context->create<BoolObject>()->set(!ObjectsContext::compare(left, right));
 				mScopeStack.addTemp(out);
 				mOperandsStack.push(out);
 				break;
@@ -544,7 +544,7 @@ void Interpreter::stepBytecodeIn() {
 			{
 				auto left = mOperandsStack.getOperand();
 				auto right = mOperandsStack.getOperand();
-				auto out = BoolObject::create(NDO->compare(left, right));
+				auto out = context->create<BoolObject>()->set(ObjectsContext::compare(left, right));
 				mScopeStack.addTemp(out);
 				mOperandsStack.push(out);
 				break;
@@ -552,36 +552,36 @@ void Interpreter::stepBytecodeIn() {
 
 		case OpCode::MORE:
 			{
-				auto left = NDO->toFloat(mOperandsStack.getOperand());
-				auto right = NDO->toFloat(mOperandsStack.getOperand());
-				auto out = BoolObject::create(left > right);
+				auto left = ObjectsContext::toFloat(mOperandsStack.getOperand());
+				auto right = ObjectsContext::toFloat(mOperandsStack.getOperand());
+				auto out = context->create<BoolObject>()->set(left > right);
 				mScopeStack.addTemp(out);
 				mOperandsStack.push(out);
 				break;
 			}
 		case OpCode::LESS:
 			{
-				auto left = NDO->toFloat(mOperandsStack.getOperand());
-				auto right = NDO->toFloat(mOperandsStack.getOperand());
-				auto out = BoolObject::create(left < right);
+				auto left = ObjectsContext::toFloat(mOperandsStack.getOperand());
+				auto right = ObjectsContext::toFloat(mOperandsStack.getOperand());
+				auto out = context->create<BoolObject>()->set(left < right);
 				mScopeStack.addTemp(out);
 				mOperandsStack.push(out);
 				break;
 			}
 		case OpCode::EQUAL_OR_MORE:
 			{
-				auto left = NDO->toFloat(mOperandsStack.getOperand());
-				auto right = NDO->toFloat(mOperandsStack.getOperand());
-				auto out = BoolObject::create(left >= right);
+				auto left = ObjectsContext::toFloat(mOperandsStack.getOperand());
+				auto right = ObjectsContext::toFloat(mOperandsStack.getOperand());
+				auto out = context->create<BoolObject>()->set(left >= right);
 				mScopeStack.addTemp(out);
 				mOperandsStack.push(out);
 				break;
 			}
 		case OpCode::EQUAL_OR_LESS:
 			{
-				auto left = NDO->toFloat(mOperandsStack.getOperand());
-				auto right = NDO->toFloat(mOperandsStack.getOperand());
-				auto out = BoolObject::create(left <= right);
+				auto left = ObjectsContext::toFloat(mOperandsStack.getOperand());
+				auto right = ObjectsContext::toFloat(mOperandsStack.getOperand());
+				auto out = context->create<BoolObject>()->set(left <= right);
 				mScopeStack.addTemp(out);
 				mOperandsStack.push(out);
 				break;
@@ -589,7 +589,7 @@ void Interpreter::stepBytecodeIn() {
 
 		default:
 			{
-				ASSERT("Invalid OpCode");
+				ASSERT("Invalid OpCode")
 			}
 	}
 }

@@ -15,13 +15,13 @@ void CallStack::enter(const CallStack::CallFrame& frame) {
 
 	frame.mMethod->mScript->mBytecode.mArgumentsLoaded = 0;
 	frame.mMethod->mScript->mBytecode.mInstructionIdx = 0;
-	obj::NDO->increaseReferenceCount(frame.mMethod);
+	tp::obj::ObjectsContext::increaseReferenceCount(frame.mMethod);
 	mStack.append(frame);
 }
 
 void CallStack::leave() {
 	auto frame = mStack.last();
-	obj::NDO->destroy(frame.mMethod);
+	context->destroy(frame.mMethod);
 	mStack.pop();
 
 	if (mStack.size()) {

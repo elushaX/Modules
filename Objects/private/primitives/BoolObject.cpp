@@ -5,13 +5,13 @@
 using namespace tp;
 using namespace obj;
 
-void BoolObject::constructor(BoolObject* self) { self->val = false; }
+void BoolObject::constructor(ObjectsContext* context, BoolObject* self) { self->val = false; }
 
-void BoolObject::copy(BoolObject* self, const BoolObject* in) { self->val = in->val; }
+void BoolObject::copy(ObjectsContext* context, BoolObject* self, const BoolObject* in) { self->val = in->val; }
 
-BoolObject* BoolObject::create(bool in) {
-	NDO_CASTV(BoolObject, NDO->create("bool"), out)->val = alni(in);
-	return out;
+BoolObject* BoolObject::set( bool in) {
+	this->val = in;
+	return this;
 }
 
 void BoolObject::from_int(BoolObject* self, alni in) { self->val = in; }
@@ -30,9 +30,9 @@ alnf BoolObject::to_float(BoolObject* self) { return alnf(bool(self->val)); }
 
 static alni save_size(BoolObject* self) { return sizeof(alni); }
 
-static void save(BoolObject* self, ArchiverOut& file_self) { file_self << self->val; }
+static void save(ObjectsContext* context, BoolObject* self, ArchiverOut& file_self) { file_self << self->val; }
 
-static void load(ArchiverIn& file_self, BoolObject* self) { file_self >> self->val; }
+static void load(ObjectsContext* context, ArchiverIn& file_self, BoolObject* self) { file_self >> self->val; }
 
 struct ObjectTypeConversions BoolObjectTypeConversions = {
 	.from_int = (object_from_int) BoolObject::from_int,

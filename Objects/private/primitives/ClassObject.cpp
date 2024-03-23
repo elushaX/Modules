@@ -6,39 +6,39 @@
 using namespace tp;
 using namespace obj;
 
-void ClassObject::constructor(ClassObject* self) {
-	self->members = NDO_CAST(DictObject, NDO->create("dict"));
+void ClassObject::constructor(ObjectsContext* context, ClassObject* self) {
+	self->members = NDO_CAST(DictObject, context->create("dict"));
 
-	self->addMember(NDO_NULL, "__init__");
-	self->addMember(NDO_NULL, "__del__");
+	self->addMember(context->create<NullObject>(), "__init__");
+	self->addMember(context->create<NullObject>(), "__del__");
 }
 
-void ClassObject::copy(ClassObject* self, const ClassObject* blueprint) { NDO->copy(self->members, blueprint->members); }
+void ClassObject::copy(ObjectsContext* context, ClassObject* self, const ClassObject* blueprint) { context->copy(self->members, blueprint->members); }
 
-void ClassObject::destructor(ClassObject* self) { NDO->destroy(self->members); }
+void ClassObject::destructor(ObjectsContext* context, ClassObject* self) { context->destroy(self->members); }
 
 void ClassObject::addMember(Object* obj, const std::string& id) { members->put(id, obj); }
 
-void ClassObject::createMember(const std::string& type, const std::string& id) {
-	auto newo = NDO->create(type);
-	members->put(id, newo);
+void ClassObject::createMember(ObjectsContext* context, const std::string& type, const std::string& id) {
+	auto newObject = context->create(type);
+	members->put(id, newObject);
 }
 
 alni ClassObject::save_size(ClassObject* self) {
 	return sizeof(alni); // dict object adress
 }
 
-void ClassObject::save(ClassObject* self, ArchiverOut& file_self) {
+void ClassObject::save(ObjectsContext* context, ClassObject* self, ArchiverOut& file_self) {
 	// save dictobject
-	alni ndo_object_adress = NDO->save(file_self, self->members);
+	alni ndo_object_adress = context->save(file_self, self->members);
 	file_self << ndo_object_adress;
 }
 
-void ClassObject::load(ArchiverIn& file_self, ClassObject* self) {
+void ClassObject::load(ObjectsContext* context, ArchiverIn& file_self, ClassObject* self) {
 	alni ndo_object_adress;
 	file_self >> ndo_object_adress;
-	self->members = NDO_CAST(DictObject, NDO->load(file_self, ndo_object_adress));
-	NDO->increaseReferenceCount(self->members);
+	self->members = NDO_CAST(DictObject, context->load(file_self, ndo_object_adress));
+	context->increaseReferenceCount(self->members);
 }
 
 tp::Buffer<Object*> childs_retrival(ClassObject* self) {
@@ -50,9 +50,9 @@ tp::Buffer<Object*> childs_retrival(ClassObject* self) {
 alni allocated_size(ClassObject* self) { return sizeof(DictObject*); }
 
 alni allocated_size_recursive(ClassObject* self) {
-	alni out = sizeof(DictObject*);
-	out += NDO->objsize_ram_recursive_util(self->members, self->members->type);
-	return out;
+	// alni out = sizeof(DictObject*);
+	// out += NDO->objsize_ram_recursive_util(self->members, self->members->type);
+	return 0;
 }
 
 struct ObjectType ClassObject::TypeData = { .base = nullptr,

@@ -31,14 +31,12 @@ namespace tp::obj {
 
 		List<Instruction>::Node* inst(Instruction inst);
 
-		void EvalExpr(Expression* expr);
-		void EvalStatement(Statement* expr);
+		void EvalExpr(ObjectsContext* context, Expression* expr);
+		void EvalStatement(ObjectsContext* context, Statement* expr);
 
 		ConstObject* defineLocal(const std::string& id);
-	};
 
-	void initialize();
-	void finalize();
-	void Generate(ByteCode& out, StatementScope* body);
-	bool Compile(MethodObject* obj);
+		static void generate(ObjectsContext* context, ByteCode& out, StatementScope* body);
+		static bool compile(ObjectsContext* context, MethodObject* obj);
+	};
 }

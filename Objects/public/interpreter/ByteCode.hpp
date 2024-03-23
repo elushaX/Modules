@@ -14,6 +14,8 @@ namespace tp::obj {
 	typedef Object* ConstData;
 
 	struct ByteCode {
+		ObjectsContext* context = nullptr;
+
 		Buffer<ConstData> mConstants;
 		Buffer<OpCode> mInstructions;
 		ualni mInstructionIdx = 0;
@@ -21,7 +23,7 @@ namespace tp::obj {
 
 		~ByteCode() {
 			for (auto const_obj : mConstants) {
-				NDO->destroy(const_obj.data());
+				context->destroy(const_obj.data());
 			}
 		}
 	};

@@ -9,10 +9,10 @@ namespace tp::obj {
 		alni val;
 
 		static ObjectType TypeData;
-		static void constructor(BoolObject* self);
-		static void copy(BoolObject* self, const BoolObject* in);
+		static void constructor(ObjectsContext* context, BoolObject* self);
+		static void copy(ObjectsContext* context, BoolObject* self, const BoolObject* in);
 		
-		static BoolObject* create(bool in);
+		BoolObject* set(bool in);
 
 		static void from_int(BoolObject* self, alni in);
 		static void from_float(BoolObject* self, alnf in);

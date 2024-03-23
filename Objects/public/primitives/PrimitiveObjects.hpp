@@ -14,3 +14,7 @@
 #include "primitives/NullObject.hpp"
 #include "primitives/StringObject.hpp"
 #include "primitives/TypeObject.hpp"
+
+namespace tp::obj {
+	void definePrimitiveTypes(ObjectsContext* context);
+}

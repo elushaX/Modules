@@ -10,13 +10,13 @@ OperandStack::OperandStack() {
 }
 
 void OperandStack::push(Operand operand) {
-	ASSERT(MAX_STACK_SIZE - 1 > mIdx && "stack overflow");
+	ASSERT(MAX_STACK_SIZE - 1 > mIdx && "stack overflow")
 	mBuff[mIdx] = operand;
 	mIdx++;
 }
 
 void OperandStack::pop() {
-	ASSERT(mIdx != 0 && "stack overflow");
+	ASSERT(mIdx != 0 && "stack overflow")
 	mIdx--;
 }
 

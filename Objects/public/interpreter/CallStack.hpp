@@ -11,6 +11,7 @@ namespace tp::obj {
 	struct ByteCode;
 
 	struct CallStack {
+		ObjectsContext* context = nullptr;
 
 		struct CallFrame {
 			enum { CALL_DEPTH = 1024 };

@@ -12,22 +12,22 @@ ConstObject::ConstObject(Object* mObj) :
 ConstObjectsPool::~ConstObjectsPool() {
 	if (mDelete) {
 		for (auto obj : mStrings) {
-			obj::NDO->destroy(obj->val->mObj);
+			context->destroy(obj->val->mObj);
 		}
 		for (auto obj : mIntegers) {
-			obj::NDO->destroy(obj->val->mObj);
+			context->destroy(obj->val->mObj);
 		}
 		for (auto obj : mFloats) {
-			obj::NDO->destroy(obj->val->mObj);
+			context->destroy(obj->val->mObj);
 		}
 		for (auto obj : mMethods) {
-			obj::NDO->destroy(obj->val->mObj);
+			context->destroy(obj->val->mObj);
 		}
 		if (mBoolFalse.mObj) {
-			obj::NDO->destroy(mBoolFalse.mObj);
+			context->destroy(mBoolFalse.mObj);
 		}
 		if (mBoolTrue.mObj) {
-			obj::NDO->destroy(mBoolTrue.mObj);
+			context->destroy(mBoolTrue.mObj);
 		}
 	}
 	for (auto obj : mStrings) {
@@ -86,13 +86,13 @@ ConstObject* ConstObjectsPool::get(alnf val) {
 ConstObject* ConstObjectsPool::get(bool val) {
 	if (val) {
 		if (!mBoolTrue.mObj) {
-			mBoolTrue.mObj = BoolObject::create(val);
+			mBoolTrue.mObj = context->create<BoolObject>()->set(val);
 			mTotalObjects++;
 		}
 		return &mBoolTrue;
 	} else {
 		if (!mBoolFalse.mObj) {
-			mBoolFalse.mObj = BoolObject::create(val);
+			mBoolFalse.mObj = context->create<BoolObject>()->set(val);
 			mTotalObjects++;
 		}
 		return &mBoolFalse;

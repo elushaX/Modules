@@ -23,7 +23,8 @@ TypeMethod obj::gDefaultTypeMethods[] = {
 		.exec =
 			[](const TypeMethod* tm) {
 				if (tm->self->type->convesions && tm->self->type->convesions->to_string) {
-					tm->ret.obj = StringObject::create(NDO->toString(tm->self));
+					ASSERT(false);
+					// tm->ret.obj = StringObject::create(NDO->toString(tm->self));
 				}
 			},
 		.ret = { "string object", nullptr },
@@ -34,7 +35,8 @@ TypeMethod obj::gDefaultTypeMethods[] = {
 		.exec =
 			[](const TypeMethod* tm) {
 				if (tm->self->type->convesions && tm->self->type->convesions->to_float) {
-					tm->ret.obj = FloatObject::create(NDO->toFloat(tm->self));
+					ASSERT(false);
+					// tm->ret.obj = FloatObject::create(NDO->toFloat(tm->self));
 				}
 			},
 		.ret = { "string object", nullptr },
@@ -122,7 +124,8 @@ void TypeMethod::operator()(Interpreter* interp) const {
 		interp->mOperandsStack.push(ret.obj);
 		interp->mScopeStack.addTempReturn(ret.obj);
 	} else {
-		interp->mOperandsStack.push(NDO_NULL_REF);
+		ASSERT(false);
+		// interp->mOperandsStack.push(NDO_NULL_REF);
 	}
 }
 

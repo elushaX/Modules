@@ -11,10 +11,10 @@ namespace tp::obj {
 		static ObjectType TypeData;
 		static ObjectTypeAriphmetics TypeAriphm;
 
+		FloatObject* set(alnf in);
 
-		static void constructor(FloatObject* self);
-		static void copy(FloatObject* self, const FloatObject* in);
-		static FloatObject* create(alnf in);
+		static void constructor(ObjectsContext* context, FloatObject* self);
+		static void copy(ObjectsContext* context, FloatObject* self, const FloatObject* in);
 
 		static void from_int(FloatObject* self, alni in);
 		static void from_float(FloatObject* self, alnf in);

@@ -9,13 +9,13 @@
 using namespace tp;
 using namespace obj;
 
-void obj::Generate(ByteCode& out, StatementScope* body) {
+void FunctionDefinition::generate(ObjectsContext* context, ByteCode& out, StatementScope* body) {
 	auto root = FunctionDefinition();
 
 	root.inst(Instruction(OpCode::SCOPE_IN));
 
 	for (auto child_stm : body->mStatements) {
-		root.EvalStatement(child_stm.data());
+		root.EvalStatement(context, child_stm.data());
 	}
 
 	root.inst(Instruction(OpCode::SCOPE_OUT));
@@ -43,12 +43,12 @@ FunctionDefinition::FunctionDefinition(const std::string& function_id, const Buf
 	}
 }
 
-void FunctionDefinition::EvalStatement(Statement* stm) {
+void FunctionDefinition::EvalStatement(ObjectsContext* context, Statement* stm) {
 	switch (stm->mType) {
 		case Statement::Type::IGNORE:
 			{
 				auto stm_ignore = (StatementIgnore*) stm;
-				EvalExpr(stm_ignore->mExpr);
+				EvalExpr(context, stm_ignore->mExpr);
 				inst(OpCode::IGNORE);
 				break;
 			}
@@ -58,12 +58,12 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 
 				auto check_mark = inst(Instruction());
 
-				EvalExpr(stm_while->mCondition);
+				EvalExpr(context, stm_while->mCondition);
 
 				auto jump_if_inst = inst(Instruction(nullptr, Instruction::InstType::JUMP_IF_NOT));
 
 				if (stm_while->mScope) {
-					EvalStatement(stm_while->mScope);
+					EvalStatement(context, stm_while->mScope);
 				}
 
 				auto jump_inst = inst(Instruction(nullptr, Instruction::InstType::JUMP));
@@ -78,19 +78,19 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 			{
 				auto stm_if = (StatementIf*) stm;
 
-				EvalExpr(stm_if->mCondition);
+				EvalExpr(context, stm_if->mCondition);
 
 				auto jump_if_inst = inst(Instruction(nullptr, Instruction::InstType::JUMP_IF_NOT));
 
 				if (stm_if->mOnTrue) {
-					EvalStatement(stm_if->mOnTrue);
+					EvalStatement(context, stm_if->mOnTrue);
 				}
 
 				auto jump_inst = inst(Instruction(nullptr, Instruction::InstType::JUMP));
 				auto else_mark = inst(Instruction());
 
 				if (stm_if->mOnFalse) {
-					EvalStatement(stm_if->mOnFalse);
+					EvalStatement(context, stm_if->mOnFalse);
 				}
 
 				auto end_mark = inst(Instruction());
@@ -107,7 +107,7 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 					inst(Instruction(OpCode::SCOPE_IN));
 				}
 				for (auto child_stm : stm_scope->mStatements) {
-					EvalStatement(child_stm.data());
+					EvalStatement(context, child_stm.data());
 				}
 				if (stm_scope->mPushToScopeStack) {
 					inst(Instruction(OpCode::SCOPE_OUT));
@@ -126,11 +126,11 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 				mLocals.put(func.mFunctionId, mConstants.get(func.mFunctionId));
 
 				// create and register const func object
-				auto function_obj = NDO_CAST(MethodObject, NDO->create("method"));
+				auto function_obj = NDO_CAST(MethodObject, context->create("method"));
 				auto method_const_obj = mConstants.addMethod(func.mFunctionId, function_obj);
 
 				for (auto child_stm : stm_func_def->mStatements->mStatements) {
-					func.EvalStatement(child_stm.data());
+					func.EvalStatement(context, child_stm.data());
 				}
 
 				func.generateByteCode(function_obj->mScript->mBytecode);
@@ -154,7 +154,7 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 				mLocals.put(func.mFunctionId, mConstants.get(func.mFunctionId));
 
 				// create and register const func object
-				auto function_obj = NDO_CAST(MethodObject, NDO->create("method"));
+				auto function_obj = NDO_CAST(MethodObject, context->create("method"));
 				auto method_const_obj = mConstants.addMethod(func.mFunctionId, function_obj);
 
 				// compile function
@@ -163,7 +163,7 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 					ASSERT(
 						child_stm.data()->mType != Statement::Type::RET && "return statements are not allowed in class definition"
 					)
-					func.EvalStatement(child_stm.data());
+					func.EvalStatement(context, child_stm.data());
 				}
 				// create one last instruction - constructing class from function execution state
 				func.inst(Instruction(OpCode::CLASS_CONSTRUCT));
@@ -180,7 +180,7 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 
 				if (!stm_local_def->mIsConstExpr) {
 					auto const_id = defineLocal(stm_local_def->mLocalId);
-					EvalExpr(stm_local_def->mNewExpr);
+					EvalExpr(context, stm_local_def->mNewExpr);
 					inst(Instruction(OpCode::LOAD_CONST, const_id));
 					inst(Instruction(OpCode::DEF_LOCAL));
 
@@ -213,8 +213,8 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 					auto new_expr = new ExpressionNew(type);
 					auto defLocalExpr = new StatementLocalDef(stm_local_def->mLocalId, new_expr);
 
-					EvalStatement(defLocalExpr);
-					EvalExpr(stm_local_def->mConstExpr);
+					EvalStatement(context, defLocalExpr);
+					EvalExpr(context, stm_local_def->mConstExpr);
 					inst(Instruction(OpCode::LOAD_LOCAL, mConstants.get(stm_local_def->mLocalId)));
 					inst(Instruction(OpCode::OBJ_COPY));
 
@@ -225,15 +225,15 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 		case Statement::Type::COPY:
 			{
 				auto stm_cp = (StatementCopy*) stm;
-				EvalExpr(stm_cp->mRight);
-				EvalExpr(stm_cp->mLeft);
+				EvalExpr(context, stm_cp->mRight);
+				EvalExpr(context, stm_cp->mLeft);
 				inst(Instruction(OpCode::OBJ_COPY));
 				break;
 			}
 		case Statement::Type::PRINT:
 			{
 				auto stm_prnt = (StatementPrint*) stm;
-				EvalExpr(stm_prnt->mTarget);
+				EvalExpr(context, stm_prnt->mTarget);
 				inst(Instruction(OpCode::PRINT));
 				break;
 			}
@@ -241,7 +241,7 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 			{
 				auto stm_ret = (StatementReturn*) stm;
 				if (stm_ret->mRet) {
-					EvalExpr(stm_ret->mRet);
+					EvalExpr(context, stm_ret->mRet);
 					inst(Instruction(OpCode::RETURN_OBJ));
 				} else {
 					inst(Instruction(OpCode::RETURN));
@@ -253,17 +253,17 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 	}
 }
 
-void FunctionDefinition::EvalExpr(Expression* expr) {
+void FunctionDefinition::EvalExpr(ObjectsContext* context, Expression* expr) {
 	switch (expr->mType) {
 		case Expression::Type::BOOLEAN:
 			{
 				auto boolean = (ExpressionBoolean*) expr;
 				if (boolean->mBoolType == ExpressionBoolean::BoolType::NOT) {
-					EvalExpr(boolean->mLeft);
+					EvalExpr(context, boolean->mLeft);
 					inst(OpCode::NOT);
 				} else {
-					EvalExpr(boolean->mRight);
-					EvalExpr(boolean->mLeft);
+					EvalExpr(context, boolean->mRight);
+					EvalExpr(context, boolean->mLeft);
 					inst(OpCode(boolean->mBoolType));
 				}
 				break;
@@ -279,8 +279,8 @@ void FunctionDefinition::EvalExpr(Expression* expr) {
 		case Expression::Type::ARITHMETICS:
 			{
 				auto arithmeticExpression = (ExpressionArithmetics*) expr;
-				EvalExpr(arithmeticExpression->mRight);
-				EvalExpr(arithmeticExpression->mLeft);
+				EvalExpr(context, arithmeticExpression->mRight);
+				EvalExpr(context, arithmeticExpression->mLeft);
 				inst(Instruction(arithmeticExpression->mOpType));
 				break;
 			}
@@ -328,7 +328,7 @@ void FunctionDefinition::EvalExpr(Expression* expr) {
 		case Expression::Type::CHILD:
 			{
 				auto child = (ExpressionChild*) expr;
-				EvalExpr(child->mParent);
+				EvalExpr(context, child->mParent);
 				inst(Instruction(OpCode::LOAD_CONST, mConstants.get(child->mLocalId)));
 				inst(Instruction(OpCode::CHILD, child->mMethod, 1));
 				break;
@@ -343,9 +343,9 @@ void FunctionDefinition::EvalExpr(Expression* expr) {
 				auto call = (ExpressionCall*) expr;
 				inst(Instruction(OpCode::PUSH_ARGS, (alni) call->mArgs->mItems.size(), 1));
 				for (auto arg : call->mArgs->mItems) {
-					EvalExpr(arg.data());
+					EvalExpr(context, arg.data());
 				}
-				EvalExpr(call->mParent);
+				EvalExpr(context, call->mParent);
 				inst(Instruction(OpCode::CALL));
 				break;
 			}
@@ -545,11 +545,7 @@ List<Instruction>::Node* FunctionDefinition::inst(Instruction inst) {
 	return mInstructions.last();
 }
 
-void obj::initialize() {}
-
-void obj::finalize() {}
-
-bool obj::Compile(obj::MethodObject* method) {
+bool FunctionDefinition::compile(ObjectsContext* context, obj::MethodObject* method) {
 
 	Parser parser;
 
@@ -561,7 +557,7 @@ bool obj::Compile(obj::MethodObject* method) {
 		return false;
 	}
 
-	Generate(method->mScript->mBytecode, res.scope);
+	generate(context, method->mScript->mBytecode, res.scope);
 
 	delete res.scope;
 

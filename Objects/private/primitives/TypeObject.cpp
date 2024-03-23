@@ -5,7 +5,7 @@
 using namespace tp;
 using namespace obj;
 
-TypeObject* TypeObject::create(const ObjectType* type) {
+TypeObject* TypeObject::create(ObjectsContext* context, const ObjectType* type) {
 	NDO_CASTV(TypeObject, NDO->create("typeobject"), out);
 	out->mTypeRef = type;
 	return out;
@@ -15,11 +15,11 @@ static alni save_size(TypeObject* self) {
 	return save_string_size(self->mTypeRef->name);
 }
 
-static void save(TypeObject* self, ArchiverOut& file_self) {
+static void save(ObjectsContext* context, TypeObject* self, ArchiverOut& file_self) {
 	save_string(file_self, self->mTypeRef->name);
 }
 
-static void load(ArchiverIn& file_self, TypeObject* self) {
+static void load(ObjectsContext* context, ArchiverIn& file_self, TypeObject* self) {
 	std::string nameid;
 	load_string(file_self, nameid);
 
