@@ -106,13 +106,13 @@ void ListObject::popBack() {
 
 const tp::List<Object*>& ListObject::getItems() const { return items; }
 
-struct obj::ObjectType obj::ListObject::TypeData = { .base = NULL,
+struct obj::ObjectType obj::ListObject::TypeData = { .base = nullptr,
 																										 .constructor = ListObject::constructor,
 																										 .destructor = ListObject::destructor,
 																										 .copy = ListObject::copy,
 																										 .size = sizeof(ListObject),
 																										 .name = "list",
-																										 .convesions = NULL,
+																										 .convesions = nullptr,
 																										 .save_size = (object_save_size) save_size,
 																										 .save = (object_save) save,
 																										 .load = (object_load) load,

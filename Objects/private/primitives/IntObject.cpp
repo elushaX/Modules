@@ -58,9 +58,9 @@ struct ObjectTypeAriphmetics IntObject::TypeAriphm = {
 };
 
 struct obj::ObjectType obj::IntObject::TypeData = {
-	.base = NULL,
+	.base = nullptr,
 	.constructor = IntObject::constructor,
-	.destructor = NULL,
+	.destructor = nullptr,
 	.copy = (object_copy) IntObject::copy,
 	.size = sizeof(IntObject),
 	.name = "int",

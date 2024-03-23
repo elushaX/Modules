@@ -15,7 +15,7 @@ void OperandStack::push(Operand operand) {
 }
 
 void OperandStack::pop() {
-	ASSERT(mIdx != NULL && "stack overflow");
+	ASSERT(mIdx != 0 && "stack overflow");
 	mIdx--;
 }
 

@@ -33,7 +33,7 @@ void Interpreter::exec(obj::MethodObject* method, obj::ClassObject* self, obj::D
 		return;
 	}
 
-	mCallStack.enter({ NULL, method, 0 });
+	mCallStack.enter({ nullptr, method, 0 });
 	mCallStack.mStack.last().mSelf = self;
 
 	stepBytecodeIn();
@@ -250,7 +250,7 @@ void Interpreter::stepBytecodeIn() {
 		case OpCode::OBJ_CREATE:
 			{
 				auto type = mOperandsStack.getOperand<StringObject>();
-				Object* new_obj = NULL;
+				Object* new_obj = nullptr;
 
 				// basic types
 				auto idx = NDO->types.presents(type->val);
@@ -272,11 +272,11 @@ void Interpreter::stepBytecodeIn() {
 				// PUSH_ARGS protocol
 				tp::uint2 len = 0;
 				mOperandsStack.push((Object*) len);
-				mOperandsStack.push(NULL);
+				mOperandsStack.push(nullptr);
 
 				// CALL protocol
 				mScopeStack.enterScope(false);
-				mCallStack.enter({ NULL, method, 0 });
+				mCallStack.enter({ nullptr, method, 0 });
 				break;
 			}
 
@@ -313,14 +313,14 @@ void Interpreter::stepBytecodeIn() {
 				// Layout of OperandsStack:
 				// ....
 				// +1) length : to chech number of args
-				// +2) NULL : stop saving args
+				// +2) nullptr : stop saving args
 				// +3) object1
 				// +4) object2
 				// ...
 
 				tp::uint2 len = read_byte(bytecode);
 				mOperandsStack.push((Object*) len);
-				mOperandsStack.push(NULL);
+				mOperandsStack.push(nullptr);
 				break;
 			}
 
@@ -367,7 +367,7 @@ void Interpreter::stepBytecodeIn() {
 					NDO_CASTV(MethodObject, obj, method);
 
 					mScopeStack.enterScope(false);
-					mCallStack.enter({ NULL, method, 0 });
+					mCallStack.enter({ nullptr, method, 0 });
 
 					// push self
 					mCallStack.mStack.last().mSelf = mLastParent;
@@ -376,7 +376,7 @@ void Interpreter::stepBytecodeIn() {
 
 				(*mTypeMethod)(this);
 				mIsTypeMethod = false;
-				mTypeMethod = NULL;
+				mTypeMethod = nullptr;
 				break;
 			}
 
@@ -455,7 +455,7 @@ void Interpreter::stepBytecodeIn() {
 				auto parent = mOperandsStack.getOperand();
 				bool is_method = read_byte(bytecode);
 
-				Object* child = NULL;
+				Object* child = nullptr;
 				TypeMethods::LookupKey tm_key;
 
 				if (is_method) {

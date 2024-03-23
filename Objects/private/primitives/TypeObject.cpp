@@ -54,7 +54,7 @@ static struct ObjectTypeConversions conversions = {
 };
 
 struct obj::ObjectType TypeObject::TypeData = {
-	.base = NULL,
+	.base = nullptr,
 	//.constructor = (object_constructor) TypeObject::constructor,
 	.size = sizeof(TypeObject),
 	.name = "typeobject",

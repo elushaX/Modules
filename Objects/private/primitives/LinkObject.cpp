@@ -20,7 +20,7 @@ LinkObject* LinkObject::create(Object* in) {
 alni LinkObject::save_size(LinkObject* self) { return sizeof(alni); }
 
 void LinkObject::save(LinkObject* self, ArchiverOut& file_self) {
-	if (self->link != NULL) {
+	if (self->link != nullptr) {
 		alni link_object_save_adress = NDO->save(file_self, self->link);
 		file_self << link_object_save_adress;
 	} else {
@@ -35,7 +35,7 @@ void LinkObject::load(ArchiverIn& file_self, LinkObject* self) {
 	file_self >> saved_object_adress;
 
 	if (saved_object_adress == -1) {
-		self->link = NULL;
+		self->link = nullptr;
 	} else {
 		self->link = NDO->load(file_self, saved_object_adress);
 		NDO->refinc(self->link);
@@ -66,7 +66,7 @@ void LinkObject::setLink(Object* obj) {
 	link = obj;
 }
 
-static auto tm_set = TypeMethod{ .nameid = "set", .descr = "sets the link", .args = { { "target", NULL } }, .exec = [](const TypeMethod* tm) {
+static auto tm_set = TypeMethod{ .nameid = "set", .descr = "sets the link", .args = { { "target", nullptr } }, .exec = [](const TypeMethod* tm) {
 																	auto const self = (LinkObject*) tm->self;
 																	auto const target = tm->args[0].obj;
 																	self->setLink(target);
@@ -82,15 +82,15 @@ static auto tm_get = TypeMethod{ .nameid = "get",
 																			 tm->ret.obj = link;
 																		 }
 																	 },
-																 .ret = { "the link", NULL } };
+																 .ret = { "the link", nullptr } };
 
-struct obj::ObjectType LinkObject::TypeData = { .base = NULL,
+struct obj::ObjectType LinkObject::TypeData = { .base = nullptr,
 																								.constructor = LinkObject::constructor,
 																								.destructor = (object_destructor) LinkObject::destructor,
 																								.copy = LinkObject::copy,
 																								.size = sizeof(LinkObject),
 																								.name = "link",
-																								.convesions = NULL,
+																								.convesions = nullptr,
 																								.save_size = (object_save_size) LinkObject::save_size,
 																								.save = (object_save) LinkObject::save,
 																								.load = (object_load) LinkObject::load,

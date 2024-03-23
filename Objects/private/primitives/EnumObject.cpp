@@ -10,7 +10,7 @@ using namespace tp;
 void EnumObject::constructor(EnumObject* self) {
 	self->active = 0;
 	self->nentries = 0;
-	self->entries = NULL;
+	self->entries = nullptr;
 }
 
 void obj::EnumObject::destructor(EnumObject* self) {
@@ -126,7 +126,7 @@ static void load(ArchiverIn& file_self, EnumObject* self) {
 	file_self >> self->active;
 	if (self->active == -1) {
 		self->nentries = 0;
-		self->entries = NULL;
+		self->entries = nullptr;
 		return;
 	}
 	file_self >> self->nentries;
@@ -134,7 +134,7 @@ static void load(ArchiverIn& file_self, EnumObject* self) {
 	file_self.readBytes((tp::int1*) self->entries, self->nentries * ENV_ALNI_SIZE_B);
 }
 
-bool obj::EnumObject::compare(EnumObject* first, EnumObject* second) { return first->entries != NULL && second->entries != NULL && first->active == second->active; }
+bool obj::EnumObject::compare(EnumObject* first, EnumObject* second) { return first->entries != nullptr && second->entries != nullptr && first->active == second->active; }
 
 EnumObject* obj::EnumObject::create(tp::InitialierList<const char*> list) {
 	auto enum_object = (EnumObject*) obj::NDO->create("enum");
@@ -160,7 +160,7 @@ struct ObjectTypeConversions EnumObjectTypeConversions = {
 };
 
 struct obj::ObjectType obj::EnumObject::TypeData = {
-	.base = NULL,
+	.base = nullptr,
 	.constructor = (object_constructor) EnumObject::constructor,
 	.destructor = (object_destructor) EnumObject::destructor,
 	.copy = (object_copy) EnumObject::copy,
