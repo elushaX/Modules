@@ -1,0 +1,16 @@
+#pragma once
+
+#include "primitives/BoolObject.hpp"
+#include "primitives/ClassObject.hpp"
+#include "primitives/ColorObject.hpp"
+#include "primitives/DictObject.hpp"
+#include "primitives/EnumObject.hpp"
+#include "primitives/FloatObject.hpp"
+#include "primitives/InterpreterObject.hpp"
+#include "primitives/IntObject.hpp"
+#include "primitives/LinkObject.hpp"
+#include "primitives/ListObject.hpp"
+#include "primitives/MethodObject.hpp"
+#include "primitives/NullObject.hpp"
+#include "primitives/StringObject.hpp"
+#include "primitives/TypeObject.hpp"

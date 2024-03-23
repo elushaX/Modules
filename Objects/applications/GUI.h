@@ -1,10 +1,10 @@
 
 #pragma once
 
-#include "primitives/primitives.h"
-#include "primitives//interpreterobject.h"
+#include "primitives/PrimitiveObjects.hpp"
+#include "primitives//InterpreterObject.hpp"
 
-#include "compiler/function.h"
+#include "compiler/Functions.hpp"
 
 #include <string>
 

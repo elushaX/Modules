@@ -1,13 +1,13 @@
 
 #include "ObjectTests.hpp"
 
-#include "compiler/function.h"
-#include "parser/parser.h"
-#include "core/object.h"
-#include "interpreter/interpreter.h"
-#include "primitives/interpreterobject.h"
-#include "primitives/linkobject.h"
-#include "primitives/methodobject.h"
+#include "compiler/Functions.hpp"
+#include "parser/Parser.hpp"
+#include "core/Object.hpp"
+#include "interpreter/Interpreter.hpp"
+#include "primitives/InterpreterObject.hpp"
+#include "primitives/LinkObject.hpp"
+#include "primitives/MethodObject.hpp"
 
 using namespace tp;
 using namespace obj;

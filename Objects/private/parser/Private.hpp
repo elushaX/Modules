@@ -4,8 +4,8 @@
 #include <lalr/Parser.hpp>
 #include <lalr/string_literal.hpp>
 
-#include "compiler/statement.h"
-#include "compiler/expression.h"
+#include "compiler/Statements.hpp"
+#include "compiler/Expressions.hpp"
 
 #include "Tree.hpp"
 

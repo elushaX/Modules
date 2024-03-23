@@ -3,7 +3,7 @@
 
 #include "Rect.hpp"
 
-#include "interpreter/interpreter.h"
+#include "interpreter/Interpreter.hpp"
 
 #include "imgui.h"
 #include "imgui_internal.h"
