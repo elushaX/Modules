@@ -13,7 +13,7 @@ SUITE(Core) {
 		objTestModule.initialize();
 
 		{
-			auto integer = NDO_CAST(IntObject, NDO->create("int"));
+			auto integer = objects_api::cast<IntObject>(NDO->create("int"));
 
 			integer->val = 10;
 
@@ -25,8 +25,8 @@ SUITE(Core) {
 			printf("%s\n", NDO->toString(savedInt).c_str());
 
 			CHECK(NDO->compare(integer, savedInt));
-			CHECK(NDO_CAST(IntObject, savedInt));
-			CHECK(integer->val == NDO_CAST(IntObject, savedInt)->val);
+			CHECK(objects_api::cast<IntObject>(savedInt));
+			CHECK(integer->val == objects_api::cast<IntObject>(savedInt)->val);
 
 			NDO->destroy(integer);
 			NDO->destroy(savedInt);

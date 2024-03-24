@@ -14,9 +14,7 @@ void obj::save_string(ArchiverOut& file, const std::string& string) {
 	file.writeBytes(string.c_str(), string.size());
 }
 
-ualni obj::save_string_size(const std::string& string) {
-	return string.size() + sizeof(string.size());
-}
+ualni obj::save_string_size(const std::string& string) { return string.size() + sizeof(string.size()); }
 
 void obj::load_string(ArchiverIn& file, std::string& out) {
 	typeof(out.size()) size;
@@ -29,7 +27,7 @@ void obj::load_string(ArchiverIn& file, std::string& out) {
 }
 
 Object* ObjectMemAllocate(const ObjectType* type);
-void ObjectMemDeallocate(Object* in);
+void ObjectMemDeallocate(Object* object);
 
 objects_api* obj::NDO = nullptr;
 
@@ -68,14 +66,14 @@ Object* objects_api::create(const std::string& name) {
 
 	setReferenceCount(obj_instance, 0);
 
-	NDO_CASTV(ClassObject, obj_instance, classobj);
+	auto classobj = objects_api::cast<ClassObject>(obj_instance);
 
 	if (classobj) {
 		auto idx = classobj->members->presents("__init__");
 		DEBUG_ASSERT(idx)
 		if (idx) {
 			auto constructor_obj = classobj->members->getSlotVal(idx);
-			NDO_CASTV(MethodObject, constructor_obj, constructor_method);
+			auto constructor_method = objects_api::cast<MethodObject>(constructor_obj);
 			if (constructor_method) {
 				interp->execAll(constructor_method, classobj);
 			}
@@ -102,7 +100,8 @@ bool objects_api::compare(Object* first, Object* second) {
 		}
 
 		// raw data comparison
-		return memCompare(first, second, first->type->size) == 0;
+		// TODO : reconsider
+		return memCompare(first->type, second->type, first->type->size - sizeof(Object) + sizeof(void*)) == 0;
 	}
 
 	return false;
@@ -110,7 +109,7 @@ bool objects_api::compare(Object* first, Object* second) {
 
 Object* objects_api::instantiate(Object* in) {
 	obj::Object* obj = NDO->create(in->type->name);
-	NDO->copy(obj, in);
+	tp::obj::objects_api::copy(obj, in);
 	return obj;
 }
 
@@ -163,19 +162,18 @@ void objects_api::destroy(Object* in) const {
 		return;
 	}
 
-	ObjectMemHead* mh = NDO_MEMH_FROM_NDO(in);
-	if (mh->refc > 1) {
-		mh->refc--;
+	if (in->refc > 1) {
+		in->refc--;
 		return;
 	}
 
-	NDO_CASTV(ClassObject, in, classobj);
+	auto classobj = objects_api::cast<ClassObject>(in);
 	if (classobj) {
 		auto idx = classobj->members->presents("__del__");
 		DEBUG_ASSERT(idx)
 		if (idx) {
 			auto constructor_obj = classobj->members->getSlotVal(idx);
-			NDO_CASTV(MethodObject, constructor_obj, constructor_method);
+			auto constructor_method = objects_api::cast<MethodObject>(constructor_obj);
 			if (constructor_method) {
 				interp->execAll(constructor_method, classobj);
 			}
@@ -190,22 +188,6 @@ void objects_api::destroy(Object* in) const {
 
 	ObjectMemDeallocate(in);
 }
-
-halni objects_api::getReferenceCount(Object* in) {
-	ObjectMemHead* mh = NDO_MEMH_FROM_NDO(in);
-	return (halni) mh->refc;
-}
-
-void objects_api::increaseReferenceCount(Object* in) {
-	ObjectMemHead* mh = NDO_MEMH_FROM_NDO(in);
-	mh->refc++;
-}
-
-void objects_api::setReferenceCount(Object* in, halni count) {
-	ObjectMemHead* mh = NDO_MEMH_FROM_NDO(in);
-	mh->refc = count;
-}
-
 
 void hierarchy_copy(Object* self, const Object* in, const ObjectType* type) {
 	if (type->base) {
@@ -225,15 +207,4 @@ void hierarchy_construct(Object* self, const ObjectType* type) {
 	if (type->constructor) {
 		type->constructor(self);
 	}
-}
-
-Object* obj::ndo_cast(const Object* in, const ObjectType* to_type) {
-	const ObjectType* typeIter = in->type;
-	while (typeIter) {
-		if (typeIter == to_type) {
-			return (Object*) in;
-		}
-		typeIter = typeIter->base;
-	}
-	return nullptr;
 }

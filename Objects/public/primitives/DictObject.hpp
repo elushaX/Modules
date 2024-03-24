@@ -6,9 +6,9 @@ namespace tp::obj {
 
 	struct DictObject : Object {
 		static ObjectType TypeData;
-		static void copy(Object* self, const Object* in);
-		static void destructor(Object* self);
-		static void constructor(Object* self);
+		static void copy(DictObject* self, const DictObject* in);
+		static void destructor(DictObject* self);
+		static void constructor(DictObject* self);
 
 		static alni save_size(DictObject* self);
 		static void save(DictObject* self, ArchiverOut& file_self);

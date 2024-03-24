@@ -12,7 +12,7 @@ namespace tp::obj {
 		static ObjectType TypeData;
 		static ObjectTypeAriphmetics TypeAriphm;
 
-		static void constructor(Object* self);
+		static void constructor(ColorObject* self);
 		static void copy(ColorObject* self, const ColorObject* in);
 
 		static void from_int(ColorObject* self, alni in);

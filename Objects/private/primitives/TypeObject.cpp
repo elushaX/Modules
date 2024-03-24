@@ -6,18 +6,14 @@ using namespace tp;
 using namespace obj;
 
 TypeObject* TypeObject::create(const ObjectType* type) {
-	NDO_CASTV(TypeObject, NDO->create("typeobject"), out);
+	auto out = objects_api::cast<TypeObject>(NDO->create("typeobject"));
 	out->mTypeRef = type;
 	return out;
 }
 
-static alni save_size(TypeObject* self) {
-	return save_string_size(self->mTypeRef->name);
-}
+static alni save_size(TypeObject* self) { return save_string_size(self->mTypeRef->name); }
 
-static void save(TypeObject* self, ArchiverOut& file_self) {
-	save_string(file_self, self->mTypeRef->name);
-}
+static void save(TypeObject* self, ArchiverOut& file_self) { save_string(file_self, self->mTypeRef->name); }
 
 static void load(ArchiverIn& file_self, TypeObject* self) {
 	std::string nameid;

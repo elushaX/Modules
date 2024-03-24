@@ -19,7 +19,7 @@ namespace tp::obj {
 		void addMember(Object* obj, const std::string& id);
 		void createMember(const std::string& type, const std::string& id);
 
-		template<typename Type>
+		template <typename Type>
 		Type* createMember(const std::string& id) {
 			auto out = NDO->create(Type::TypeData.name);
 			addMember(out, id);
@@ -27,19 +27,19 @@ namespace tp::obj {
 			return (Type*) out;
 		}
 
-		template<typename Type>
+		template <typename Type>
 		Type* getMember(const std::string& id) {
 			auto idx = members->presents(id);
 			if (bool(idx)) {
-				return ((Type*)ndo_cast(members->getSlotVal(idx), &Type::TypeData));
+				return objects_api::cast<Type>(members->getSlotVal(idx));
 			}
 			return NULL;
 		}
 
-		template<typename Type>
+		template <typename Type>
 		Type* getMemberAssert(const std::string& id) {
 			auto out = getMember<Type>(id);
-			assert(out && "invalid member access");
+			ASSERT(out && "invalid member access")
 			return out;
 		}
 	};

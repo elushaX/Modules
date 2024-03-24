@@ -100,7 +100,7 @@ ConstObject* ConstObjectsPool::get(bool val) {
 }
 
 ConstObject* ConstObjectsPool::addMethod(const std::string& method_id, Object* method) {
-	ASSERT(NDO_CAST(MethodObject, method) && "Object is not a method object")
+	ASSERT(objects_api::cast<MethodObject>(method) && "Object is not a method object")
 	ASSERT(!mMethods.presents(method_id) && "Method Redefinition")
 	auto out = registerObject(method);
 	mMethods.put(method_id, out);

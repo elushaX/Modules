@@ -7,9 +7,10 @@ namespace tp::obj {
 
 	struct LinkObject : Object {
 		static ObjectType TypeData;
-		static void constructor(Object* self);
+
+		static void constructor(LinkObject* self);
 		static void destructor(LinkObject* self);
-		static void copy(Object* self, const Object* in);
+		static void copy(LinkObject* self, const LinkObject* in);
 		static LinkObject* create(Object* in);
 
 		static alni save_size(LinkObject* self);

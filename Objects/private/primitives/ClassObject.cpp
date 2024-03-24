@@ -7,13 +7,15 @@ using namespace tp;
 using namespace obj;
 
 void ClassObject::constructor(ClassObject* self) {
-	self->members = NDO_CAST(DictObject, NDO->create("dict"));
+	self->members = objects_api::cast<DictObject>(NDO->create("dict"));
 
 	self->addMember(NDO_NULL, "__init__");
 	self->addMember(NDO_NULL, "__del__");
 }
 
-void ClassObject::copy(ClassObject* self, const ClassObject* blueprint) { NDO->copy(self->members, blueprint->members); }
+void ClassObject::copy(ClassObject* self, const ClassObject* blueprint) {
+	NDO->copy(self->members, blueprint->members);
+}
 
 void ClassObject::destructor(ClassObject* self) { NDO->destroy(self->members); }
 
@@ -37,8 +39,8 @@ void ClassObject::save(ClassObject* self, ArchiverOut& file_self) {
 void ClassObject::load(ArchiverIn& file_self, ClassObject* self) {
 	alni ndo_object_adress;
 	file_self >> ndo_object_adress;
-	self->members = NDO_CAST(DictObject, NDO->load(file_self, ndo_object_adress));
-	NDO->increaseReferenceCount(self->members);
+	self->members = objects_api::cast<DictObject>(NDO->load(file_self, ndo_object_adress));
+	tp::obj::objects_api::increaseReferenceCount(self->members);
 }
 
 tp::Buffer<Object*> childs_retrival(ClassObject* self) {
@@ -66,4 +68,5 @@ struct ObjectType ClassObject::TypeData = { .base = nullptr,
 																						.load = (object_load) load,
 																						.childs_retrival = (object_debug_all_childs_retrival) childs_retrival,
 																						.allocated_size = (object_allocated_size) allocated_size,
-																						.allocated_size_recursive = (object_allocated_size_recursive) allocated_size_recursive };
+																						.allocated_size_recursive =
+																							(object_allocated_size_recursive) allocated_size_recursive };

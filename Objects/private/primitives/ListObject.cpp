@@ -5,28 +5,22 @@
 using namespace tp;
 using namespace obj;
 
-void ListObject::constructor(Object* in) {
-	NDO_CASTV(ListObject, in, self);
-	new (&self->items) List<Object*>();
-}
+void ListObject::constructor(ListObject* self) { new (&self->items) List<Object*>(); }
 
-void ListObject::copy(Object* in, const Object* target) {
-	NDO_CASTV(ListObject, in, self);
-	NDO_CASTV(ListObject, target, src);
-
+void ListObject::copy(ListObject* in, const ListObject* target) {
 	destructor(in);
+	constructor(in);
 
-	for (auto item : src->items) {
-		self->pushBack(NDO->instantiate(item.data()));
+	for (auto item : target->items) {
+		in->pushBack(objects_api::instantiate(item.data()));
 	}
 }
 
-void ListObject::destructor(Object* in) {
-	NDO_CASTV(ListObject, in, self);
-	for (auto item : self->items) {
+void ListObject::destructor(ListObject* in) {
+	for (auto item : in->items) {
 		NDO->destroy(item.data());
 	}
-	self->items.removeAll();
+	in->items.removeAll();
 }
 
 alni ListObject::save_size(ListObject* self) {
@@ -106,16 +100,20 @@ void ListObject::popBack() {
 
 const tp::List<Object*>& ListObject::getItems() const { return items; }
 
-struct obj::ObjectType obj::ListObject::TypeData = { .base = nullptr,
-																										 .constructor = ListObject::constructor,
-																										 .destructor = ListObject::destructor,
-																										 .copy = ListObject::copy,
-																										 .size = sizeof(ListObject),
-																										 .name = "list",
-																										 .convesions = nullptr,
-																										 .save_size = (object_save_size) save_size,
-																										 .save = (object_save) save,
-																										 .load = (object_load) load,
-																										 .childs_retrival = (object_debug_all_childs_retrival) childs_retrival,
-																										 .allocated_size = (object_allocated_size) allocated_size,
-																										 .allocated_size_recursive = (object_allocated_size_recursive) allocated_size_recursive };
+struct obj::ObjectType obj::ListObject::TypeData = {
+	.base = nullptr,
+	.constructor = (object_constructor) ListObject::constructor,
+	.destructor = (object_destructor) ListObject::destructor,
+	.copy = (object_copy) ListObject::copy,
+	.size = sizeof(ListObject),
+	.name = "list",
+	.convesions = nullptr,
+	
+	.save_size = (object_save_size) save_size,
+	.save = (object_save) save,
+	.load = (object_load) load,
+
+	.childs_retrival = (object_debug_all_childs_retrival) childs_retrival,
+	.allocated_size = (object_allocated_size) allocated_size,
+	.allocated_size_recursive = (object_allocated_size_recursive) allocated_size_recursive,
+};

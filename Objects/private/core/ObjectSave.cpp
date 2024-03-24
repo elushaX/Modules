@@ -9,60 +9,48 @@
 using namespace tp;
 using namespace obj;
 
-ObjectMemHead* bottom = nullptr;
+Object* bottom = nullptr;
 ualni count = 0;
 
-struct ObjectsFileHeader {
-	char name[10] = { 0 };
-	char version[10] = { 0 };
-
-	ObjectsFileHeader(bool default_val = true) {
-		if (default_val) {
-			memCopy(&name, "objects", 8);
-			memCopy(&version, "0", 2);
-		}
-	}
-};
-
 Object* ObjectMemAllocate(const ObjectType* type) {
-	ObjectMemHead* memh = (ObjectMemHead*) malloc(type->size + sizeof(ObjectMemHead));
-	if (!memh) {
-		return nullptr;
+	auto object = (Object*) malloc(type->size);
+
+	if (!object) {
+		printf("Cant allocate memory for an object");
+		exit(0);
 	}
 
-	memh->down = nullptr;
-	memh->flags = 0;
+	object->down = nullptr;
+	object->flags = 0;
 
-	memh->refc = (alni) 1;
+	object->refc = (alni) 1;
 
 	if (bottom) {
-		bottom->down = memh;
+		bottom->down = object;
 	}
 
-	memh->up = bottom;
-	bottom = memh;
+	object->up = bottom;
+	bottom = object;
 
 	count++;
 
-	NDO_FROM_MEMH(memh)->type = type;
-	return NDO_FROM_MEMH(memh);
+	object->type = type;
+
+	return object;
 }
 
-void ObjectMemDeallocate(Object* in) {
-	ObjectMemHead* memh = ((ObjectMemHead*) in) - 1;
-
-	if (memh->up) {
-		memh->up->down = memh->down;
+void ObjectMemDeallocate(Object* object) {
+	if (object->up) {
+		object->up->down = object->down;
 	}
 
-	if (memh->down) {
-		memh->down->up = memh->up;
+	if (object->down) {
+		object->down->up = object->up;
 	} else {
-		bottom = memh->up;
+		bottom = object->up;
 	}
 
-	free(memh);
-
+	free(object);
 	count--;
 }
 
@@ -74,22 +62,34 @@ void obj::logTypeData(const ObjectType* type) {
 	}
 }
 
-ualni obj::getObjCount() { return count;  }
+ualni obj::getObjCount() { return count; }
 
 void obj::assertNoLeaks() {
 	if (bottom) {
 		printf("ERROR : not all objects are destroyed\n");
 		ualni idx = 0;
-		for (ObjectMemHead* memh = bottom; memh; memh = memh->up) {
-			printf(" ===== Object - %i. Ref count - %i ===== \n", idx, memh->refc);
-			logTypeData(NDO_FROM_MEMH(memh)->type);
+		for (Object* object = bottom; object; object = object->up) {
+			printf(" ===== Object - %llu. Ref count - %lli ===== \n", idx, object->refc);
+			logTypeData(object->type);
 			idx++;
 		}
 	}
 }
 
+struct ObjectsFileHeader {
+	char name[10] = { 0 };
+	char version[10] = { 0 };
+
+	explicit ObjectsFileHeader(bool default_val = true) {
+		if (default_val) {
+			memCopy(&name, "objects", 8);
+			memCopy(&version, "0", 2);
+		}
+	}
+};
+
 struct ObjectFileHead {
-	Object* load_head_adress = 0;
+	Object* load_head_adress = nullptr;
 	halni refc = 0;
 };
 
@@ -97,12 +97,10 @@ int1* loaded_file = nullptr;
 
 void objects_api::clear_object_flags() {
 	// clear all object flags
-	for (ObjectMemHead* iter = bottom; iter; iter = iter->up) {
+	for (Object* iter = bottom; iter; iter = iter->up) {
 		iter->flags = -1;
 	}
 }
-
-alni& getObjectFlags(Object* in) { return NDO_MEMH_FROM_NDO(in)->flags; }
 
 alni objsize_ram_util(Object* self, const ObjectType* type) {
 	alni out = 0;
@@ -128,11 +126,11 @@ alni objects_api::objsize_ram_recursive_util(Object* self, const ObjectType* typ
 	alni out = 0;
 
 	if (different_object) {
-		if (getObjectFlags(self) == 1) {
+		if (self->flags == 1) {
 			return 0;
 		}
 
-		getObjectFlags(self) = 1;
+		self->flags = 1;
 	}
 
 	if (type->allocated_size_recursive) {
@@ -177,7 +175,7 @@ alni objects_api::objsize_file(Object* self) { return objsize_file_util(self, se
 alni objsize_file_recursive_util(Object* self, const ObjectType* type) {
 	alni out = 0;
 
-	getObjectFlags(self) = 1;
+	self->flags = 1;
 
 	if (type->save_size) {
 		out += type->save_size(self);
@@ -186,7 +184,7 @@ alni objsize_file_recursive_util(Object* self, const ObjectType* type) {
 	if (type->childs_retrival) {
 		Buffer<Object*> childs = type->childs_retrival(self);
 		for (auto child : childs) {
-			if (getObjectFlags(child.data()) != 1) {
+			if (child.data()->flags != 1) {
 				out += objsize_file_recursive_util(child.data(), child.data()->type);
 			}
 		}
@@ -217,8 +215,8 @@ void object_recursive_save(ArchiverOut& ndf, Object* self, const ObjectType* typ
 
 alni objects_api::save(ArchiverOut& ndf, Object* in) {
 	// if already saved return file_adress
-	if (NDO_MEMH_FROM_NDO(in)->flags != -1) {
-		return NDO_MEMH_FROM_NDO(in)->flags;
+	if (in->flags != -1) {
+		return in->flags;
 	}
 
 	// save write adress for parent save function call
@@ -228,13 +226,13 @@ alni objects_api::save(ArchiverOut& ndf, Object* in) {
 	alni save_adress = ndf.getFreeAddress();
 
 	// save file_adress in memhead
-	NDO_MEMH_FROM_NDO(in)->flags = save_adress;
+	in->flags = save_adress;
 
 	// update write adress
 	ndf.setAddress(save_adress);
 
 	// save file object header
-	ObjectFileHead ofh = { 0, getReferenceCount(in) };
+	ObjectFileHead ofh = { 0, (halni) getReferenceCount(in) };
 	ndf << ofh;
 
 	save_string(ndf, in->type->name);

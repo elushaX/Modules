@@ -161,8 +161,8 @@ void obj::ObjectsGUI::cdup() {
 }
 
 void obj::ObjectsGUI::preview(obj::Object* obj) {
-	if (NDO_CAST(obj::LinkObject, obj)) {
-		NDO_CASTV(obj::LinkObject, obj, linko);
+	if (objects_api::cast<LinkObject>(obj)) {
+		auto linko = objects_api::cast<LinkObject>(obj);
 
 		bool no_link_preview = !linko->getLink();
 		tp::alni max_depth = 5;
@@ -170,7 +170,7 @@ void obj::ObjectsGUI::preview(obj::Object* obj) {
 		tp::Map<tp::alni, tp::alni> link_lookup;
 		obj::LinkObject* link_iter = linko;
 		while (link_iter && link_iter->getLink() && !no_link_preview) {
-			link_iter = NDO_CAST(obj::LinkObject, link_iter->getLink());
+			link_iter = objects_api::cast<LinkObject>(link_iter->getLink());
 			depth_count++;
 
 			if (link_lookup.presents(tp::alni(link_iter))) {
@@ -192,13 +192,13 @@ void obj::ObjectsGUI::preview(obj::Object* obj) {
 		} else {
 			ImGui::Text("Link Is Null");
 		}
-	} else if (NDO_CAST(obj::IntObject, obj)) {
-		tp::alni& val = NDO_CAST(obj::IntObject, obj)->val;
+	} else if (objects_api::cast<IntObject>(obj)) {
+		tp::alni& val = objects_api::cast<IntObject>(obj)->val;
 		int gui_val = int(val);
 		ImGui::InputInt(" ", &gui_val);
 		val = tp::alni(gui_val);
-	} else if (NDO_CAST(obj::StringObject, obj)) {
-		NDO_CASTV(obj::StringObject, obj, stringo);
+	} else if (objects_api::cast<StringObject>(obj)) {
+		auto stringo = objects_api::cast<StringObject>(obj);
 		static char val[2048] = { " " };
 		if (stringo->val != val) {
 			assert(stringo->val.size() < 2048);
@@ -208,17 +208,17 @@ void obj::ObjectsGUI::preview(obj::Object* obj) {
 		if (stringo->val != val) {
 			stringo->val = val;
 		}
-	} else if (NDO_CAST(obj::BoolObject, obj)) {
+	} else if (objects_api::cast<BoolObject>(obj)) {
 		boolView((obj::BoolObject*) obj);
-	} else if (NDO_CAST(obj::FloatObject, obj)) {
-		tp::alnf& val = NDO_CAST(obj::FloatObject, obj)->val;
+	} else if (objects_api::cast<FloatObject>(obj)) {
+		tp::alnf& val = objects_api::cast<FloatObject>(obj)->val;
 		auto gui_val = float(val);
 		ImGui::InputFloat(" ", &gui_val);
 		val = tp::alnf(gui_val);
 
-	} else if (NDO_CAST(obj::EnumObject, obj)) {
+	} else if (objects_api::cast<EnumObject>(obj)) {
 		enumView((obj::EnumObject*) obj);
-	} else if (NDO_CAST(obj::ColorObject, obj)) {
+	} else if (objects_api::cast<ColorObject>(obj)) {
 		colorView((obj::ColorObject*) obj);
 	} else {
 		ImGui::Text(obj->type->name);
@@ -967,34 +967,34 @@ void obj::ObjectsGUI::explorer() {
 	ImGui::Separator();
 
 	ViewStackNode new_active;
-	if (NDO_CAST(obj::NullObject, mActive)) {
+	if (objects_api::cast<NullObject>(mActive)) {
 		new_active = nullView((obj::NullObject*) mActive);
-	} else if (NDO_CAST(obj::LinkObject, mActive)) {
+	} else if (objects_api::cast<LinkObject>(mActive)) {
 		new_active = linkoView((obj::LinkObject*) mActive);
-	} else if (NDO_CAST(obj::IntObject, mActive)) {
+	} else if (objects_api::cast<IntObject>(mActive)) {
 		new_active = intoView((obj::IntObject*) mActive);
-	} else if (NDO_CAST(obj::StringObject, mActive)) {
+	} else if (objects_api::cast<StringObject>(mActive)) {
 		new_active = stringView((obj::StringObject*) mActive);
-	} else if (NDO_CAST(obj::ListObject, mActive)) {
+	} else if (objects_api::cast<ListObject>(mActive)) {
 		new_active = listView((obj::ListObject*) mActive);
-	} else if (NDO_CAST(obj::DictObject, mActive)) {
+	} else if (objects_api::cast<DictObject>(mActive)) {
 		new_active = dictView((obj::DictObject*) mActive);
-	} else if (NDO_CAST(obj::InterpreterObject, mActive)) {
+	} else if (objects_api::cast<InterpreterObject>(mActive)) {
 		new_active = interpreterView((obj::InterpreterObject*) mActive);
-	} else if (NDO_CAST(obj::ClassObject, mActive)) {
+	} else if (objects_api::cast<ClassObject>(mActive)) {
 		new_active = classView((obj::ClassObject*) mActive);
-	} else if (NDO_CAST(obj::BoolObject, mActive)) {
+	} else if (objects_api::cast<BoolObject>(mActive)) {
 		new_active = boolView((obj::BoolObject*) mActive);
-	} else if (NDO_CAST(obj::FloatObject, mActive)) {
+	} else if (objects_api::cast<FloatObject>(mActive)) {
 		new_active = floatView((obj::FloatObject*) mActive);
-	} else if (NDO_CAST(obj::EnumObject, mActive)) {
+	} else if (objects_api::cast<EnumObject>(mActive)) {
 		new_active = enumView((obj::EnumObject*) mActive);
-	} else if (NDO_CAST(obj::MethodObject, mActive)) {
+	} else if (objects_api::cast<MethodObject>(mActive)) {
 		new_active = methodView((obj::MethodObject*) mActive);
-	} else if (NDO_CAST(obj::ColorObject, mActive)) {
+	} else if (objects_api::cast<ColorObject>(mActive)) {
 		new_active = colorView((obj::ColorObject*) mActive);
 	} else {
-		ImGui::Text("Preview is Unavaliable");
+		ImGui::Text("Preview is Unavailable");
 	}
 
 	if (new_active != 0) {

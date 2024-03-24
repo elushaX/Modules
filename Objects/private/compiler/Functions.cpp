@@ -31,7 +31,8 @@ ConstObject* FunctionDefinition::defineLocal(const std::string& id) {
 	return const_str_id;
 }
 
-FunctionDefinition::FunctionDefinition(const std::string& function_id, const Buffer<std::string>& args, FunctionDefinition*) {
+FunctionDefinition::
+	FunctionDefinition(const std::string& function_id, const Buffer<std::string>& args, FunctionDefinition*) {
 	mFunctionId = function_id;
 	inst(Instruction(OpCode::SAVE_ARGS, (alni) args.size(), 1));
 	for (auto id : args) {
@@ -126,7 +127,7 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 				mLocals.put(func.mFunctionId, mConstants.get(func.mFunctionId));
 
 				// create and register const func object
-				auto function_obj = NDO_CAST(MethodObject, NDO->create("method"));
+				auto function_obj = objects_api::cast<MethodObject>(NDO->create("method"));
 				auto method_const_obj = mConstants.addMethod(func.mFunctionId, function_obj);
 
 				for (auto child_stm : stm_func_def->mStatements->mStatements) {
@@ -154,7 +155,7 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 				mLocals.put(func.mFunctionId, mConstants.get(func.mFunctionId));
 
 				// create and register const func object
-				auto function_obj = NDO_CAST(MethodObject, NDO->create("method"));
+				auto function_obj = objects_api::cast<MethodObject>(NDO->create("method"));
 				auto method_const_obj = mConstants.addMethod(func.mFunctionId, function_obj);
 
 				// compile function
@@ -410,7 +411,7 @@ alni instSize(const Instruction& inst) {
 
 void writeConst(ByteCode& out, alni& idx, uint2 data) {
 	for (auto byte : Range(sizeof(uint2))) {
-		out.mInstructions[idx] = OpCode((int1)(data >> byte * 8));
+		out.mInstructions[idx] = OpCode((int1) (data >> byte * 8));
 		idx++;
 	}
 }
