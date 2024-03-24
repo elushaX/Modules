@@ -29,7 +29,9 @@ void skip_param(ByteCode* bytecode) { bytecode->mInstructionIdx += 2; }
 
 uint2 param(ByteCode* bytecode) { return loadConstDataIdx(bytecode); }
 
-void Interpreter::exec(obj::MethodObject* method, obj::ClassObject* self, obj::DictObject* globals, InitialierList<GlobalDef> globals2) {
+void Interpreter::exec(
+	obj::MethodObject* method, obj::ClassObject* self, obj::DictObject* globals, InitialierList<GlobalDef> globals2
+) {
 	if (!method->mScript->mBytecode.mInstructions.size()) {
 		return;
 	}
@@ -272,7 +274,7 @@ void Interpreter::stepBytecodeIn() {
 
 				// PUSH_ARGS protocol
 				uint2 len = 0;
-				mOperandsStack.push((Object*) len);
+				mOperandsStack.push((Object*) (alni) len);
 				mOperandsStack.push(nullptr);
 
 				// CALL protocol
@@ -320,7 +322,7 @@ void Interpreter::stepBytecodeIn() {
 				// ...
 
 				uint2 len = read_byte(bytecode);
-				mOperandsStack.push((Object*) len);
+				mOperandsStack.push((Object*) (alni) len);
 				mOperandsStack.push(nullptr);
 				break;
 			}
@@ -594,7 +596,9 @@ void Interpreter::stepBytecodeIn() {
 	}
 }
 
-void Interpreter::execAll(obj::MethodObject* method, obj::ClassObject* self, obj::DictObject* globals, InitialierList<GlobalDef> globals2) {
+void Interpreter::execAll(
+	obj::MethodObject* method, obj::ClassObject* self, obj::DictObject* globals, InitialierList<GlobalDef> globals2
+) {
 	if (!method->mScript->mBytecode.mInstructions.size()) {
 		return;
 	}

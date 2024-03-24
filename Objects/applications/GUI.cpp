@@ -113,9 +113,9 @@ void obj::ObjectsGUI::setClipboard(obj::Object* obj) {
 
 obj::Object* obj::ObjectsGUI::getClipboard() { return mClipboard; }
 
-obj::Object* imgui_object_create_menu(obj::TypeGroups* type_group = NULL) {
+obj::Object* imgui_object_create_menu(obj::TypeGroups* type_group = nullptr) {
 
-	obj::Object* newo = NULL;
+	obj::Object* newo = nullptr;
 
 	if (!type_group) {
 		type_group = &obj::NDO->type_groups;
@@ -346,9 +346,9 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::interpreterView(obj::Interpreter
 			auto operand = interp.mOperandsStack.mBuff[i];
 			tp::alni operand_val = (tp::alni) operand;
 
-			if (operand_val == NULL) {
-				Text("NULL");
-			} else if (tp::uint2(operand_val) == NULL) {
+			if (operand_val == 0) {
+				Text("nullptr");
+			} else if (tp::uint2(operand_val) == 0) {
 				Text("2 BYTE VAL : %i", tp::uint2(operand_val));
 			} else {
 				if (Selectable(operand->type->name, false, 0, ImVec2(100, 0))) {
@@ -513,7 +513,7 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::linkoView(obj::LinkObject* obj) 
 		setClipboard(obj->getLink());
 	}
 	if (ImGui::Selectable("Set Null")) {
-		obj->setLink(NULL);
+		obj->setLink(nullptr);
 	}
 
 	return {};
@@ -907,7 +907,7 @@ void obj::ObjectsGUI::explorer() {
 		}
 		ImGui::PopID();
 
-		if (ImGui::BeginPopupContextItem(NULL, ImGuiPopupFlags_MouseButtonRight)) {
+		if (ImGui::BeginPopupContextItem(nullptr, ImGuiPopupFlags_MouseButtonRight)) {
 
 			obj::Object* curretn_object = childo->data->obj;
 			ImGui::Text("%s at %x", curretn_object->type->name, curretn_object);
@@ -997,7 +997,7 @@ void obj::ObjectsGUI::explorer() {
 		ImGui::Text("Preview is Unavaliable");
 	}
 
-	if (new_active != NULL) {
+	if (new_active != 0) {
 		cd(new_active.obj, new_active.id);
 	}
 }

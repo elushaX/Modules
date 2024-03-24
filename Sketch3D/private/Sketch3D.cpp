@@ -28,7 +28,7 @@ Buffer<StrokePoint>& Stroke::getPoints() { return mPoints; }
 
 const Buffer<StrokePoint>& Stroke::getPoints() const { return mPoints; }
 
-void Stroke::setColor(const RGBA& col) { mColor = col;	}
+void Stroke::setColor(const RGBA& col) { mColor = col; }
 
 const RGBA& Stroke::getColor() const { return mColor; }
 
@@ -61,9 +61,9 @@ void Stroke::compress(halnf factor) {
 		passed_poits.pushBack(mPoints[idx]);
 	}
 
-	List<StrokePoint>::Node* min_node = NULL;
+	List<StrokePoint>::Node* min_node = nullptr;
 	do {
-		min_node = NULL;
+		min_node = nullptr;
 		halnf min_factor = factor;
 
 		List<StrokePoint>::Node* iter = passed_poits.first()->next;
@@ -82,7 +82,6 @@ void Stroke::compress(halnf factor) {
 			passed_poits.removeNode(min_node);
 		}
 	} while (min_node);
-
 
 	mPoints.reserve(passed_poits.length());
 
@@ -116,7 +115,7 @@ void Stroke::subdiv(halnf precision, const Camera* cam, halni passes) {
 		auto p1 = p0->next;
 		auto p2 = p1->next;
 		auto p3 = p2->next;
-	
+
 		while (p3) {
 
 			auto p1_2d = cam->project(p1->data.pos, viewmat, projmat);
@@ -140,7 +139,7 @@ void Stroke::subdiv(halnf precision, const Camera* cam, halni passes) {
 
 				auto k = (lb - ab * la) / (1 - ab * ab);
 				auto t = ab * k - la;
-				
+
 				if (k < 0 || t < 0) {
 					goto SKIP;
 				}
@@ -178,7 +177,7 @@ void Stroke::subdiv(halnf precision, const Camera* cam, halni passes) {
 				continue;
 			}
 
-			SKIP:
+		SKIP:
 			p0 = p1;
 			p1 = p2;
 			p2 = p3;
@@ -200,9 +199,7 @@ void Stroke::subdiv(halnf precision, const Camera* cam, halni passes) {
 	}
 }
 
-PencilBrush::PencilBrush() {
-	mType = "pencil";
-}
+PencilBrush::PencilBrush() { mType = "pencil"; }
 
 void PencilBrush::ensureReady(Stroke* stroke, const Camera* cam, bool debug) const {
 	if (stroke->getPoints().size() == 1) {
@@ -230,7 +227,7 @@ void PencilBrush::sample(Project* proj, Vec2F crs, halnf pressure) {
 		if (mStroke) {
 			ensureReady(mStroke, &proj->mCamera);
 			proj->mLayers[proj->mActiveLayer]->strokes.pushBack(mStroke);
-			mStroke = NULL;
+			mStroke = nullptr;
 		}
 
 		if (max_level) {
@@ -252,7 +249,7 @@ void PencilBrush::sample(Project* proj, Vec2F crs, halnf pressure) {
 		auto last_point_2d = proj->mCamera.project(mStroke->getPoints().last().pos);
 		point_passed = (crs - last_point_2d).length() > mPrecision;
 	}
-	
+
 	if (!point_passed) {
 		return;
 	}
@@ -264,7 +261,7 @@ void PencilBrush::sample(Project* proj, Vec2F crs, halnf pressure) {
 
 	auto point_coords = proj->mCamera.project(crs);
 	mStroke->getPoints().append({ point_coords, (halnf) thickness });
-	
+
 	// mStroke->updateGpuBuffers();
 }
 
@@ -328,11 +325,10 @@ Project::~Project() {
 	}
 }
 
-Renderer::Renderer(Vec2F size) : 
+Renderer::Renderer(Vec2F size) :
 	mBuffer(size, 4),
 	mBufferDowncast(size),
-	mShader("rsc/shaders/stroke.vert", "rsc/shaders/stroke.geom", "rsc/shaders/stroke.frag")
-{
+	mShader("rsc/shaders/stroke.vert", "rsc/shaders/stroke.geom", "rsc/shaders/stroke.frag") {
 	mMaxSize = size;
 
 	mMatrixUniform = mShader.getu("MVP");
@@ -374,12 +370,10 @@ void Renderer::renderBegin() {
 	mBuffer.clear();
 }
 
-void Renderer::setViewport(RectF viewport) {
-	mBuffer.setViewport(viewport);
-}
+void Renderer::setViewport(RectF viewport) { mBuffer.setViewport(viewport); }
 
 void Renderer::drawStroke(const Stroke* str, const Camera* camera) {
-	//return;
+	// return;
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_MULTISAMPLE);
@@ -400,22 +394,22 @@ void Renderer::drawStroke(const Stroke* str, const Camera* camera) {
 	auto ratio = camera->getRatio();
 	glUniform1fv(mRatioUniform, 1, &ratio);
 
-	auto target = halnf(((camera->getTarget() - camera->getPos()).length() - camera->getNear()) 
-		/ (camera->getFar() - camera->getNear()));
+	auto target = halnf(
+		((camera->getTarget() - camera->getPos()).length() - camera->getNear()) / (camera->getFar() - camera->getNear())
+	);
 
 	glUniform1fv(mTargetUniform, 1, &target);
 
 	// 1st attribute buffer : vertices
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, str->mGPUHandles.vertexbuffer);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
 	glDrawArrays(GL_LINE_STRIP, 0, str->mGPUHandles.vbo_len);
 
 	glDisableVertexAttribArray(0);
 
 	mShader.unbind();
-
 }
 
 void Renderer::renderEnd() {
@@ -433,18 +427,13 @@ void Renderer::renderEnd() {
 	mBufferDowncast.endDraw();
 }
 
-uhalni Renderer::getTextudeId() {
-	return mBufferDowncast.texId();
-}
+uhalni Renderer::getTextudeId() { return mBufferDowncast.texId(); }
 
-RenderBuffer* Renderer::getBuff() {
-	return &mBufferDowncast;
-}
+RenderBuffer* Renderer::getBuff() { return &mBufferDowncast; }
 
 void Renderer::setClearCol(RGBA col) {
 	mBuffer.mClearCol = col;
 	mBufferDowncast.mClearCol = col;
 }
 
-Renderer::~Renderer() {
-}
+Renderer::~Renderer() {}
