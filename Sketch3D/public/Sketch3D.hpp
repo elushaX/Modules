@@ -19,7 +19,7 @@ namespace tp {
 
 	struct StrokePoint {
 		Vec3F pos = { 0, 0, 0 };
-		halnf thickness = NULL;
+		halnf thickness = 0;
 	};
 
 	struct StrokeGPUHandles {
@@ -98,7 +98,7 @@ namespace tp {
 		~Project();
 
 		// pos from -1 to 1 (left ot right bottom to top)
-		void sample(halnf pressure, halnf cameraRatio, Vec2F relativeCameraPos); 
+		void sample(halnf pressure, halnf cameraRatio, Vec2F relativeCameraPos);
 
 	public:
 		Buffer<Layer*> mLayers;
