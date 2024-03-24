@@ -12,9 +12,9 @@ namespace tp::obj {
 
 	struct ListObject : Object {
 		static ObjectType TypeData;
-		static void constructor(Object* self);
-		static void copy(Object* self, const Object* in);
-		static void destructor(Object* self);
+		static void constructor(ListObject* self);
+		static void copy(ListObject* self, const ListObject* in);
+		static void destructor(ListObject* self);
 
 		static alni allocated_size_recursive(ListObject* self);
 		static alni allocated_size(ListObject* self);

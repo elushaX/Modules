@@ -10,7 +10,8 @@ void BoolObject::constructor(BoolObject* self) { self->val = false; }
 void BoolObject::copy(BoolObject* self, const BoolObject* in) { self->val = in->val; }
 
 BoolObject* BoolObject::create(bool in) {
-	NDO_CASTV(BoolObject, NDO->create("bool"), out)->val = alni(in);
+	auto out = objects_api::cast<BoolObject>(NDO->create("bool"));
+	out->val = alni(in);
 	return out;
 }
 
@@ -18,9 +19,7 @@ void BoolObject::from_int(BoolObject* self, alni in) { self->val = in; }
 
 void BoolObject::from_float(BoolObject* self, alnf in) { self->val = alni(bool(in)); }
 
-void BoolObject::from_string(BoolObject* self, const std::string& in) {
-	self->val = in == "true" || in == "True";
-}
+void BoolObject::from_string(BoolObject* self, const std::string& in) { self->val = in == "true" || in == "True"; }
 
 std::string BoolObject::to_string(BoolObject* self) { return std::to_string(bool(self->val)); }
 

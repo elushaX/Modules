@@ -5,16 +5,9 @@
 using namespace tp;
 using namespace obj;
 
-void DictObject::constructor(Object* self) {
-	NDO_CASTV(DictObject, self, dict);
+void DictObject::constructor(DictObject* self) { new (&self->items) Map<std::string, Object*>(); }
 
-	new (&dict->items) Map<std::string, Object*>();
-}
-
-void DictObject::copy(Object* in, const Object* target) {
-	NDO_CASTV(DictObject, in, self);
-	NDO_CASTV(DictObject, target, src);
-
+void DictObject::copy(DictObject* self, const DictObject* src) {
 	destructor(self);
 	constructor(self);
 
@@ -24,12 +17,11 @@ void DictObject::copy(Object* in, const Object* target) {
 	}
 }
 
-void DictObject::destructor(Object* self) {
-	NDO_CASTV(DictObject, self, dict);
-	for (auto item : dict->items) {
+void DictObject::destructor(DictObject* self) {
+	for (auto item : self->items) {
 		NDO->destroy(item->val);
 	}
-	dict->items.~Map();
+	self->items.~Map();
 }
 
 alni DictObject::save_size(DictObject* self) {
@@ -140,23 +132,25 @@ Object* DictObject::getSlotVal(tp::Map<std::string, Object*>::Idx idx) { return 
 
 const tp::Map<std::string, Object*>& DictObject::getItems() const { return items; }
 
-static auto tm_get = TypeMethod{ .nameid = "get",
-																 .descr = "gets the object",
-																 .args = { { "str key", nullptr } },
-																 .exec =
-																	 [](const TypeMethod* tm) {
-																		 auto const self = (DictObject*) tm->self;
-																		 auto str_key = tm->args[0].obj;
+static auto tm_get = TypeMethod{
+	.nameid = "get",
+	.descr = "gets the object",
+	.args = { { "str key", nullptr } },
+	.exec =
+		[](const TypeMethod* tm) {
+			auto const self = (DictObject*) tm->self;
+			auto str_key = tm->args[0].obj;
 
-																		 NDO_CASTV(StringObject, str_key, key);
-																		 ASSERT(key);
+			auto key = objects_api::cast<StringObject>(str_key);
+			ASSERT(key);
 
-																		 auto idx = self->presents(key->val);
-																		 if (idx) {
-																			 tm->ret.obj = self->getSlotVal(idx);
-																		 }
-																	 },
-																 .ret = { "object", nullptr } };
+			auto idx = self->presents(key->val);
+			if (idx) {
+				tm->ret.obj = self->getSlotVal(idx);
+			}
+		},
+	.ret = { "object", nullptr },
+};
 
 static auto tm_put = TypeMethod{
 	.nameid = "put",
@@ -169,7 +163,7 @@ static auto tm_put = TypeMethod{
 			auto str_key = tm->args[0].obj;
 			auto obj = tm->args[1].obj;
 
-			NDO_CASTV(StringObject, str_key, key);
+			auto key = objects_api::cast<StringObject>(str_key);
 			ASSERT(key);
 
 			self->put(key->val, obj);
@@ -187,28 +181,33 @@ static auto tm_remove = TypeMethod{
 
 		auto str_key = tm->args[0].obj;
 		
-		NDO_CASTV(StringObject, str_key, key);
+		auto key = objects_api::cast<StringObject>(str_key);
 		ASSERT(key);
 
 		self->remove(key->val);
 	},
 };
 
-struct obj::ObjectType DictObject::TypeData = { .base = nullptr,
-																								.constructor = DictObject::constructor,
-																								.destructor = DictObject::destructor,
-																								.copy = DictObject::copy,
-																								.size = sizeof(DictObject),
-																								.name = "dict",
-																								.save_size = (object_save_size) DictObject::save_size,
-																								.save = (object_save) DictObject::save,
-																								.load = (object_load) DictObject::load,
-																								.childs_retrival = (object_debug_all_childs_retrival) DictObject::childs_retrival,
-																								.allocated_size = (object_allocated_size) DictObject::allocated_size,
-																								.allocated_size_recursive = (object_allocated_size_recursive) DictObject::allocated_size_recursive,
+struct obj::ObjectType DictObject::TypeData = {
+	.base = nullptr,
+	.constructor = (object_constructor) DictObject::constructor,
+	.destructor = (object_destructor) DictObject::destructor,
+	.copy = (object_copy) DictObject::copy,
+	.size = sizeof(DictObject),
+	.name = "dict",
+	.save_size = (object_save_size) DictObject::save_size,
+	.save = (object_save) DictObject::save,
+	.load = (object_load) DictObject::load,
 
-																								.type_methods = { .methods = {
-																																		&tm_put,
-																																		&tm_remove,
-																																		&tm_get,
-																																	} } };
+	.childs_retrival = (object_debug_all_childs_retrival) DictObject::childs_retrival,
+	.allocated_size = (object_allocated_size) DictObject::allocated_size,
+	.allocated_size_recursive = (object_allocated_size_recursive) DictObject::allocated_size_recursive,
+
+	.type_methods = {
+		.methods = {
+			&tm_put,
+			&tm_remove,
+			&tm_get,
+		},
+	},
+};

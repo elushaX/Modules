@@ -23,43 +23,27 @@ define base type
 define struct members
 implement construct, destruct and copy methods */
 
-
-#ifdef _DEBUG
-#define NDO_CAST(cast_type, ptr) ((cast_type*)ndo_cast(ptr, &cast_type::TypeData))
-#define NDO_CAST_ASSERT(cast_type, ptr) {assert(ndo_cast(ptr, &cast_type::TypeData))}
-#else
-#define NDO_CAST_ASSERT(cast_type, ptr) {assert(ndo_cast(ptr, &cast_type::TypeData))}
-#define NDO_CAST(cast_type, ptr) ((cast_type*)ndo_cast(ptr, &cast_type::TypeData))
-#endif
-
-#define NDO_CASTV(cast_type, ptr, var_name) cast_type* var_name = NDO_CAST(cast_type, ptr); var_name
-
-#define NDO_MEMH_FROM_NDO(ndo_ptr) (((ObjectMemHead*)ndo_ptr) - 1)
-#define NDO_FROM_MEMH(ndo_ptr) ((Object*)(ndo_ptr + 1))
-
 namespace tp::obj {
 
 	extern ModuleManifest gModuleObjects;
 
 	extern struct objects_api* NDO;
 
-	struct ObjectMemHead {
-		ObjectMemHead* up;
-		ObjectMemHead* down;
+	struct Object {
+		Object* up;
+		Object* down;
 		alni flags;
 		alni refc;
-	};
 
-	struct Object {
 		const struct ObjectType* type;
 	};
 
 	typedef void (*object_from_int)(Object* self, alni in);
 	typedef void (*object_from_float)(Object* self, alnf in);
 	typedef void (*object_from_string)(Object* self, const std::string& in);
-	typedef std::string(*object_to_string)(Object* self);
-	typedef alni(*object_to_int)(Object* self);
-	typedef alnf(*object_to_float)(Object* self);
+	typedef std::string (*object_to_string)(Object* self);
+	typedef alni (*object_to_int)(Object* self);
+	typedef alnf (*object_to_float)(Object* self);
 
 	struct ObjectTypeConversions {
 		object_from_int from_int;
@@ -86,14 +70,14 @@ namespace tp::obj {
 	typedef void (*object_destructor)(Object* self);
 	typedef void (*object_copy)(Object* self, const Object* target);
 
-	typedef alni(*object_save_size)(Object* self);
+	typedef alni (*object_save_size)(Object* self);
 	typedef void (*object_save)(Object*, ArchiverOut&);
 	typedef void (*object_load)(ArchiverIn&, Object*);
 
 	typedef bool (*object_compare)(Object*, Object*);
 
 	typedef Buffer<Object*> (*object_debug_all_childs_retrival)(Object*);
-	typedef alni (*object_allocated_size)(Object*); // default value = type->size - sizeof(ObjectType*)
+	typedef alni (*object_allocated_size)(Object*);           // default value = type->size - sizeof(ObjectType*)
 	typedef alni (*object_allocated_size_recursive)(Object*); // default value = object_allocated_size
 
 	struct ObjectType {
@@ -117,13 +101,12 @@ namespace tp::obj {
 		TypeMethods type_methods;
 	};
 
-
-	#define SAVE_LOAD_MAX_CALLBACK_SLOTS 100
-	typedef void (pre_save_callback)(void* self, ArchiverOut&);
-	typedef void (pre_load_callback)(void* self, ArchiverIn&);
-	typedef void (post_save_callback)(void* self, ArchiverOut&);
-	typedef void (post_load_callback)(void* self, ArchiverIn&);
-	typedef alni (slcb_size_callback)(void* self, ArchiverOut&);
+#define SAVE_LOAD_MAX_CALLBACK_SLOTS 100
+	typedef void(pre_save_callback)(void* self, ArchiverOut&);
+	typedef void(pre_load_callback)(void* self, ArchiverIn&);
+	typedef void(post_save_callback)(void* self, ArchiverOut&);
+	typedef void(post_load_callback)(void* self, ArchiverIn&);
+	typedef alni(slcb_size_callback)(void* self, ArchiverOut&);
 
 	struct save_load_callbacks {
 		void* self;
@@ -133,7 +116,6 @@ namespace tp::obj {
 		post_save_callback* post_save;
 		post_load_callback* post_load;
 	};
-
 
 	struct objects_api {
 
@@ -162,12 +144,13 @@ namespace tp::obj {
 
 		void destroy(Object* in) const;
 
-		static void increaseReferenceCount(Object* in);
-		static halni getReferenceCount(Object* in);
-	private:
-		static void setReferenceCount(Object* in, halni count);
-	public:
+		static inline void increaseReferenceCount(Object* in) { in->refc++; }
+		static inline alni getReferenceCount(Object* in) { return in->refc; }
 
+	private:
+		static inline void setReferenceCount(Object* in, halni count) { in->refc = count; }
+
+	public:
 		save_load_callbacks* sl_callbacks[SAVE_LOAD_MAX_CALLBACK_SLOTS]{};
 		alni sl_callbacks_load_idx = 0;
 
@@ -184,16 +167,26 @@ namespace tp::obj {
 		Object* load(const std::string& path);
 		alni save(ArchiverOut&, Object*);
 		Object* load(ArchiverIn&, alni file_adress);
+
+		template <typename Type>
+		static Type* cast(const Object* in) {
+			const ObjectType* typeIter = in->type;
+			while (typeIter) {
+				if (typeIter == &Type::TypeData) {
+					return (Type*) in;
+				}
+				typeIter = typeIter->base;
+			}
+			return nullptr;
+		}
 	};
 
 	void logTypeData(const ObjectType* type);
 	void assertNoLeaks();
 	ualni getObjCount();
 
-	Object* ndo_cast(const Object* in, const ObjectType* to_type);
-
 	template <typename Type>
 	Type* create() {
-		return (Type*)NDO->create(Type::TypeData.name);
+		return (Type*) NDO->create(Type::TypeData.name);
 	}
 }

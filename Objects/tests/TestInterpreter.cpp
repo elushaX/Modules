@@ -47,10 +47,10 @@ auto script = R"(
 SUITE(Interpreter) {
 	TEST(Entry) {
 		objTestModule.initialize();
-		
+
 		{
-			auto method = NDO_CAST(MethodObject, NDO->create("method"));
-			auto interpreter = NDO_CAST(InterpreterObject, NDO->create("interpreter"));
+			auto method = objects_api::cast<MethodObject>(NDO->create("method"));
+			auto interpreter = objects_api::cast<InterpreterObject>(NDO->create("interpreter"));
 
 			interpreter->getMember<LinkObject>("target method")->setLink(method);
 
@@ -71,8 +71,8 @@ SUITE(Interpreter) {
 		objTestModule.initialize();
 
 		{
-			auto method = NDO_CAST(MethodObject, NDO->create("method"));
-			auto interpreter = NDO_CAST(InterpreterObject, NDO->create("interpreter"));
+			auto method = objects_api::cast<MethodObject>(NDO->create("method"));
+			auto interpreter = objects_api::cast<InterpreterObject>(NDO->create("interpreter"));
 
 			interpreter->getMember<LinkObject>("target method")->setLink(method);
 
@@ -83,7 +83,7 @@ SUITE(Interpreter) {
 
 			NDO->save(interpreter, "interp.o");
 
-			auto interpreterLoaded = NDO_CAST(InterpreterObject, NDO->load("interp.o"));
+			auto interpreterLoaded = objects_api::cast<InterpreterObject>(NDO->load("interp.o"));
 
 			interpreterLoaded->exec();
 
@@ -102,8 +102,8 @@ SUITE(Interpreter) {
 		{
 			auto compileStartCount = getObjCount();
 
-			auto method = NDO_CAST(MethodObject, NDO->create("method"));
-			auto interpreter = NDO_CAST(InterpreterObject, NDO->create("interpreter"));
+			auto method = objects_api::cast<MethodObject>(NDO->create("method"));
+			auto interpreter = objects_api::cast<InterpreterObject>(NDO->create("interpreter"));
 
 			interpreter->getMember<LinkObject>("target method")->setLink(method);
 
@@ -143,8 +143,8 @@ SUITE(Interpreter) {
 		objTestModule.initialize();
 
 		{
-			auto method = NDO_CAST(MethodObject, NDO->create("method"));
-			auto interpreter = NDO_CAST(InterpreterObject, NDO->create("interpreter"));
+			auto method = objects_api::cast<MethodObject>(NDO->create("method"));
+			auto interpreter = objects_api::cast<InterpreterObject>(NDO->create("interpreter"));
 
 			interpreter->getMember<LinkObject>("target method")->setLink(method);
 

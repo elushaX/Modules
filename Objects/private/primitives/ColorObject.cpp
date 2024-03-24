@@ -4,22 +4,26 @@
 using namespace tp;
 using namespace obj;
 
-void ColorObject::constructor(Object* self) { NDO_CAST(ColorObject, self)->mCol = tp::RGBA(1.f); }
+void ColorObject::constructor(ColorObject* self) { self->mCol = tp::RGBA(1.f); }
 
 void ColorObject::copy(ColorObject* self, const ColorObject* in) { self->mCol = in->mCol; }
 
 ColorObject* ColorObject::create(tp::RGBA in) {
-	NDO_CASTV(ColorObject, NDO->create("RGBA"), out)->mCol = in;
+	auto out = objects_api::cast<ColorObject>(NDO->create("RGBA"));
+	out->mCol = in;
 	return out;
 }
 
-void ColorObject::from_int(ColorObject* self, alni in) { self->mCol = tp::RGBA((tp::halnf) tp::clamp(in, (tp::alni) 0, (tp::alni) 1)); }
+void ColorObject::from_int(ColorObject* self, alni in) {
+	self->mCol = tp::RGBA((tp::halnf) tp::clamp(in, (tp::alni) 0, (tp::alni) 1));
+}
 
-void ColorObject::from_float(ColorObject* self, alnf in) { NDO_CAST(ColorObject, self)->mCol = tp::RGBA(tp::clamp((tp::halnf) in, 0.f, 1.f)); }
+void ColorObject::from_float(ColorObject* self, alnf in) { self->mCol = tp::RGBA(tp::clamp((tp::halnf) in, 0.f, 1.f)); }
 
 std::string ColorObject::to_string(ColorObject* self) {
 	// auto &col = NDO_CAST(ColorObject, self)->mCol;
-	// return tp::sfmt("%i:%i:%i:%i", (tp::alni) (col.r * 255), (tp::alni)(col.g * 255), (tp::alni)(col.b * 255), (tp::alni)(col.a * 255));
+	// return tp::sfmt("%i:%i:%i:%i", (tp::alni) (col.r * 255), (tp::alni)(col.g * 255), (tp::alni)(col.b * 255),
+	// (tp::alni)(col.a * 255));
 	// TODO : implement
 	return {};
 }
@@ -52,7 +56,7 @@ struct ObjectTypeAriphmetics ColorObject::TypeAriphm = {
 
 struct obj::ObjectType obj::ColorObject::TypeData = {
 	.base = nullptr,
-	.constructor = ColorObject::constructor,
+	.constructor = (object_constructor) ColorObject::constructor,
 	.destructor = nullptr,
 	.copy = (object_copy) ColorObject::copy,
 	.size = sizeof(ColorObject),

@@ -145,7 +145,7 @@ void Interpreter::stepBytecodeIn() {
 			{
 				auto idx = loadConstDataIdx(bytecode);
 				auto const_obj = bytecode->mConstants[idx];
-				NDO_CASTV(StringObject, const_obj, local_id);
+				auto local_id = objects_api::cast<StringObject>(const_obj);
 				ASSERT(local_id && "Invalid Object Type");
 				auto local = mScopeStack.getLocal(local_id->val);
 				mOperandsStack.push(local);
@@ -267,7 +267,8 @@ void Interpreter::stepBytecodeIn() {
 
 				// class creation
 				auto local_class = mScopeStack.getLocal(type->val);
-				NDO_CASTV(MethodObject, local_class, method);
+
+				auto method = objects_api::cast<MethodObject>(local_class);
 				ASSERT(method);
 
 				// class is a function - execute it as a constructor
@@ -336,7 +337,7 @@ void Interpreter::stepBytecodeIn() {
 					NDO->increaseReferenceCount(argument);
 
 					auto argument_id = bytecode->mConstants[loadConstDataIdx(bytecode)];
-					NDO_CASTV(StringObject, argument_id, id);
+					auto id = objects_api::cast<StringObject>(argument_id);
 					DEBUG_ASSERT(id);
 					mScopeStack.addLocal(argument, id->val);
 					bytecode->mArgumentsLoaded++;
@@ -367,7 +368,7 @@ void Interpreter::stepBytecodeIn() {
 				auto obj = mOperandsStack.getOperand();
 
 				if (!mIsTypeMethod) {
-					NDO_CASTV(MethodObject, obj, method);
+					auto method = objects_api::cast<MethodObject>(obj);
 
 					mScopeStack.enterScope(false);
 					mCallStack.enter({ nullptr, method, 0 });
@@ -470,7 +471,8 @@ void Interpreter::stepBytecodeIn() {
 					mIsTypeMethod = true;
 
 				} else {
-					NDO_CASTV(ClassObject, parent, class_obj);
+					auto class_obj = objects_api::cast<ClassObject>(parent);
+
 					ASSERT(class_obj && "not a class object");
 					auto idx = class_obj->members->presents(child_id->val);
 					ASSERT(idx && "No child with such id");

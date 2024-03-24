@@ -16,19 +16,19 @@ SUITE(PrimitiveObjects) {
 		objTestModule.initialize();
 
 		{
-			auto integer = NDO_CAST(IntObject, NDO->create("int"));
+			auto integer = objects_api::cast<IntObject>(NDO->create("int"));
 			integer->val = 10;
 
-			auto dict = NDO_CAST(DictObject, NDO->create("dict"));
+			auto dict = objects_api::cast<DictObject>(NDO->create("dict"));
 
 			dict->put("val", integer);
 
 			NDO->save(dict, "dict.o");
 
-			auto dictLoaded = NDO_CAST(DictObject, NDO->load("dict.o"));
+			auto dictLoaded = objects_api::cast<DictObject>(NDO->load("dict.o"));
 
 			CHECK(dictLoaded->presents("val").isValid());
-			CHECK(NDO_CAST(IntObject, dictLoaded->get("val"))->val == 10);
+			CHECK(objects_api::cast<IntObject>(dictLoaded->get("val"))->val == 10);
 
 			NDO->destroy(dict);
 			NDO->destroy(dictLoaded);

@@ -10,12 +10,9 @@ namespace tp::obj {
 
 	class OperandStack {
 
-		enum : alni {
-			MAX_STACK_SIZE = 512
-		};
+		enum : alni { MAX_STACK_SIZE = 512 };
 
 	public:
-
 		Operand* mBuff;
 		ualni mIdx;
 
@@ -28,7 +25,7 @@ namespace tp::obj {
 		template <typename ObjectType>
 		ObjectType* getOperand() {
 			auto operand = getOperand();
-			auto ret = NDO_CAST(ObjectType, operand);
+			auto ret = objects_api::cast<ObjectType>(operand);
 			ASSERT(ret && "Operand Has Invalid Object Type");
 			return ret;
 		}

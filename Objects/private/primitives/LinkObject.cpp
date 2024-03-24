@@ -4,16 +4,16 @@
 using namespace tp;
 using namespace obj;
 
-void LinkObject::constructor(Object* self) { NDO_CAST(LinkObject, self)->link = 0; }
+void LinkObject::constructor(LinkObject* self) { self->link = nullptr; }
 
 void LinkObject::destructor(LinkObject* self) {
 	if (self->link) NDO->destroy(self->link);
 }
 
-void LinkObject::copy(Object* self, const Object* in) { NDO_CAST(LinkObject, self)->setLink(NDO_CAST(LinkObject, in)->link); }
+void LinkObject::copy(LinkObject* self, const LinkObject* in) { self->setLink(in->link); }
 
 LinkObject* LinkObject::create(Object* in) {
-	NDO_CASTV(LinkObject, NDO->create("link"), out)->link = in;
+	auto out = objects_api::cast<LinkObject>(NDO->create("link"));
 	return out;
 }
 
@@ -66,39 +66,55 @@ void LinkObject::setLink(Object* obj) {
 	link = obj;
 }
 
-static auto tm_set = TypeMethod{ .nameid = "set", .descr = "sets the link", .args = { { "target", nullptr } }, .exec = [](const TypeMethod* tm) {
-																	auto const self = (LinkObject*) tm->self;
-																	auto const target = tm->args[0].obj;
-																	self->setLink(target);
-																} };
+static auto tm_set = TypeMethod{
+	.nameid = "set",
+	.descr = "sets the link",
+	.args = { { "target", nullptr } },
+	.exec =
+		[](const TypeMethod* tm) {
+			auto const self = (LinkObject*) tm->self;
+			auto const target = tm->args[0].obj;
+			self->setLink(target);
+		},
+};
 
-static auto tm_get = TypeMethod{ .nameid = "get",
-																 .descr = "gets the link",
-																 .exec =
-																	 [](const TypeMethod* tm) {
-																		 auto const self = (LinkObject*) tm->self;
-																		 auto link = self->getLink();
-																		 if (link) {
-																			 tm->ret.obj = link;
-																		 }
-																	 },
-																 .ret = { "the link", nullptr } };
+static auto tm_get = TypeMethod{
+	.nameid = "get",
+	.descr = "gets the link",
+	.exec =
+		[](const TypeMethod* tm) {
+			auto const self = (LinkObject*) tm->self;
+			auto link = self->getLink();
+			if (link) {
+				tm->ret.obj = link;
+			}
+		},
+	.ret = { "the link", nullptr },
+};
 
-struct obj::ObjectType LinkObject::TypeData = { .base = nullptr,
-																								.constructor = LinkObject::constructor,
-																								.destructor = (object_destructor) LinkObject::destructor,
-																								.copy = LinkObject::copy,
-																								.size = sizeof(LinkObject),
-																								.name = "link",
-																								.convesions = nullptr,
-																								.save_size = (object_save_size) LinkObject::save_size,
-																								.save = (object_save) LinkObject::save,
-																								.load = (object_load) LinkObject::load,
-																								.childs_retrival = (object_debug_all_childs_retrival) LinkObject::childs_retrival,
-																								.allocated_size = (object_allocated_size) LinkObject::allocated_size,
-																								.allocated_size_recursive = (object_allocated_size_recursive) LinkObject::allocated_size_recursive,
+struct obj::ObjectType LinkObject::TypeData = {
+	.base = nullptr,
 
-																								.type_methods = { .methods = {
-																																		&tm_set,
-																																		&tm_get,
-																																	} } };
+	.constructor = (object_constructor) LinkObject::constructor,
+	.destructor = (object_destructor) LinkObject::destructor,
+	.copy = (object_copy) LinkObject::copy,
+	.size = sizeof(LinkObject),
+	.name = "link",
+
+	.convesions = nullptr,
+
+	.save_size = (object_save_size) LinkObject::save_size,
+	.save = (object_save) LinkObject::save,
+	.load = (object_load) LinkObject::load,
+
+	.childs_retrival = (object_debug_all_childs_retrival) LinkObject::childs_retrival,
+	.allocated_size = (object_allocated_size) LinkObject::allocated_size,
+	.allocated_size_recursive = (object_allocated_size_recursive) LinkObject::allocated_size_recursive,
+
+	.type_methods = {
+		.methods = {
+			&tm_set,
+			&tm_get,
+		},
+	},
+};

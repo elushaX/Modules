@@ -5,14 +5,15 @@
 using namespace tp;
 using namespace obj;
 
-void StringObject::constructor(Object* self) { new (&NDO_CAST(StringObject, self)->val) std::string(); }
+void StringObject::constructor(StringObject* self) { new (&self->val) std::string(); }
 
 void StringObject::destructor(StringObject* self) { self->val.~basic_string(); }
 
-void StringObject::copy(Object* self, const Object* in) { NDO_CAST(StringObject, self)->val = NDO_CAST(StringObject, in)->val; }
+void StringObject::copy(StringObject* self, const StringObject* in) { self->val = in->val; }
 
 StringObject* StringObject::create(const std::string& in) {
-	NDO_CASTV(StringObject, NDO->create("str"), out)->val = in;
+	auto out = objects_api::cast<StringObject>(NDO->create("str"));
+	out->val = in;
 	return out;
 }
 
@@ -34,13 +35,9 @@ alni StringObject::to_int(StringObject* self) { return std::stoi(self->val); }
 
 alnf StringObject::to_float(StringObject* self) { return std::stof(self->val); }
 
-static alni save_size(StringObject* self) {
-	return save_string_size(self->val);
-}
+static alni save_size(StringObject* self) { return save_string_size(self->val); }
 
-static void save(StringObject* self, ArchiverOut& file_self) {
-	save_string(file_self, self->val);
-}
+static void save(StringObject* self, ArchiverOut& file_self) { save_string(file_self, self->val); }
 
 static void load(ArchiverIn& file_self, StringObject* self) {
 	new (&self->val) std::string();
@@ -65,9 +62,9 @@ struct ObjectTypeConversions StringObjectTypeConversions = {
 
 struct obj::ObjectType StringObject::TypeData = {
 	.base = nullptr,
-	.constructor = StringObject::constructor,
+	.constructor = (object_constructor) StringObject::constructor,
 	.destructor = (object_destructor) StringObject::destructor,
-	.copy = StringObject::copy,
+	.copy = (object_copy) StringObject::copy,
 	.size = sizeof(StringObject),
 	.name = "str",
 	.convesions = &StringObjectTypeConversions,

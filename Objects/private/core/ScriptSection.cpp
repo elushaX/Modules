@@ -65,7 +65,7 @@ alni ScriptSection::get_script_file_adress(Script* in) { return get_script_head_
 
 alni ScriptSection::save_script_table_to_file_size(ScriptSection* self, ArchiverOut& file) {
 	alni size = 0;
-	size += 5;                // header
+	size += 5;            // header
 	size += sizeof(alni); // scripts length
 
 	for (auto iter : self->mScripts) {
@@ -84,7 +84,7 @@ alni ScriptSection::save_script_table_to_file_size(ScriptSection* self, Archiver
 	}
 
 	size += sizeof(alni); // objects mem offset
-	size += 5;                // header
+	size += 5;            // header
 	return size;
 }
 
@@ -141,7 +141,7 @@ void load_constants(ScriptSection* self, ArchiverIn& file, alni start_addr) {
 		file >> str_addr;
 
 		NDO->destroy(script->mReadable); // we already have string object in the script when creating script
-		script->mReadable = NDO_CAST(obj::StringObject, obj::NDO->load(file, str_addr));
+		script->mReadable = objects_api::cast<StringObject>(obj::NDO->load(file, str_addr));
 
 		file.setAddress(file.getAddress() + sizeof(alni)); // constants length
 

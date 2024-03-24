@@ -8,7 +8,8 @@ void FloatObject::constructor(FloatObject* self) { self->val = 0; }
 void FloatObject::copy(FloatObject* self, const FloatObject* in) { self->val = in->val; }
 
 FloatObject* FloatObject::create(alnf in) {
-	NDO_CASTV(FloatObject, NDO->create("float"), out)->val = alnf(in);
+	auto out = objects_api::cast<FloatObject>(NDO->create("float"));
+	out->val = alnf(in);
 	return out;
 }
 
@@ -16,9 +17,7 @@ void FloatObject::from_int(FloatObject* self, alni in) { self->val = alnf(in); }
 
 void FloatObject::from_float(FloatObject* self, alnf in) { self->val = in; }
 
-void FloatObject::from_string(FloatObject* self, const std::string& in) {
-	self->val = std::stof(in);
-}
+void FloatObject::from_string(FloatObject* self, const std::string& in) { self->val = std::stof(in); }
 
 std::string FloatObject::to_string(FloatObject* self) { return std::to_string(self->val); }
 

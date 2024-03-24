@@ -15,7 +15,9 @@ void InterpreterObject::constructor(InterpreterObject* self) {
 
 void InterpreterObject::destructor(InterpreterObject* self) { self->mInterpreter.~Interpreter(); }
 
-void InterpreterObject::load(ArchiverIn& file_self, InterpreterObject* self) { new (&self->mInterpreter) Interpreter(); }
+void InterpreterObject::load(ArchiverIn& file_self, InterpreterObject* self) {
+	new (&self->mInterpreter) Interpreter();
+}
 
 bool InterpreterObject::running() { return !mInterpreter.finished(); }
 
@@ -35,7 +37,7 @@ void InterpreterObject::exec(obj::ClassObject* self, tp::InitialierList<Interpre
 		return;
 	}
 
-	NDO_CASTV(obj::MethodObject, target, method);
+	auto method = objects_api::cast<MethodObject>(target);
 	if (!method || !method->mScript->mBytecode.mInstructions.size()) {
 		return;
 	}
@@ -58,7 +60,7 @@ void InterpreterObject::debug() {
 		return;
 	}
 
-	NDO_CASTV(obj::MethodObject, target, method);
+	auto method = objects_api::cast<MethodObject>(target);
 	if (!method || !method->mScript->mBytecode.mInstructions.size()) {
 		return;
 	}
