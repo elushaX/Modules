@@ -133,7 +133,7 @@ obj::Object* imgui_object_create_menu(obj::TypeGroups* type_group = nullptr) {
 
 		if (ImGui::Button((childo->key).c_str(), { 100, 0 })) {
 			if (childo->key == "null") {
-				newo = NDO_NULL;
+				newo = objects_api::getNull();
 			} else {
 				newo = objects_api::createByName(childo->key.c_str());
 			}
@@ -334,7 +334,7 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::interpreterView(obj::Interpreter
 	End();
 
 	Begin("SourceCodeView");
-	{ stringView(interp.mCallStack.mStack.last().mMethod->mScript->mReadable); }
+	{ stringView(interp.mCallStack.mStack.last().mMethod->mBytecodeLink->mReadable); }
 	End();
 
 	Begin("OperandStack");
@@ -849,7 +849,7 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::classView(obj::ClassObject* self
 
 obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::methodView(obj::MethodObject* in) {
 
-	if (in->mScript->mBytecode.mInstructions.size()) {
+	if (in->mBytecodeLink->mBytecode.mInstructions.size()) {
 		if (ImGui::Button("Recompile")) {
 			in->compile();
 		}
@@ -867,7 +867,7 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::methodView(obj::MethodObject* in
 	}
 
 	ImGui::SameLine();
-	auto ret = stringView(in->mScript->mReadable);
+	auto ret = stringView(in->mBytecodeLink->mReadable);
 
 	if (ret.obj) {
 		return ret;

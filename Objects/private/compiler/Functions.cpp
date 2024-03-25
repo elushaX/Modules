@@ -134,7 +134,7 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 					func.EvalStatement(child_stm.data());
 				}
 
-				func.generateByteCode(function_obj->mScript->mBytecode);
+				func.generateByteCode(function_obj->mBytecodeLink->mBytecode);
 
 				inst(Instruction(OpCode::LOAD_CONST, method_const_obj));
 				inst(Instruction(OpCode::LOAD_CONST, mConstants.get(func.mFunctionId)));
@@ -168,7 +168,7 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 				}
 				// create one last instruction - constructing class from function execution state
 				func.inst(Instruction(OpCode::CLASS_CONSTRUCT));
-				func.generateByteCode(function_obj->mScript->mBytecode);
+				func.generateByteCode(function_obj->mBytecodeLink->mBytecode);
 
 				inst(Instruction(OpCode::LOAD_CONST, method_const_obj));
 				inst(Instruction(OpCode::LOAD_CONST, mConstants.get(func.mFunctionId)));
@@ -444,6 +444,8 @@ void FunctionDefinition::generateByteCode(ByteCode& out) {
 
 	mConstants.save(out.mConstants);
 
+	out.updateRefCount();
+
 	alni inst_len = 0;
 	for (auto inst_iter : mInstructions) {
 		inst_len += instSize(inst_iter.data());
@@ -554,7 +556,7 @@ bool obj::Compile(obj::MethodObject* method) {
 
 	Parser parser;
 
-	auto script = method->mScript->mReadable->val;
+	auto script = method->mBytecodeLink->mReadable->val;
 	auto res = parser.parse(script);
 
 	if (res.isError) {
@@ -562,7 +564,7 @@ bool obj::Compile(obj::MethodObject* method) {
 		return false;
 	}
 
-	Generate(method->mScript->mBytecode, res.scope);
+	Generate(method->mBytecodeLink->mBytecode, res.scope);
 
 	delete res.scope;
 

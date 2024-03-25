@@ -32,7 +32,7 @@ uint2 param(ByteCode* bytecode) { return loadConstDataIdx(bytecode); }
 void Interpreter::exec(
 	obj::MethodObject* method, obj::ClassObject* self, obj::DictObject* globals, InitialierList<GlobalDef> globals2
 ) {
-	if (!method->mScript->mBytecode.mInstructions.size()) {
+	if (!method->mBytecodeLink->mBytecode.mInstructions.size()) {
 		return;
 	}
 
@@ -99,7 +99,7 @@ void Interpreter::stepBytecodeIn() {
 		mCallStack.leave();
 
 		if (mCallStack.len()) {
-			mOperandsStack.push(NDO_NULL_REF);
+			mOperandsStack.push(objects_api::getNullReferenced());
 		}
 		return;
 	}
@@ -305,7 +305,7 @@ void Interpreter::stepBytecodeIn() {
 				mScopeStack.leaveScope();
 				mCallStack.leave();
 				if (mCallStack.len()) {
-					mOperandsStack.push(NDO_NULL_REF);
+					mOperandsStack.push(objects_api::getNullReferenced());
 				}
 				break;
 			}
@@ -600,7 +600,7 @@ void Interpreter::stepBytecodeIn() {
 void Interpreter::execAll(
 	obj::MethodObject* method, obj::ClassObject* self, obj::DictObject* globals, InitialierList<GlobalDef> globals2
 ) {
-	if (!method->mScript->mBytecode.mInstructions.size()) {
+	if (!method->mBytecodeLink->mBytecode.mInstructions.size()) {
 		return;
 	}
 

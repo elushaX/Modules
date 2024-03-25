@@ -30,15 +30,6 @@ ConstObjectsPool::~ConstObjectsPool() {
 			objects_api::destroy(mBoolTrue.mObj);
 		}
 	}
-	for (auto obj : mStrings) {
-		delete obj->val;
-	}
-	for (auto obj : mIntegers) {
-		delete obj->val;
-	}
-	for (auto obj : mFloats) {
-		delete obj->val;
-	}
 }
 
 ConstObject* ConstObjectsPool::registerObject(Object* obj) {

@@ -12,10 +12,7 @@ using namespace obj;
 
 ObjectsContext* obj::gObjectsContext = nullptr;
 
-ObjectsContext::ObjectsContext() {
-	memSetVal(sl_callbacks, SAVE_LOAD_MAX_CALLBACK_SLOTS * sizeof(save_load_callbacks*), 0);
-	interp = new Interpreter();
-}
+ObjectsContext::ObjectsContext() { interp = new Interpreter(); }
 
 ObjectsContext::~ObjectsContext() { delete interp; }
 
@@ -24,9 +21,12 @@ void objects_api::initialize() {
 	gObjectsContext = new ObjectsContext();
 
 	gObjectsContext->nullObject = create<NullObject>();
+	objects_api::increaseReferenceCount(gObjectsContext->nullObject);
 }
 
 void objects_api::finalize() {
+	destroy(gObjectsContext->nullObject);
+
 	assertNoLeaks();
 
 	ASSERT(gObjectsContext)

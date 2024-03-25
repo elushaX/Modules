@@ -82,7 +82,7 @@ oscript {
 		| id [expr_id]
 	;
 
-	id: "[a-z]";
+	id: "([a-z]|[A-Z])+";
 	boolean: "true|false";
 	integer: "(\+|\-)?[0-9]+";
 	real: "(\+|\-)?[0-9]+(\.[0-9]+)?((e|E)(\+|\-)?[0-9]+)?";

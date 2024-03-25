@@ -32,8 +32,6 @@ namespace tp::obj {
 		Map<std::string, const ObjectType*> types;
 		TypeGroups type_groups;
 		Interpreter* interp = nullptr;
-		save_load_callbacks* sl_callbacks[SAVE_LOAD_MAX_CALLBACK_SLOTS]{};
-		alni sl_callbacks_load_idx = 0;
 
 		struct NullObject* nullObject = nullptr;
 
@@ -66,8 +64,6 @@ namespace tp::obj {
 		static inline alni getReferenceCount(Object* in) { return in->references; }
 
 		static inline void setReferenceCount(Object* in, halni count) { in->references = count; }
-
-		static void add_sl_callbacks(save_load_callbacks*);
 
 		static alni objsize_file(Object* self);
 		static alni objsize_file_recursive(Object* self);

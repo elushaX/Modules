@@ -1,46 +1,53 @@
 
-#include "compiler/Functions.hpp"
-#include "core/ScriptSection.hpp"
 #include "primitives/MethodObject.hpp"
+#include "compiler/Functions.hpp"
 
 using namespace tp;
 using namespace obj;
 
 void MethodObject::constructor(MethodObject* self) {
-	self->mScript = obj::ScriptSection::globalHandle()->createScript();
+	// create empty bytecode
+	self->mBytecodeLink = objects_api::create<BytecodeObject>();
 }
 
 void MethodObject::copy(MethodObject* self, MethodObject* in) {
-	obj::ScriptSection::globalHandle()->changeScript(&self->mScript, &in->mScript);
+	objects_api::destroy(self->mBytecodeLink);
+	objects_api::increaseReferenceCount(in->mBytecodeLink);
+	self->mBytecodeLink = in->mBytecodeLink;
 }
 
-void MethodObject::destructor(MethodObject* self) { obj::ScriptSection::globalHandle()->abandonScript(self->mScript); }
+void MethodObject::destructor(MethodObject* self) {
+	// deference
+	objects_api::destroy(self->mBytecodeLink);
+}
 
 tp::alni MethodObject::save_size(MethodObject* self) {
-	// script_table_file_address & script string object address
-	return sizeof(tp::alni);
+	// just reference to the bytecode
+	return sizeof(Object*);
 }
 
 void MethodObject::save(MethodObject* self, ArchiverOut& file_self) {
-	auto script_section = obj::ScriptSection::globalHandle();
-	// script_table_file_address
-	tp::alni script_table_file_address = script_section->get_script_file_adress(self->mScript);
-	file_self << script_table_file_address;
+	// save bytecode
+	file_self << objects_api::save(file_self, self->mBytecodeLink);
 }
 
 void MethodObject::load(ArchiverIn& file_self, obj::MethodObject* self) {
-	auto script_section = obj::ScriptSection::globalHandle();
-	// script_table_file_address
-	tp::alni script_table_file_address;
-	file_self >> script_table_file_address;
-	self->mScript = script_section->get_scritp_from_file_adress(script_table_file_address);
+	alni bytecodeAddress;
+	file_self >> bytecodeAddress;
+	auto bytecode = objects_api::load(file_self, bytecodeAddress);
+	self->mBytecodeLink = objects_api::cast<BytecodeObject>(bytecode);
 }
 
-void MethodObject::compile() { Compile(this); }
+void MethodObject::compile() {
+	// call to compiler
+	Compile(this);
+}
 
 MethodObject* MethodObject::create(const std::string& script) {
 	auto out = objects_api::create<MethodObject>();
-	out->mScript->mReadable->val = script;
+
+	ASSERT(false)
+
 	out->compile();
 	return out;
 }
