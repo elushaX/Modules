@@ -10,7 +10,7 @@ void BoolObject::constructor(BoolObject* self) { self->val = false; }
 void BoolObject::copy(BoolObject* self, const BoolObject* in) { self->val = in->val; }
 
 BoolObject* BoolObject::create(bool in) {
-	auto out = objects_api::cast<BoolObject>(NDO->create("bool"));
+	auto out = objects_api::create<BoolObject>();
 	out->val = alni(in);
 	return out;
 }

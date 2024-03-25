@@ -29,13 +29,20 @@ namespace tp::obj {
 
 	extern struct objects_api* NDO;
 
+	// base object
 	struct Object {
+		// TODO : used for saving, can be removed
 		Object* up;
 		Object* down;
 		alni flags;
-		alni refc;
 
+		// reference counting for memory management
+		alni references;
+
+		// type information
 		const struct ObjectType* type;
+
+		// additional inherited data
 	};
 
 	typedef void (*object_from_int)(Object* self, alni in);
@@ -127,7 +134,6 @@ namespace tp::obj {
 		~objects_api();
 
 		void define(ObjectType* type);
-		Object* create(const std::string& name);
 		static Object* copy(Object* self, const Object* in);
 		static bool compare(Object* first, Object* second);
 		static Object* instantiate(Object*);
@@ -144,11 +150,11 @@ namespace tp::obj {
 
 		void destroy(Object* in) const;
 
-		static inline void increaseReferenceCount(Object* in) { in->refc++; }
-		static inline alni getReferenceCount(Object* in) { return in->refc; }
+		static inline void increaseReferenceCount(Object* in) { in->references++; }
+		static inline alni getReferenceCount(Object* in) { return in->references; }
 
 	private:
-		static inline void setReferenceCount(Object* in, halni count) { in->refc = count; }
+		static inline void setReferenceCount(Object* in, halni count) { in->references = count; }
 
 	public:
 		save_load_callbacks* sl_callbacks[SAVE_LOAD_MAX_CALLBACK_SLOTS]{};
@@ -179,14 +185,18 @@ namespace tp::obj {
 			}
 			return nullptr;
 		}
+
+		Object* create(const ObjectType* type);
+
+		template <typename tObjectType>
+		static tObjectType* create() {
+			return (tObjectType*) NDO->create(&tObjectType::TypeData);
+		}
+
+		static Object* createByName(const char* name) { return NDO->create(NDO->types.get(name)); }
 	};
 
 	void logTypeData(const ObjectType* type);
 	void assertNoLeaks();
 	ualni getObjCount();
-
-	template <typename Type>
-	Type* create() {
-		return (Type*) NDO->create(Type::TypeData.name);
-	}
 }

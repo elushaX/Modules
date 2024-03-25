@@ -127,7 +127,7 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 				mLocals.put(func.mFunctionId, mConstants.get(func.mFunctionId));
 
 				// create and register const func object
-				auto function_obj = objects_api::cast<MethodObject>(NDO->create("method"));
+				auto function_obj = objects_api::create<MethodObject>();
 				auto method_const_obj = mConstants.addMethod(func.mFunctionId, function_obj);
 
 				for (auto child_stm : stm_func_def->mStatements->mStatements) {
@@ -155,7 +155,7 @@ void FunctionDefinition::EvalStatement(Statement* stm) {
 				mLocals.put(func.mFunctionId, mConstants.get(func.mFunctionId));
 
 				// create and register const func object
-				auto function_obj = objects_api::cast<MethodObject>(NDO->create("method"));
+				auto function_obj = objects_api::create<MethodObject>();
 				auto method_const_obj = mConstants.addMethod(func.mFunctionId, function_obj);
 
 				// compile function

@@ -13,7 +13,7 @@ SUITE(Core) {
 		objTestModule.initialize();
 
 		{
-			auto integer = objects_api::cast<IntObject>(NDO->create("int"));
+			auto integer = objects_api::create<IntObject>();
 
 			integer->val = 10;
 

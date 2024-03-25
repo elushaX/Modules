@@ -12,7 +12,7 @@ void StringObject::destructor(StringObject* self) { self->val.~basic_string(); }
 void StringObject::copy(StringObject* self, const StringObject* in) { self->val = in->val; }
 
 StringObject* StringObject::create(const std::string& in) {
-	auto out = objects_api::cast<StringObject>(NDO->create("str"));
+	auto out = objects_api::create<StringObject>();
 	out->val = in;
 	return out;
 }

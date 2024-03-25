@@ -139,7 +139,7 @@ bool obj::EnumObject::compare(EnumObject* first, EnumObject* second) {
 }
 
 EnumObject* obj::EnumObject::create(tp::InitialierList<const char*> list) {
-	auto enum_object = (EnumObject*) obj::NDO->create("enum");
+	auto enum_object = objects_api::create<EnumObject>();
 	enum_object->init(list);
 	return enum_object;
 }

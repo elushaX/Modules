@@ -8,12 +8,9 @@ using namespace obj;
 
 class ExampleGUI : public Application {
 public:
-	ExampleGUI() {
-		gui.cd(NDO->create("dict"), "root");
-	}
+	ExampleGUI() { gui.cd(objects_api::create<DictObject>(), "root"); }
 
-	void processFrame(EventHandler* eventHandler) override {
-	}
+	void processFrame(EventHandler* eventHandler) override {}
 
 	void drawFrame(Canvas* canvas) override {
 		canvas->rect({ { 0, 0 }, mWindow->getSize() }, RGBA(0.f, 0.f, 0.f, 1.f), 0);

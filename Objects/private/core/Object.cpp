@@ -51,10 +51,8 @@ void objects_api::define(ObjectType* type) {
 	type->type_methods.init();
 }
 
-Object* objects_api::create(const std::string& name) {
-	MODULE_SANITY_CHECK(gModuleObjects)
-
-	const ObjectType* type = types.get(name);
+Object* objects_api::create(const ObjectType* type) {
+	ASSERT(type);
 
 	Object* obj_instance = ObjectMemAllocate(type);
 
@@ -108,7 +106,7 @@ bool objects_api::compare(Object* first, Object* second) {
 }
 
 Object* objects_api::instantiate(Object* in) {
-	obj::Object* obj = NDO->create(in->type->name);
+	obj::Object* obj = objects_api::createByName(in->type->name);
 	tp::obj::objects_api::copy(obj, in);
 	return obj;
 }
@@ -162,8 +160,8 @@ void objects_api::destroy(Object* in) const {
 		return;
 	}
 
-	if (in->refc > 1) {
-		in->refc--;
+	if (in->references > 1) {
+		in->references--;
 		return;
 	}
 

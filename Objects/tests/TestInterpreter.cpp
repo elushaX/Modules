@@ -49,8 +49,8 @@ SUITE(Interpreter) {
 		objTestModule.initialize();
 
 		{
-			auto method = objects_api::cast<MethodObject>(NDO->create("method"));
-			auto interpreter = objects_api::cast<InterpreterObject>(NDO->create("interpreter"));
+			auto method = objects_api::create<MethodObject>();
+			auto interpreter = objects_api::create<InterpreterObject>();
 
 			interpreter->getMember<LinkObject>("target method")->setLink(method);
 
@@ -71,8 +71,8 @@ SUITE(Interpreter) {
 		objTestModule.initialize();
 
 		{
-			auto method = objects_api::cast<MethodObject>(NDO->create("method"));
-			auto interpreter = objects_api::cast<InterpreterObject>(NDO->create("interpreter"));
+			auto method = objects_api::create<MethodObject>();
+			auto interpreter = objects_api::create<InterpreterObject>();
 
 			interpreter->getMember<LinkObject>("target method")->setLink(method);
 
@@ -102,8 +102,8 @@ SUITE(Interpreter) {
 		{
 			auto compileStartCount = getObjCount();
 
-			auto method = objects_api::cast<MethodObject>(NDO->create("method"));
-			auto interpreter = objects_api::cast<InterpreterObject>(NDO->create("interpreter"));
+			auto method = objects_api::create<MethodObject>();
+			auto interpreter = objects_api::create<InterpreterObject>();
 
 			interpreter->getMember<LinkObject>("target method")->setLink(method);
 
@@ -143,8 +143,8 @@ SUITE(Interpreter) {
 		objTestModule.initialize();
 
 		{
-			auto method = objects_api::cast<MethodObject>(NDO->create("method"));
-			auto interpreter = objects_api::cast<InterpreterObject>(NDO->create("interpreter"));
+			auto method = objects_api::create<MethodObject>();
+			auto interpreter = objects_api::create<InterpreterObject>();
 
 			interpreter->getMember<LinkObject>("target method")->setLink(method);
 

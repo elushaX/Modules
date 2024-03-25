@@ -23,7 +23,7 @@ Object* ObjectMemAllocate(const ObjectType* type) {
 	object->down = nullptr;
 	object->flags = 0;
 
-	object->refc = (alni) 1;
+	object->references = (alni) 1;
 
 	if (bottom) {
 		bottom->down = object;
@@ -69,7 +69,7 @@ void obj::assertNoLeaks() {
 		printf("ERROR : not all objects are destroyed\n");
 		ualni idx = 0;
 		for (Object* object = bottom; object; object = object->up) {
-			printf(" ===== Object - %llu. Ref count - %lli ===== \n", idx, object->refc);
+			printf(" ===== Object - %llu. Ref count - %lli ===== \n", idx, object->references);
 			logTypeData(object->type);
 			idx++;
 		}

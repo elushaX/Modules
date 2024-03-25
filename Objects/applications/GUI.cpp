@@ -135,7 +135,7 @@ obj::Object* imgui_object_create_menu(obj::TypeGroups* type_group = nullptr) {
 			if (childo->key == "null") {
 				newo = NDO_NULL;
 			} else {
-				newo = obj::NDO->create(childo->key);
+				newo = objects_api::createByName(childo->key.c_str());
 			}
 		}
 	}

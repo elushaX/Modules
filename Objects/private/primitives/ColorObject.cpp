@@ -9,7 +9,7 @@ void ColorObject::constructor(ColorObject* self) { self->mCol = tp::RGBA(1.f); }
 void ColorObject::copy(ColorObject* self, const ColorObject* in) { self->mCol = in->mCol; }
 
 ColorObject* ColorObject::create(tp::RGBA in) {
-	auto out = objects_api::cast<ColorObject>(NDO->create("RGBA"));
+	auto out = objects_api::create<ColorObject>();
 	out->mCol = in;
 	return out;
 }

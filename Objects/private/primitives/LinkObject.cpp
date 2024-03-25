@@ -13,7 +13,7 @@ void LinkObject::destructor(LinkObject* self) {
 void LinkObject::copy(LinkObject* self, const LinkObject* in) { self->setLink(in->link); }
 
 LinkObject* LinkObject::create(Object* in) {
-	auto out = objects_api::cast<LinkObject>(NDO->create("link"));
+	auto out = objects_api::create<LinkObject>();
 	return out;
 }
 

@@ -9,7 +9,7 @@ void IntObject::constructor(IntObject* self) { self->val = 0; }
 void IntObject::copy(IntObject* self, const IntObject* in) { self->val = in->val; }
 
 IntObject* IntObject::create(alni in) {
-	auto out = objects_api::cast<IntObject>(NDO->create("int"));
+	auto out = objects_api::create<IntObject>();
 	out->val = in;
 	return out;
 }
