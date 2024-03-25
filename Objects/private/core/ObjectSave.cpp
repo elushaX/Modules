@@ -296,7 +296,7 @@ Object* objects_api::load(ArchiverIn& ndf, alni file_adress) {
 	// check for null object
 	if (out->type == &NullObject::TypeData) {
 		ObjectMemDeallocate(out);
-		out = NdoNull_globalInstance;
+		out = getNull();
 	}
 
 	// save heap adress in "loaded_file"
