@@ -30,13 +30,13 @@ Script* ScriptSection::createScript() {
 
 	new (out) Script();
 	out->mReadable = obj::StringObject::create("");
-	obj::NDO->increaseReferenceCount(out->mReadable);
+	objects_api::increaseReferenceCount(out->mReadable);
 	return out;
 }
 
 void ScriptSection::delete_script(Script* script) {
 	script->~Script();
-	obj::NDO->destroy(script->mReadable);
+	objects_api::destroy(script->mReadable);
 
 	free((((script_data_head*) script) - 1));
 }
@@ -99,7 +99,7 @@ void ScriptSection::save_script_table_to_file(ScriptSection* self, ArchiverOut& 
 	for (auto iter : self->mScripts) {
 
 		// scripts string obj ref
-		auto obj_addres = obj::NDO->save(file, iter->mReadable);
+		auto obj_addres = objects_api::save(file, iter->mReadable);
 		file << obj_addres;
 
 		// constants length
@@ -108,7 +108,7 @@ void ScriptSection::save_script_table_to_file(ScriptSection* self, ArchiverOut& 
 
 		for (auto const_obj : iter->mBytecode.mConstants) {
 			// constant object addres
-			auto obj_addres = obj::NDO->save(file, const_obj.data());
+			auto obj_addres = objects_api::save(file, const_obj.data());
 			file << obj_addres;
 		}
 
@@ -140,15 +140,15 @@ void load_constants(ScriptSection* self, ArchiverIn& file, alni start_addr) {
 		alni str_addr;
 		file >> str_addr;
 
-		NDO->destroy(script->mReadable); // we already have string object in the script when creating script
-		script->mReadable = objects_api::cast<StringObject>(obj::NDO->load(file, str_addr));
+		objects_api::destroy(script->mReadable); // we already have string object in the script when creating script
+		script->mReadable = objects_api::cast<StringObject>(objects_api::load(file, str_addr));
 
 		file.setAddress(file.getAddress() + sizeof(alni)); // constants length
 
 		for (auto const_obj : script->mBytecode.mConstants) {
 			alni consts_addr;
 			file >> consts_addr;
-			const_obj.data() = obj::NDO->load(file, consts_addr);
+			const_obj.data() = objects_api::load(file, consts_addr);
 		}
 
 		// instructions
@@ -192,7 +192,7 @@ void ScriptSection::load_script_table_from_file(ScriptSection* self, ArchiverIn&
 			file >> consts_addr;
 
 			// skiping
-			// new_script->mBytecode.mConstants[j] = obj::NDO->load(file, consts_addr);
+			// new_script->mBytecode.mConstants[j] = objects_api::load(file, consts_addr);
 		}
 
 		// mInstructions
@@ -238,10 +238,8 @@ void ScriptSection::initialize() {
 	ASSERT(!gScriptSection);
 	gScriptSection = new ScriptSection();
 
-	ASSERT(obj::NDO && "Forgot to initialize objects?");
-
 	slcb_script_section.self = gScriptSection;
-	obj::NDO->add_sl_callbacks(&slcb_script_section);
+	objects_api::add_sl_callbacks(&slcb_script_section);
 }
 
 void ScriptSection::uninitialize() {

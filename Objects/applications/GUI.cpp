@@ -92,22 +92,22 @@ void ImGui::HoverPopupEnd(ImGui::PopupData& in) {
 
 obj::ObjectsGUI::~ObjectsGUI() {
 	if (mClipboard) {
-		obj::NDO->destroy(mClipboard);
+		obj::objects_api::destroy(mClipboard);
 	}
 	for (auto iter : mViewStack) {
-		obj::NDO->destroy(iter->obj);
+		obj::objects_api::destroy(iter->obj);
 	}
 }
 
 void obj::ObjectsGUI::setClipboard(obj::Object* obj) {
 	if (mClipboard) {
-		obj::NDO->destroy(mClipboard);
+		obj::objects_api::destroy(mClipboard);
 	}
 
 	mClipboard = obj;
 
 	if (mClipboard) {
-		obj::NDO->increaseReferenceCount(obj);
+		obj::objects_api::increaseReferenceCount(obj);
 	}
 }
 
@@ -118,7 +118,7 @@ obj::Object* imgui_object_create_menu(obj::TypeGroups* type_group = nullptr) {
 	obj::Object* newo = nullptr;
 
 	if (!type_group) {
-		type_group = &obj::NDO->type_groups;
+		type_group = &obj::gObjectsContext->type_groups;
 	}
 
 	for (auto childo : *type_group->getChilds()) {
@@ -143,17 +143,17 @@ obj::Object* imgui_object_create_menu(obj::TypeGroups* type_group = nullptr) {
 	return newo;
 }
 
-obj::ObjectsGUI::ObjectsGUI() { assert(obj::NDO && "Objects library is not initialized"); }
+obj::ObjectsGUI::ObjectsGUI() { assert(gObjectsContext && "Objects library is not initialized"); }
 
 void obj::ObjectsGUI::cd(obj::Object* child, const std::string& name) {
 	mActive = child;
 	mViewStack.pushBack({ mActive, name });
-	obj::NDO->increaseReferenceCount(child);
+	obj::objects_api::increaseReferenceCount(child);
 }
 
 void obj::ObjectsGUI::cdup() {
 	if (mViewStack.length() > 1) {
-		obj::NDO->destroy(mViewStack.last()->data.obj);
+		obj::objects_api::destroy(mViewStack.last()->data.obj);
 
 		mViewStack.popBack();
 		mActive = mViewStack.last()->data.obj;
@@ -461,7 +461,7 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::enumView(obj::EnumObject* obj) {
 
 		for (tp::uhalni idx = 0; idx < obj->nentries; idx++) {
 			if (ImGui::Selectable(obj->getItemName(idx))) {
-				obj::NDO->set(obj, tp::alni(idx));
+				obj::objects_api::set(obj, tp::alni(idx));
 			}
 		}
 
@@ -590,11 +590,11 @@ void obj::ObjectsGUI::dictViewEdit(obj::DictObject* dict, const std::string& key
 				if (bool(idx)) {
 					// Notify("Object with such name Already Exists");
 				} else {
-					obj::NDO->increaseReferenceCount(obj);
+					obj::objects_api::increaseReferenceCount(obj);
 					dict->remove(key);
 					auto id = std::string(mNameEdit);
 					dict->put(id, obj);
-					obj::NDO->destroy(obj);
+					obj::objects_api::destroy(obj);
 				}
 			}
 		}
@@ -918,7 +918,7 @@ void obj::ObjectsGUI::explorer() {
 			}
 
 			if (ImGui::Selectable("Instantiate  ")) {
-				setClipboard(obj::NDO->instantiate(curretn_object));
+				setClipboard(obj::objects_api::instantiate(curretn_object));
 				// Notify("Object copied to clipboard");
 			}
 
@@ -934,12 +934,12 @@ void obj::ObjectsGUI::explorer() {
 			bool load_object = ImGui::Button("Load Object");
 
 			if (save_object) {
-				obj::NDO->save(curretn_object, path_str, compressed);
+				obj::objects_api::save(curretn_object, path_str, compressed);
 				// Notify("Object saved");
 			}
 
 			if (load_object) {
-				obj::Object* loadedo = obj::NDO->load(path_str);
+				obj::Object* loadedo = obj::objects_api::load(path_str);
 				if (loadedo) {
 					setClipboard(loadedo);
 					// Notify("Object copied to clipboard");
@@ -1008,7 +1008,7 @@ void obj::ObjectsGUI::properties(const obj::ObjectType* type, bool top_of_tree_v
 	assert(mActive);
 	if (mActive->type != type) return;
 
-	ImGui::Text(" RefCount : %i", obj::NDO->getReferenceCount(mActive));
+	ImGui::Text(" RefCount : %i", obj::objects_api::getReferenceCount(mActive));
 
 	ImGui::Text("  Type : %s", type->name);
 
@@ -1043,14 +1043,14 @@ void obj::ObjectsGUI::properties(const obj::ObjectType* type, bool top_of_tree_v
 		ImGui::Text("RAM : ");
 		ImGui::Indent();
 		ImGui::Text("Only Structure : %i bytes", type->size);
-		ImGui::Text("With Non-Object Links : %i bytes", obj::NDO->objsize_ram(mActive));
-		ImGui::Text("Full Size Recursive : %i bytes", obj::NDO->objsize_ram_recursive(mActive));
+		ImGui::Text("With Non-Object Links : %i bytes", obj::objects_api::objsize_ram(mActive));
+		ImGui::Text("Full Size Recursive : %i bytes", obj::objects_api::objsize_ram_recursive(mActive));
 		ImGui::Unindent();
 
 		ImGui::Text("Disk :");
 		ImGui::Indent();
-		ImGui::Text("Only Structure : %i bytes", obj::NDO->objsize_file(mActive));
-		ImGui::Text("With Object Links : %i bytes", obj::NDO->objsize_file_recursive(mActive));
+		ImGui::Text("Only Structure : %i bytes", obj::objects_api::objsize_file(mActive));
+		ImGui::Text("With Object Links : %i bytes", obj::objects_api::objsize_file_recursive(mActive));
 		ImGui::Unindent();
 
 		// ImGui::TreePop();

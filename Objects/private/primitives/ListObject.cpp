@@ -18,7 +18,7 @@ void ListObject::copy(ListObject* in, const ListObject* target) {
 
 void ListObject::destructor(ListObject* in) {
 	for (auto item : in->items) {
-		NDO->destroy(item.data());
+		objects_api::destroy(item.data());
 	}
 	in->items.removeAll();
 }
@@ -33,7 +33,7 @@ void ListObject::save(ListObject* self, ArchiverOut& file_self) {
 	file_self << len;
 
 	for (auto item : self->items) {
-		alni ndo_object_adress = NDO->save(file_self, item.data());
+		alni ndo_object_adress = objects_api::save(file_self, item.data());
 		file_self << ndo_object_adress;
 	}
 }
@@ -47,7 +47,7 @@ void ListObject::load(ArchiverIn& file_self, ListObject* self) {
 	for (alni i = 0; i < len; i++) {
 		alni ndo_object_adress;
 		file_self >> ndo_object_adress;
-		self->pushBack(NDO->load(file_self, ndo_object_adress));
+		self->pushBack(objects_api::load(file_self, ndo_object_adress));
 	}
 }
 
@@ -71,30 +71,30 @@ alni ListObject::allocated_size_recursive(ListObject* self) {
 	ASSERT(false)
 	// alni out = self->items.sizeAllocatedMem();
 	for (auto item : self->items) {
-		// out += NDO->objsize_ram_recursive_util(item.data(), item->type);
+		// out += objects_api::objsize_ram_recursive_util(item.data(), item->type);
 	}
 	// return out;
 	return 0;
 }
 
 void ListObject::pushBack(Object* obj) {
-	obj::NDO->increaseReferenceCount(obj);
+	obj::objects_api::increaseReferenceCount(obj);
 	items.pushBack(obj);
 }
 
 void ListObject::pushFront(Object* obj) {
-	obj::NDO->increaseReferenceCount(obj);
+	obj::objects_api::increaseReferenceCount(obj);
 	items.pushFront(obj);
 }
 
 void ListObject::delNode(tp::List<Object*>::Node* node) {
-	obj::NDO->destroy(node->data);
+	obj::objects_api::destroy(node->data);
 	items.deleteNode(node);
 }
 
 void ListObject::popBack() {
 	auto obj = items.last();
-	if (obj) obj::NDO->destroy(obj->data);
+	if (obj) obj::objects_api::destroy(obj->data);
 	items.popBack();
 }
 

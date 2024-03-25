@@ -21,7 +21,7 @@ namespace tp::obj {
 
 		~ByteCode() {
 			for (auto const_obj : mConstants) {
-				NDO->destroy(const_obj.data());
+				objects_api::destroy(const_obj.data());
 			}
 		}
 	};

@@ -16,13 +16,11 @@ static alni save_size(TypeObject* self) { return save_string_size(self->mTypeRef
 static void save(TypeObject* self, ArchiverOut& file_self) { save_string(file_self, self->mTypeRef->name); }
 
 static void load(ArchiverIn& file_self, TypeObject* self) {
-	std::string nameid;
-	load_string(file_self, nameid);
+	std::string name;
+	load_string(file_self, name);
 
-	auto idx = NDO->types.presents(nameid);
-
-	if (idx) {
-		self->mTypeRef = NDO->types.getSlotVal(idx);
+	if (objects_api::isType(name.c_str())) {
+		self->mTypeRef = objects_api::getType(name.c_str());
 	} else {
 		self->mTypeRef = &NullObject::TypeData;
 	}
@@ -31,10 +29,8 @@ static void load(ArchiverIn& file_self, TypeObject* self) {
 static alni allocated_size(TypeObject* self) { return sizeof(alni); }
 
 static void from_string(TypeObject* self, const std::string& in) {
-	auto idx = NDO->types.presents(in);
-
-	if (idx) {
-		self->mTypeRef = NDO->types.getSlotVal(idx);
+	if (objects_api::isType(in.c_str())) {
+		self->mTypeRef = objects_api::getType(in.c_str());
 	} else {
 		self->mTypeRef = &NullObject::TypeData;
 	}

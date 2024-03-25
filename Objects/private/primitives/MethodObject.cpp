@@ -51,8 +51,8 @@ void MethodObject::load(ArchiverIn& file_self, obj::MethodObject* self) {
 
 void MethodObject::Initialize() {
 	obj::ScriptSection::initialize();
-	NDO->define(&MethodObject::TypeData);
-	obj::NDO->type_groups.addType(&MethodObject::TypeData, { "Primitives" });
+	objects_api::define(&MethodObject::TypeData);
+	objects_api::addTypeToGroup(&MethodObject::TypeData, { "Primitives" });
 }
 
 void MethodObject::UnInitialize() { obj::ScriptSection::uninitialize(); }

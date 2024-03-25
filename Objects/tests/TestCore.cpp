@@ -1,8 +1,6 @@
 
 #include "ObjectTests.hpp"
-
 #include "core/Object.hpp"
-
 #include "primitives/IntObject.hpp"
 
 using namespace tp;
@@ -17,19 +15,19 @@ SUITE(Core) {
 
 			integer->val = 10;
 
-			printf("%s\n", NDO->toString(integer).c_str());
+			printf("%s\n", objects_api::toString(integer).c_str());
 
-			NDO->save(integer, "tmp.o");
-			auto savedInt = NDO->load("tmp.o");
+			objects_api::save(integer, "tmp.o");
+			auto savedInt = objects_api::load("tmp.o");
 
-			printf("%s\n", NDO->toString(savedInt).c_str());
+			printf("%s\n", objects_api::toString(savedInt).c_str());
 
-			CHECK(NDO->compare(integer, savedInt));
+			CHECK(objects_api::compare(integer, savedInt));
 			CHECK(objects_api::cast<IntObject>(savedInt));
 			CHECK(integer->val == objects_api::cast<IntObject>(savedInt)->val);
 
-			NDO->destroy(integer);
-			NDO->destroy(savedInt);
+			objects_api::destroy(integer);
+			objects_api::destroy(savedInt);
 		}
 
 		objTestModule.deinitialize();

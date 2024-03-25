@@ -2,11 +2,7 @@
 #include "ObjectTests.hpp"
 
 #include "compiler/Functions.hpp"
-#include "parser/Parser.hpp"
-#include "core/Object.hpp"
 #include "interpreter/Interpreter.hpp"
-#include "primitives/InterpreterObject.hpp"
-#include "primitives/LinkObject.hpp"
 #include "primitives/MethodObject.hpp"
 
 using namespace tp;
@@ -23,9 +19,9 @@ SUITE(Compiler) {
 			method->mScript->mReadable->val = "print 1 * 20 + 10;";
 			method->compile();
 
-			NDO->destroy(method);
+			objects_api::destroy(method);
 
-			assertNoLeaks();
+			objects_api::assertNoLeaks();
 		}
 
 		{
@@ -35,9 +31,9 @@ SUITE(Compiler) {
 			method->mScript->mReadable->val = "print undefinedVariable;";
 			method->compile();
 
-			NDO->destroy(method);
+			objects_api::destroy(method);
 
-			assertNoLeaks();
+			objects_api::assertNoLeaks();
 		}
 
 		objTestModule.deinitialize();

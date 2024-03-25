@@ -2,10 +2,7 @@
 #include "ObjectTests.hpp"
 
 #include "compiler/Functions.hpp"
-#include "core/Object.hpp"
 #include "interpreter/Interpreter.hpp"
-#include "primitives/InterpreterObject.hpp"
-#include "primitives/LinkObject.hpp"
 #include "primitives/MethodObject.hpp"
 
 using namespace tp;
@@ -23,15 +20,15 @@ SUITE(PrimitiveObjects) {
 
 			dict->put("val", integer);
 
-			NDO->save(dict, "dict.o");
+			objects_api::save(dict, "dict.o");
 
-			auto dictLoaded = objects_api::cast<DictObject>(NDO->load("dict.o"));
+			auto dictLoaded = objects_api::cast<DictObject>(objects_api::load("dict.o"));
 
 			REQUIRE CHECK(dictLoaded->presents("val").isValid());
 			CHECK(objects_api::cast<IntObject>(dictLoaded->get("val"))->val == 10);
 
-			NDO->destroy(dict);
-			NDO->destroy(dictLoaded);
+			objects_api::destroy(dict);
+			objects_api::destroy(dictLoaded);
 		}
 
 		objTestModule.deinitialize();

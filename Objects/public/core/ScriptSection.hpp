@@ -1,6 +1,7 @@
 #pragma once
 
 #include "primitives/MethodObject.hpp"
+#include "List.hpp"
 
 namespace tp::obj {
 
@@ -8,7 +9,7 @@ namespace tp::obj {
 	struct ScriptSection {
 
 		List<Script*> mScripts;
-		
+
 		Script* createScript();
 		void changeScript(Script** current_script, Script** new_script);
 		void abandonScript(Script* script);
@@ -23,7 +24,6 @@ namespace tp::obj {
 		static ScriptSection* globalHandle();
 
 	private:
-
 		static obj::save_load_callbacks slcb_script_section;
 
 		void delete_script(Script* script);
