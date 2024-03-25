@@ -18,9 +18,6 @@ namespace tp::obj {
 		static void save(MethodObject* self, ArchiverOut& file_self);
 		static void load(ArchiverIn& file_self, obj::MethodObject* self);
 
-		static void Initialize();
-		static void UnInitialize();
-
 		void compile();
 
 		static MethodObject* create(const std::string& script);

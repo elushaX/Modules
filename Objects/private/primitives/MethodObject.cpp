@@ -6,19 +6,6 @@
 using namespace tp;
 using namespace obj;
 
-struct ObjectType MethodObject::TypeData = {
-	.base = nullptr,
-	.constructor = (object_constructor) MethodObject::constructor,
-	.destructor = (object_destructor) MethodObject::destructor,
-	.copy = (object_copy) MethodObject::copy,
-	.size = sizeof(MethodObject),
-	.name = "method",
-	.conversions = nullptr,
-	.save_size = (object_save_size) MethodObject::save_size,
-	.save = (object_save) MethodObject::save,
-	.load = (object_load) MethodObject::load,
-};
-
 void MethodObject::constructor(MethodObject* self) {
 	self->mScript = obj::ScriptSection::globalHandle()->createScript();
 }
@@ -49,14 +36,6 @@ void MethodObject::load(ArchiverIn& file_self, obj::MethodObject* self) {
 	self->mScript = script_section->get_scritp_from_file_adress(script_table_file_address);
 }
 
-void MethodObject::Initialize() {
-	obj::ScriptSection::initialize();
-	objects_api::define(&MethodObject::TypeData);
-	objects_api::addTypeToGroup(&MethodObject::TypeData, { "Primitives" });
-}
-
-void MethodObject::UnInitialize() { obj::ScriptSection::uninitialize(); }
-
 void MethodObject::compile() { Compile(this); }
 
 MethodObject* MethodObject::create(const std::string& script) {
@@ -65,3 +44,16 @@ MethodObject* MethodObject::create(const std::string& script) {
 	out->compile();
 	return out;
 }
+
+struct ObjectType MethodObject::TypeData = {
+	.base = nullptr,
+	.constructor = (object_constructor) MethodObject::constructor,
+	.destructor = (object_destructor) MethodObject::destructor,
+	.copy = (object_copy) MethodObject::copy,
+	.size = sizeof(MethodObject),
+	.name = "method",
+	.conversions = nullptr,
+	.save_size = (object_save_size) MethodObject::save_size,
+	.save = (object_save) MethodObject::save,
+	.load = (object_load) MethodObject::load,
+};
