@@ -9,7 +9,7 @@ namespace tp::obj {
 		alni val;
 
 		static ObjectType TypeData;
-		static ObjectTypeAriphmetics TypeAriphm;
+		static ObjectTypeArithmetics TypeAriphm;
 
 		static void constructor(IntObject* self);
 		static void copy(IntObject* self, const IntObject* in);

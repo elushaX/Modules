@@ -9,8 +9,7 @@ namespace tp::obj {
 		alnf val;
 
 		static ObjectType TypeData;
-		static ObjectTypeAriphmetics TypeAriphm;
-
+		static ObjectTypeArithmetics TypeAriphm;
 
 		static void constructor(FloatObject* self);
 		static void copy(FloatObject* self, const FloatObject* in);

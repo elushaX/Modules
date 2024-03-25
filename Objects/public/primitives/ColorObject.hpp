@@ -10,7 +10,7 @@ namespace tp::obj {
 		RGBA mCol;
 
 		static ObjectType TypeData;
-		static ObjectTypeAriphmetics TypeAriphm;
+		static ObjectTypeArithmetics TypeAriphm;
 
 		static void constructor(ColorObject* self);
 		static void copy(ColorObject* self, const ColorObject* in);

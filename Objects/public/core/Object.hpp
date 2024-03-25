@@ -59,7 +59,7 @@ namespace tp::obj {
 	typedef void (*object_mul)(Object* self, Object* operand);
 	typedef void (*object_div)(Object* self, Object* operand);
 
-	struct ObjectTypeAriphmetics {
+	struct ObjectTypeArithmetics {
 		object_add add;
 		object_sub sub;
 		object_mul mul;
@@ -86,9 +86,9 @@ namespace tp::obj {
 		object_destructor destructor = nullptr;
 		object_copy copy = nullptr;
 		alni size = 0;
-		const char* name;
-		const ObjectTypeConversions* convesions = nullptr;
-		const ObjectTypeAriphmetics* ariphmetics = nullptr;
+		const char* name = nullptr;
+		const ObjectTypeConversions* conversions = nullptr;
+		const ObjectTypeArithmetics* arithmetics = nullptr;
 		object_save_size save_size = nullptr;
 		object_save save = nullptr;
 		object_load load = nullptr;

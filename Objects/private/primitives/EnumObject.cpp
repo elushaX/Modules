@@ -134,7 +134,9 @@ static void load(ArchiverIn& file_self, EnumObject* self) {
 	file_self.readBytes((tp::int1*) self->entries, self->nentries * ENV_ALNI_SIZE_B);
 }
 
-bool obj::EnumObject::compare(EnumObject* first, EnumObject* second) { return first->entries != nullptr && second->entries != nullptr && first->active == second->active; }
+bool obj::EnumObject::compare(EnumObject* first, EnumObject* second) {
+	return first->entries != nullptr && second->entries != nullptr && first->active == second->active;
+}
 
 EnumObject* obj::EnumObject::create(tp::InitialierList<const char*> list) {
 	auto enum_object = (EnumObject*) obj::NDO->create("enum");
@@ -166,7 +168,7 @@ struct obj::ObjectType obj::EnumObject::TypeData = {
 	.copy = (object_copy) EnumObject::copy,
 	.size = sizeof(EnumObject),
 	.name = "enum",
-	.convesions = &EnumObjectTypeConversions,
+	.conversions = &EnumObjectTypeConversions,
 	.save_size = (object_save_size) save_size,
 	.save = (object_save) save,
 	.load = (object_load) load,

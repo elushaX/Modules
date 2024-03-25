@@ -101,7 +101,7 @@ struct obj::ObjectType LinkObject::TypeData = {
 	.size = sizeof(LinkObject),
 	.name = "link",
 
-	.convesions = nullptr,
+	.conversions = nullptr,
 
 	.save_size = (object_save_size) LinkObject::save_size,
 	.save = (object_save) LinkObject::save,

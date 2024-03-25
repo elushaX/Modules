@@ -22,7 +22,7 @@ TypeMethod obj::gDefaultTypeMethods[] = {
 		.descr = "converts to string",
 		.exec =
 			[](const TypeMethod* tm) {
-				if (tm->self->type->convesions && tm->self->type->convesions->to_string) {
+				if (tm->self->type->conversions && tm->self->type->conversions->to_string) {
 					tm->ret.obj = StringObject::create(NDO->toString(tm->self));
 				}
 			},
@@ -33,7 +33,7 @@ TypeMethod obj::gDefaultTypeMethods[] = {
 		.descr = "converts to float",
 		.exec =
 			[](const TypeMethod* tm) {
-				if (tm->self->type->convesions && tm->self->type->convesions->to_float) {
+				if (tm->self->type->conversions && tm->self->type->conversions->to_float) {
 					tm->ret.obj = FloatObject::create(NDO->toFloat(tm->self));
 				}
 			},

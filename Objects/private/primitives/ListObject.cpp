@@ -107,8 +107,8 @@ struct obj::ObjectType obj::ListObject::TypeData = {
 	.copy = (object_copy) ListObject::copy,
 	.size = sizeof(ListObject),
 	.name = "list",
-	.convesions = nullptr,
-	
+	.conversions = nullptr,
+
 	.save_size = (object_save_size) save_size,
 	.save = (object_save) save,
 	.load = (object_load) load,

@@ -14,7 +14,9 @@ void NullObject::uninit() {
 	NdoNull_globalInstance = nullptr;
 }
 
-void NullObject::destructor(Object* self) { DEBUG_ASSERT(uninit_flag && "Only one the instance of NullObject exists and thus it can't be destroyed"); }
+void NullObject::destructor(Object* self) {
+	DEBUG_ASSERT(uninit_flag && "Only one the instance of NullObject exists and thus it can't be destroyed");
+}
 
 std::string to_string(NullObject* self) { return "nullptr"; }
 
@@ -44,5 +46,5 @@ struct ObjectType NullObject::TypeData = {
 	.copy = nullptr,
 	.size = sizeof(NullObject),
 	.name = "null",
-	.convesions = &NullObjectTypeConversions,
+	.conversions = &NullObjectTypeConversions,
 };
