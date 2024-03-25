@@ -6,7 +6,7 @@ using namespace tp;
 using namespace obj;
 
 TypeObject* TypeObject::create(const ObjectType* type) {
-	auto out = objects_api::cast<TypeObject>(NDO->create("typeobject"));
+	auto out = objects_api::create<TypeObject>();
 	out->mTypeRef = type;
 	return out;
 }

@@ -52,7 +52,7 @@ void Interpreter::exec(
 	}
 }
 
-bool Interpreter::finished() { return !mCallStack.len(); }
+bool Interpreter::finished() const { return !mCallStack.len(); }
 
 void Interpreter::stepBytecode() {
 	halni call_depth = mCallStack.len();
@@ -236,7 +236,7 @@ void Interpreter::stepBytecodeIn() {
 			{
 				auto type = mOperandsStack.getOperand<StringObject>();
 				auto id = mOperandsStack.getOperand<StringObject>();
-				mScopeStack.addLocal(NDO->create(type->val), id->val);
+				mScopeStack.addLocal(objects_api::createByName(type->val.c_str()), id->val);
 				break;
 			}
 
@@ -253,12 +253,11 @@ void Interpreter::stepBytecodeIn() {
 		case OpCode::OBJ_CREATE:
 			{
 				auto type = mOperandsStack.getOperand<StringObject>();
-				Object* new_obj = nullptr;
 
 				// basic types
 				auto idx = NDO->types.presents(type->val);
 				if (idx) {
-					auto new_obj = NDO->create(type->val);
+					Object* new_obj = objects_api::createByName(type->val.c_str());
 
 					mOperandsStack.push(new_obj);
 					mScopeStack.addTemp(new_obj);
@@ -286,7 +285,7 @@ void Interpreter::stepBytecodeIn() {
 
 		case OpCode::CLASS_CONSTRUCT:
 			{
-				auto class_obj = (ClassObject*) NDO->create("class");
+				auto class_obj = NDO->create<ClassObject>();
 
 				for (auto local : mScopeStack.getCurrentScope()->mLocals) {
 					class_obj->addMember(local->val, local->key);

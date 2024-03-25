@@ -18,7 +18,7 @@ SUITE(Compiler) {
 
 		{
 			// no errors
-			auto method = objects_api::cast<MethodObject>(NDO->create("method"));
+			auto method = objects_api::create<MethodObject>();
 
 			method->mScript->mReadable->val = "print 1 * 20 + 10;";
 			method->compile();
@@ -30,7 +30,7 @@ SUITE(Compiler) {
 
 		{
 			// with errors
-			auto method = objects_api::cast<MethodObject>(NDO->create("method"));
+			auto method = objects_api::create<MethodObject>();
 
 			method->mScript->mReadable->val = "print undefinedVariable;";
 			method->compile();

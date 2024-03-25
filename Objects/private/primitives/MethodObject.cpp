@@ -60,7 +60,7 @@ void MethodObject::UnInitialize() { obj::ScriptSection::uninitialize(); }
 void MethodObject::compile() { Compile(this); }
 
 MethodObject* MethodObject::create(const std::string& script) {
-	auto out = (MethodObject*) NDO->create(MethodObject::TypeData.name);
+	auto out = objects_api::create<MethodObject>();
 	out->mScript->mReadable->val = script;
 	out->compile();
 	return out;

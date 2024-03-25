@@ -8,13 +8,14 @@ namespace tp::obj {
 	extern struct NullObject* NdoNull_globalInstance;
 
 	struct NullObject : Object {
+		static ObjectType TypeData;
 
 		static void destructor(Object* self);
-		static ObjectType TypeData;
+
 		static void uninit();
 		static Object* null_return() {
 			if (!NdoNull_globalInstance) {
-				NdoNull_globalInstance = (NullObject*) NDO->create("null");
+				NdoNull_globalInstance = NDO->create<NullObject>();
 				NDO->increaseReferenceCount(NdoNull_globalInstance);
 			}
 			return (Object*) NdoNull_globalInstance;
@@ -26,7 +27,7 @@ namespace tp::obj {
 		}
 	};
 
-	#define NDO_NULL NullObject::null_return()
-	#define NDO_NULL_REF NullObject::null_return_ref()
+#define NDO_NULL NullObject::null_return()
+#define NDO_NULL_REF NullObject::null_return_ref()
 
 }

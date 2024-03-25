@@ -8,7 +8,7 @@ void FloatObject::constructor(FloatObject* self) { self->val = 0; }
 void FloatObject::copy(FloatObject* self, const FloatObject* in) { self->val = in->val; }
 
 FloatObject* FloatObject::create(alnf in) {
-	auto out = objects_api::cast<FloatObject>(NDO->create("float"));
+	auto out = objects_api::create<FloatObject>();
 	out->val = alnf(in);
 	return out;
 }

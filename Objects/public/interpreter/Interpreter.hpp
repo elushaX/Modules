@@ -14,16 +14,29 @@ namespace tp::obj {
 		bool mIsTypeMethod = false;
 		const TypeMethod* mTypeMethod = nullptr;
 
-		typedef struct { Object* obj; std::string id; } GlobalDef;
+		typedef struct {
+			Object* obj;
+			std::string id;
+		} GlobalDef;
 
-		void exec(MethodObject* method, ClassObject* self = nullptr, DictObject* globals = nullptr, InitialierList<GlobalDef> globals2 = {});
+		void exec(
+			MethodObject* method,
+			ClassObject* self = nullptr,
+			DictObject* globals = nullptr,
+			InitialierList<GlobalDef> globals2 = {}
+		);
 
 		void stepBytecode();
 		void stepBytecodeIn();
 		void stepBytecodeOut();
 
-		bool finished();
+		bool finished() const;
 
-		void execAll(MethodObject* method, ClassObject* self = nullptr, DictObject* globals = nullptr, InitialierList<GlobalDef> globals2 = {});
+		void execAll(
+			MethodObject* method,
+			ClassObject* self = nullptr,
+			DictObject* globals = nullptr,
+			InitialierList<GlobalDef> globals2 = {}
+		);
 	};
 }
