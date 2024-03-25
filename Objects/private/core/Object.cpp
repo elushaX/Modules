@@ -114,46 +114,46 @@ Object* objects_api::instantiate(Object* in) {
 }
 
 void objects_api::set(Object* self, alni val) {
-	if (self->type->convesions && self->type->convesions->from_int) {
-		self->type->convesions->from_int(self, val);
+	if (self->type->conversions && self->type->conversions->from_int) {
+		self->type->conversions->from_int(self, val);
 		return;
 	}
 }
 
 void objects_api::set(Object* self, alnf val) {
-	if (self->type->convesions && self->type->convesions->from_float) {
-		self->type->convesions->from_float(self, val);
+	if (self->type->conversions && self->type->conversions->from_float) {
+		self->type->conversions->from_float(self, val);
 		return;
 	}
 }
 
 void objects_api::set(Object* self, const std::string& val) {
-	if (self->type->convesions && self->type->convesions->from_string) {
-		self->type->convesions->from_string(self, val);
+	if (self->type->conversions && self->type->conversions->from_string) {
+		self->type->conversions->from_string(self, val);
 		return;
 	}
 }
 
 alni objects_api::toInt(Object* self) {
-	DEBUG_ASSERT(self->type->convesions && self->type->convesions->to_int)
-	return self->type->convesions->to_int(self);
+	DEBUG_ASSERT(self->type->conversions && self->type->conversions->to_int)
+	return self->type->conversions->to_int(self);
 }
 
 alnf objects_api::toFloat(Object* self) {
-	DEBUG_ASSERT(self->type->convesions && self->type->convesions->to_float)
-	return self->type->convesions->to_float(self);
+	DEBUG_ASSERT(self->type->conversions && self->type->conversions->to_float)
+	return self->type->conversions->to_float(self);
 }
 
 bool objects_api::toBool(Object* self) {
-	if (self->type->convesions && self->type->convesions->to_int) {
-		return (bool) self->type->convesions->to_int(self);
+	if (self->type->conversions && self->type->conversions->to_int) {
+		return (bool) self->type->conversions->to_int(self);
 	}
 	return true;
 }
 
 std::string objects_api::toString(Object* self) {
-	DEBUG_ASSERT(self->type->convesions && self->type->convesions->to_string)
-	return self->type->convesions->to_string(self);
+	DEBUG_ASSERT(self->type->conversions && self->type->conversions->to_string)
+	return self->type->conversions->to_string(self);
 }
 
 void objects_api::destroy(Object* in) const {

@@ -48,7 +48,7 @@ static void add(FloatObject* self, FloatObject* in) { self->val += in->val; }
 
 static void divide(FloatObject* self, FloatObject* in) { self->val /= in->val; }
 
-struct ObjectTypeAriphmetics FloatObject::TypeAriphm = {
+struct ObjectTypeArithmetics FloatObject::TypeAriphm = {
 	.add = (object_add) add,
 	.sub = (object_sub) sub,
 	.mul = (object_mul) mul,
@@ -62,8 +62,8 @@ struct obj::ObjectType obj::FloatObject::TypeData = {
 	.copy = (object_copy) FloatObject::copy,
 	.size = sizeof(FloatObject),
 	.name = "float",
-	.convesions = &FloatObjectTypeConversions,
-	.ariphmetics = &FloatObject::TypeAriphm,
+	.conversions = &FloatObjectTypeConversions,
+	.arithmetics = &FloatObject::TypeAriphm,
 	.save_size = (object_save_size) save_size,
 	.save = (object_save) save,
 	.load = (object_load) load,

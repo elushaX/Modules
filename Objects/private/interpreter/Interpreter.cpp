@@ -223,7 +223,7 @@ void Interpreter::stepBytecodeIn() {
 		case OpCode::PRINT:
 			{
 				auto obj = mOperandsStack.getOperand();
-				if (obj->type->convesions && obj->type->convesions->to_string) {
+				if (obj->type->conversions && obj->type->conversions->to_string) {
 					auto str = NDO->toString(obj);
 					printf("%s\n", str.c_str());
 				} else {
@@ -390,10 +390,10 @@ void Interpreter::stepBytecodeIn() {
 				auto right = mOperandsStack.getOperand();
 
 				ASSERT(left->type == right->type && "addition of different types is not implemented");
-				ASSERT(left->type->ariphmetics && left->type->ariphmetics->add && "cannot add object of this type");
+				ASSERT(left->type->arithmetics && left->type->arithmetics->add && "cannot add object of this type");
 
 				auto res = NDO->instantiate(left);
-				res->type->ariphmetics->add(res, right);
+				res->type->arithmetics->add(res, right);
 
 				mScopeStack.addTemp(res);
 				mOperandsStack.push(res);
@@ -405,10 +405,10 @@ void Interpreter::stepBytecodeIn() {
 				auto right = mOperandsStack.getOperand();
 
 				ASSERT(left->type == right->type && "addition of different types is not implemented");
-				ASSERT(left->type->ariphmetics && left->type->ariphmetics->add && "cannot add object of this type");
+				ASSERT(left->type->arithmetics && left->type->arithmetics->add && "cannot add object of this type");
 
 				auto res = NDO->instantiate(left);
-				res->type->ariphmetics->sub(res, right);
+				res->type->arithmetics->sub(res, right);
 
 				mScopeStack.addTemp(res);
 				mOperandsStack.push(res);
@@ -420,10 +420,10 @@ void Interpreter::stepBytecodeIn() {
 				auto right = mOperandsStack.getOperand();
 
 				ASSERT(left->type == right->type && "addition of different types is not implemented");
-				ASSERT(left->type->ariphmetics && left->type->ariphmetics->add && "cannot add object of this type");
+				ASSERT(left->type->arithmetics && left->type->arithmetics->add && "cannot add object of this type");
 
 				auto res = NDO->instantiate(left);
-				res->type->ariphmetics->mul(res, right);
+				res->type->arithmetics->mul(res, right);
 
 				mScopeStack.addTemp(res);
 				mOperandsStack.push(res);
@@ -435,10 +435,10 @@ void Interpreter::stepBytecodeIn() {
 				auto right = mOperandsStack.getOperand();
 
 				ASSERT(left->type == right->type && "addition of different types is not implemented");
-				ASSERT(left->type->ariphmetics && left->type->ariphmetics->add && "cannot add object of this type");
+				ASSERT(left->type->arithmetics && left->type->arithmetics->add && "cannot add object of this type");
 
 				auto res = NDO->instantiate(left);
-				res->type->ariphmetics->div(res, right);
+				res->type->arithmetics->div(res, right);
 
 				mScopeStack.addTemp(res);
 				mOperandsStack.push(res);

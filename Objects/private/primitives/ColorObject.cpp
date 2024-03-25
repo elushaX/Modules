@@ -47,7 +47,7 @@ void sub(ColorObject* self, ColorObject* in) { self->mCol = in->mCol - self->mCo
 
 void add(ColorObject* self, ColorObject* in) { self->mCol = in->mCol + self->mCol; }
 
-struct ObjectTypeAriphmetics ColorObject::TypeAriphm = {
+struct ObjectTypeArithmetics ColorObject::TypeAriphm = {
 	.add = (object_add) add,
 	.sub = (object_sub) sub,
 	.mul = (object_mul) nullptr,
@@ -61,8 +61,8 @@ struct obj::ObjectType obj::ColorObject::TypeData = {
 	.copy = (object_copy) ColorObject::copy,
 	.size = sizeof(ColorObject),
 	.name = "RGBA",
-	.convesions = &ColorObjectTypeConversions,
-	.ariphmetics = &ColorObject::TypeAriphm,
+	.conversions = &ColorObjectTypeConversions,
+	.arithmetics = &ColorObject::TypeAriphm,
 	.save_size = (object_save_size) save_size,
 	.save = (object_save) save,
 	.load = (object_load) load,

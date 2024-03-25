@@ -49,7 +49,7 @@ void sub(IntObject* self, IntObject* in) { self->val -= in->val; }
 
 void add(IntObject* self, IntObject* in) { self->val += in->val; }
 
-struct ObjectTypeAriphmetics IntObject::TypeAriphm = {
+struct ObjectTypeArithmetics IntObject::TypeAriphm = {
 	.add = (object_add) add,
 	.sub = (object_sub) sub,
 	.mul = (object_mul) mul,
@@ -63,8 +63,8 @@ struct obj::ObjectType obj::IntObject::TypeData = {
 	.copy = (object_copy) IntObject::copy,
 	.size = sizeof(IntObject),
 	.name = "int",
-	.convesions = &IntObjectTypeConversions,
-	.ariphmetics = &IntObject::TypeAriphm,
+	.conversions = &IntObjectTypeConversions,
+	.arithmetics = &IntObject::TypeAriphm,
 	.save_size = (object_save_size) save_size,
 	.save = (object_save) save,
 	.load = (object_load) load,

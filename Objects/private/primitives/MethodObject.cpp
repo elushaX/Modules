@@ -13,15 +13,19 @@ struct ObjectType MethodObject::TypeData = {
 	.copy = (object_copy) MethodObject::copy,
 	.size = sizeof(MethodObject),
 	.name = "method",
-	.convesions = nullptr,
+	.conversions = nullptr,
 	.save_size = (object_save_size) MethodObject::save_size,
 	.save = (object_save) MethodObject::save,
 	.load = (object_load) MethodObject::load,
 };
 
-void MethodObject::constructor(MethodObject* self) { self->mScript = obj::ScriptSection::globalHandle()->createScript(); }
+void MethodObject::constructor(MethodObject* self) {
+	self->mScript = obj::ScriptSection::globalHandle()->createScript();
+}
 
-void MethodObject::copy(MethodObject* self, MethodObject* in) { obj::ScriptSection::globalHandle()->changeScript(&self->mScript, &in->mScript); }
+void MethodObject::copy(MethodObject* self, MethodObject* in) {
+	obj::ScriptSection::globalHandle()->changeScript(&self->mScript, &in->mScript);
+}
 
 void MethodObject::destructor(MethodObject* self) { obj::ScriptSection::globalHandle()->abandonScript(self->mScript); }
 
