@@ -1,7 +1,6 @@
 
 #include "compiler/Functions.hpp"
 #include "primitives/PrimitiveObjects.hpp"
-#include "core/ScriptSection.hpp"
 
 using namespace tp;
 using namespace obj;
@@ -20,6 +19,7 @@ static void defineTypes() {
 	objects_api::define(&ColorObject::TypeData);
 	objects_api::define(&InterpreterObject::TypeData);
 	objects_api::define(&TypeObject::TypeData);
+	objects_api::define(&BytecodeObject::TypeData);
 	objects_api::define(&MethodObject::TypeData);
 }
 
@@ -42,19 +42,13 @@ static void defineGroups() {
 static bool init(const ModuleManifest*) {
 	objects_api::initialize();
 
-	ScriptSection::initialize();
-
 	defineTypes();
 	defineGroups();
 
 	return true;
 }
 
-static void deinit(const ModuleManifest*) {
-	ScriptSection::uninitialize();
-
-	objects_api::finalize();
-}
+static void deinit(const ModuleManifest*) { objects_api::finalize(); }
 
 static ModuleManifest* sModuleDependencies[] = { nullptr };
 

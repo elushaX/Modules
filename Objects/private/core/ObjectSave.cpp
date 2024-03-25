@@ -327,31 +327,7 @@ bool objects_api::save(Object* in, const std::string& path, bool compressed) {
 
 	ndf.setFreeAddress(ndf.getAddress());
 
-	// pre allocate
-	for (alni i = 0; i < SAVE_LOAD_MAX_CALLBACK_SLOTS; i++) {
-		if (gObjectsContext->sl_callbacks[i]) {
-			DEBUG_ASSERT(gObjectsContext->sl_callbacks[i]->size);
-			ndf.setFreeAddress(
-				ndf.getFreeAddress() + gObjectsContext->sl_callbacks[i]->size(gObjectsContext->sl_callbacks[i]->self, ndf)
-			);
-		}
-	}
-
-	// pre-save
-	for (alni i = 0; i < SAVE_LOAD_MAX_CALLBACK_SLOTS; i++) {
-		if (gObjectsContext->sl_callbacks[i] && gObjectsContext->sl_callbacks[i]->pre_save) {
-			gObjectsContext->sl_callbacks[i]->pre_save(gObjectsContext->sl_callbacks[i]->self, ndf);
-		}
-	}
-
 	save(ndf, in);
-
-	// post-save
-	for (alni i = 0; i < SAVE_LOAD_MAX_CALLBACK_SLOTS; i++) {
-		if (gObjectsContext->sl_callbacks[i] && gObjectsContext->sl_callbacks[i]->post_save) {
-			gObjectsContext->sl_callbacks[i]->post_save(gObjectsContext->sl_callbacks[i]->self, ndf);
-		}
-	}
 
 	// TODO : add compression
 	/*
@@ -404,21 +380,7 @@ Object* objects_api::load(const std::string& path) {
 
 	ndf.setAddress(sizeof(ObjectsFileHeader));
 
-	// preload
-	for (alni i = 0; i < SAVE_LOAD_MAX_CALLBACK_SLOTS; i++) {
-		if (gObjectsContext->sl_callbacks[i] && gObjectsContext->sl_callbacks[i]->pre_load) {
-			gObjectsContext->sl_callbacks[i]->pre_load(gObjectsContext->sl_callbacks[i]->self, ndf);
-		}
-	}
-
 	Object* out = load(ndf, ndf.getAddress());
-
-	// post
-	for (alni i = 0; i < SAVE_LOAD_MAX_CALLBACK_SLOTS; i++) {
-		if (gObjectsContext->sl_callbacks[i] && gObjectsContext->sl_callbacks[i]->post_save) {
-			gObjectsContext->sl_callbacks[i]->post_load(gObjectsContext->sl_callbacks[i]->self, ndf);
-		}
-	}
 
 	free(loaded_file);
 
@@ -431,9 +393,4 @@ Object* objects_api::load(const std::string& path) {
 	*/
 
 	return out;
-}
-
-void objects_api::add_sl_callbacks(save_load_callbacks* in) {
-	gObjectsContext->sl_callbacks[gObjectsContext->sl_callbacks_load_idx] = in;
-	gObjectsContext->sl_callbacks_load_idx++;
 }

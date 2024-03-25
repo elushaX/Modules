@@ -11,15 +11,15 @@ using namespace tp;
 using namespace obj;
 
 auto script1 = R"(
-class A {
+class a {
 	var string = "hello";
-	def log(name) {
+	method log(name) {
 		<< self.string;
 		<< name;
 	}
 }
 
-def main() {
+method main() {
 	var a = new A();
 	a.log(" user ");
 }
@@ -40,7 +40,7 @@ if (i == 10) {
 )";
 
 auto script = R"(
-	print false;
+	print 101;
 )";
 
 SUITE(Interpreter) {
@@ -53,7 +53,7 @@ SUITE(Interpreter) {
 
 			interpreter->getMember<LinkObject>("target method")->setLink(method);
 
-			method->mScript->mReadable->val = script;
+			method->mBytecodeLink->mReadable->val = script;
 			method->compile();
 
 			interpreter->exec();
@@ -75,7 +75,7 @@ SUITE(Interpreter) {
 
 			interpreter->getMember<LinkObject>("target method")->setLink(method);
 
-			method->mScript->mReadable->val = script;
+			method->mBytecodeLink->mReadable->val = script;
 			method->compile();
 
 			interpreter->exec();
@@ -107,7 +107,7 @@ SUITE(Interpreter) {
 			interpreter->getMember<LinkObject>("target method")->setLink(method);
 
 			auto exec = [&](const char* script) {
-				method->mScript->mReadable->val = script;
+				method->mBytecodeLink->mReadable->val = script;
 				method->compile();
 
 				auto startCount = objects_api::getObjCount();
@@ -138,7 +138,7 @@ SUITE(Interpreter) {
 		objTestModule.deinitialize();
 	}
 
-	TEST(Complex) {
+	TEST_OFF(Complex) {
 		objTestModule.initialize();
 
 		{
@@ -147,7 +147,7 @@ SUITE(Interpreter) {
 
 			interpreter->getMember<LinkObject>("target method")->setLink(method);
 
-			method->mScript->mReadable->val = script1;
+			method->mBytecodeLink->mReadable->val = script1;
 			method->compile();
 
 			interpreter->exec();

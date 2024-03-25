@@ -9,7 +9,4 @@ namespace tp::obj {
 		static ObjectType TypeData;
 	};
 
-#define NDO_NULL objects_api::getNull()
-#define NDO_NULL_REF objects_api::getNullReferenced()
-
 }

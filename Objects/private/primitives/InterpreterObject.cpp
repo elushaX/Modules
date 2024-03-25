@@ -38,7 +38,7 @@ void InterpreterObject::exec(obj::ClassObject* self, tp::InitialierList<Interpre
 	}
 
 	auto method = objects_api::cast<MethodObject>(target);
-	if (!method || !method->mScript->mBytecode.mInstructions.size()) {
+	if (!method || !method->mBytecodeLink->mBytecode.mInstructions.size()) {
 		return;
 	}
 
@@ -61,7 +61,7 @@ void InterpreterObject::debug() {
 	}
 
 	auto method = objects_api::cast<MethodObject>(target);
-	if (!method || !method->mScript->mBytecode.mInstructions.size()) {
+	if (!method || !method->mBytecodeLink->mBytecode.mInstructions.size()) {
 		return;
 	}
 

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "primitives/StringObject.hpp"
-#include "interpreter/Script.hpp"
+#include "primitives/BytecodeObject.hpp"
 
 namespace tp::obj {
 
@@ -9,7 +8,7 @@ namespace tp::obj {
 
 		static ObjectType TypeData;
 
-		Script* mScript;
+		BytecodeObject* mBytecodeLink;
 
 		static void constructor(MethodObject* self);
 		static void copy(MethodObject* self, MethodObject* in);

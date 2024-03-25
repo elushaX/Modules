@@ -19,6 +19,12 @@ namespace tp::obj {
 		ualni mInstructionIdx = 0;
 		ualni mArgumentsLoaded = 0;
 
+		void updateRefCount() {
+			for (auto const_obj : mConstants) {
+				objects_api::setReferenceCount(const_obj.data(), 1);
+			}
+		}
+
 		~ByteCode() {
 			for (auto const_obj : mConstants) {
 				objects_api::destroy(const_obj.data());

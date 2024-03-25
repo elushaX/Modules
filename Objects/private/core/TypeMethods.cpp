@@ -122,7 +122,7 @@ void TypeMethod::operator()(Interpreter* interp) const {
 		interp->mOperandsStack.push(ret.obj);
 		interp->mScopeStack.addTempReturn(ret.obj);
 	} else {
-		interp->mOperandsStack.push(NDO_NULL_REF);
+		interp->mOperandsStack.push(objects_api::getNullReferenced());
 	}
 }
 

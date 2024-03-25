@@ -16,7 +16,7 @@ SUITE(Compiler) {
 			// no errors
 			auto method = objects_api::create<MethodObject>();
 
-			method->mScript->mReadable->val = "print 1 * 20 + 10;";
+			method->mBytecodeLink->mReadable->val = "print 1 * 20 + 10;";
 			method->compile();
 
 			objects_api::destroy(method);
@@ -28,7 +28,7 @@ SUITE(Compiler) {
 			// with errors
 			auto method = objects_api::create<MethodObject>();
 
-			method->mScript->mReadable->val = "print undefinedVariable;";
+			method->mBytecodeLink->mReadable->val = "print undefinedVariable;";
 			method->compile();
 
 			objects_api::destroy(method);

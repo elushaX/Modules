@@ -9,8 +9,8 @@ using namespace obj;
 void ClassObject::constructor(ClassObject* self) {
 	self->members = objects_api::create<DictObject>();
 
-	self->addMember(NDO_NULL, "__init__");
-	self->addMember(NDO_NULL, "__del__");
+	self->addMember(objects_api::getNull(), "__init__");
+	self->addMember(objects_api::getNull(), "__del__");
 }
 
 void ClassObject::copy(ClassObject* self, const ClassObject* blueprint) {
