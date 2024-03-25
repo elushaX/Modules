@@ -2,7 +2,6 @@
 #include "ObjectTests.hpp"
 
 #include "compiler/Functions.hpp"
-#include "core/Object.hpp"
 #include "interpreter/Interpreter.hpp"
 #include "primitives/InterpreterObject.hpp"
 #include "primitives/LinkObject.hpp"
@@ -59,7 +58,7 @@ SUITE(Interpreter) {
 
 			interpreter->exec();
 
-			NDO->destroy(interpreter);
+			objects_api::destroy(interpreter);
 
 			printf("\n");
 		}
@@ -81,14 +80,14 @@ SUITE(Interpreter) {
 
 			interpreter->exec();
 
-			NDO->save(interpreter, "interp.o");
+			objects_api::save(interpreter, "interp.o");
 
-			auto interpreterLoaded = objects_api::cast<InterpreterObject>(NDO->load("interp.o"));
+			auto interpreterLoaded = objects_api::cast<InterpreterObject>(objects_api::load("interp.o"));
 
 			interpreterLoaded->exec();
 
-			NDO->destroy(interpreterLoaded);
-			NDO->destroy(interpreter);
+			objects_api::destroy(interpreterLoaded);
+			objects_api::destroy(interpreter);
 
 			printf("\n");
 		}
@@ -100,7 +99,7 @@ SUITE(Interpreter) {
 		objTestModule.initialize();
 
 		{
-			auto compileStartCount = getObjCount();
+			auto compileStartCount = objects_api::getObjCount();
 
 			auto method = objects_api::create<MethodObject>();
 			auto interpreter = objects_api::create<InterpreterObject>();
@@ -111,10 +110,10 @@ SUITE(Interpreter) {
 				method->mScript->mReadable->val = script;
 				method->compile();
 
-				auto startCount = getObjCount();
+				auto startCount = objects_api::getObjCount();
 				interpreter->exec();
 
-				if (getObjCount() != startCount) {
+				if (objects_api::getObjCount() != startCount) {
 					CHECK(false && "Mem leaks in interpreter");
 				}
 
@@ -129,9 +128,9 @@ SUITE(Interpreter) {
 			exec("var k : int;");
 			exec("var k : int; print k;");
 
-			NDO->destroy(interpreter);
+			objects_api::destroy(interpreter);
 
-			if (getObjCount() != compileStartCount) {
+			if (objects_api::getObjCount() != compileStartCount) {
 				CHECK(false && "Mem leaks in compiler and interpreter");
 			}
 		}
@@ -153,7 +152,7 @@ SUITE(Interpreter) {
 
 			interpreter->exec();
 
-			NDO->destroy(interpreter);
+			objects_api::destroy(interpreter);
 		}
 
 		objTestModule.deinitialize();

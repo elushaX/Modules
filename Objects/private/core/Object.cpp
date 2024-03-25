@@ -9,6 +9,21 @@
 using namespace tp;
 using namespace obj;
 
+ObjectsContext* obj::gObjectsContext = nullptr;
+
+void objects_api::initialize() {
+	ASSERT(!gObjectsContext)
+	gObjectsContext = new ObjectsContext();
+}
+
+void objects_api::finalize() {
+	assertNoLeaks();
+
+	ASSERT(gObjectsContext)
+	delete gObjectsContext;
+	gObjectsContext = nullptr;
+}
+
 void obj::save_string(ArchiverOut& file, const std::string& string) {
 	file << string.size();
 	file.writeBytes(string.c_str(), string.size());
@@ -29,24 +44,22 @@ void obj::load_string(ArchiverIn& file, std::string& out) {
 Object* ObjectMemAllocate(const ObjectType* type);
 void ObjectMemDeallocate(Object* object);
 
-objects_api* obj::NDO = nullptr;
-
-void hierarchy_copy(Object* self, const Object* in, const ObjectType* type);
-void hierarchy_construct(Object* self, const ObjectType* type);
-
-objects_api::objects_api() {
+ObjectsContext::ObjectsContext() {
 	memSetVal(sl_callbacks, SAVE_LOAD_MAX_CALLBACK_SLOTS * sizeof(save_load_callbacks*), 0);
 	interp = new Interpreter();
 }
 
-objects_api::~objects_api() { delete interp; }
+ObjectsContext::~ObjectsContext() { delete interp; }
+
+void hierarchy_copy(Object* self, const Object* in, const ObjectType* type);
+void hierarchy_construct(Object* self, const ObjectType* type);
 
 void objects_api::define(ObjectType* type) {
 	MODULE_SANITY_CHECK(gModuleObjects)
 
-	DEBUG_ASSERT(NDO && "using uninitialized objects api")
-	DEBUG_ASSERT(!types.presents(type->name) && "Type Redefinition")
-	types.put(type->name, type);
+	DEBUG_ASSERT(gObjectsContext && "using uninitialized objects api")
+	DEBUG_ASSERT(!gObjectsContext->types.presents(type->name) && "Type Redefinition")
+	gObjectsContext->types.put(type->name, type);
 
 	type->type_methods.init();
 }
@@ -73,7 +86,7 @@ Object* objects_api::create(const ObjectType* type) {
 			auto constructor_obj = classobj->members->getSlotVal(idx);
 			auto constructor_method = objects_api::cast<MethodObject>(constructor_obj);
 			if (constructor_method) {
-				interp->execAll(constructor_method, classobj);
+				gObjectsContext->interp->execAll(constructor_method, classobj);
 			}
 		}
 	}
@@ -154,7 +167,7 @@ std::string objects_api::toString(Object* self) {
 	return self->type->conversions->to_string(self);
 }
 
-void objects_api::destroy(Object* in) const {
+void objects_api::destroy(Object* in) {
 
 	if (!in) {
 		return;
@@ -173,7 +186,7 @@ void objects_api::destroy(Object* in) const {
 			auto constructor_obj = classobj->members->getSlotVal(idx);
 			auto constructor_method = objects_api::cast<MethodObject>(constructor_obj);
 			if (constructor_method) {
-				interp->execAll(constructor_method, classobj);
+				gObjectsContext->interp->execAll(constructor_method, classobj);
 			}
 		}
 	}
@@ -206,3 +219,11 @@ void hierarchy_construct(Object* self, const ObjectType* type) {
 		type->constructor(self);
 	}
 }
+
+void objects_api::addTypeToGroup(ObjectType* type, InitialierList<const char*> path, alni cur_arg) {
+	gObjectsContext->type_groups.addType(type, path, cur_arg);
+}
+
+bool objects_api::isType(const char* name) { return gObjectsContext->types.presents(name).isValid(); }
+
+const ObjectType* objects_api::getType(const char* name) { return gObjectsContext->types.get(name); }

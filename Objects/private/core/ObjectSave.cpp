@@ -54,7 +54,7 @@ void ObjectMemDeallocate(Object* object) {
 	count--;
 }
 
-void obj::logTypeData(const ObjectType* type) {
+void objects_api::logTypeData(const ObjectType* type) {
 	printf("type - %s\n", type->name);
 	if (type->base) {
 		printf("Based on ");
@@ -62,9 +62,9 @@ void obj::logTypeData(const ObjectType* type) {
 	}
 }
 
-ualni obj::getObjCount() { return count; }
+ualni objects_api::getObjCount() { return count; }
 
-void obj::assertNoLeaks() {
+void objects_api::assertNoLeaks() {
 	if (bottom) {
 		printf("ERROR : not all objects are destroyed\n");
 		ualni idx = 0;
@@ -284,7 +284,7 @@ Object* objects_api::load(ArchiverIn& ndf, alni file_adress) {
 	std::string type_name;
 	load_string(ndf, type_name);
 
-	const ObjectType* object_type = NDO->types.get(type_name);
+	const ObjectType* object_type = gObjectsContext->types.get(type_name);
 	Object* out = ObjectMemAllocate(object_type);
 
 	if (!out) {
@@ -329,16 +329,18 @@ bool objects_api::save(Object* in, const std::string& path, bool compressed) {
 
 	// pre allocate
 	for (alni i = 0; i < SAVE_LOAD_MAX_CALLBACK_SLOTS; i++) {
-		if (sl_callbacks[i]) {
-			DEBUG_ASSERT(sl_callbacks[i]->size);
-			ndf.setFreeAddress(ndf.getFreeAddress() + sl_callbacks[i]->size(sl_callbacks[i]->self, ndf));
+		if (gObjectsContext->sl_callbacks[i]) {
+			DEBUG_ASSERT(gObjectsContext->sl_callbacks[i]->size);
+			ndf.setFreeAddress(
+				ndf.getFreeAddress() + gObjectsContext->sl_callbacks[i]->size(gObjectsContext->sl_callbacks[i]->self, ndf)
+			);
 		}
 	}
 
 	// pre-save
 	for (alni i = 0; i < SAVE_LOAD_MAX_CALLBACK_SLOTS; i++) {
-		if (sl_callbacks[i] && sl_callbacks[i]->pre_save) {
-			sl_callbacks[i]->pre_save(sl_callbacks[i]->self, ndf);
+		if (gObjectsContext->sl_callbacks[i] && gObjectsContext->sl_callbacks[i]->pre_save) {
+			gObjectsContext->sl_callbacks[i]->pre_save(gObjectsContext->sl_callbacks[i]->self, ndf);
 		}
 	}
 
@@ -346,8 +348,8 @@ bool objects_api::save(Object* in, const std::string& path, bool compressed) {
 
 	// post-save
 	for (alni i = 0; i < SAVE_LOAD_MAX_CALLBACK_SLOTS; i++) {
-		if (sl_callbacks[i] && sl_callbacks[i]->post_save) {
-			sl_callbacks[i]->post_save(sl_callbacks[i]->self, ndf);
+		if (gObjectsContext->sl_callbacks[i] && gObjectsContext->sl_callbacks[i]->post_save) {
+			gObjectsContext->sl_callbacks[i]->post_save(gObjectsContext->sl_callbacks[i]->self, ndf);
 		}
 	}
 
@@ -404,8 +406,8 @@ Object* objects_api::load(const std::string& path) {
 
 	// preload
 	for (alni i = 0; i < SAVE_LOAD_MAX_CALLBACK_SLOTS; i++) {
-		if (sl_callbacks[i] && sl_callbacks[i]->pre_load) {
-			sl_callbacks[i]->pre_load(sl_callbacks[i]->self, ndf);
+		if (gObjectsContext->sl_callbacks[i] && gObjectsContext->sl_callbacks[i]->pre_load) {
+			gObjectsContext->sl_callbacks[i]->pre_load(gObjectsContext->sl_callbacks[i]->self, ndf);
 		}
 	}
 
@@ -413,8 +415,8 @@ Object* objects_api::load(const std::string& path) {
 
 	// post
 	for (alni i = 0; i < SAVE_LOAD_MAX_CALLBACK_SLOTS; i++) {
-		if (sl_callbacks[i] && sl_callbacks[i]->post_save) {
-			sl_callbacks[i]->post_load(sl_callbacks[i]->self, ndf);
+		if (gObjectsContext->sl_callbacks[i] && gObjectsContext->sl_callbacks[i]->post_save) {
+			gObjectsContext->sl_callbacks[i]->post_load(gObjectsContext->sl_callbacks[i]->self, ndf);
 		}
 	}
 
@@ -432,6 +434,6 @@ Object* objects_api::load(const std::string& path) {
 }
 
 void objects_api::add_sl_callbacks(save_load_callbacks* in) {
-	sl_callbacks[sl_callbacks_load_idx] = in;
-	sl_callbacks_load_idx++;
+	gObjectsContext->sl_callbacks[gObjectsContext->sl_callbacks_load_idx] = in;
+	gObjectsContext->sl_callbacks_load_idx++;
 }

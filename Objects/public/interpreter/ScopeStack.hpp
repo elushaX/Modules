@@ -2,6 +2,7 @@
 
 #include "core/Object.hpp"
 #include "Map.hpp"
+#include "List.hpp"
 
 namespace tp::obj {
 
@@ -18,12 +19,9 @@ namespace tp::obj {
 
 	class ScopeStack {
 
-		enum : alni {
-			MAX_STACK_SIZE = 1024 * 4
-		};
+		enum : alni { MAX_STACK_SIZE = 1024 * 4 };
 
 	public:
-
 		Scope* mBuff;
 		ualni mIdx;
 		ualni mIterIdx;

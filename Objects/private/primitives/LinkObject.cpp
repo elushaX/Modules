@@ -7,7 +7,7 @@ using namespace obj;
 void LinkObject::constructor(LinkObject* self) { self->link = nullptr; }
 
 void LinkObject::destructor(LinkObject* self) {
-	if (self->link) NDO->destroy(self->link);
+	if (self->link) objects_api::destroy(self->link);
 }
 
 void LinkObject::copy(LinkObject* self, const LinkObject* in) { self->setLink(in->link); }
@@ -21,7 +21,7 @@ alni LinkObject::save_size(LinkObject* self) { return sizeof(alni); }
 
 void LinkObject::save(LinkObject* self, ArchiverOut& file_self) {
 	if (self->link != nullptr) {
-		alni link_object_save_adress = NDO->save(file_self, self->link);
+		alni link_object_save_adress = objects_api::save(file_self, self->link);
 		file_self << link_object_save_adress;
 	} else {
 		alni null = -1;
@@ -37,8 +37,8 @@ void LinkObject::load(ArchiverIn& file_self, LinkObject* self) {
 	if (saved_object_adress == -1) {
 		self->link = nullptr;
 	} else {
-		self->link = NDO->load(file_self, saved_object_adress);
-		NDO->increaseReferenceCount(self->link);
+		self->link = objects_api::load(file_self, saved_object_adress);
+		objects_api::increaseReferenceCount(self->link);
 	}
 }
 
@@ -53,7 +53,7 @@ alni LinkObject::allocated_size(LinkObject* self) { return sizeof(Object*); }
 alni LinkObject::allocated_size_recursive(LinkObject* self) {
 	alni out = sizeof(Object*);
 	if (self->link) {
-		out += NDO->objsize_ram_recursive_util(self->link, self->link->type);
+		out += objects_api::objsize_ram_recursive_util(self->link, self->link->type);
 	}
 	return out;
 }
@@ -61,8 +61,8 @@ alni LinkObject::allocated_size_recursive(LinkObject* self) {
 Object* LinkObject::getLink() { return link; }
 
 void LinkObject::setLink(Object* obj) {
-	if (link) NDO->destroy(link);
-	if (obj) NDO->increaseReferenceCount(obj);
+	if (link) objects_api::destroy(link);
+	if (obj) objects_api::increaseReferenceCount(obj);
 	link = obj;
 }
 

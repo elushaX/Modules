@@ -23,7 +23,7 @@ TypeMethod obj::gDefaultTypeMethods[] = {
 		.exec =
 			[](const TypeMethod* tm) {
 				if (tm->self->type->conversions && tm->self->type->conversions->to_string) {
-					tm->ret.obj = StringObject::create(NDO->toString(tm->self));
+					tm->ret.obj = StringObject::create(objects_api::toString(tm->self));
 				}
 			},
 		.ret = { "string object", nullptr },
@@ -34,7 +34,7 @@ TypeMethod obj::gDefaultTypeMethods[] = {
 		.exec =
 			[](const TypeMethod* tm) {
 				if (tm->self->type->conversions && tm->self->type->conversions->to_float) {
-					tm->ret.obj = FloatObject::create(NDO->toFloat(tm->self));
+					tm->ret.obj = FloatObject::create(objects_api::toFloat(tm->self));
 				}
 			},
 		.ret = { "string object", nullptr },
@@ -107,7 +107,7 @@ halni TypeMethods::nMethods() const { return mNMethods; }
 void TypeMethod::operator()(Interpreter* interp) const {
 	for (auto i = 1; i <= mNargs; i++) {
 		args[mNargs - i].obj = interp->mOperandsStack.getOperand();
-		// NDO->refinc(args[i].obj);
+		// objects_api::refinc(args[i].obj);
 		ASSERT(args[mNargs - i].obj && "expected an argument");
 	}
 

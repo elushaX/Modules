@@ -6,10 +6,10 @@ using namespace obj;
 
 Scope::~Scope() {
 	for (auto local : mLocals) {
-		obj::NDO->destroy(local->val);
+		objects_api::destroy(local->val);
 	}
 	for (auto tmp : mTemps) {
-		obj::NDO->destroy(tmp.data());
+		objects_api::destroy(tmp.data());
 	}
 }
 
@@ -47,18 +47,18 @@ void ScopeStack::leaveScope() {
 }
 
 void ScopeStack::addTemp(obj::Object* tmp) {
-	obj::NDO->increaseReferenceCount(tmp);
+	objects_api::increaseReferenceCount(tmp);
 	mBuff[mIdx - 1].mTemps.pushBack(tmp);
 }
 
 void ScopeStack::popTemp() {
-	obj::NDO->destroy(mBuff[mIdx - 1].mTemps.last()->data);
+	objects_api::destroy(mBuff[mIdx - 1].mTemps.last()->data);
 	mBuff[mIdx - 1].mTemps.popBack();
 }
 
 void ScopeStack::addTempReturn(obj::Object* ret) {
 	if (mIdx >= 2) {
-		obj::NDO->increaseReferenceCount(ret);
+		objects_api::increaseReferenceCount(ret);
 		mBuff[mIdx - 2].mTemps.pushBack(ret);
 	}
 }
@@ -68,9 +68,9 @@ void ScopeStack::addLocal(obj::Object* local, const std::string& id) {
 	Scope::ObjDict& locals = mBuff[mIdx - 1].mLocals;
 	auto idx = locals.presents(id);
 	if (idx) {
-		obj::NDO->destroy(locals.getSlotVal(idx));
+		objects_api::destroy(locals.getSlotVal(idx));
 	}
-	obj::NDO->increaseReferenceCount(local);
+	objects_api::increaseReferenceCount(local);
 	locals.put(id, local);
 }
 

@@ -10,7 +10,7 @@ bool uninit_flag = false;
 
 void NullObject::uninit() {
 	uninit_flag = true;
-	NDO->destroy(NdoNull_globalInstance);
+	objects_api::destroy(NdoNull_globalInstance);
 	NdoNull_globalInstance = nullptr;
 }
 

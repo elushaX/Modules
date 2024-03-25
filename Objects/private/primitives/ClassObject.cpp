@@ -17,7 +17,7 @@ void ClassObject::copy(ClassObject* self, const ClassObject* blueprint) {
 	objects_api::copy(self->members, blueprint->members);
 }
 
-void ClassObject::destructor(ClassObject* self) { NDO->destroy(self->members); }
+void ClassObject::destructor(ClassObject* self) { objects_api::destroy(self->members); }
 
 void ClassObject::addMember(Object* obj, const std::string& id) { members->put(id, obj); }
 
@@ -32,14 +32,14 @@ alni ClassObject::save_size(ClassObject* self) {
 
 void ClassObject::save(ClassObject* self, ArchiverOut& file_self) {
 	// save dict object
-	alni ndo_object_adress = NDO->save(file_self, self->members);
+	alni ndo_object_adress = objects_api::save(file_self, self->members);
 	file_self << ndo_object_adress;
 }
 
 void ClassObject::load(ArchiverIn& file_self, ClassObject* self) {
 	alni ndo_object_address;
 	file_self >> ndo_object_address;
-	self->members = objects_api::cast<DictObject>(NDO->load(file_self, ndo_object_address));
+	self->members = objects_api::cast<DictObject>(objects_api::load(file_self, ndo_object_address));
 	tp::obj::objects_api::increaseReferenceCount(self->members);
 }
 
@@ -53,7 +53,7 @@ alni allocated_size(ClassObject* self) { return sizeof(DictObject*); }
 
 alni allocated_size_recursive(ClassObject* self) {
 	alni out = sizeof(DictObject*);
-	out += NDO->objsize_ram_recursive_util(self->members, self->members->type);
+	out += objects_api::objsize_ram_recursive_util(self->members, self->members->type);
 	return out;
 }
 

@@ -15,14 +15,14 @@ namespace tp::obj {
 		static void uninit();
 		static Object* null_return() {
 			if (!NdoNull_globalInstance) {
-				NdoNull_globalInstance = NDO->create<NullObject>();
-				NDO->increaseReferenceCount(NdoNull_globalInstance);
+				NdoNull_globalInstance = objects_api::create<NullObject>();
+				objects_api::increaseReferenceCount(NdoNull_globalInstance);
 			}
 			return (Object*) NdoNull_globalInstance;
 		}
 
 		static Object* null_return_ref() {
-			NDO->increaseReferenceCount(null_return());
+			objects_api::increaseReferenceCount(null_return());
 			return NdoNull_globalInstance;
 		}
 	};

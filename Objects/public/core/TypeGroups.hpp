@@ -12,7 +12,6 @@ namespace tp::obj {
 	class TypeGroups {
 
 	public:
-
 		typedef Map<std::string, TypeGroups*> Dict;
 
 		TypeGroups();
@@ -21,7 +20,8 @@ namespace tp::obj {
 
 		explicit TypeGroups(bool is_group);
 
-		void addType(ObjectType* type, InitialierList<const char*> path, alni cur_arg = 0);
+		void addType(ObjectType* type, InitialierList<const char*> path, alni cur_arg);
+
 		void setType(ObjectType* type);
 		bool isGroup();
 		Dict* getChilds();
@@ -29,7 +29,6 @@ namespace tp::obj {
 		~TypeGroups();
 
 	private:
-
 		bool is_group;
 		union {
 			Dict childs;

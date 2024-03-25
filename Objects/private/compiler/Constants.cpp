@@ -12,22 +12,22 @@ ConstObject::ConstObject(Object* mObj) :
 ConstObjectsPool::~ConstObjectsPool() {
 	if (mDelete) {
 		for (auto obj : mStrings) {
-			obj::NDO->destroy(obj->val->mObj);
+			objects_api::destroy(obj->val->mObj);
 		}
 		for (auto obj : mIntegers) {
-			obj::NDO->destroy(obj->val->mObj);
+			objects_api::destroy(obj->val->mObj);
 		}
 		for (auto obj : mFloats) {
-			obj::NDO->destroy(obj->val->mObj);
+			objects_api::destroy(obj->val->mObj);
 		}
 		for (auto obj : mMethods) {
-			obj::NDO->destroy(obj->val->mObj);
+			objects_api::destroy(obj->val->mObj);
 		}
 		if (mBoolFalse.mObj) {
-			obj::NDO->destroy(mBoolFalse.mObj);
+			objects_api::destroy(mBoolFalse.mObj);
 		}
 		if (mBoolTrue.mObj) {
-			obj::NDO->destroy(mBoolTrue.mObj);
+			objects_api::destroy(mBoolTrue.mObj);
 		}
 	}
 	for (auto obj : mStrings) {

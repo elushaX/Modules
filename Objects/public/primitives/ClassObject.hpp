@@ -21,9 +21,9 @@ namespace tp::obj {
 
 		template <typename Type>
 		Type* createMember(const std::string& id) {
-			auto out = NDO->create(Type::TypeData.name);
+			auto out = objects_api::create(Type::TypeData.name);
 			addMember(out, id);
-			NDO->destroy(out);
+			objects_api::destroy(out);
 			return (Type*) out;
 		}
 

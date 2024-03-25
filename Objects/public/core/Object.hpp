@@ -1,35 +1,15 @@
 
 #pragma once
 
-#include "Common.hpp"
-#include "Map.hpp"
-#include "List.hpp"
-#include "Buffer.hpp"
-#include "LocalConnection.hpp"
-
-#include "core/TypeGroups.hpp"
-#include "core/TypeMethods.hpp"
-
-#include "ObjectArchiver.hpp"
-#include "SizeCounter.hpp"
-
-#include <string>
-
-#include "core/ObjectArchiver.hpp"
-
-/* Steps to create custom Object:
-define name of object
-define base type
-define struct members
-implement construct, destruct and copy methods */
+#include "ObjectType.hpp"
 
 namespace tp::obj {
 
+	// TODO : reconsider static variables
 	extern ModuleManifest gModuleObjects;
+	extern struct ObjectsContext* gObjectsContext;
 
-	extern struct objects_api* NDO;
-
-	// base object
+	// Base object
 	struct Object {
 		// TODO : used for saving, can be removed
 		Object* up;
@@ -40,100 +20,27 @@ namespace tp::obj {
 		alni references;
 
 		// type information
-		const struct ObjectType* type;
+		const ObjectType* type;
 
 		// additional inherited data
 	};
 
-	typedef void (*object_from_int)(Object* self, alni in);
-	typedef void (*object_from_float)(Object* self, alnf in);
-	typedef void (*object_from_string)(Object* self, const std::string& in);
-	typedef std::string (*object_to_string)(Object* self);
-	typedef alni (*object_to_int)(Object* self);
-	typedef alnf (*object_to_float)(Object* self);
-
-	struct ObjectTypeConversions {
-		object_from_int from_int;
-		object_from_float from_float;
-		object_from_string from_string;
-		object_to_string to_string;
-		object_to_int to_int;
-		object_to_float to_float;
-	};
-
-	typedef void (*object_add)(Object* self, Object* operand);
-	typedef void (*object_sub)(Object* self, Object* operand);
-	typedef void (*object_mul)(Object* self, Object* operand);
-	typedef void (*object_div)(Object* self, Object* operand);
-
-	struct ObjectTypeArithmetics {
-		object_add add;
-		object_sub sub;
-		object_mul mul;
-		object_div div;
-	};
-
-	typedef void (*object_constructor)(Object* self);
-	typedef void (*object_destructor)(Object* self);
-	typedef void (*object_copy)(Object* self, const Object* target);
-
-	typedef alni (*object_save_size)(Object* self);
-	typedef void (*object_save)(Object*, ArchiverOut&);
-	typedef void (*object_load)(ArchiverIn&, Object*);
-
-	typedef bool (*object_compare)(Object*, Object*);
-
-	typedef Buffer<Object*> (*object_debug_all_childs_retrival)(Object*);
-	typedef alni (*object_allocated_size)(Object*);           // default value = type->size - sizeof(ObjectType*)
-	typedef alni (*object_allocated_size_recursive)(Object*); // default value = object_allocated_size
-
-	struct ObjectType {
-		const ObjectType* base = nullptr;
-		object_constructor constructor = nullptr;
-		object_destructor destructor = nullptr;
-		object_copy copy = nullptr;
-		alni size = 0;
-		const char* name = nullptr;
-		const ObjectTypeConversions* conversions = nullptr;
-		const ObjectTypeArithmetics* arithmetics = nullptr;
-		object_save_size save_size = nullptr;
-		object_save save = nullptr;
-		object_load load = nullptr;
-		object_compare comparison = nullptr;
-		void* vtable = nullptr;
-		const char* description = nullptr;
-		object_debug_all_childs_retrival childs_retrival = nullptr;
-		object_allocated_size allocated_size = nullptr;
-		object_allocated_size_recursive allocated_size_recursive = nullptr;
-		TypeMethods type_methods;
-	};
-
-#define SAVE_LOAD_MAX_CALLBACK_SLOTS 100
-	typedef void(pre_save_callback)(void* self, ArchiverOut&);
-	typedef void(pre_load_callback)(void* self, ArchiverIn&);
-	typedef void(post_save_callback)(void* self, ArchiverOut&);
-	typedef void(post_load_callback)(void* self, ArchiverIn&);
-	typedef alni(slcb_size_callback)(void* self, ArchiverOut&);
-
-	struct save_load_callbacks {
-		void* self;
-		pre_save_callback* pre_save;
-		slcb_size_callback* size;
-		pre_load_callback* pre_load;
-		post_save_callback* post_save;
-		post_load_callback* post_load;
-	};
-
-	struct objects_api {
+	struct ObjectsContext {
+		ObjectsContext();
+		~ObjectsContext();
 
 		Map<std::string, const ObjectType*> types;
 		TypeGroups type_groups;
 		Interpreter* interp = nullptr;
+		save_load_callbacks* sl_callbacks[SAVE_LOAD_MAX_CALLBACK_SLOTS]{};
+		alni sl_callbacks_load_idx = 0;
+	};
 
-		objects_api();
-		~objects_api();
+	struct objects_api {
+		static void initialize();
+		static void finalize();
 
-		void define(ObjectType* type);
+		static void define(ObjectType* type);
 		static Object* copy(Object* self, const Object* in);
 		static bool compare(Object* first, Object* second);
 		static Object* instantiate(Object*);
@@ -146,33 +53,28 @@ namespace tp::obj {
 		static bool toBool(Object* self);
 		static std::string toString(Object* self);
 
-		void clear_object_flags();
+		static void clear_object_flags();
 
-		void destroy(Object* in) const;
+		static void destroy(Object* in);
 
 		static inline void increaseReferenceCount(Object* in) { in->references++; }
 		static inline alni getReferenceCount(Object* in) { return in->references; }
 
-	private:
 		static inline void setReferenceCount(Object* in, halni count) { in->references = count; }
 
-	public:
-		save_load_callbacks* sl_callbacks[SAVE_LOAD_MAX_CALLBACK_SLOTS]{};
-		alni sl_callbacks_load_idx = 0;
+		static void add_sl_callbacks(save_load_callbacks*);
 
-		void add_sl_callbacks(save_load_callbacks*);
+		static alni objsize_file(Object* self);
+		static alni objsize_file_recursive(Object* self);
 
-		alni objsize_file(Object* self);
-		alni objsize_file_recursive(Object* self);
+		static alni objsize_ram(Object* self);
+		static alni objsize_ram_recursive_util(Object* self, const ObjectType* type, bool different_object = true);
+		static alni objsize_ram_recursive(Object* self);
 
-		alni objsize_ram(Object* self);
-		alni objsize_ram_recursive_util(Object* self, const ObjectType* type, bool different_object = true);
-		alni objsize_ram_recursive(Object* self);
-
-		bool save(Object*, const std::string& path, bool compressed = true);
-		Object* load(const std::string& path);
-		alni save(ArchiverOut&, Object*);
-		Object* load(ArchiverIn&, alni file_adress);
+		static bool save(Object*, const std::string& path, bool compressed = true);
+		static Object* load(const std::string& path);
+		static alni save(ArchiverOut&, Object*);
+		static Object* load(ArchiverIn&, alni file_adress);
 
 		template <typename Type>
 		static Type* cast(const Object* in) {
@@ -186,17 +88,22 @@ namespace tp::obj {
 			return nullptr;
 		}
 
-		Object* create(const ObjectType* type);
+		static Object* create(const ObjectType* type);
 
 		template <typename tObjectType>
 		static tObjectType* create() {
-			return (tObjectType*) NDO->create(&tObjectType::TypeData);
+			return (tObjectType*) create(&tObjectType::TypeData);
 		}
 
-		static Object* createByName(const char* name) { return NDO->create(NDO->types.get(name)); }
-	};
+		static Object* createByName(const char* name) { return create(gObjectsContext->types.get(name)); }
 
-	void logTypeData(const ObjectType* type);
-	void assertNoLeaks();
-	ualni getObjCount();
+		static void logTypeData(const ObjectType* type);
+		static void assertNoLeaks();
+		static ualni getObjCount();
+
+		static void addTypeToGroup(ObjectType* type, InitialierList<const char*> path, alni cur_arg = 0);
+
+		static bool isType(const char* name);
+		static const ObjectType* getType(const char* name);
+	};
 }

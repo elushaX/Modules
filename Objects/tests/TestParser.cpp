@@ -1,6 +1,5 @@
 
 #include "ObjectTests.hpp"
-
 #include "parser/Parser.hpp"
 
 using namespace tp;

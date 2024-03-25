@@ -12,14 +12,14 @@ void DictObject::copy(DictObject* self, const DictObject* src) {
 	constructor(self);
 
 	for (auto item : src->items) {
-		auto instance = NDO->instantiate(item->val);
+		auto instance = objects_api::instantiate(item->val);
 		self->items.put(item->key, instance);
 	}
 }
 
 void DictObject::destructor(DictObject* self) {
 	for (auto item : self->items) {
-		NDO->destroy(item->val);
+		objects_api::destroy(item->val);
 	}
 	self->items.~Map();
 }
@@ -51,7 +51,7 @@ void DictObject::save(DictObject* self, ArchiverOut& file_self) {
 	// save hashmap pairs
 	for (auto item : self->items) {
 		// item val
-		alni ndo_object_adress = NDO->save(file_self, item->val);
+		alni ndo_object_adress = objects_api::save(file_self, item->val);
 		file_self << ndo_object_adress;
 
 		// item key
@@ -70,7 +70,7 @@ void DictObject::load(ArchiverIn& file_self, DictObject* self) {
 		// read val
 		alni ndo_object_adress;
 		file_self >> ndo_object_adress;
-		Object* val = NDO->load(file_self, ndo_object_adress);
+		Object* val = objects_api::load(file_self, ndo_object_adress);
 
 		// read key value
 		std::string key;
@@ -105,21 +105,21 @@ alni DictObject::allocated_size(DictObject* self) {
 alni DictObject::allocated_size_recursive(DictObject* self) {
 	alni out = allocated_size(self);
 	for (auto item : self->items) {
-		out += NDO->objsize_ram_recursive_util(item->val, item->val->type);
+		out += objects_api::objsize_ram_recursive_util(item->val, item->val->type);
 	}
 	return out;
 }
 
 void DictObject::put(const std::string& str, Object* obj) {
 	DEBUG_ASSERT(obj);
-	NDO->increaseReferenceCount(obj);
+	objects_api::increaseReferenceCount(obj);
 	items.put(str, obj);
 }
 
 void DictObject::remove(const std::string& str) {
 	auto idx = items.presents(str);
 	if (idx) {
-		NDO->destroy(items.getSlotVal(idx));
+		objects_api::destroy(items.getSlotVal(idx));
 		items.remove(str);
 	}
 }

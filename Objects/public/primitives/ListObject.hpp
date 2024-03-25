@@ -2,6 +2,7 @@
 #pragma once
 
 #include "core/Object.hpp"
+#include "List.hpp"
 
 namespace tp::obj {
 
