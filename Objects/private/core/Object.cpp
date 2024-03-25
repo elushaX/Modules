@@ -1,6 +1,7 @@
 
 #include "core/Object.hpp"
 
+#include "primitives/NullObject.hpp"
 #include "primitives/ClassObject.hpp"
 #include "primitives/MethodObject.hpp"
 
@@ -11,9 +12,18 @@ using namespace obj;
 
 ObjectsContext* obj::gObjectsContext = nullptr;
 
+ObjectsContext::ObjectsContext() {
+	memSetVal(sl_callbacks, SAVE_LOAD_MAX_CALLBACK_SLOTS * sizeof(save_load_callbacks*), 0);
+	interp = new Interpreter();
+}
+
+ObjectsContext::~ObjectsContext() { delete interp; }
+
 void objects_api::initialize() {
 	ASSERT(!gObjectsContext)
 	gObjectsContext = new ObjectsContext();
+
+	gObjectsContext->nullObject = create<NullObject>();
 }
 
 void objects_api::finalize() {
@@ -43,13 +53,6 @@ void obj::load_string(ArchiverIn& file, std::string& out) {
 
 Object* ObjectMemAllocate(const ObjectType* type);
 void ObjectMemDeallocate(Object* object);
-
-ObjectsContext::ObjectsContext() {
-	memSetVal(sl_callbacks, SAVE_LOAD_MAX_CALLBACK_SLOTS * sizeof(save_load_callbacks*), 0);
-	interp = new Interpreter();
-}
-
-ObjectsContext::~ObjectsContext() { delete interp; }
 
 void hierarchy_copy(Object* self, const Object* in, const ObjectType* type);
 void hierarchy_construct(Object* self, const ObjectType* type);
@@ -227,3 +230,10 @@ void objects_api::addTypeToGroup(ObjectType* type, InitialierList<const char*> p
 bool objects_api::isType(const char* name) { return gObjectsContext->types.presents(name).isValid(); }
 
 const ObjectType* objects_api::getType(const char* name) { return gObjectsContext->types.get(name); }
+
+NullObject* objects_api::getNull() { return gObjectsContext->nullObject; }
+
+NullObject* objects_api::getNullReferenced() {
+	increaseReferenceCount(gObjectsContext->nullObject);
+	return gObjectsContext->nullObject;
+}

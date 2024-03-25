@@ -34,6 +34,11 @@ namespace tp::obj {
 		Interpreter* interp = nullptr;
 		save_load_callbacks* sl_callbacks[SAVE_LOAD_MAX_CALLBACK_SLOTS]{};
 		alni sl_callbacks_load_idx = 0;
+
+		struct NullObject* nullObject = nullptr;
+
+		struct BoolObject* boolTrueObject = nullptr;
+		struct BoolObject* boolFalseObject = nullptr;
 	};
 
 	struct objects_api {
@@ -105,5 +110,8 @@ namespace tp::obj {
 
 		static bool isType(const char* name);
 		static const ObjectType* getType(const char* name);
+
+		static NullObject* getNull();
+		static NullObject* getNullReferenced();
 	};
 }

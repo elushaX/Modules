@@ -49,7 +49,6 @@ static bool init(const ModuleManifest*) {
 }
 
 static void deinit(const ModuleManifest*) {
-	NullObject::uninit();
 	MethodObject::UnInitialize();
 
 	objects_api::finalize();
