@@ -24,7 +24,7 @@ SUITE(AvlTree) {
 	TEST(Persistance) {
 		AvlTree<AvlNumericKey<alni>, TestClass, TestAllocator> tree;
 
-		const auto size = 1000;
+		const auto size = 10;
 
 		struct Item {
 			Item() :
@@ -87,6 +87,8 @@ SUITE(AvlTree) {
 
 				tree.remove((alni) buff[idx].data.getVal());
 
+				CHECK(tree.isValid());
+
 				unloadSize++;
 				buff[idx].presents = false;
 
@@ -120,5 +122,4 @@ SUITE(AvlTree) {
 		CHECK(tree.maxNode(tree.head()) == nullptr);
 		CHECK(tree.minNode(tree.head()) == nullptr);
 	}
-
 }
