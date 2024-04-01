@@ -14,14 +14,9 @@ namespace tp {
 			mEnd = end;
 		}
 
-		inline bool descentRight(const IntervalKey& in) const { 
+		inline bool descentRight(const IntervalKey& in) const {
 			if (in.mStart != mStart) return in.mStart > mStart;
 			return in.mEnd > mEnd;
-		}
-
-		inline bool descentLeft(const IntervalKey& in) const { 
-			if (in.mStart != mStart) return in.mStart < mStart;
-			return in.mEnd < mEnd;
 		}
 
 		inline bool exactNode(const IntervalKey& in) const { return in.mStart == mStart && in.mEnd == mEnd; }

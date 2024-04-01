@@ -12,6 +12,9 @@ namespace tp {
 	template <typename Type>
 	using InitialierList = std::initializer_list<Type>;
 
+	template <typename tType, typename tTypeResult>
+	using ShouldPassByValue = typename TypeSelect<(sizeof(tType) > sizeof(tp::alni)), const tType&, tType>::Result;
+
 	// Selects whether to pass by constant reference or by value
 	template <typename tType>
 	using SelectValueOrReference = typename TypeSelect<(sizeof(tType) > sizeof(tp::alni)), const tType&, tType>::Result;
