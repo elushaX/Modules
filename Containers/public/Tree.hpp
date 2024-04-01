@@ -16,12 +16,16 @@ namespace tp {
 		inline bool descentRight(AvlNumericKey in) const { return in.val > val; }
 		inline bool exactNode(AvlNumericKey in) const { return in.val == val; }
 
-		inline AvlNumericKey getFindKey(/**/) const { return *this; }
+		template <typename NodeType>
+		inline AvlNumericKey getFindKey(const NodeType*) const {
+			return *this;
+		}
+
 		inline AvlNumericKey keyInRightSubtree(AvlNumericKey in) const { return in; }
 		inline AvlNumericKey keyInLeftSubtree(AvlNumericKey in) const { return in; }
 
 		template <typename NodeType>
-		inline void updateTreeCacheCallBack(const NodeType&) {}
+		inline void updateTreeCacheCallBack(const NodeType*) {}
 	};
 
 	template <typename Key, typename Data, class Allocator = DefaultAllocator>
@@ -42,21 +46,10 @@ namespace tp {
 			Data data;
 			Key key;
 
-		public:
 			Node* mLeft = nullptr;
 			Node* mRight = nullptr;
 			Node* mParent = nullptr;
 			ualni mHeight = 0;
-
-		private:
-			inline bool descentRight(KeyArg aKey) const { return key.descentRight(aKey); }
-			inline bool exactNode(KeyArg aKey) const { return key.exactNode(aKey); }
-
-			inline KeyArg getFindKey(const Node* node = nullptr) const { return key.getFindKey(/*node*/); }
-			inline KeyArg keyInRightSubtree(KeyArg aKey) const { return key.keyInRightSubtree(aKey); }
-			inline KeyArg keyInLeftSubtree(KeyArg aKey) const { return key.keyInLeftSubtree(aKey); }
-
-			inline void updateTreeCacheCallBack() { key.updateTreeCacheCallBack(*this); }
 		};
 
 	public:
@@ -97,12 +90,12 @@ namespace tp {
 			Node* iter = mRoot;
 			while (true) {
 				if (!iter) return nullptr;
-				if (iter->exactNode(key)) return iter;
-				if (iter->descentRight(key)) {
-					key = iter->keyInRightSubtree(key);
+				if (iter->key.exactNode(key)) return iter;
+				if (iter->key.descentRight(key)) {
+					key = iter->key.keyInRightSubtree(key);
 					iter = iter->mRight;
 				} else {
-					key = iter->keyInLeftSubtree(key);
+					key = iter->key.keyInLeftSubtree(key);
 					iter = iter->mLeft;
 				}
 			}
@@ -112,17 +105,17 @@ namespace tp {
 			Node* iter = mRoot;
 			while (true) {
 				if (!iter) return nullptr;
-				if (iter->exactNode(key)) return iter;
-				if (iter->descentRight(key)) {
+				if (iter->key.exactNode(key)) return iter;
+				if (iter->key.descentRight(key)) {
 					if (iter->mRight) {
-						key = iter->keyInRightSubtree(key);
+						key = iter->key.keyInRightSubtree(key);
 						iter = iter->mRight;
 					} else {
 						return iter;
 					}
 				} else {
 					if (iter->mLeft) {
-						key = iter->keyInLeftSubtree(key);
+						key = iter->key.keyInLeftSubtree(key);
 						iter = iter->mLeft;
 					} else {
 						return iter;
@@ -137,13 +130,13 @@ namespace tp {
 
 			if (head->mLeft) {
 				// TODO: incomplete test
-				if (head->descentRight(head->mLeft->getFindKey(head))) return head;
+				if (head->key.descentRight(head->mLeft->key.getFindKey(head))) return head;
 				if (head->mLeft->mParent != head) return head;
 				if (!head->mRight && head->mLeft->mHeight != head->mHeight - 1) return head;
 			}
 
 			if (head->mRight) {
-				if (!head->descentRight(head->mRight->getFindKey(head))) return head;
+				if (!head->key.descentRight(head->mRight->key.getFindKey(head))) return head;
 				if (head->mRight->mParent != head) return head;
 				if (!head->mLeft && head->mRight->mHeight != head->mHeight - 1) return head;
 			}
@@ -236,8 +229,8 @@ namespace tp {
 			right->mHeight = 1 + max(getNodeHeight(right->mLeft), getNodeHeight(right->mRight));
 
 			// cache
-			head->updateTreeCacheCallBack();
-			right->updateTreeCacheCallBack();
+			head->key.updateTreeCacheCallBack(head);
+			right->key.updateTreeCacheCallBack(right);
 
 			return right;
 		}
@@ -264,8 +257,8 @@ namespace tp {
 			left->mHeight = 1 + max(getNodeHeight(left->mLeft), getNodeHeight(left->mRight));
 
 			// cache
-			head->updateTreeCacheCallBack();
-			left->updateTreeCacheCallBack();
+			head->key.updateTreeCacheCallBack(head);
+			left->key.updateTreeCacheCallBack(left);
 
 			return left;
 		}
@@ -278,16 +271,16 @@ namespace tp {
 			if (head == nullptr) {
 				mSize++;
 				Node* out = newNode(key, data);
-				out->updateTreeCacheCallBack();
+				out->key.updateTreeCacheCallBack(out);
 				return out;
-			} else if (head->exactNode(key)) {
+			} else if (head->key.exactNode(key)) {
 				return head;
-			} else if (head->descentRight(key)) {
-				insertedNode = insertUtil(head->mRight, head->keyInRightSubtree(key), data);
+			} else if (head->key.descentRight(key)) {
+				insertedNode = insertUtil(head->mRight, head->key.keyInRightSubtree(key), data);
 				head->mRight = insertedNode;
 				insertedNode->mParent = head;
 			} else {
-				insertedNode = insertUtil(head->mLeft, head->keyInLeftSubtree(key), data);
+				insertedNode = insertUtil(head->mLeft, head->key.keyInLeftSubtree(key), data);
 				head->mLeft = insertedNode;
 				insertedNode->mParent = head;
 			}
@@ -298,14 +291,14 @@ namespace tp {
 			alni balance = alni(getNodeHeight(head->mRight) - getNodeHeight(head->mLeft));
 
 			if (balance > 1) {
-				if (head->mRight->descentRight(head->keyInRightSubtree(key))) {
+				if (head->mRight->key.descentRight(head->key.keyInRightSubtree(key))) {
 					return rotateLeft(head);
 				} else {
 					head->mRight = rotateRight(head->mRight);
 					return rotateLeft(head);
 				}
 			} else if (balance < -1) {
-				if (!head->mLeft->descentRight(head->keyInLeftSubtree(key))) {
+				if (!head->mLeft->key.descentRight(head->key.keyInLeftSubtree(key))) {
 					return rotateRight(head);
 				} else {
 					head->mLeft = rotateLeft(head->mLeft);
@@ -313,7 +306,7 @@ namespace tp {
 				}
 			}
 
-			head->updateTreeCacheCallBack();
+			head->key.updateTreeCacheCallBack(head);
 
 			return head;
 		}
@@ -321,10 +314,10 @@ namespace tp {
 		Node* removeUtil(Node* head, KeyArg key) {
 			if (head == nullptr) return head;
 
-			if (head->exactNode(key)) {
+			if (head->key.exactNode(key)) {
 				if (head->mRight && head->mLeft) {
 					Node* min = minNode(head->mRight);
-					auto const& newKey = min->getFindKey(head->mRight);
+					auto const& newKey = min->key.getFindKey(head->mRight);
 					injectNodeInstead(head, min);
 					head->mRight = removeUtil(head->mRight, newKey);
 				} else if (head->mRight) {
@@ -342,10 +335,10 @@ namespace tp {
 					mSize--;
 					head = nullptr;
 				}
-			} else if (head->descentRight(key)) {
-				head->mRight = removeUtil(head->mRight, head->keyInRightSubtree(key));
+			} else if (head->key.descentRight(key)) {
+				head->mRight = removeUtil(head->mRight, head->key.keyInRightSubtree(key));
 			} else {
-				head->mLeft = removeUtil(head->mLeft, head->keyInLeftSubtree(key));
+				head->mLeft = removeUtil(head->mLeft, head->key.keyInLeftSubtree(key));
 			}
 
 			if (head == nullptr) return head;
@@ -369,7 +362,7 @@ namespace tp {
 				}
 			}
 
-			head->updateTreeCacheCallBack();
+			head->key.updateTreeCacheCallBack(head);
 
 			return head;
 		}

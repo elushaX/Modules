@@ -21,15 +21,19 @@ namespace tp {
 
 		inline bool exactNode(const IntervalKey& in) const { return in.mStart == mStart && in.mEnd == mEnd; }
 
-		inline const IntervalKey& getFindKey() const { return *this; }
+		template <typename tTreeNodeType>
+		inline const IntervalKey& getFindKey(const tTreeNodeType* node) const {
+			return *this;
+		}
+
 		inline const IntervalKey& keyInRightSubtree(const IntervalKey& in) const { return in; }
 		inline const IntervalKey& keyInLeftSubtree(const IntervalKey& in) const { return in; }
 
 		template <typename tTreeNodeType>
-		inline void updateTreeCacheCallBack(const tTreeNodeType& node) {
+		inline void updateTreeCacheCallBack(const tTreeNodeType* node) {
 			mMax = 0;
-			if (node.mRight && node.mRight->key.mMax > mMax) mMax = node.mRight->key.mMax;
-			if (node.mLeft && node.mLeft->key.mMax > mMax) mMax = node.mLeft->key.mMax;
+			if (node->mRight && node->mRight->key.mMax > mMax) mMax = node->mRight->key.mMax;
+			if (node->mLeft && node->mLeft->key.mMax > mMax) mMax = node->mLeft->key.mMax;
 			if (mMax < mEnd) mMax = mEnd;
 		}
 
