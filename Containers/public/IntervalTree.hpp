@@ -30,7 +30,7 @@ namespace tp {
 		inline const IntervalKey& keyInLeftSubtree(const IntervalKey& in) const { return in; }
 
 		template <typename tTreeNodeType>
-		inline void updateTreeCacheCallBack(const tTreeNodeType* node) {
+		inline void updateNodeCache(const tTreeNodeType* node) {
 			mMax = 0;
 			if (node->mRight && node->mRight->key.mMax > mMax) mMax = node->mRight->key.mMax;
 			if (node->mLeft && node->mLeft->key.mMax > mMax) mMax = node->mLeft->key.mMax;

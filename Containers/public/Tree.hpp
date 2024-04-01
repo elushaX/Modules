@@ -6,26 +6,27 @@ namespace tp {
 
 	template <typename NumericType>
 	struct AvlNumericKey {
-
-		NumericType val;
-
+	public:
 		AvlNumericKey() = default;
 		AvlNumericKey(NumericType val) :
 			val(val) {}
 
-		inline bool descentRight(AvlNumericKey in) const { return in.val > val; }
-		inline bool exactNode(AvlNumericKey in) const { return in.val == val; }
+		inline bool descentRight(const AvlNumericKey& in) const { return in.val > val; }
+		inline bool exactNode(const AvlNumericKey& in) const { return in.val == val; }
+
+		inline const AvlNumericKey& keyInRightSubtree(const AvlNumericKey& in) const { return in; }
+		inline const AvlNumericKey& keyInLeftSubtree(const AvlNumericKey& in) const { return in; }
 
 		template <typename NodeType>
-		inline AvlNumericKey getFindKey(const NodeType*) const {
+		inline void updateNodeCache(const NodeType*) {}
+
+		template <typename NodeType>
+		inline const AvlNumericKey& getFindKey(const NodeType*) const {
 			return *this;
 		}
 
-		inline AvlNumericKey keyInRightSubtree(AvlNumericKey in) const { return in; }
-		inline AvlNumericKey keyInLeftSubtree(AvlNumericKey in) const { return in; }
-
-		template <typename NodeType>
-		inline void updateTreeCacheCallBack(const NodeType*) {}
+	public:
+		NumericType val;
 	};
 
 	template <typename Key, typename Data, class Allocator = DefaultAllocator>
@@ -229,8 +230,8 @@ namespace tp {
 			right->mHeight = 1 + max(getNodeHeight(right->mLeft), getNodeHeight(right->mRight));
 
 			// cache
-			head->key.updateTreeCacheCallBack(head);
-			right->key.updateTreeCacheCallBack(right);
+			head->key.updateNodeCache(head);
+			right->key.updateNodeCache(right);
 
 			return right;
 		}
@@ -257,8 +258,8 @@ namespace tp {
 			left->mHeight = 1 + max(getNodeHeight(left->mLeft), getNodeHeight(left->mRight));
 
 			// cache
-			head->key.updateTreeCacheCallBack(head);
-			left->key.updateTreeCacheCallBack(left);
+			head->key.updateNodeCache(head);
+			left->key.updateNodeCache(left);
 
 			return left;
 		}
@@ -271,7 +272,7 @@ namespace tp {
 			if (head == nullptr) {
 				mSize++;
 				Node* out = newNode(key, data);
-				out->key.updateTreeCacheCallBack(out);
+				out->key.updateNodeCache(out);
 				return out;
 			} else if (head->key.exactNode(key)) {
 				return head;
@@ -306,7 +307,7 @@ namespace tp {
 				}
 			}
 
-			head->key.updateTreeCacheCallBack(head);
+			head->key.updateNodeCache(head);
 
 			return head;
 		}
@@ -362,7 +363,7 @@ namespace tp {
 				}
 			}
 
-			head->key.updateTreeCacheCallBack(head);
+			head->key.updateNodeCache(head);
 
 			return head;
 		}
