@@ -14,7 +14,6 @@ namespace tp {
 			val(val) {}
 
 		inline bool descentRight(AvlNumericKey in) const { return in.val > val; }
-		inline bool descentLeft(AvlNumericKey in) const { return in.val < val; }
 		inline bool exactNode(AvlNumericKey in) const { return in.val == val; }
 
 		inline AvlNumericKey getFindKey(/**/) const { return *this; }
@@ -51,7 +50,6 @@ namespace tp {
 
 		private:
 			inline bool descentRight(KeyArg aKey) const { return key.descentRight(aKey); }
-			inline bool descentLeft(KeyArg aKey) const { return key.descentLeft(aKey); }
 			inline bool exactNode(KeyArg aKey) const { return key.exactNode(aKey); }
 
 			inline KeyArg getFindKey(const Node* node = nullptr) const { return key.getFindKey(/*node*/); }
@@ -100,12 +98,12 @@ namespace tp {
 			while (true) {
 				if (!iter) return nullptr;
 				if (iter->exactNode(key)) return iter;
-				if (iter->descentLeft(key)) {
-					key = iter->keyInLeftSubtree(key);
-					iter = iter->mLeft;
-				} else {
+				if (iter->descentRight(key)) {
 					key = iter->keyInRightSubtree(key);
 					iter = iter->mRight;
+				} else {
+					key = iter->keyInLeftSubtree(key);
+					iter = iter->mLeft;
 				}
 			}
 		}
@@ -115,17 +113,17 @@ namespace tp {
 			while (true) {
 				if (!iter) return nullptr;
 				if (iter->exactNode(key)) return iter;
-				if (iter->descentLeft(key)) {
-					if (iter->mLeft) {
-						key = iter->keyInLeftSubtree(key);
-						iter = iter->mLeft;
+				if (iter->descentRight(key)) {
+					if (iter->mRight) {
+						key = iter->keyInRightSubtree(key);
+						iter = iter->mRight;
 					} else {
 						return iter;
 					}
 				} else {
-					if (iter->mRight) {
-						key = iter->keyInRightSubtree(key);
-						iter = iter->mRight;
+					if (iter->mLeft) {
+						key = iter->keyInLeftSubtree(key);
+						iter = iter->mLeft;
 					} else {
 						return iter;
 					}
@@ -139,7 +137,7 @@ namespace tp {
 
 			if (head->mLeft) {
 				// TODO: incomplete test
-				if (!head->descentLeft(head->mLeft->getFindKey(head))) return head;
+				if (head->descentRight(head->mLeft->getFindKey(head))) return head;
 				if (head->mLeft->mParent != head) return head;
 				if (!head->mRight && head->mLeft->mHeight != head->mHeight - 1) return head;
 			}
@@ -307,7 +305,7 @@ namespace tp {
 					return rotateLeft(head);
 				}
 			} else if (balance < -1) {
-				if (head->mLeft->descentLeft(head->keyInLeftSubtree(key))) {
+				if (!head->mLeft->descentRight(head->keyInLeftSubtree(key))) {
 					return rotateRight(head);
 				} else {
 					head->mLeft = rotateLeft(head->mLeft);
@@ -346,7 +344,7 @@ namespace tp {
 				}
 			} else if (head->descentRight(key)) {
 				head->mRight = removeUtil(head->mRight, head->keyInRightSubtree(key));
-			} else if (head->descentLeft(key)) {
+			} else {
 				head->mLeft = removeUtil(head->mLeft, head->keyInLeftSubtree(key));
 			}
 
