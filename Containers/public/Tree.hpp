@@ -54,7 +54,7 @@ namespace tp {
 		};
 
 	public:
-		AvlTree() {}
+		AvlTree() = default;
 		~AvlTree() { removeAll(); }
 
 		[[nodiscard]] ualni size() const { return mSize; }
@@ -125,34 +125,53 @@ namespace tp {
 			}
 		}
 
+		// checks invariants of AVL tree
 		// returns first invalid node
 		const Node* findInvalidNode(const Node* head) const {
 			if (head == nullptr) return nullptr;
 
 			if (head->mLeft) {
 				// TODO: incomplete test
-				if (head->key.descentRight(head->mLeft->key.getFindKey(head))) return head;
-				if (head->mLeft->mParent != head) return head;
-				if (!head->mRight && head->mLeft->mHeight != head->mHeight - 1) return head;
+				if (head->key.descentRight(head->mLeft->key.getFindKey(head))) {
+					return head;
+				}
+				if (head->mLeft->mParent != head) {
+					return head;
+				}
+				if (!head->mRight && head->mLeft->mHeight != head->mHeight - 1) {
+					return head;
+				}
 			}
 
 			if (head->mRight) {
-				if (!head->key.descentRight(head->mRight->key.getFindKey(head))) return head;
-				if (head->mRight->mParent != head) return head;
-				if (!head->mLeft && head->mRight->mHeight != head->mHeight - 1) return head;
+				if (!head->key.descentRight(head->mRight->key.getFindKey(head))) {
+					return head;
+				}
+				if (head->mRight->mParent != head) {
+					return head;
+				}
+				if (!head->mLeft && head->mRight->mHeight != head->mHeight - 1) {
+					return head;
+				}
 			}
 
 			if (head->mLeft && head->mRight) {
-				if (max(head->mLeft->mHeight, head->mRight->mHeight) != head->mHeight - 1) return head;
+				if (max(head->mLeft->mHeight, head->mRight->mHeight) != head->mHeight - 1) {
+					return head;
+				}
 			}
 
 			int balance = getNodeHeight(head->mRight) - getNodeHeight(head->mLeft);
 
-			if (balance > 1 || balance < -1) return head;
+			if (balance > 1 || balance < -1) {
+				return head;
+			}
 
 			const Node* ret = findInvalidNode(head->mRight);
 
-			if (ret) return ret;
+			if (ret) {
+				return ret;
+			}
 
 			return findInvalidNode(head->mLeft);
 		}
@@ -195,20 +214,55 @@ namespace tp {
 		inline void deleteNode(Node* node) {
 			node->~Node();
 			mAlloc.deallocate(node);
+			mSize--;
 		}
 
 		inline Node* newNode(KeyArg key, DataArg data) { return new (mAlloc.allocate(sizeof(Node))) Node(key, data); }
 
-		inline void injectNodeInstead(Node* place, Node* inject) {
-			// TODO : swap instead of copy
-			place->data = inject->data;
-			place->key = inject->key;
+		// swaps pointers of two nodes to preserve data location in the memory instead of swapping data directly
+		inline void injectNodeInstead(Node* target, Node* from) {
+			// 'target' always has two nodes
+			// 'from' has only one child on the right on no child at all
+			// 'from' can be right child of the 'target'
+			// 'target' can or can not have parent
+			// 'target' can be left or right child of parent
+
+			// from is not a child of target
+			Node* targetParent = target->mParent;
+			Node* targetLeft = target->mLeft;
+			Node* targetRight = target->mRight;
+
+			bool special = target->mRight == from;
+
+			// update parent
+			if (targetParent) {
+				if (targetParent->mRight == target) targetParent->mRight = from;
+				else targetParent->mLeft = from;
+			}
+
+			// clone 'from' to 'target'
+			target->mParent = special ? from : from->mParent;
+			target->mLeft = nullptr;
+			target->mRight = from->mRight;
+			if (!special) target->mParent->mLeft = target;
+
+			// if (target->mLeft) target->mLeft->mParent = target;
+			if (target->mRight) target->mRight->mParent = target;
+
+			// clone 'target' to 'from'
+			from->mParent = targetParent;
+			from->mLeft = targetLeft;
+			from->mRight = special ? target : targetRight;
+			from->mLeft->mParent = from;
+			from->mRight->mParent = from;
+
+			std::swap(from->mHeight, target->mHeight);
 		}
 
 		inline alni getNodeHeight(const Node* node) const { return node ? node->mHeight : -1; }
 
 		// returns new head
-		Node* rotateLeft(Node* pivot) {
+		inline Node* rotateLeft(Node* pivot) {
 			DEBUG_ASSERT(pivot);
 
 			Node* const head = pivot;
@@ -236,7 +290,7 @@ namespace tp {
 			return right;
 		}
 
-		Node* rotateRight(Node* pivot) {
+		inline Node* rotateRight(Node* pivot) {
 			DEBUG_ASSERT(pivot);
 
 			Node* const head = pivot;
@@ -318,22 +372,36 @@ namespace tp {
 			if (head->key.exactNode(key)) {
 				if (head->mRight && head->mLeft) {
 					Node* min = minNode(head->mRight);
-					auto const& newKey = min->key.getFindKey(head->mRight);
 					injectNodeInstead(head, min);
-					head->mRight = removeUtil(head->mRight, newKey);
+					std::swap(head, min);
+					// auto const& newKey = min->key.getFindKey(head->mRight);
+					head->mRight = removeUtil(head->mRight, key);
 				} else if (head->mRight) {
-					injectNodeInstead(head, head->mRight);
-					deleteNode(head->mRight);
-					head->mRight = nullptr;
-					mSize--;
+
+					if (head->mParent) {
+						if (head->mParent->mLeft == head) head->mParent->mLeft = head->mRight;
+						else head->mParent->mRight = head->mRight;
+					}
+
+					head->mRight->mParent = head->mParent;
+
+					auto delNode = head;
+					head = head->mRight;
+					deleteNode(delNode);
 				} else if (head->mLeft) {
-					injectNodeInstead(head, head->mLeft);
-					deleteNode(head->mLeft);
-					head->mLeft = nullptr;
-					mSize--;
+
+					if (head->mParent) {
+						if (head->mParent->mLeft == head) head->mParent->mLeft = head->mLeft;
+						else head->mParent->mRight = head->mLeft;
+					}
+
+					head->mLeft->mParent = head->mParent;
+
+					auto delNode = head;
+					head = head->mLeft;
+					deleteNode(delNode);
 				} else {
 					deleteNode(head);
-					mSize--;
 					head = nullptr;
 				}
 			} else if (head->key.descentRight(key)) {
