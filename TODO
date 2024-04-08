@@ -13,13 +13,10 @@ Modules:
   Remove all static variable into module's data
 
 Containers:
-  Avl tree add sentenels
   Add variant size buffer
   Buffer add resize function
   Buffer improvements
-  Write Traverse Avl test
   Add check copy times
-  AVL dont copy data just swap
 
 Storage:
   Reconsider

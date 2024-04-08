@@ -38,145 +38,42 @@ namespace tp {
 		class Node {
 			friend AvlTree;
 
+		public:
+			Node() = default;
+
 		private:
 			Node(KeyArg aKey, DataArg aData) :
 				key(aKey),
 				data(aData) {}
 
 		public:
-			Data data;
-			Key key;
+			alni mHeight = -1;
 
 			Node* mLeft = nullptr;
 			Node* mRight = nullptr;
 			Node* mParent = nullptr;
-			ualni mHeight = 0;
+
+			Data data;
+			Key key;
 		};
 
 	public:
 		AvlTree() = default;
-		~AvlTree() { removeAll(); }
+		~AvlTree();
 
-		[[nodiscard]] ualni size() const { return mSize; }
+		ualni size() const;
+		Node* head() const;
 
-		Node* head() const { return this->mRoot; }
+		void insert(KeyArg key, DataArg data);
+		void remove(KeyArg key);
+		void removeAll();
 
-		void insert(KeyArg key, DataArg data) {
-			mRoot = insertUtil(mRoot, key, data);
-			mRoot->mParent = nullptr;
-		}
+		Node* maxNode(Node* head) const;
+		Node* minNode(Node* head) const;
 
-		void remove(KeyArg key) {
-			mRoot = removeUtil(mRoot, key);
-			if (mRoot) mRoot->mParent = nullptr;
-		}
-
-		Node* maxNode(Node* head) const {
-			if (!head) return nullptr;
-			while (head->mRight != nullptr) {
-				head = head->mRight;
-			}
-			return head;
-		}
-
-		Node* minNode(Node* head) const {
-			if (!head) return nullptr;
-			while (head->mLeft != nullptr) {
-				head = head->mLeft;
-			}
-			return head;
-		}
-
-		Node* find(KeyArg key) const {
-			Node* iter = mRoot;
-			while (true) {
-				if (!iter) return nullptr;
-				if (iter->key.exactNode(key)) return iter;
-				if (iter->key.descentRight(key)) {
-					key = iter->key.keyInRightSubtree(key);
-					iter = iter->mRight;
-				} else {
-					key = iter->key.keyInLeftSubtree(key);
-					iter = iter->mLeft;
-				}
-			}
-		}
-
-		Node* findLessOrEq(KeyArg key) const {
-			Node* iter = mRoot;
-			while (true) {
-				if (!iter) return nullptr;
-				if (iter->key.exactNode(key)) return iter;
-				if (iter->key.descentRight(key)) {
-					if (iter->mRight) {
-						key = iter->key.keyInRightSubtree(key);
-						iter = iter->mRight;
-					} else {
-						return iter;
-					}
-				} else {
-					if (iter->mLeft) {
-						key = iter->key.keyInLeftSubtree(key);
-						iter = iter->mLeft;
-					} else {
-						return iter;
-					}
-				}
-			}
-		}
-
-		// checks invariants of AVL tree
-		// returns first invalid node
-		const Node* findInvalidNode(const Node* head) const {
-			if (head == nullptr) return nullptr;
-
-			if (head->mLeft) {
-				// TODO: incomplete test
-				if (head->key.descentRight(head->mLeft->key.getFindKey(head))) {
-					return head;
-				}
-				if (head->mLeft->mParent != head) {
-					return head;
-				}
-				if (!head->mRight && head->mLeft->mHeight != head->mHeight - 1) {
-					return head;
-				}
-			}
-
-			if (head->mRight) {
-				if (!head->key.descentRight(head->mRight->key.getFindKey(head))) {
-					return head;
-				}
-				if (head->mRight->mParent != head) {
-					return head;
-				}
-				if (!head->mLeft && head->mRight->mHeight != head->mHeight - 1) {
-					return head;
-				}
-			}
-
-			if (head->mLeft && head->mRight) {
-				if (max(head->mLeft->mHeight, head->mRight->mHeight) != head->mHeight - 1) {
-					return head;
-				}
-			}
-
-			int balance = getNodeHeight(head->mRight) - getNodeHeight(head->mLeft);
-
-			if (balance > 1 || balance < -1) {
-				return head;
-			}
-
-			const Node* ret = findInvalidNode(head->mRight);
-
-			if (ret) {
-				return ret;
-			}
-
-			return findInvalidNode(head->mLeft);
-		}
-
-		bool isValid() { return findInvalidNode(head()) == nullptr; }
+		Node* find(KeyArg key) const;
+		Node* findSubTree(Node* iter, KeyArg key) const;
+		Node* findLessOrEq(KeyArg key) const;
 
 		template <typename tFunctor>
 		void traverse(Node* node, bool after, tFunctor functor) {
@@ -186,259 +83,35 @@ namespace tp {
 			if (after) functor(node);
 		}
 
-		void removeAll() {
-			if (!mRoot) return;
-			removeUtil(mRoot);
-			mRoot = nullptr;
-			mSize = 0;
-		}
-
-		void removeUtil(Node* node) {
-			if (node->mLeft) removeUtil(node->mLeft);
-			if (node->mRight) removeUtil(node->mRight);
-			deleteNode(node);
-		}
-
-	public:
-		template <class tArchiver>
-		void archiveWrite(tArchiver& file) const {
-			FAIL("not implemented")
-		}
-
-		template <class tArchiver>
-		void archiveRead(tArchiver&) {
-			FAIL("not implemented")
-		}
+		auto findInvalidNode(const Node* head) const -> const Node*;
+		bool isValid();
 
 	private:
-		inline void deleteNode(Node* node) {
-			node->~Node();
-			mAlloc.deallocate(node);
-			mSize--;
-		}
+		inline void deleteNode(Node* node);
+		inline auto newNode(KeyArg key, DataArg data) -> Node*;
 
-		inline Node* newNode(KeyArg key, DataArg data) { return new (mAlloc.allocate(sizeof(Node))) Node(key, data); }
+		inline auto rotateLeft(Node* pivot) -> Node*;
+		inline auto rotateRight(Node* pivot) -> Node*;
 
-		// swaps pointers of two nodes to preserve data location in the memory instead of swapping data directly
-		inline void injectNodeInstead(Node* target, Node* from) {
-			// 'target' always has two nodes
-			// 'from' has only one child on the right on no child at all
-			// 'from' can be right child of the 'target'
-			// 'target' can or can not have parent
-			// 'target' can be left or right child of parent
+		inline void restoreInvariants(Node* head);
 
-			// from is not a child of target
-			Node* targetParent = target->mParent;
-			Node* targetLeft = target->mLeft;
-			Node* targetRight = target->mRight;
+		inline auto insertNode(Node* head, KeyArg key, DataArg data) -> Node*;
+		inline auto findInsertParent(Node* head, KeyArg key) -> Node*;
 
-			bool special = target->mRight == from;
+		inline void injectNodeInstead(Node* target, Node* from);
 
-			// update parent
-			if (targetParent) {
-				if (targetParent->mRight == target) targetParent->mRight = from;
-				else targetParent->mLeft = from;
-			}
-
-			// clone 'from' to 'target'
-			target->mParent = special ? from : from->mParent;
-			target->mLeft = nullptr;
-			target->mRight = from->mRight;
-			if (!special) target->mParent->mLeft = target;
-
-			// if (target->mLeft) target->mLeft->mParent = target;
-			if (target->mRight) target->mRight->mParent = target;
-
-			// clone 'target' to 'from'
-			from->mParent = targetParent;
-			from->mLeft = targetLeft;
-			from->mRight = special ? target : targetRight;
-			from->mLeft->mParent = from;
-			from->mRight->mParent = from;
-
-			std::swap(from->mHeight, target->mHeight);
-		}
-
-		inline alni getNodeHeight(const Node* node) const { return node ? node->mHeight : -1; }
-
-		// returns new head
-		inline Node* rotateLeft(Node* pivot) {
-			DEBUG_ASSERT(pivot);
-
-			Node* const head = pivot;
-			Node* const right = pivot->mRight;
-			Node* const right_left = right->mLeft;
-			Node* const parent = pivot->mParent;
-
-			// parents
-			if (right_left) right_left->mParent = head;
-			head->mParent = right;
-			right->mParent = parent;
-
-			// children
-			head->mRight = right_left;
-			right->mLeft = head;
-
-			// heights
-			head->mHeight = 1 + max(getNodeHeight(head->mLeft), getNodeHeight(head->mRight));
-			right->mHeight = 1 + max(getNodeHeight(right->mLeft), getNodeHeight(right->mRight));
-
-			// cache
-			head->key.updateNodeCache(head);
-			right->key.updateNodeCache(right);
-
-			return right;
-		}
-
-		inline Node* rotateRight(Node* pivot) {
-			DEBUG_ASSERT(pivot);
-
-			Node* const head = pivot;
-			Node* const left = pivot->mLeft;
-			Node* const left_right = left->mRight;
-			Node* const parent = pivot->mParent;
-
-			// parents
-			if (left_right) left_right->mParent = head;
-			head->mParent = left;
-			left->mParent = parent;
-
-			// children
-			head->mLeft = left_right;
-			left->mRight = head;
-
-			// heights
-			head->mHeight = 1 + max(getNodeHeight(head->mLeft), getNodeHeight(head->mRight));
-			left->mHeight = 1 + max(getNodeHeight(left->mLeft), getNodeHeight(left->mRight));
-
-			// cache
-			head->key.updateNodeCache(head);
-			left->key.updateNodeCache(left);
-
-			return left;
-		}
-
-		// recursively returns valid isLeft or isRight child or root
-		Node* insertUtil(Node* head, KeyArg key, DataArg data) {
-
-			Node* insertedNode;
-
-			if (head == nullptr) {
-				mSize++;
-				Node* out = newNode(key, data);
-				out->key.updateNodeCache(out);
-				return out;
-			} else if (head->key.exactNode(key)) {
-				return head;
-			} else if (head->key.descentRight(key)) {
-				insertedNode = insertUtil(head->mRight, head->key.keyInRightSubtree(key), data);
-				head->mRight = insertedNode;
-				insertedNode->mParent = head;
-			} else {
-				insertedNode = insertUtil(head->mLeft, head->key.keyInLeftSubtree(key), data);
-				head->mLeft = insertedNode;
-				insertedNode->mParent = head;
-			}
-
-			// update height
-			head->mHeight = 1 + max(getNodeHeight(head->mRight), getNodeHeight(head->mLeft));
-
-			alni balance = alni(getNodeHeight(head->mRight) - getNodeHeight(head->mLeft));
-
-			if (balance > 1) {
-				if (head->mRight->key.descentRight(head->key.keyInRightSubtree(key))) {
-					return rotateLeft(head);
-				} else {
-					head->mRight = rotateRight(head->mRight);
-					return rotateLeft(head);
-				}
-			} else if (balance < -1) {
-				if (!head->mLeft->key.descentRight(head->key.keyInLeftSubtree(key))) {
-					return rotateRight(head);
-				} else {
-					head->mLeft = rotateLeft(head->mLeft);
-					return rotateRight(head);
-				}
-			}
-
-			head->key.updateNodeCache(head);
-
-			return head;
-		}
-
-		Node* removeUtil(Node* head, KeyArg key) {
-			if (head == nullptr) return head;
-
-			if (head->key.exactNode(key)) {
-				if (head->mRight && head->mLeft) {
-					Node* min = minNode(head->mRight);
-					injectNodeInstead(head, min);
-					std::swap(head, min);
-					// auto const& newKey = min->key.getFindKey(head->mRight);
-					head->mRight = removeUtil(head->mRight, key);
-				} else if (head->mRight) {
-
-					if (head->mParent) {
-						if (head->mParent->mLeft == head) head->mParent->mLeft = head->mRight;
-						else head->mParent->mRight = head->mRight;
-					}
-
-					head->mRight->mParent = head->mParent;
-
-					auto delNode = head;
-					head = head->mRight;
-					deleteNode(delNode);
-				} else if (head->mLeft) {
-
-					if (head->mParent) {
-						if (head->mParent->mLeft == head) head->mParent->mLeft = head->mLeft;
-						else head->mParent->mRight = head->mLeft;
-					}
-
-					head->mLeft->mParent = head->mParent;
-
-					auto delNode = head;
-					head = head->mLeft;
-					deleteNode(delNode);
-				} else {
-					deleteNode(head);
-					head = nullptr;
-				}
-			} else if (head->key.descentRight(key)) {
-				head->mRight = removeUtil(head->mRight, head->key.keyInRightSubtree(key));
-			} else {
-				head->mLeft = removeUtil(head->mLeft, head->key.keyInLeftSubtree(key));
-			}
-
-			if (head == nullptr) return head;
-
-			head->mHeight = 1 + max(getNodeHeight(head->mRight), getNodeHeight(head->mLeft));
-			alni balance = getNodeHeight(head->mRight) - getNodeHeight(head->mLeft);
-
-			if (balance < -1) {
-				if (getNodeHeight(head->mLeft->mLeft) >= getNodeHeight(head->mLeft->mRight)) {
-					return rotateRight(head);
-				} else {
-					head->mLeft = rotateLeft(head->mLeft);
-					return rotateRight(head);
-				}
-			} else if (balance > 1) {
-				if (getNodeHeight(head->mRight->mRight) >= getNodeHeight(head->mRight->mLeft)) {
-					return rotateLeft(head);
-				} else {
-					head->mRight = rotateRight(head->mRight);
-					return rotateLeft(head);
-				}
-			}
-
-			head->key.updateNodeCache(head);
-
-			return head;
-		}
+		void removeAllUtil(Node* node);
 
 	private:
 		Node* mRoot = nullptr;
 		ualni mSize = 0;
 		Allocator mAlloc;
+
+		static Node gNullNode;
 	};
+
+	template <typename Key, typename Data, class Allocator>
+	AvlTree<Key, Data, Allocator>::Node AvlTree<Key, Data, Allocator>::gNullNode;
 }
+
+#include "AVLTree.ipp"
