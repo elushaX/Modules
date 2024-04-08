@@ -51,7 +51,7 @@ SUITE(IntervalTree) {
 	TEST(FunctionalityScale) {
 
 		const int NUM_TEST_INTERVALS = 1000;
-		const halnf SPAN = 100;
+		const halnf SPAN = 1000;
 
 		Buffer<Interval> pool;
 		IntervalTree<halnf, ualni> intervalTree;
@@ -72,9 +72,9 @@ SUITE(IntervalTree) {
 					idx++;
 				}
 
-				intervalTree.forEachIntersection(testInterval->start, testInterval->end, [&](alni start, ualni end, ualni data) {
-					result.append(data);
-				});
+				intervalTree.forEachIntersection(
+					testInterval->start, testInterval->end, [&](alni start, ualni end, ualni data) { result.append(data); }
+				);
 
 				CHECK(correct.size() == result.size());
 
@@ -270,5 +270,4 @@ SUITE(IntervalTree) {
 
 		CHECK(makeQuery(0, 1).found(2));
 	}
-
 }

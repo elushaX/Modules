@@ -60,7 +60,7 @@ namespace tp {
 	private:
 		template <typename tFunctor>
 		void forEachIntersectionUtil(const Node* node, tType start, tType end, tFunctor functor, ualni& debug) const {
-			if (node == nullptr) return;
+			if (node->mHeight == -1) return; // sentinel node (null node)
 
 			debug++;
 
