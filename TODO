@@ -12,6 +12,10 @@ ALL:
 Modules:
   Remove all static variable into module's data
 
+Algorithms:
+  Implement heap sort, quick sort, bucket sort, counting sort, (radix sort?)
+  Implement order statistics.
+
 Containers:
   Add variant size buffer
   Buffer add resize function
