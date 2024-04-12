@@ -4,7 +4,7 @@ project(RayTracer)
 file(GLOB SOURCES "./private/*.cpp" "./private/*/*.cpp")
 file(GLOB HEADERS "./public/*.hpp" "./public/*/*.hpp" "./applications/*.hpp")
 add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
-target_include_directories(${PROJECT_NAME} PUBLIC ./public/)
+target_include_directories(${PROJECT_NAME} PUBLIC ./public/ ../Externals/)
 target_link_libraries(${PROJECT_NAME} PUBLIC Math Connection)
 
 ### -------------------------- Applications  --------------------------  ###

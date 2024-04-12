@@ -13,14 +13,15 @@ namespace tp {
 		void geom_bind_source(const char* geom_src);
 
 		void compile();
-		
+
 		void bind();
 		uint4 getu(const char* uid);
 		void unbind();
 
+		void load(const char* vert, const char* geom, const char* frag, bool paths);
+
 	private:
 		bool compile_shader(const char* ShaderCode, uint4 ShaderID);
-		void load(const char* vert, const char* geom, const char* frag, bool paths);
 
 	private:
 		uint4 programm;

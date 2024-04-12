@@ -34,7 +34,7 @@ namespace tp {
 
 		Buffer<Vec3F> Points;
 		Buffer<Vec3F> Normals;
-		Buffer<Vec3I> Indexes;
+		Buffer<Vec3<uhalni>> Indexes;
 	};
 
 	struct TopologyCache {

@@ -6,7 +6,7 @@ extern "C" {
 #include "lualib.h"
 }
 
-#include "OBJ_Loader.h"
+#include "obj/OBJ_Loader.h"
 
 #include <filesystem>
 
@@ -32,11 +32,11 @@ bool loadMeshes(tp::Scene& scene, const std::string& objetsPath) {
 		}
 
 		for (int j = 0; j < curMesh.Indices.size(); j += 3) {
-			int idx1 = (int) curMesh.Indices[j];
-			int idx2 = (int) curMesh.Indices[j + 1];
-			int idx3 = (int) curMesh.Indices[j + 2];
+			auto idx1 = (uhalni) curMesh.Indices[j];
+			auto idx2 = (uhalni) curMesh.Indices[j + 1];
+			auto idx3 = (uhalni) curMesh.Indices[j + 2];
 			// printf("{ %i, %i, %i },\n", idx1, idx2, idx3);
-			object->mTopology.Indexes.append(Vec3I{ idx1, idx2, idx3 });
+			object->mTopology.Indexes.append(Vec3<uhalni>{ idx1, idx2, idx3 });
 		}
 
 		if (object->mTopology.Normals.size() != object->mTopology.Points.size()) {
@@ -138,7 +138,6 @@ void loadScene(tp::Scene& scene, const std::string& scenePath, tp::RayTracer::Re
 
 	// Remove the filename from the path
 	fs::path directoryPath = fullPath.remove_filename();
-
 
 	if (luaL_dofile(L, scenePath.c_str()) != 0) {
 		lua_close(L);

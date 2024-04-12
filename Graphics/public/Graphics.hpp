@@ -62,7 +62,7 @@ namespace tp {
 
 		ImageHandle createImageFromTextId(ualni id, Vec2F size);
 		void deleteImageHandle(ImageHandle image);
-		void drawImage(const RectF& rec, ImageHandle* image, halnf angle, halnf alpha, halnf rounding);
+		void drawImage(const RectF& rec, ImageHandle* image, halnf angle = 0, halnf alpha = 1.f, halnf rounding = 0.f);
 
 	private:
 		Buffer<RectF> mScissors;
@@ -71,7 +71,9 @@ namespace tp {
 
 	class Graphics {
 	public:
-		explicit Graphics(Window* window) : mGui(window), mCanvas(window) {}
+		explicit Graphics(Window* window) :
+			mGui(window),
+			mCanvas(window) {}
 
 		void procBegin() {
 			mCanvas.procBegin();
@@ -88,14 +90,12 @@ namespace tp {
 			mGui.drawBegin();
 		}
 
-		void drawEnd() { 
+		void drawEnd() {
 			mCanvas.drawEnd();
 			mGui.drawEnd();
 		}
 
-		Canvas* getCanvas() { 
-			return &mCanvas;
-		}
+		Canvas* getCanvas() { return &mCanvas; }
 
 	private:
 		Canvas mCanvas;

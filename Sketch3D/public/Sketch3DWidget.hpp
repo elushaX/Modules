@@ -9,16 +9,14 @@ namespace tp {
 	class Sketch3DWidget : public Widget<Events, Canvas> {
 	public:
 		Sketch3DWidget(Canvas& canvas, Vec2F renderResolution) :
-			mRenderer(renderResolution) { 
+			mRenderer(renderResolution) {
 			mImage = canvas.createImageFromTextId(mRenderer.getBuff()->texId(), mRenderer.getBuff()->getSize());
 			mCanvas = &canvas;
 
 			mProject.mBackgroundColor = { 0.13f, 0.13f, 0.13f, 1.f };
 		}
 
-		~Sketch3DWidget() { 
-			mCanvas->deleteImageHandle(mImage);
-		}
+		~Sketch3DWidget() { mCanvas->deleteImageHandle(mImage); }
 
 		void proc(const Events& events, const RectF& areaParent, const RectF& area) override {
 
@@ -51,20 +49,24 @@ namespace tp {
 			mProject.mCamera.setRatio(this->mArea.w / this->mArea.z);
 
 			switch (mMode) {
-				case Mode::MOVE: {
+				case Mode::MOVE:
+					{
 						if (mAction) mProject.mCamera.move(relativePos, relativePosPrev);
 						break;
 					}
-				case Mode::ZOOM: {
+				case Mode::ZOOM:
+					{
 						halnf factor = absolutePos.y / mActionPosAbsolutePrev.y;
 						if (mAction) mProject.mCamera.zoom(factor);
 						break;
 					}
-				case Mode::ROTATE: {
+				case Mode::ROTATE:
+					{
 						if (mAction) mProject.mCamera.rotate(-relativeDelta.x * halnf(PI), -relativeDelta.y * halnf(PI));
 						break;
 					}
-				case Mode::DRAW: {
+				case Mode::DRAW:
+					{
 						mProject.sample(events.getPointerPressure(), this->mArea.w / this->mArea.z, crs);
 						break;
 					}
@@ -74,20 +76,15 @@ namespace tp {
 			mActionPosAbsolutePrev = absolutePos;
 		}
 
-		void draw(Canvas& canvas) override {
-			if (!this->mVisible) return;
+		void drawBody(Canvas& canvas) override {
 			mRenderer.renderToTexture(&mProject, this->mArea.size);
 			canvas.drawImage(this->mArea, &mImage, 0, 1, 12);
 		}
 
-		void setColor(const RGBA& color) {
-			((PencilBrush*) mProject.mBrushes.get("pencil"))->mCol = color;
-		}
+		void setColor(const RGBA& color) { ((PencilBrush*) mProject.mBrushes.get("pencil"))->mCol = color; }
 
 	public:
-		enum class Mode {
-			MOVE, ROTATE, ZOOM, DRAW, NONE
-		} mMode = Mode::NONE;
+		enum class Mode { MOVE, ROTATE, ZOOM, DRAW, NONE } mMode = Mode::NONE;
 
 		Vec2F mActionPosAbsolutePrev = { 0, 0 };
 		bool mAction = false;
@@ -102,12 +99,8 @@ namespace tp {
 	template <typename Events, typename Canvas>
 	class Sketch3DGUI : public Widget<Events, Canvas> {
 	public:
-		Sketch3DGUI(Canvas& canvas, Vec2F renderResolution) : mViewport(canvas, renderResolution) {
-			this->createConfig("Sketch3D");
-
-			this->addColor("Background", "Background");
-			this->addValue("Rounding", "Rounding");
-
+		Sketch3DGUI(Canvas& canvas, Vec2F renderResolution) :
+			mViewport(canvas, renderResolution) {
 			mDrawButton = new ButtonWidget<Events, Canvas>("Draw", { 0, 0, 100, 30 });
 			mMoveButton = new ButtonWidget<Events, Canvas>("Pan View", { 0, 0, 100, 30 });
 			mRotateButton = new ButtonWidget<Events, Canvas>("Rotate view", { 0, 0, 100, 30 });
@@ -119,26 +112,22 @@ namespace tp {
 			mOptions.mContents.append(mZoomButton);
 
 			// add color sliders
-			mRed = new NamedSliderWidget < Events, Canvas >("Red");
-			mGreen = new NamedSliderWidget < Events, Canvas >("Green");
-			mBlue = new NamedSliderWidget < Events, Canvas >("Blue");
+			mRed = new NamedSliderWidget<Events, Canvas>("Red");
+			mGreen = new NamedSliderWidget<Events, Canvas>("Green");
+			mBlue = new NamedSliderWidget<Events, Canvas>("Blue");
 
 			mOptions.mContents.append(mRed);
 			mOptions.mContents.append(mGreen);
 			mOptions.mContents.append(mBlue);
 		}
 
-		~Sketch3DGUI() { 
+		~Sketch3DGUI() {
 			for (auto item : mOptions.mContents) {
 				delete item.data();
 			}
 		}
 
-		void proc(const Events& events, const RectF& areaParent, const RectF& area) override {
-			this->mArea = area;
-			this->mVisible = area.isOverlap(areaParent);
-			if (!this->mVisible) return;
-
+		void procBody(const Events& events) override {
 			mSplitView.proc(events, this->mArea, this->mArea);
 			mViewport.proc(events, this->mArea, mSplitView.getFirst());
 			mOptions.proc(events, this->mArea, mSplitView.getSecond());
@@ -156,14 +145,23 @@ namespace tp {
 			mViewport.setColor(RGBA(mRed->mSlider.mFactor, mGreen->mSlider.mFactor, mBlue->mSlider.mFactor, 1.f));
 		}
 
-		void draw(Canvas& canvas) override {
-			if (!this->mVisible) return;
-
-			canvas.rect(this->mArea, this->getColor("Background"), this->getValue("Rounding"));
+		void drawBody(Canvas& canvas) override {
+			canvas.rect(this->mArea, mBackgroundColor, mRounding);
 
 			mSplitView.draw(canvas);
 			mViewport.draw(canvas);
 			mOptions.draw(canvas);
+		}
+
+		void updateConfigCache(WidgetManager& wm) override {
+			wm.setActiveId("Sketch3DGui");
+
+			mBackgroundColor = wm.getColor("Background", "Background");
+			mRounding = wm.getNumber("Rounding", "Rounding");
+
+			mSplitView.updateConfigCache(wm);
+			mOptions.updateConfigCache(wm);
+			mViewport.updateConfigCache(wm);
 		}
 
 	private:
@@ -179,5 +177,8 @@ namespace tp {
 		NamedSliderWidget<Events, Canvas>* mRed = nullptr;
 		NamedSliderWidget<Events, Canvas>* mGreen = nullptr;
 		NamedSliderWidget<Events, Canvas>* mBlue = nullptr;
+
+		RGBA mBackgroundColor;
+		halnf mRounding = 0;
 	};
 }

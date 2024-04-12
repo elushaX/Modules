@@ -3,6 +3,4 @@
 
 #include "Graphics.hpp"
 
-namespace tp {
-	GlobalGUIConfig* gGlobalGUIConfig = nullptr;
-}
+namespace tp {}
