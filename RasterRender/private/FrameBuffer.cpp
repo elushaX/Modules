@@ -5,20 +5,26 @@
 #include <stdio.h>
 
 void glerr(GLenum type) { printf("GL ERROR\n"); }
-#define AssertGL(x) { x; GLenum __gle = glGetError(); if (__gle != GL_NO_ERROR) glerr(__gle); }
+#define AssertGL(x)                         \
+	{                                         \
+		x;                                      \
+		GLenum __gle = glGetError();            \
+		if (__gle != GL_NO_ERROR) glerr(__gle); \
+	}
 
 using namespace tp;
 
 RenderBuffer::RenderBuffer(const Vec2F& size) :
 	mSize(size) {
 
-	mDrawBuffers[0] = {GL_COLOR_ATTACHMENT0};
+	mDrawBuffers[0] = { GL_COLOR_ATTACHMENT0 };
 
 	// --------- texture ---------
 	AssertGL(glGenTextures(1, &mTextureId));
 	AssertGL(glBindTexture(GL_TEXTURE_2D, mTextureId));
 	// Give an empty image to OpenGL ( the last "0" )
-	AssertGL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)size.x, (GLsizei)size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0));
+	AssertGL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei) size.x, (GLsizei) size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0)
+	);
 	// Poor filtering. Needed
 	AssertGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 	AssertGL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -26,7 +32,7 @@ RenderBuffer::RenderBuffer(const Vec2F& size) :
 	// --------- depth ---------
 	AssertGL(glGenRenderbuffers(1, &mDepthBufferID));
 	AssertGL(glBindRenderbuffer(GL_RENDERBUFFER, mDepthBufferID));
-	AssertGL(glRenderbufferStorage(GL_RENDERBUFFER, GLW_CONTEXT_DEPTH_COMPONENT, (GLsizei)size.x, (GLsizei)size.y));
+	AssertGL(glRenderbufferStorage(GL_RENDERBUFFER, GLW_CONTEXT_DEPTH_COMPONENT, (GLsizei) size.x, (GLsizei) size.y));
 
 	// ------------ framebuffer ------------
 	AssertGL(glGenFramebuffers(1, &mFrameBufferID));
@@ -49,18 +55,24 @@ RenderBuffer::RenderBuffer(const Vec2F& size, tp::uint1 samples) :
 	AssertGL(glGenTextures(1, &mTextureId));
 	AssertGL(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, mTextureId));
 #ifdef ENV_OS_ANDROID
-	AssertGL(glTexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGBA, (GLsizei)size.x, (GLsizei)size.y, GL_TRUE));
+	AssertGL(
+		glTexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGBA, (GLsizei) size.x, (GLsizei) size.y, GL_TRUE)
+	);
 #else
-	AssertGL(glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGBA, (GLsizei)size.x, (GLsizei)size.y, GL_TRUE));
+	AssertGL(
+		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGBA, (GLsizei) size.x, (GLsizei) size.y, GL_TRUE)
+	);
 #endif
 	// !?
-	//AssertGL(glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-	//AssertGL(glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+	// AssertGL(glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+	// AssertGL(glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 
 	// ------- depth -------
 	AssertGL(glGenRenderbuffers(1, &mDepthBufferID));
 	AssertGL(glBindRenderbuffer(GL_RENDERBUFFER, mDepthBufferID));
-	AssertGL(glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GLW_CONTEXT_DEPTH_COMPONENT, (GLsizei)size.x, (GLsizei)size.y));
+	AssertGL(glRenderbufferStorageMultisample(
+		GL_RENDERBUFFER, samples, GLW_CONTEXT_DEPTH_COMPONENT, (GLsizei) size.x, (GLsizei) size.y
+	));
 
 	// ------- fbuff -------
 	AssertGL(glGenFramebuffers(1, &mFrameBufferID));
@@ -72,9 +84,7 @@ RenderBuffer::RenderBuffer(const Vec2F& size, tp::uint1 samples) :
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-uint4 RenderBuffer::buffId() const {
-	return mFrameBufferID;
-}
+uint4 RenderBuffer::buffId() const { return mFrameBufferID; }
 
 void RenderBuffer::beginDraw() {
 	AssertGL(glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferID));
@@ -82,7 +92,7 @@ void RenderBuffer::beginDraw() {
 }
 
 void RenderBuffer::setViewport(const RectF& viewport) {
-	AssertGL(glViewport((GLsizei)viewport.x, (GLsizei)viewport.y, (GLsizei)viewport.z, (GLsizei)viewport.w));
+	AssertGL(glViewport((GLsizei) viewport.x, (GLsizei) viewport.y, (GLsizei) viewport.z, (GLsizei) viewport.w));
 }
 
 void RenderBuffer::clear() {
@@ -102,9 +112,6 @@ RenderBuffer::~RenderBuffer() {
 	glDeleteRenderbuffers(1, &mDepthBufferID);
 }
 
-uint4 RenderBuffer::texId() const {
-	return mTextureId;
-}
+uint4 RenderBuffer::texId() const { return mTextureId; }
 
 const Vec2F& RenderBuffer::getSize() const { return mSize; }
-

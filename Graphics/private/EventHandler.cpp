@@ -1,8 +1,6 @@
 
 #include "EventHandler.hpp"
 
-#include <stdio.h>
-
 using namespace tp;
 
 EventHandler::EventHandler() = default;
@@ -35,7 +33,6 @@ bool transitionsReduce[4][4] = {
 	{ true, false, true, true },
 };
 
-
 void EventHandler::processEvent() {
 	mMutex.lock();
 	auto lastEvent = mEventQueue.last();
@@ -45,30 +42,30 @@ void EventHandler::processEvent() {
 
 	switch (eventData.type) {
 		case InputEvent::Type::MOUSE_POS:
-		{
-			mPointer = eventData.mouseEvent;
-			mEventQueue.popFront();
-			break;
-		}
-
-		case InputEvent::Type::BUTTON_ACTION:
-		{
-			auto currentState = (int) mInputStates[(int) inputId].mCurrentState;
-			auto reportedEvent = (int) eventData.buttonAction;
-
-			mInputStates[(int) inputId].mCurrentState = transitions[currentState][reportedEvent];
-
-			if (transitionsReduce[currentState][reportedEvent]) {
+			{
+				mPointer = eventData.mouseEvent;
 				mEventQueue.popFront();
+				break;
 			}
 
-			break;
-		}
+		case InputEvent::Type::BUTTON_ACTION:
+			{
+				auto currentState = (int) mInputStates[(int) inputId].mCurrentState;
+				auto reportedEvent = (int) eventData.buttonAction;
+
+				mInputStates[(int) inputId].mCurrentState = transitions[currentState][reportedEvent];
+
+				if (transitionsReduce[currentState][reportedEvent]) {
+					mEventQueue.popFront();
+				}
+
+				break;
+			}
 
 		default:
-		{
-			mEventQueue.popFront();
-		}
+			{
+				mEventQueue.popFront();
+			}
 	}
 
 	mPointerPressure = mInputStates[(int) InputID::MOUSE1].mCurrentState != InputState::State::NONE;
@@ -78,7 +75,7 @@ void EventHandler::processEvent() {
 
 const Vec2F& EventHandler::getPointer() const { return mPointer; }
 
-bool EventHandler::isPressed(InputID id) const { 
+bool EventHandler::isPressed(InputID id) const {
 	return mInputStates[(int) id].mCurrentState == InputState::State::PRESSED;
 }
 
@@ -86,13 +83,11 @@ bool EventHandler::isReleased(InputID id) const {
 	return mInputStates[(int) id].mCurrentState == InputState::State::RELEASED;
 }
 
-halnf EventHandler::getPointerPressure() const {
-	return mPointerPressure;
-}
+halnf EventHandler::getPointerPressure() const { return mPointerPressure; }
 
 bool EventHandler::isDown(InputID id) const {
-	return mInputStates[(int) id].mCurrentState == InputState::State::PRESSED || 
-		mInputStates[(int) id].mCurrentState == InputState::State::HOLD;
+	return mInputStates[(int) id].mCurrentState == InputState::State::PRESSED ||
+				 mInputStates[(int) id].mCurrentState == InputState::State::HOLD;
 }
 
 halnf EventHandler::getScrollY() const { return 0; }

@@ -7,15 +7,7 @@ namespace tp {
 	template <typename Events, typename Canvas>
 	class UserWidget : public Widget<Events, Canvas> {
 	public:
-		UserWidget() {
-			this->createConfig("User");
-			this->addColor("Base", "Base");
-			this->addValue("Size", "FontSize");
-			this->addValue("Padding", "Padding");
-			this->addColor("ColUser", "Front");
-			this->addColor("Accent", "Accent");
-			this->addValue("Rounding", "Rounding");
-		}
+		UserWidget() = default;
 
 		void proc(const Events& events, const RectF& areaParent, const RectF& aArea) override {
 			this->mArea = aArea;
@@ -28,34 +20,40 @@ namespace tp {
 		void draw(Canvas& canvas) override {
 			if (!this->mVisible) return;
 
-			if (mIsHover) canvas.rect(this->mArea, this->getColor("Accent"), this->getValue("Rounding"));
-			else canvas.rect(this->mArea, this->getColor("Base"), this->getValue("Rounding"));
+			if (mIsHover) canvas.rect(this->mArea, mAccentColor, mRounding);
+			else canvas.rect(this->mArea, mBaseColor, mRounding);
 
-			const auto padding = this->getValue("Padding");
-			const auto size = this->getValue("Size");
-			const auto colUser = this->getColor("ColUser");
+			canvas.text(mUser.c_str(), this->mArea, mFontSize, Canvas::CC, mPadding, mUserColor);
+		}
 
-			canvas.text(mUser.c_str(), this->mArea, size, Canvas::CC, padding, colUser);
+	public:
+		void updateConfigCache(WidgetManager& wm) override {
+			wm.setActiveId("UserWidget");
+
+			mBaseColor = wm.getColor("Base", "Base");
+			mFontSize = wm.getNumber("Size", "FontSize");
+			mPadding = wm.getNumber("Padding", "Padding");
+			mUserColor = wm.getColor("ColUser", "Front");
+			mAccentColor = wm.getColor("Accent", "Accent");
+			mRounding = wm.getNumber("Rounding", "Rounding");
 		}
 
 	public:
 		std::string mUser = "UserName";
 		bool mIsHover = false;
+
+		RGBA mBaseColor;
+		RGBA mUserColor;
+		RGBA mAccentColor;
+		halnf mPadding = 0;
+		halnf mFontSize = 0;
+		halnf mRounding = 0;
 	};
 
 	template <typename Events, typename Canvas>
 	class MessageWidget : public Widget<Events, Canvas> {
 	public:
-		MessageWidget() {
-			this->createConfig("Message");
-			this->addColor("Base", "Base");
-			this->addValue("Size", "FontSize");
-			this->addValue("SizeUser", "FontSizeDim");
-			this->addValue("Padding", "Padding");
-			this->addColor("ColUser", "Front");
-			this->addColor("Col", "FrontDim");
-			this->addValue("Rounding", "Rounding");
-		}
+		MessageWidget() = default;
 
 		void proc(const Events& events, const RectF& areaParent, const RectF& aArea) override {
 			this->mArea = aArea;
@@ -67,14 +65,7 @@ namespace tp {
 
 		void draw(Canvas& canvas) override {
 			if (!this->mVisible) return;
-
-			if (mIsHover) canvas.rect(this->mArea, this->getColor("Base"), this->getValue("Rounding"));
-
-			const auto padding = this->getValue("Padding");
-			const auto size = this->getValue("Size");
-			const auto sizeUser = this->getValue("SizeUser");
-			const auto col = this->getColor("Col");
-			const auto colUser = this->getColor("ColUser");
+			if (mIsHover) canvas.rect(this->mArea, mBaseColor, mRounding);
 
 			auto userName = this->mArea;
 			userName.w = 25;
@@ -83,22 +74,40 @@ namespace tp {
 			content.y = userName.y + userName.w;
 			content.w = this->mArea.w - userName.w;
 
-			canvas.text(mContent.c_str(), content, size, Canvas::LC, padding, col);
-			canvas.text(mUser.c_str(), userName, sizeUser, Canvas::LC, padding, colUser);
+			canvas.text(mContent.c_str(), content, mFontSize, Canvas::LC, mPadding, mUserColorDim);
+			canvas.text(mUser.c_str(), userName, mFontSizeDim, Canvas::LC, mPadding, mUserColor);
+		}
+
+		void updateConfigCache(WidgetManager& wm) override {
+			wm.setActiveId("MessageWidget");
+
+			mBaseColor = wm.getColor("Base", "Base");
+			mFontSize = wm.getNumber("Size", "FontSize");
+			mFontSizeDim = wm.getNumber("SizeUser", "FontSizeDim");
+			mPadding = wm.getNumber("Padding", "Padding");
+			mUserColor = wm.getColor("UserColor", "Front");
+			mUserColorDim = wm.getColor("UserColorDim", "FrontDim");
+			mRounding = wm.getNumber("Rounding", "Rounding");
 		}
 
 	public:
 		std::string mContent = "Message Content";
 		std::string mUser = "UserName";
 		bool mIsHover = false;
+
+		RGBA mBaseColor;
+		RGBA mUserColor;
+		RGBA mUserColorDim;
+		halnf mPadding = 0;
+		halnf mFontSize = 0;
+		halnf mFontSizeDim = 0;
+		halnf mRounding = 0;
 	};
 
 	template <typename Events, typename Canvas>
 	class LoginWidget : public Widget<Events, Canvas> {
 	public:
 		explicit LoginWidget() {
-			this->createConfig("Login");
-			this->addColor("Back", "Background");
 			mPass.mId = "pass";
 			mUser.mId = "user";
 			mButton.mLabel.mLabel = "Login";
@@ -120,10 +129,21 @@ namespace tp {
 		}
 
 		void draw(Canvas& canvas) override {
-			canvas.rect(this->mArea, this->getColor("Back"));
+			canvas.rect(this->mArea, mBGColor);
 			mButton.draw(canvas);
 			mUser.draw(canvas);
 			mPass.draw(canvas);
+		}
+
+	public:
+		void updateConfigCache(WidgetManager& wm) override {
+			wm.setActiveId("LoginWidget");
+
+			mBGColor = wm.getColor("Back", "Base");
+
+			mUser.updateConfigCache(wm);
+			mPass.updateConfigCache(wm);
+			mButton.updateConfigCache(wm);
 		}
 
 	public:
@@ -131,15 +151,14 @@ namespace tp {
 		TextInputWidget<Events, Canvas> mPass;
 		ButtonWidget<Events, Canvas> mButton;
 		bool mLogged = false;
+
+		RGBA mBGColor;
 	};
 
 	template <typename Events, typename Canvas>
 	class ActiveChatWidget : public Widget<Events, Canvas> {
 	public:
 		ActiveChatWidget() {
-			this->createConfig("ActiveChat");
-			this->addColor("Back", "Background");
-			this->addValue("Padding", "Padding");
 			mSend.mLabel.mLabel = "Send";
 			mMessage.mId = "Message";
 		}
@@ -152,16 +171,16 @@ namespace tp {
 
 			auto input = this->mArea;
 			input.y = history.w + 10;
-			input.w = 40 - this->getValue("Padding");
-			input.x += this->getValue("Padding");
-			input.z -= this->getValue("Padding");
+			input.w = 40 - mPadding;
+			input.x += mPadding;
+			input.z -= mPadding;
 
 			auto inputMessage = input;
 			inputMessage.z -= 100;
 
 			auto inputSend = input;
-			inputSend.x = inputMessage.x + inputMessage.z + this->getValue("Padding");
-			inputSend.z = 100 - this->getValue("Padding") * 2;
+			inputSend.x = inputMessage.x + inputMessage.z + mPadding;
+			inputSend.z = 100 - mPadding * 2;
 
 			mSend.proc(events, this->mArea, inputSend);
 			mMessage.proc(events, this->mArea, inputMessage);
@@ -174,10 +193,25 @@ namespace tp {
 		}
 
 		void draw(Canvas& canvas) override {
-			canvas.rect(this->mArea, this->getColor("Back"));
+			canvas.rect(this->mArea, mBGColor);
 			mHistoryView.draw(canvas);
 			mMessage.draw(canvas);
 			mSend.draw(canvas);
+		}
+
+		void updateConfigCache(WidgetManager& wm) override {
+			wm.setActiveId("ActiveChat");
+
+			mBGColor = wm.getColor("Back", "Background");
+			mPadding = wm.getNumber("Padding", "Padding");
+
+			mHistoryView.updateConfigCache(wm);
+			mMessage.updateConfigCache(wm);
+			mSend.updateConfigCache(wm);
+
+			for (auto message : mMessages) {
+				message->updateConfigCache(wm);
+			}
 		}
 
 	public:
@@ -185,16 +219,15 @@ namespace tp {
 		ScrollableWindow<Events, Canvas> mHistoryView;
 		TextInputWidget<Events, Canvas> mMessage;
 		ButtonWidget<Events, Canvas> mSend;
+
+		RGBA mBGColor;
+		halnf mPadding = 0;
 	};
 
 	template <typename Events, typename Canvas>
 	class ChattingWidget : public Widget<Events, Canvas> {
 	public:
 		ChattingWidget() {
-			this->createConfig("Chatting");
-			this->addColor("Back", "Background");
-			this->addValue("Padding", "Padding");
-
 			// todo :  fetch code
 			mUsers.append(UserWidget<Events, Canvas>());
 			mUsers.append(UserWidget<Events, Canvas>());
@@ -225,18 +258,29 @@ namespace tp {
 			this->mArea = aArea;
 
 			mSplitView.proc(events, aArea, aArea);
-
-			const auto padding = this->getValue("Padding");
 			mSideView.proc(events, this->mArea, mSplitView.getSecond());
-
 			mActive.proc(events, aArea, mSplitView.getFirst());
 		}
 
 		void draw(Canvas& canvas) override {
-			canvas.rect(this->mArea, this->getColor("Back"));
+			canvas.rect(this->mArea, mBGColor);
 			mSplitView.draw(canvas);
 			mSideView.draw(canvas);
 			mActive.draw(canvas);
+		}
+
+		void updateConfigCache(WidgetManager& wm) override {
+			wm.setActiveId("ChattingWidget");
+
+			mBGColor = wm.getColor("Back", "Background");
+
+			mSideView.updateConfigCache(wm);
+			mActive.updateConfigCache(wm);
+			mSplitView.updateConfigCache(wm);
+
+			for (auto user : mUsers) {
+				user->updateConfigCache(wm);
+			}
 		}
 
 	public:
@@ -244,15 +288,14 @@ namespace tp {
 		ScrollableWindow<Events, Canvas> mSideView;
 		ActiveChatWidget<Events, Canvas> mActive;
 		SplitView<Events, Canvas> mSplitView;
+
+		RGBA mBGColor;
 	};
 
 	template <typename Events, typename Canvas>
 	class ComplexWidget : public Widget<Events, Canvas> {
 	public:
-		ComplexWidget() {
-			this->createConfig("chat");
-			this->addColor("Back", "Background");
-		}
+		ComplexWidget() = default;
 
 		void proc(const Events& events, const RectF& areaParent, const RectF& aArea) override {
 			this->mArea = aArea;
@@ -268,14 +311,25 @@ namespace tp {
 		}
 
 		void draw(Canvas& canvas) override {
-			canvas.rect(this->mArea, this->getColor("Back"));
+			canvas.rect(this->mArea, mBGColor);
 			if (mLogged) mChatting.draw(canvas);
 			else mLogin.draw(canvas);
+		}
+
+		void updateConfigCache(WidgetManager& wm) override {
+			wm.setActiveId("ChatGui");
+
+			mBGColor = wm.getColor("Back", "Background");
+
+			mLogin.updateConfigCache(wm);
+			mChatting.updateConfigCache(wm);
 		}
 
 	private:
 		bool mLogged = false;
 		LoginWidget<Events, Canvas> mLogin;
 		ChattingWidget<Events, Canvas> mChatting;
+
+		RGBA mBGColor;
 	};
 }

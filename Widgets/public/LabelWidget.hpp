@@ -6,33 +6,26 @@ namespace tp {
 	template <typename Events, typename Canvas>
 	class LabelWidget : public Widget<Events, Canvas> {
 	public:
-		LabelWidget() {
-			this->createConfig("Label");
-			this->addValue("Size", "FontSize");
-			this->addValue("Padding", "Padding");
-			this->addColor("Default", "Front");
+		LabelWidget() = default;
+
+		void drawBody(Canvas& canvas) override {
+			canvas.text(mLabel.c_str(), this->mArea, fontSize, Canvas::CC, padding, fontColor);
 		}
 
-		void proc(const Events& events, const tp::RectF& areaParent, const tp::RectF& aArea) override {
-			this->mArea = aArea;
-			this->mVisible = areaParent.isOverlap(aArea);
-			if (!this->mVisible) return;
-		}
+	public:
+		void updateConfigCache(WidgetManager& wm) override {
+			wm.setActiveId("Label");
 
-		void draw(Canvas& canvas) override {
-			if (!this->mVisible) return;
-
-			canvas.text(
-				mLabel.c_str(),
-				this->mArea,
-				this->getValue("Size"),
-				Canvas::CC,
-				this->getValue("Padding"),
-				this->getColor("Default")
-			);
+			fontSize = wm.getNumber("Size", "FontSize");
+			padding = wm.getNumber("Padding", "Padding");
+			fontColor = wm.getColor("Default", "Front");
 		}
 
 	public:
 		std::string mLabel = "Label";
+
+		halnf fontSize = 10;
+		halnf padding = 0;
+		RGBA fontColor = { 1, 1, 1, 1 };
 	};
 }

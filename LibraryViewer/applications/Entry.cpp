@@ -18,7 +18,8 @@ using namespace tp;
 
 class LibraryViewer : public Application {
 public:
-	LibraryViewer() : gui(&library, &player) {
+	LibraryViewer() :
+		gui(&library, &player) {
 		library.loadJson(getHome() + "Library.json");
 		library.checkExisting();
 
@@ -27,22 +28,22 @@ public:
 
 	void processFrame(EventHandler* eventHandler) override {
 		auto rec = RectF{ { 0, 0 }, mWindow->getSize() };
+
+		gui.updateConfigCache(mWidgetManager);
 		gui.proc(*eventHandler, rec, rec);
 	}
 
-	void drawFrame(Canvas* canvas) override {
-		gui.draw(*canvas);
-	}
+	void drawFrame(Canvas* canvas) override { gui.draw(*canvas); }
 
 private:
 	Player player;
 	Library library;
+
+	tp::WidgetManager mWidgetManager;
 	LibraryWidget<EventHandler, Canvas> gui;
 };
 
 int main() {
-	tp::GlobalGUIConfig config;
-	tp::gGlobalGUIConfig = &config;
 
 	LibraryViewer lib;
 	lib.run();

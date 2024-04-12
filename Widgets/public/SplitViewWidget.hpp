@@ -6,24 +6,9 @@ namespace tp {
 	template <typename Events, typename Canvas>
 	class SplitView : public Widget<Events, Canvas> {
 	public:
-		SplitView() {
-			this->createConfig("SplitView");
-			this->addColor("Handle", "Accent");
-			this->addColor("Hovered", "Interaction");
-			this->addColor("Resizing", "Action");
-			this->addValue("Min", 200.f);
-			this->addValue("HandleSize", 7.f);
-		}
+		SplitView() = default;
 
-		void proc(const Events& events, const tp::RectF& areaParent, const tp::RectF& aArea) override {
-			this->mArea = aArea;
-			this->mVisible = areaParent.isOverlap(aArea);
-
-			if (!this->mVisible) {
-				mResizeInProcess = false;
-				return;
-			}
-
+		void procBody(const Events& events) override {
 			mIsHover = getHandle().isInside(events.getPointer());
 
 			if (events.isPressed(InputID::MOUSE1) && mIsHover) {
@@ -38,45 +23,55 @@ namespace tp {
 				mFactor += diff / this->mArea.z;
 			}
 
-			mFactor = tp::clamp(mFactor, this->getValue("Min") / this->mArea.z, 1 - this->getValue("Min") / this->mArea.z);
+			mFactor = tp::clamp(mFactor, mMinSize / this->mArea.z, 1 - mMinSize / this->mArea.z);
 
-			if (this->getValue("Min") * 2.f > this->mArea.z) {
+			if (mMinSize * 2.f > this->mArea.z) {
 				mFactor = 0.5f;
 			}
 		}
 
 		// takes whole area
-		void draw(Canvas& canvas) override {
-			if (!this->mVisible) return;
-
-			if (mResizeInProcess) canvas.rect(getHandle(), this->getColor("Resizing"));
-			else if (mIsHover) canvas.rect(getHandle(), this->getColor("Hovered"));
-			else canvas.rect(getHandle(), this->getColor("Handle"));
+		void drawBody(Canvas& canvas) override {
+			if (mResizeInProcess) canvas.rect(getHandle(), mResizingColor);
+			else if (mIsHover) canvas.rect(getHandle(), mHoveredColor);
+			else canvas.rect(getHandle(), mHandleColor);
 		}
 
 		RectF getFirst() const {
-			return {
-				this->mArea.x, this->mArea.y, mFactor * this->mArea.z - this->getValue("HandleSize") / 2.f, this->mArea.w
-			};
+			return { this->mArea.x, this->mArea.y, mFactor * this->mArea.z - mHandleSize / 2.f, this->mArea.w };
 		}
 
 		RectF getSecond() const {
-			return { this->mArea.x + mFactor * this->mArea.z + this->getValue("HandleSize") / 2.f,
+			return { this->mArea.x + mFactor * this->mArea.z + mHandleSize / 2.f,
 							 this->mArea.y,
-							 (1.f - mFactor) * this->mArea.z - this->getValue("HandleSize") / 2.f,
+							 (1.f - mFactor) * this->mArea.z - mHandleSize / 2.f,
 							 this->mArea.w };
 		}
 
 		RectF getHandle() const {
-			return { this->mArea.x + mFactor * this->mArea.z - this->getValue("HandleSize") / 2.f,
-							 this->mArea.y,
-							 this->getValue("HandleSize"),
-							 this->mArea.w };
+			return { this->mArea.x + mFactor * this->mArea.z - mHandleSize / 2.f, this->mArea.y, mHandleSize, this->mArea.w };
+		}
+
+	public:
+		void updateConfigCache(WidgetManager& wm) override {
+			wm.setActiveId("SplitView");
+
+			mHandleColor = wm.getColor("Handle", "Accent");
+			mHoveredColor = wm.getColor("Hovered", "Interaction");
+			mResizingColor = wm.getColor("Resizing", "Action");
+			mMinSize = wm.getNumber("Min", 200.f);
+			mHandleSize = wm.getNumber("HandleSize", 7.f);
 		}
 
 	public:
 		halnf mFactor = 0.7f;
 		bool mResizeInProcess = false;
 		bool mIsHover = false;
+
+		RGBA mHandleColor;
+		RGBA mHoveredColor;
+		RGBA mResizingColor;
+		halnf mMinSize = 0;
+		halnf mHandleSize = 0;
 	};
 }

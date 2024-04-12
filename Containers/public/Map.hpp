@@ -11,7 +11,12 @@ namespace tp {
 		return hash(key);
 	}
 
-	template <typename tKey, typename tVal, class tAllocator = DefaultAllocator, ualni (*tHashFunc)(SelectValueOrReference<tKey>) = DefaultHashFunc<tKey>, int tTableInitialSize = 4>
+	template <
+		typename tKey,
+		typename tVal,
+		class tAllocator = DefaultAllocator,
+		ualni (*tHashFunc)(SelectValueOrReference<tKey>) = DefaultHashFunc<tKey>,
+		int tTableInitialSize = 4>
 	class Map {
 
 		enum {
@@ -223,6 +228,13 @@ namespace tp {
 			return mTable[slot]->val;
 		}
 
+		tVal& operator[](KeyArg key) {
+			auto idx = presents(key);
+			if (idx.isValid()) return getSlotVal(idx);
+			put(key, {});
+			return get(key);
+		}
+
 		tVal& getSlotVal(ualni slot) {
 			DEBUG_ASSERT(slot < mNSlots && (mTable[slot] && !isDeletedNode(mTable[slot])) && "Key Error")
 			return mTable[slot]->val;
@@ -242,7 +254,7 @@ namespace tp {
 			if (this == &in) {
 				return *this;
 			}
-			
+
 			for (ualni i = 0; i < mNSlots; i++) {
 				if (mTable[i] && !isDeletedNode(mTable[i])) {
 					deleteNode(mTable[i]);

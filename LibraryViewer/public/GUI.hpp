@@ -18,15 +18,10 @@ namespace tp {
 			col.mColor.setNoTransition({ 0.15f, 0.15f, 0.15f, 0.f });
 		};
 
-		void proc(const Events& events, const RectF& areaParent, const RectF& area) override {
+		void procBody(const Events& events) override {
 			mSelected = false;
-			this->mArea = area;
-			this->mVisible = area.isOverlap(areaParent);
-			if (!this->mVisible) return;
-
 			if (!mTrack) return;
-			if (!areaParent.isOverlap(area)) return;
-			if (area.isInside(events.getPointer())) {
+			if (this->mArea.isInside(events.getPointer())) {
 				col.set({ 0.15f, 0.15f, 0.15f, 1.f });
 				mSelected = events.isReleased(InputID::MOUSE1);
 			} else {
@@ -34,8 +29,7 @@ namespace tp {
 			}
 		}
 
-		void draw(Canvas& canvas) override {
-			if (!this->mVisible) return;
+		void drawBody(Canvas& canvas) override {
 			if (!mTrack) return;
 
 			canvas.rect(this->mArea, col.get(), 4.f);
@@ -82,16 +76,7 @@ namespace tp {
 			items.append({ "Date Last Played" });
 		}
 
-		void proc(const Events&, const RectF& areaParent, const RectF& area) override {
-			this->mArea = area;
-			this->mVisible = area.isOverlap(areaParent);
-			if (!this->mVisible) return;
-			if (!mTrack) return;
-			// renderUI();
-		}
-
-		void draw(Canvas&) override {
-			if (!this->mVisible) return;
+		void drawBody(Canvas&) override {
 			if (!mTrack) return;
 			// canvas.rect(this->mArea, { 0.13f, 0.13f, 0.13f, 1.f }, 4.f);
 			renderUI();
@@ -220,11 +205,7 @@ namespace tp {
 			}
 		}
 
-		void proc(const Events& events, const RectF& areaParent, const RectF& aArea) override {
-			this->mArea = aArea;
-			this->mVisible = this->mArea.isOverlap(areaParent);
-			if (!this->mVisible) return;
-
+		void procBody(const Events& events) override {
 			filter();
 
 			mSplitView.proc(events, this->mArea, this->mArea);
@@ -242,9 +223,7 @@ namespace tp {
 			// mCurrentTrack.proc(events, this->mArea, mSplitView.getFirst());
 		}
 
-		void draw(Canvas& canvas) override {
-			if (!this->mVisible) return;
-
+		void drawBody(Canvas& canvas) override {
 			canvas.rect(this->mArea, { 0.1f, 0.1f, 0.1f, 1.f });
 
 			mSplitView.draw(canvas);
@@ -281,6 +260,14 @@ namespace tp {
 			}
 
 			mCurrentTrackInfo.isSongFilterChanged = false;
+		}
+
+		void updateConfigCache(WidgetManager& wm) override {
+			wm.setActiveId("LibraryWidget");
+			mSplitView.updateConfigCache(wm);
+			mCurrentTrack.updateConfigCache(wm);
+			mCurrentTrackInfo.updateConfigCache(wm);
+			mSongList.updateConfigCache(wm);
 		}
 
 	private:
