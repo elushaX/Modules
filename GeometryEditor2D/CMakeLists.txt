@@ -1,4 +1,4 @@
-project(Sketch3D)
+project(GeometryEditor2D)
 
 ### ---------------------- Externals  ---------------------  ###
 set(BINDINGS_INCLUDE ../Externals/glfw/include)
@@ -15,8 +15,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Graphics Connection Widgets Math Ra
 target_link_libraries(${PROJECT_NAME} PUBLIC ${BINDINGS_LIBS})
 
 ### -------------------------- Applications  --------------------------  ###
-add_executable(Sketch3DApp ./applications/Entry.cpp)
-target_link_libraries(Sketch3DApp ${PROJECT_NAME})
+add_executable(geomEdit2d ./applications/Entry.cpp)
+target_link_libraries(geomEdit2d ${PROJECT_NAME})
 
 file(COPY "rsc" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
-file(COPY "applications/Font.ttf" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
+file(COPY "rsc/Font.ttf" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")

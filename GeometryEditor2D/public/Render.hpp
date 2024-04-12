@@ -1,0 +1,23 @@
+#pragma once
+
+#include "Geometry.hpp"
+#include "Rect.hpp"
+
+#include "FrameBuffer.hpp"
+#include "Shader.hpp"
+
+namespace tp {
+	class Render {
+	public:
+		explicit Render(Vec2F renderResolution);
+		~Render();
+
+		void render(const Geometry& geometry, Vec2F size);
+		uint4 getRenderBuffer();
+		Vec2F getBufferSize();
+
+	private:
+		RenderBuffer mRenderBuffer;
+		RenderShader mDefaultShader;
+	};
+}
