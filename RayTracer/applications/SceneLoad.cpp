@@ -6,7 +6,7 @@ extern "C" {
 #include "lualib.h"
 }
 
-#include "OBJ_Loader.h"
+#include "obj/OBJ_Loader.h"
 
 #include <filesystem>
 
@@ -138,7 +138,6 @@ void loadScene(tp::Scene& scene, const std::string& scenePath, tp::RayTracer::Re
 
 	// Remove the filename from the path
 	fs::path directoryPath = fullPath.remove_filename();
-
 
 	if (luaL_dofile(L, scenePath.c_str()) != 0) {
 		lua_close(L);

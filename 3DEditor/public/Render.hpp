@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Geometry.hpp"
+#include "Scene.hpp"
 #include "Rect.hpp"
 
 #include "FrameBuffer.hpp"
@@ -12,7 +12,7 @@ namespace tp {
 		explicit Render(Vec2F renderResolution);
 		~Render();
 
-		void render(const Geometry& geometry, Vec2F size);
+		void render(const Scene& geometry, Vec2F size);
 		uint4 getRenderBuffer();
 		Vec2F getBufferSize();
 

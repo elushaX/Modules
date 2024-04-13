@@ -1,7 +1,7 @@
-project(GeometryEditor2D)
+project(3DEditor)
 
 ### ---------------------- Externals  ---------------------  ###
-set(BINDINGS_INCLUDE ../Externals/glfw/include)
+set(BINDINGS_INCLUDE ../Externals/glfw/include ../Externals)
 set(BINDINGS_LIBS glfw Imgui)
 
 ### ---------------------- Static Library  ---------------------  ###
@@ -15,8 +15,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Graphics Connection Widgets Math Ra
 target_link_libraries(${PROJECT_NAME} PUBLIC ${BINDINGS_LIBS})
 
 ### -------------------------- Applications  --------------------------  ###
-add_executable(geomEdit2d ./applications/Entry.cpp)
-target_link_libraries(geomEdit2d ${PROJECT_NAME})
+add_executable(edit3d ./applications/Entry.cpp ./applications/SceneLoad.cpp)
+target_link_libraries(edit3d ${PROJECT_NAME} Lua ImageIO)
 
 file(COPY "rsc" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
 file(COPY "rsc/Font.ttf" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")

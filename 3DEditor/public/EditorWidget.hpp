@@ -5,8 +5,9 @@ namespace tp {
 	template <typename Events, typename Canvas>
 	class ViewportWidget : public Widget<Events, Canvas> {
 	public:
-		explicit ViewportWidget(Canvas* canvas, Geometry* geometry, Vec2F renderResolution) :
+		explicit ViewportWidget(Canvas* canvas, Scene* geometry, Vec2F renderResolution) :
 			mRender(renderResolution) {
+			mGeometry = geometry;
 			this->createConfig("ViewportWidget");
 			mImage = canvas->createImageFromTextId(mRender.getRenderBuffer(), mRender.getBufferSize());
 			mCanvas = canvas;
@@ -19,18 +20,19 @@ namespace tp {
 			this->mVisible = areaParent.isOverlap(aArea);
 			if (!this->mVisible) return;
 
-			mRender.render(*mGeometry, this->mArea.size);
+			mGeometry->mCamera.rotate(0.01f, 0.0);
 		}
 
 		void draw(Canvas& canvas) override {
 			if (!this->mVisible) return;
 
-			canvas.drawImage(this->mArea, &mImage);
+			mRender.render(*mGeometry, this->mArea.size);
+			canvas.drawImage(this->mArea, &mImage, PI);
 		}
 
 	public:
 		Render mRender;
-		Geometry* mGeometry = nullptr;
+		Scene* mGeometry = nullptr;
 		Canvas* mCanvas = nullptr;
 		Canvas::ImageHandle mImage;
 	};
@@ -38,7 +40,7 @@ namespace tp {
 	template <typename Events, typename Canvas>
 	class EditorWidget : public Widget<Events, Canvas> {
 	public:
-		EditorWidget(Canvas* canvas, Geometry* geometry, Vec2F renderResolution) :
+		EditorWidget(Canvas* canvas, Scene* geometry, Vec2F renderResolution) :
 			mViewport(canvas, geometry, renderResolution) {
 			this->createConfig("EditorWidget");
 			this->addColor("Base", "Base");
