@@ -12,8 +12,10 @@ public:
 	EditorGUI() {
 		Vec2F renderResolution = { 1000, 1000 };
 		auto canvas = this->mGraphics->getCanvas();
-		mGui = new EditorWidget<EventHandler, Canvas>(canvas, &geometry, renderResolution);
+		// mGui = new EditorWidget<EventHandler, Canvas>(canvas, &geometry, renderResolution);
 
+		mGui = new ShortcutsTest<EventHandler, Canvas>();
+			
 		loadMeshes(geometry, "rsc/scene.obj");
 
 		geometry.mCamera.lookAtPoint({ 0, 0, 0 }, { 3, 3, 2 }, { 0, 0, 1 });
@@ -30,15 +32,10 @@ public:
 
 private:
 	Scene geometry;
-	EditorWidget<EventHandler, Canvas>* mGui;
+	ShortcutsTest<EventHandler, Canvas>* mGui;
 };
 
 int main() {
-	GlobalGUIConfig mConfig;
-	gGlobalGUIConfig = &mConfig;
-
-	{
-		EditorGUI gui;
-		gui.run();
-	}
+	EditorGUI gui;
+	gui.run();
 }
