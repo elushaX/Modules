@@ -15,8 +15,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Graphics Connection Widgets Math Ra
 target_link_libraries(${PROJECT_NAME} PUBLIC ${BINDINGS_LIBS})
 
 ### -------------------------- Applications  --------------------------  ###
-add_executable(edit3d ./applications/Entry.cpp ./applications/SceneLoad.cpp)
-target_link_libraries(edit3d ${PROJECT_NAME} Lua ImageIO)
+add_executable(3DEditorApp ./applications/Entry.cpp ./applications/SceneLoad.cpp)
+target_link_libraries(3DEditorApp ${PROJECT_NAME} Lua ImageIO)
 
 file(COPY "rsc" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
 file(COPY "rsc/Font.ttf" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")

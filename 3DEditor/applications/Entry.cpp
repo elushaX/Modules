@@ -15,7 +15,7 @@ public:
 		// mGui = new EditorWidget<EventHandler, Canvas>(canvas, &geometry, renderResolution);
 
 		mGui = new ShortcutsTest<EventHandler, Canvas>();
-			
+
 		loadMeshes(geometry, "rsc/scene.obj");
 
 		geometry.mCamera.lookAtPoint({ 0, 0, 0 }, { 3, 3, 2 }, { 0, 0, 1 });
@@ -24,6 +24,7 @@ public:
 	~EditorGUI() override { delete mGui; }
 
 	void processFrame(EventHandler* eventHandler) override {
+
 		auto rec = RectF({ 0, 0 }, mWindow->getSize());
 		mGui->proc(*eventHandler, rec, rec);
 	}
