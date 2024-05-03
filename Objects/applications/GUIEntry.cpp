@@ -6,9 +6,9 @@
 using namespace tp;
 using namespace obj;
 
-class ExampleGUI : public Application {
+class SimpleGUI : public Application {
 public:
-	ExampleGUI() { gui.cd(objects_api::create<DictObject>(), "root"); }
+	SimpleGUI() { gui.cd(objects_api::create<DictObject>(), "root"); }
 
 	void processFrame(EventHandler* eventHandler) override {}
 
@@ -28,7 +28,7 @@ int main() {
 
 	if (module.initialize()) {
 		{
-			ExampleGUI gui;
+			SimpleGUI gui;
 			gui.run();
 		}
 		module.deinitialize();

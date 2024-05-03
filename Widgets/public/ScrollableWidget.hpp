@@ -8,17 +8,7 @@ namespace tp {
 	template <typename Events, typename Canvas>
 	class ScrollBarWidget : public Widget<Events, Canvas> {
 	public:
-		ScrollBarWidget() {
-			this->createConfig("ScrollBar");
-			this->addColor("Default", "Base");
-			this->addColor("Handle", "Accent");
-			this->addColor("Hovered", "Interaction");
-			this->addColor("Scrolling", "Action");
-			this->addValue("Padding", "Padding");
-			this->addValue("HandleSize", 20.f);
-			this->addValue("MinSize", 20.f);
-			this->addValue("Rounding", "Rounding");
-		}
+		ScrollBarWidget() { this->mId = "ScrollBar"; }
 
 		// takes whole area
 		void proc(const Events& events, const tp::RectF& areaParent, const tp::RectF& aArea) override {
@@ -79,28 +69,22 @@ namespace tp {
 			if (mSizeFraction > 1.f) return;
 			// if (!areaParent.isOverlap(getHandle())) return;
 
-			tp::RGBA col = this->getColor("Handle");
+			tp::RGBA col = mHandleColor;
 
 			if (mIsScrolling) {
-				col = this->getColor("Scrolling");
+				col = mScrollingColor;
 			} else if (mHovered) {
-				col = this->getColor("Hovered");
+				col = mHoveredColor;
 			}
 
-			canvas.rect(area, this->getColor("Default"), this->getValue("Rounding"));
+			canvas.rect(area, mDefaultColor, mRounding);
 
-			canvas.rect(getHandleHandle(), col, this->getValue("Rounding"));
+			canvas.rect(getHandleHandle(), col, mRounding);
 		}
 
 		RectF getHandleHandle() const {
-			auto minSize = this->getValue("MinSize");
-			if (mIsScrolling) {
-				minSize = this->getValue("MinSize") * 2;
-			} else if (mHovered) {
-				minSize = this->getValue("MinSize") * 2;
-			}
 			auto area = getHandle();
-			auto sliderSize = tp::clamp(area.w * mSizeFraction, minSize, area.w);
+			auto sliderSize = tp::clamp(area.w * mSizeFraction, mMinSize * 2, area.w);
 			auto diffSize = sliderSize - area.w * mSizeFraction;
 			return { area.x, area.y + (area.w - diffSize) * mPositionFraction, area.z, sliderSize };
 		}
@@ -109,14 +93,39 @@ namespace tp {
 			if (mSizeFraction > 1.f) {
 				return this->mArea;
 			}
-			return { this->mArea.x, this->mArea.y, this->mArea.z - this->getValue("HandleSize"), this->mArea.w };
+			return { this->mArea.x, this->mArea.y, this->mArea.z - mHandleSize, this->mArea.w };
 		}
 
 		RectF getHandle() const {
-			return { this->mArea.x + this->mArea.z - this->getValue("HandleSize") + this->getValue("Padding"),
-							 this->mArea.y + this->getValue("Padding"),
-							 this->getValue("HandleSize") - this->getValue("Padding") * 2,
-							 this->mArea.w - this->getValue("Padding") * 2 };
+			return { this->mArea.x + this->mArea.z - mHandleSize + mPadding,
+							 this->mArea.y + mPadding,
+							 mHandleSize - mPadding * 2,
+							 this->mArea.w - mPadding * 2 };
+		}
+
+	public:
+		void setupConfig(WidgetManager& wm) {
+			if (!wm.createWidgetConfig(this->mId)) return;
+
+			wm.addReference(this->mId, "Default", "Base");
+			wm.addReference(this->mId, "Handle", "Accent");
+			wm.addReference(this->mId, "Hovered", "Interaction");
+			wm.addReference(this->mId, "Scrolling", "Action");
+			wm.addReference(this->mId, "Padding", "Padding");
+			wm.addNumber(this->mId, "HandleSize", 20.f);
+			wm.addNumber(this->mId, "MinSize", 20.f);
+			wm.addReference(this->mId, "Rounding", "Rounding");
+		}
+
+		void updateConfigCache(const WidgetManager& wm) override {
+			mDefaultColor = wm.getColor(this->mId, "Default");
+			mHandleColor = wm.getColor(this->mId, "Handle");
+			mHoveredColor = wm.getColor(this->mId, "Hovered");
+			mScrollingColor = wm.getColor(this->mId, "Scrolling");
+			mPadding = wm.getNumber(this->mId, "Padding");
+			mHandleSize = wm.getNumber(this->mId, "HandleSize");
+			mMinSize = wm.getNumber(this->mId, "MinSize");
+			mRounding = wm.getNumber(this->mId, "Rounding");
 		}
 
 	public:
@@ -126,16 +135,21 @@ namespace tp {
 		halnf mSizeFraction = 1.f;
 		halnf mPositionFraction = 0.f;
 		bool mHovered = false;
+
+		RGBA mDefaultColor;
+		RGBA mHandleColor;
+		RGBA mHoveredColor;
+		RGBA mScrollingColor;
+		halnf mPadding = 0;
+		halnf mHandleSize = 10;
+		halnf mMinSize = 10;
+		halnf mRounding = 10;
 	};
 
 	template <typename Events, typename Canvas>
 	class ScrollableWindow : public Widget<Events, Canvas> {
 	public:
-		ScrollableWindow() {
-			this->createConfig("ScrollableWindow");
-			this->addColor("Default", "Base");
-			this->addValue("Padding", "Padding");
-		}
+		ScrollableWindow() { this->mId = "ScrollableWindow"; }
 
 		~ScrollableWindow() = default;
 
@@ -148,7 +162,7 @@ namespace tp {
 			updateContents();
 			updateContentSize();
 
-			const auto padding = this->getValue("Padding");
+			const auto padding = mPadding;
 
 			mScroller.mSizeFraction = this->mArea.w / mContentSize;
 			mScroller.proc(events, this->mArea, this->mArea);
@@ -180,16 +194,37 @@ namespace tp {
 			canvas.popClamp();
 		}
 
+	public:
+		void setupConfig(WidgetManager& wm) {
+			if (!wm.createWidgetConfig(this->mId)) return;
+
+			wm.addReference(this->mId, "Default", "Base");
+			wm.addReference(this->mId, "Padding", "Padding");
+			wm.addReference(this->mId, "Rounding", "Rounding");
+
+			mScroller.setupConfig(wm);
+		}
+
+		void updateConfigCache(const WidgetManager& wm) override {
+			mDefaultColor = wm.getColor(this->mId, "Default");
+			mPadding = wm.getNumber(this->mId, "Padding");
+
+			mScroller.updateConfigCache(wm);
+
+			for (auto item : mContents) {
+				item->updateConfigCache(wm);
+			}
+		}
+
 	private:
 		void updateContents() {
 			if (mContents.size()) {
-				const auto padding = this->getValue("Padding");
-				const halnf offset = mContents.first()->mArea.y + padding;
+				const halnf offset = mContents.first()->mArea.y + mPadding;
 
 				halnf start = 0;
 				for (auto widget : mContents) {
 					widget->mArea.y = start;
-					start += widget->mArea.w + padding;
+					start += widget->mArea.w + mPadding;
 				}
 
 				for (auto widget : mContents) {
@@ -201,17 +236,15 @@ namespace tp {
 		void updateContentSize() {
 			mContentSize = 0;
 			if (mContents.size()) {
-				const auto padding = this->getValue("Padding");
 				mContentSize = mContents.last()->mArea.y - mContents.first()->mArea.y;
 				mContentSize += mContents.last()->mArea.w;
-				mContentSize += 2 * padding;
+				mContentSize += 2 * mPadding;
 			}
 		}
 
 		void setOffset(const halnf offset) {
 			if (!mContents.size()) return;
-			const auto padding = this->getValue("Padding");
-			auto newOffset = offset - mContents.first()->mArea.y + padding;
+			auto newOffset = offset - mContents.first()->mArea.y + mPadding;
 			for (auto widget : mContents) {
 				widget->mArea.y += newOffset;
 			}
@@ -219,7 +252,11 @@ namespace tp {
 
 	public:
 		halnf mContentSize = 0;
+
 		Buffer<Widget<Events, Canvas>*> mContents;
 		ScrollBarWidget<Events, Canvas> mScroller;
+
+		RGBA mDefaultColor;
+		halnf mPadding = 0;
 	};
 }

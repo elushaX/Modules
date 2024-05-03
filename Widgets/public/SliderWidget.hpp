@@ -7,17 +7,7 @@ namespace tp {
 	template <typename Events, typename Canvas>
 	class SliderWidget : public Widget<Events, Canvas> {
 	public:
-		SliderWidget() {
-			this->createConfig("SliderWidget");
-			this->addColor("Default", "Base");
-			this->addColor("Handle", "Accent");
-			this->addColor("Hovered", "Interaction");
-			this->addColor("Scrolling", "Action");
-			this->addValue("Padding", "Padding");
-			this->addValue("HandleSize", 20.f);
-			this->addValue("MinSize", 20.f);
-			this->addValue("Rounding", "Rounding");
-		}
+		SliderWidget() { this->mId = "SliderWidget"; }
 
 		void proc(const Events& events, const tp::RectF& areaParent, const tp::RectF& aArea) override {
 			this->mArea = aArea;
@@ -31,7 +21,6 @@ namespace tp {
 			}
 
 			if (mIsSliding) {
-				const auto handleSize = this->getValue("HandleSize");
 				mFactor = (events.getPointer().x - this->mArea.x - handleSize / 2.f) / (this->mArea.z - handleSize);
 			}
 
@@ -40,26 +29,47 @@ namespace tp {
 
 		void draw(Canvas& canvas) override {
 			if (!this->mVisible) return;
-			canvas.rect(this->mArea, this->getColor("Default"), this->getValue("Rounding"));
-			canvas.rect(getHandle(), this->getColor("Handle"), this->getValue("Rounding"));
+			canvas.rect(this->mArea, defaultColor, rounding);
+			canvas.rect(getHandle(), handleColor, rounding);
 		}
 
 		RectF getHandle() const {
-			const auto handle = this->getValue("HandleSize");
-			const auto halfHandle = handle / 2.f;
-			const auto left = this->mArea.x + (this->mArea.z - handle) * mFactor;
-			return { left, this->mArea.y, handle, this->mArea.w };
+			const auto halfHandle = handleSize / 2.f;
+			const auto left = this->mArea.x + (this->mArea.z - handleSize) * mFactor;
+			return { left, this->mArea.y, handleSize, this->mArea.w };
+		}
+
+	public:
+		void setupConfig(WidgetManager& wm) {
+			if (!wm.createWidgetConfig(this->mId)) return;
+			wm.addReference(this->mId, "Default", "Base");
+			wm.addReference(this->mId, "Handle", "Accent");
+			wm.addNumber(this->mId, "HandleSize", 20.f);
+			wm.addReference(this->mId, "Rounding", "Rounding");
+		}
+
+		void updateConfigCache(const WidgetManager& wm) override {
+			defaultColor = wm.getColor(this->mId, "Default");
+			handleColor = wm.getColor(this->mId, "Handle");
+			handleSize = wm.getNumber(this->mId, "HandleSize");
+			rounding = wm.getNumber(this->mId, "Rounding");
 		}
 
 	public:
 		halnf mFactor = 0.f;
 		bool mIsSliding = false;
+
+		RGBA defaultColor;
+		RGBA handleColor;
+		halnf handleSize = 0;
+		halnf rounding = 0;
 	};
 
 	template <typename Events, typename Canvas>
 	class NamedSliderWidget : public Widget<Events, Canvas> {
 	public:
-		NamedSliderWidget(const char* name = "Value") { 
+		explicit NamedSliderWidget(const char* name = "Value") {
+			this->mId = "NamedSliderWidget";
 			mLabel.mLabel = name;
 			this->mArea = { 0, 0, 100, 30 };
 		}
@@ -89,6 +99,7 @@ namespace tp {
 			mLabel.draw(canvas);
 		}
 
+	public:
 	public:
 		SliderWidget<Events, Canvas> mSlider;
 		LabelWidget<Events, Canvas> mLabel;
