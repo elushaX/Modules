@@ -66,6 +66,22 @@ Language:
 	For each grammar make grammar rules parser, example sentence generation and sentence parsing
 	Make automations itself a universal tool - NFA DFA conversions
 
+Widgets:
+    Add tree structure interface to simplify code
+    Add shortcuts
+    Config cache may be static
+
+LibraryViewer:
+    artworks
+    how to easily add more songs?
+    seeker
+    song idx
+    non-existing highlight
+    prev next
+    remove debug gui
+    queue & repeat & shuffle...
+    new database with history
+
 Math:
 	FFT
 
