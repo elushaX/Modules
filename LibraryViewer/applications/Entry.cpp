@@ -1,18 +1,6 @@
 
 #include "GUI.hpp"
-#include "Player.hpp"
 #include "GraphicApplication.hpp"
-
-// 1) artworks
-// 2) how to easily add more songs?
-// 3) GUi :
-// - seeker
-// - song idx
-// - non-existing highlight
-// - prev next
-// - remove debug gui
-// 4) queue & repeat & shuffle...
-// 5) new database with history
 
 using namespace tp;
 
