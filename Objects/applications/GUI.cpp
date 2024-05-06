@@ -153,10 +153,10 @@ void obj::ObjectsGUI::cd(obj::Object* child, const std::string& name) {
 
 void obj::ObjectsGUI::cdup() {
 	if (mViewStack.length() > 1) {
-		obj::objects_api::destroy(mViewStack.last()->data.obj);
+		obj::objects_api::destroy(mViewStack.lastNode()->data.obj);
 
 		mViewStack.popBack();
-		mActive = mViewStack.last()->data.obj;
+		mActive = mViewStack.lastNode()->data.obj;
 	}
 }
 
@@ -890,15 +890,15 @@ void obj::ObjectsGUI::explorer() {
 		ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_HorizontalScrollbar
 	);
 	tp::List<ViewStackNode*> rev_path;
-	for (auto childo = mViewStack.last(); childo; childo = childo->prev) {
+	for (auto childo = mViewStack.lastNode(); childo; childo = childo->prev) {
 		rev_path.pushBack(&childo->data);
 	}
 
 	tp::alni idx = 0;
-	for (auto childo = rev_path.last(); childo; childo = childo->prev) {
+	for (auto childo = rev_path.lastNode(); childo; childo = childo->prev) {
 		ImGui::PushID((int) idx);
 		bool go_back = false;
-		if (childo == rev_path.last()) {
+		if (childo == rev_path.lastNode()) {
 			go_back = ImGui::Button(childo->data->id.c_str());
 			ImGui::SameLine();
 		} else {
@@ -952,7 +952,7 @@ void obj::ObjectsGUI::explorer() {
 		}
 
 		if (go_back) {
-			while (&mViewStack.last()->data != childo->data) {
+			while (&mViewStack.lastNode()->data != childo->data) {
 				cdup();
 			}
 			mActive = childo->data->obj;

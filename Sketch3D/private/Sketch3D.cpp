@@ -66,7 +66,7 @@ void Stroke::compress(halnf factor) {
 		min_node = nullptr;
 		halnf min_factor = factor;
 
-		List<StrokePoint>::Node* iter = passed_poits.first()->next;
+		List<StrokePoint>::Node* iter = passed_poits.firstNode()->next;
 		for (; iter->next; iter = iter->next) {
 			Vec3F dir1 = (iter->data.pos - iter->prev->data.pos).normalize();
 			Vec3F dir2 = (iter->next->data.pos - iter->data.pos).normalize();
@@ -111,7 +111,7 @@ void Stroke::subdiv(halnf precision, const Camera* cam, halni passes) {
 
 		auto n_points = new_points.length();
 
-		auto p0 = new_points.first();
+		auto p0 = new_points.firstNode();
 		auto p1 = p0->next;
 		auto p2 = p1->next;
 		auto p3 = p2->next;
@@ -234,7 +234,7 @@ void PencilBrush::sample(Project* proj, Vec2F crs, halnf pressure) {
 			mStroke = new Stroke();
 			mStroke->setColor(mCol);
 
-			mStroke->getPoints().append(proj->mLayers[proj->mActiveLayer]->strokes.last()->data->getPoints().last());
+			mStroke->getPoints().append(proj->mLayers[proj->mActiveLayer]->strokes.last()->getPoints().last());
 		}
 
 		if (!pressure) {

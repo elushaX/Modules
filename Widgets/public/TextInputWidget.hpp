@@ -11,7 +11,7 @@ namespace tp {
 	public:
 		TextInputWidget() = default;
 
-		void drawBody(Canvas& canvas) override {
+		void drawCallback(Canvas&) override {
 			nChanged = false;
 
 			const auto col = mAccentColor;
@@ -51,7 +51,7 @@ namespace tp {
 		}
 
 	public:
-		void updateConfigCache(WidgetManager& wm) override {
+		void updateConfigCallback(WidgetManager& wm) override {
 			wm.setActiveId("TextInput");
 
 			mAccentColor = wm.getColor("Accent", "Accent");

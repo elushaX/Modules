@@ -75,9 +75,12 @@ namespace tp {
 		List(const List& in) { this->operator=(in); }
 		List(const InitialierList<Type>& list) { operator=(list); }
 
-		[[nodiscard]] inline Node* first() const { return mFirst; }
-		[[nodiscard]] inline Node* last() const { return mLast; }
+		[[nodiscard]] inline Type& first() const { return mFirst->data; }
+		[[nodiscard]] inline Type& last() const { return mLast->data; }
+		[[nodiscard]] inline Node* firstNode() const { return mFirst; }
+		[[nodiscard]] inline Node* lastNode() const { return mLast; }
 		[[nodiscard]] inline Index length() const { return mLength; }
+		[[nodiscard]] inline Index size() const { return length(); }
 
 		[[nodiscard]] Node* newNode() { return new (mAlloc.allocate(sizeof(Node))) Node(); }
 		[[nodiscard]] Node* newNode(TypeArg arg) { return new (mAlloc.allocate(sizeof(Node))) Node(arg); }
@@ -250,8 +253,8 @@ namespace tp {
 			if (in.length() != length()) {
 				return false;
 			}
-			Node* left = in.first();
-			Node* right = first();
+			Node* left = in.firstNode();
+			Node* right = firstNode();
 			while (left && right) {
 				if (left->data != right->data) {
 					return false;

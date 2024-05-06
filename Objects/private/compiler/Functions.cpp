@@ -543,9 +543,9 @@ void FunctionDefinition::generateByteCode(ByteCode& out) {
 
 List<Instruction>::Node* FunctionDefinition::inst(Instruction inst) {
 	mInstructions.pushBack(inst);
-	auto out = &mInstructions.last()->data;
+	auto out = &mInstructions.lastNode()->data;
 	out->mInstIdx = (alni) mInstructions.length() - 1;
-	return mInstructions.last();
+	return mInstructions.lastNode();
 }
 
 void obj::initialize() {}

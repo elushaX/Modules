@@ -8,24 +8,24 @@ using namespace tp;
 class SimpleGUI : public Application {
 public:
 	SimpleGUI() {
-		mGui.mContents.append(&mButton);
-		mGui.mContents.append(&mSlider);
-		mGui.mContents.append(&mLabel);
+		mGui.addWidget(&mButton);
+		mGui.addWidget(&mLabel);
+		mGui.addWidget(&mSlider);
 	}
 
 	void processFrame(EventHandler* eventHandler) override {
-
-		mGui.updateConfigCache(mWidgetManager);
-
-		mSlider.updateConfigCache(mWidgetManager);
-		mLabel.updateConfigCache(mWidgetManager);
-		mButton.updateConfigCache(mWidgetManager);
-
 		const auto rec = RectF({ 0, 0 }, mWindow->getSize());
-		mGui.proc(*eventHandler, rec, rec);
+
+		mGui.setArea(rec);
+		mGui.setVisible(true);
+		mGui.updateConfigWrapper(mWidgetManager);
+		mGui.procWrapper(*eventHandler);
 	}
 
-	void drawFrame(Canvas* canvas) override { mGui.draw(*canvas); }
+	void drawFrame(Canvas* canvas) override {
+		canvas->rect(mGui.mArea, { 0, 0, 0, 1 });
+		mGui.drawWrapper(*canvas);
+	}
 
 private:
 	WidgetManager mWidgetManager;
@@ -33,7 +33,7 @@ private:
 
 	ButtonWidget<EventHandler, Canvas> mButton;
 	LabelWidget<EventHandler, Canvas> mLabel;
-	SliderWidget<EventHandler, Canvas> mSlider;
+	NamedSliderWidget<EventHandler, Canvas> mSlider;
 };
 
 int main() {

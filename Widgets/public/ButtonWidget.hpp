@@ -7,14 +7,20 @@ namespace tp {
 	template <typename Events, typename Canvas>
 	class ButtonWidget : public Widget<Events, Canvas> {
 	public:
-		ButtonWidget() { this->mArea = { 0, 0, 100, 100 }; }
-
-		ButtonWidget(const std::string& label, const tp::RectF& aArea) {
-			this->mArea = aArea;
-			this->mLabel.mLabel = label;
+		ButtonWidget() {
+			this->setArea({ 0, 0, 100, 100 });
+			this->mChildWidgets.pushBack(&mLabel);
 		}
 
-		void procBody(const Events& events) {
+		ButtonWidget(const std::string& label, const tp::RectF& aArea) {
+			this->setArea(aArea);
+			mLabel.mLabel = label;
+			this->mChildWidgets.pushBack(&mLabel);
+		}
+
+		void procCallback(const Events& events) override {
+			mLabel.setArea(this->mArea);
+
 			mIsHover = this->mArea.isInside(events.getPointer());
 
 			if (events.isPressed(InputID::MOUSE1) && mIsHover) {
@@ -27,11 +33,9 @@ namespace tp {
 			}
 
 			if (!mIsHover) mIsPressed = false;
-
-			mLabel.proc(events, this->mArea, this->mArea);
 		}
 
-		void drawBody(Canvas& canvas) override {
+		void drawCallback(Canvas& canvas) override {
 			if (mIsPressed) {
 				canvas.rect(this->mArea, pressedColor, rounding);
 			} else if (mIsHover) {
@@ -39,11 +43,10 @@ namespace tp {
 			} else {
 				canvas.rect(this->mArea, accentColor, rounding);
 			}
-			mLabel.draw(canvas);
 		}
 
 	public:
-		void updateConfigCache(WidgetManager& wm) override {
+		void updateConfigCallback(WidgetManager& wm) override {
 			wm.setActiveId("Button");
 
 			pressedColor = wm.getColor("Pressed", "Action");
@@ -52,8 +55,6 @@ namespace tp {
 			rounding = wm.getNumber("Rounding", "Rounding");
 
 			// mPressEvent = wm.getEventState("Activate", { { InputID::MOUSE1, InputState::PRESSED } });
-
-			mLabel.updateConfigCache(wm);
 		}
 
 	public:
@@ -68,6 +69,6 @@ namespace tp {
 		RGBA accentColor;
 		halnf rounding = 0;
 
-		InputState mPressEvent;
+		// InputState mPressEvent;
 	};
 }

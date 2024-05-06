@@ -13,11 +13,14 @@ public:
 
 	void processFrame(EventHandler* eventHandler) override {
 		auto rec = RectF({ 0, 0 }, mWindow->getSize());
-		mGui.updateConfigCache(mWidgetManager);
-		mGui.proc(*eventHandler, rec, rec);
+
+		mGui.setVisible(true);
+		mGui.setArea(rec);
+		mGui.updateConfigWrapper(mWidgetManager);
+		mGui.procWrapper(*eventHandler);
 	}
 
-	void drawFrame(Canvas* canvas) override { mGui.draw(*canvas); }
+	void drawFrame(Canvas* canvas) override { mGui.drawWrapper(*canvas); }
 
 private:
 	WidgetManager mWidgetManager;

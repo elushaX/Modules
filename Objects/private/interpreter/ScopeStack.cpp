@@ -52,7 +52,7 @@ void ScopeStack::addTemp(obj::Object* tmp) {
 }
 
 void ScopeStack::popTemp() {
-	objects_api::destroy(mBuff[mIdx - 1].mTemps.last()->data);
+	objects_api::destroy(mBuff[mIdx - 1].mTemps.last());
 	mBuff[mIdx - 1].mTemps.popBack();
 }
 

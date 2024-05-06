@@ -18,12 +18,7 @@ namespace tp {
 
 		~Sketch3DWidget() { mCanvas->deleteImageHandle(mImage); }
 
-		void proc(const Events& events, const RectF& areaParent, const RectF& area) override {
-
-			this->mArea = area;
-			this->mVisible = area.isOverlap(areaParent);
-			if (!this->mVisible) return;
-
+		void procCallback(const Events& events) override {
 			if (!this->mArea.isInside(events.getPointer())) {
 				return;
 			}
@@ -76,7 +71,7 @@ namespace tp {
 			mActionPosAbsolutePrev = absolutePos;
 		}
 
-		void drawBody(Canvas& canvas) override {
+		void drawCallback(Canvas& canvas) override {
 			mRenderer.renderToTexture(&mProject, this->mArea.size);
 			canvas.drawImage(this->mArea, &mImage, 0, 1, 12);
 		}
@@ -106,31 +101,35 @@ namespace tp {
 			mRotateButton = new ButtonWidget<Events, Canvas>("Rotate view", { 0, 0, 100, 30 });
 			mZoomButton = new ButtonWidget<Events, Canvas>("Zoom view", { 0, 0, 100, 30 });
 
-			mOptions.mContents.append(mDrawButton);
-			mOptions.mContents.append(mMoveButton);
-			mOptions.mContents.append(mRotateButton);
-			mOptions.mContents.append(mZoomButton);
+			mOptions.addWidget(mDrawButton);
+			mOptions.addWidget(mMoveButton);
+			mOptions.addWidget(mRotateButton);
+			mOptions.addWidget(mZoomButton);
 
 			// add color sliders
 			mRed = new NamedSliderWidget<Events, Canvas>("Red");
 			mGreen = new NamedSliderWidget<Events, Canvas>("Green");
 			mBlue = new NamedSliderWidget<Events, Canvas>("Blue");
 
-			mOptions.mContents.append(mRed);
-			mOptions.mContents.append(mGreen);
-			mOptions.mContents.append(mBlue);
+			mOptions.addWidget(mRed);
+			mOptions.addWidget(mGreen);
+			mOptions.addWidget(mBlue);
+
+			this->mChildWidgets.pushBack(&mViewport);
+			this->mChildWidgets.pushBack(&mSplitView);
+			this->mChildWidgets.pushBack(&mOptions);
 		}
 
 		~Sketch3DGUI() {
-			for (auto item : mOptions.mContents) {
+			for (auto item : mOptions.getContent()) {
 				delete item.data();
 			}
 		}
 
-		void procBody(const Events& events) override {
-			mSplitView.proc(events, this->mArea, this->mArea);
-			mViewport.proc(events, this->mArea, mSplitView.getFirst());
-			mOptions.proc(events, this->mArea, mSplitView.getSecond());
+		void procCallback(const Events& events) override {
+			mSplitView.setArea(this->mArea);
+			mViewport.setArea(mSplitView.getFirst());
+			mOptions.setArea(mSplitView.getSecond());
 
 			if (mDrawButton->mIsPressed) {
 				mViewport.mMode = Sketch3DWidget<Events, Canvas>::Mode::DRAW;
@@ -145,23 +144,13 @@ namespace tp {
 			mViewport.setColor(RGBA(mRed->mSlider.mFactor, mGreen->mSlider.mFactor, mBlue->mSlider.mFactor, 1.f));
 		}
 
-		void drawBody(Canvas& canvas) override {
-			canvas.rect(this->mArea, mBackgroundColor, mRounding);
+		void drawCallback(Canvas& canvas) override { canvas.rect(this->mArea, mBackgroundColor, mRounding); }
 
-			mSplitView.draw(canvas);
-			mViewport.draw(canvas);
-			mOptions.draw(canvas);
-		}
-
-		void updateConfigCache(WidgetManager& wm) override {
+		void updateConfigCallback(WidgetManager& wm) override {
 			wm.setActiveId("Sketch3DGui");
 
 			mBackgroundColor = wm.getColor("Background", "Background");
 			mRounding = wm.getNumber("Rounding", "Rounding");
-
-			mSplitView.updateConfigCache(wm);
-			mOptions.updateConfigCache(wm);
-			mViewport.updateConfigCache(wm);
 		}
 
 	private:

@@ -18,7 +18,7 @@ namespace tp {
 			col.mColor.setNoTransition({ 0.15f, 0.15f, 0.15f, 0.f });
 		};
 
-		void procBody(const Events& events) override {
+		void procCallback(const Events& events) override {
 			mSelected = false;
 			if (!mTrack) return;
 			if (this->mArea.isInside(events.getPointer())) {
@@ -29,7 +29,7 @@ namespace tp {
 			}
 		}
 
-		void drawBody(Canvas& canvas) override {
+		void drawCallback(Canvas& canvas) override {
 			if (!mTrack) return;
 
 			canvas.rect(this->mArea, col.get(), 4.f);
@@ -76,7 +76,7 @@ namespace tp {
 			items.append({ "Date Last Played" });
 		}
 
-		void drawBody(Canvas&) override {
+		void drawCallback(Canvas&) override {
 			if (!mTrack) return;
 			// canvas.rect(this->mArea, { 0.13f, 0.13f, 0.13f, 1.f }, 4.f);
 			renderUI();
@@ -196,6 +196,11 @@ namespace tp {
 			updateTracks();
 
 			mCurrentTrackInfo.mPlayer = mPlayer;
+
+			this->mChildWidgets.pushBack(&mSplitView);
+			this->mChildWidgets.pushBack(&mSongList);
+			this->mChildWidgets.pushBack(&mCurrentTrackInfo);
+			this->mChildWidgets.pushBack(&mCurrentTrack);
 		}
 
 		void updateTracks() {
@@ -205,36 +210,30 @@ namespace tp {
 			}
 		}
 
-		void procBody(const Events& events) override {
+		void procCallback(const Events& events) override {
 			filter();
 
-			mSplitView.proc(events, this->mArea, this->mArea);
-			mSongList.proc(events, this->mArea, mSplitView.getFirst());
+			mSplitView.setArea(this->mArea);
+			mSongList.setArea(mSplitView.getFirst());
 
-			for (auto track : mSongList.mContents) {
+			for (auto track : mSongList.getContent()) {
 				auto trackWidget = (TrackWidget<Events, Canvas>*) track.data();
 				if (trackWidget->mSelected) {
 					mCurrentTrackInfo.mTrack = trackWidget->mTrack;
 				}
 			}
 
-			mCurrentTrackInfo.proc(events, this->mArea, mSplitView.getSecond());
+			mCurrentTrackInfo.setArea(mSplitView.getSecond());
 
 			// mCurrentTrack.proc(events, this->mArea, mSplitView.getFirst());
 		}
 
-		void drawBody(Canvas& canvas) override {
-			canvas.rect(this->mArea, { 0.1f, 0.1f, 0.1f, 1.f });
-
-			mSplitView.draw(canvas);
-			mSongList.draw(canvas);
-			mCurrentTrackInfo.draw(canvas);
-		}
+		void drawCallback(Canvas& canvas) override { canvas.rect(this->mArea, { 0.1f, 0.1f, 0.1f, 1.f }); }
 
 		void filter() {
 			if (!mCurrentTrackInfo.isSongFilterChanged) return;
 
-			mSongList.mContents.clear();
+			mSongList.clearContent();
 
 			for (auto track : mTracks) {
 				if (!mCurrentTrackInfo.songFilter.PassFilter(track->mTrack->mName.c_str()) &&
@@ -256,18 +255,10 @@ namespace tp {
 						break;
 				}
 
-				mSongList.mContents.append(&track.data());
+				mSongList.addWidget(&track.data());
 			}
 
 			mCurrentTrackInfo.isSongFilterChanged = false;
-		}
-
-		void updateConfigCache(WidgetManager& wm) override {
-			wm.setActiveId("LibraryWidget");
-			mSplitView.updateConfigCache(wm);
-			mCurrentTrack.updateConfigCache(wm);
-			mCurrentTrackInfo.updateConfigCache(wm);
-			mSongList.updateConfigCache(wm);
 		}
 
 	private:
