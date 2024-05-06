@@ -35,10 +35,10 @@ bool transitionsReduce[4][4] = {
 
 void EventHandler::processEvent() {
 	mMutex.lock();
-	auto lastEvent = mEventQueue.last();
+	auto lastEvent = &mEventQueue.last();
 
-	const auto& eventData = lastEvent->data.second;
-	const auto& inputId = lastEvent->data.first;
+	const auto& eventData = lastEvent->second;
+	const auto& inputId = lastEvent->first;
 
 	switch (eventData.type) {
 		case InputEvent::Type::MOUSE_POS:

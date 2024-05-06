@@ -93,7 +93,7 @@ void ListObject::delNode(tp::List<Object*>::Node* node) {
 }
 
 void ListObject::popBack() {
-	auto obj = items.last();
+	auto obj = items.lastNode();
 	if (obj) obj::objects_api::destroy(obj->data);
 	items.popBack();
 }

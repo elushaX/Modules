@@ -9,25 +9,19 @@ namespace tp {
 	public:
 		UserWidget() = default;
 
-		void proc(const Events& events, const RectF& areaParent, const RectF& aArea) override {
-			this->mArea = aArea;
+		void procCallback(const Events& events) override {
 			this->mArea.w = 30;
-			this->mVisible = areaParent.isOverlap(aArea);
-			if (!this->mVisible) return;
-			mIsHover = aArea.isInside(events.getPointer());
+			mIsHover = this->mArea.isInside(events.getPointer());
 		}
 
-		void draw(Canvas& canvas) override {
-			if (!this->mVisible) return;
-
+		void drawCallback(Canvas& canvas) override {
 			if (mIsHover) canvas.rect(this->mArea, mAccentColor, mRounding);
 			else canvas.rect(this->mArea, mBaseColor, mRounding);
-
 			canvas.text(mUser.c_str(), this->mArea, mFontSize, Canvas::CC, mPadding, mUserColor);
 		}
 
 	public:
-		void updateConfigCache(WidgetManager& wm) override {
+		void updateConfigCallback(WidgetManager& wm) override {
 			wm.setActiveId("UserWidget");
 
 			mBaseColor = wm.getColor("Base", "Base");
@@ -55,16 +49,9 @@ namespace tp {
 	public:
 		MessageWidget() = default;
 
-		void proc(const Events& events, const RectF& areaParent, const RectF& aArea) override {
-			this->mArea = aArea;
-			this->mArea.w = 50;
-			this->mVisible = areaParent.isOverlap(aArea);
-			if (!this->mVisible) return;
-			mIsHover = aArea.isInside(events.getPointer());
-		}
+		void procCallback(const Events& events) override { mIsHover = this->mArea.isInside(events.getPointer()); }
 
-		void draw(Canvas& canvas) override {
-			if (!this->mVisible) return;
+		void drawCallback(Canvas& canvas) override {
 			if (mIsHover) canvas.rect(this->mArea, mBaseColor, mRounding);
 
 			auto userName = this->mArea;
@@ -78,7 +65,7 @@ namespace tp {
 			canvas.text(mUser.c_str(), userName, mFontSizeDim, Canvas::LC, mPadding, mUserColor);
 		}
 
-		void updateConfigCache(WidgetManager& wm) override {
+		void updateConfigCallback(WidgetManager& wm) override {
 			wm.setActiveId("MessageWidget");
 
 			mBaseColor = wm.getColor("Base", "Base");
@@ -111,16 +98,20 @@ namespace tp {
 			mPass.mId = "pass";
 			mUser.mId = "user";
 			mButton.mLabel.mLabel = "Login";
+
+			this->mChildWidgets.pushBack(&mPass);
+			this->mChildWidgets.pushBack(&mUser);
+			this->mChildWidgets.pushBack(&mButton);
 		}
 
-		void proc(const Events& events, const RectF& areaParent, const RectF& aArea) override {
-			this->mArea = aArea;
+		void procCallback(const Events& events) override {
 			mLogged = false;
 
-			const auto xval = aArea.z / 2 - 100;
-			mUser.proc(events, aArea, { xval, 10, 200, 30 });
-			mPass.proc(events, aArea, { xval, 50, 200, 30 });
-			mButton.proc(events, aArea, { xval, 90, 200, 30 });
+			const auto xval = this->mArea.z / 2 - 100;
+
+			mUser.setArea({ xval, 10, 200, 30 });
+			mPass.setArea({ xval, 50, 200, 30 });
+			mButton.setArea({ xval, 90, 200, 30 });
 
 			if (mButton.mIsReleased) {
 				mButton.mIsReleased = false;
@@ -128,22 +119,12 @@ namespace tp {
 			}
 		}
 
-		void draw(Canvas& canvas) override {
-			canvas.rect(this->mArea, mBGColor);
-			mButton.draw(canvas);
-			mUser.draw(canvas);
-			mPass.draw(canvas);
-		}
+		void drawCallback(Canvas& canvas) override { canvas.rect(this->mArea, mBGColor); }
 
 	public:
-		void updateConfigCache(WidgetManager& wm) override {
+		void updateConfigCallback(WidgetManager& wm) override {
 			wm.setActiveId("LoginWidget");
-
 			mBGColor = wm.getColor("Back", "Base");
-
-			mUser.updateConfigCache(wm);
-			mPass.updateConfigCache(wm);
-			mButton.updateConfigCache(wm);
 		}
 
 	public:
@@ -161,11 +142,13 @@ namespace tp {
 		ActiveChatWidget() {
 			mSend.mLabel.mLabel = "Send";
 			mMessage.mId = "Message";
+
+			this->mChildWidgets.pushBack(&mHistoryView);
+			this->mChildWidgets.pushBack(&mMessage);
+			this->mChildWidgets.pushBack(&mSend);
 		}
 
-		void proc(const Events& events, const RectF& areaParent, const RectF& aArea) override {
-			this->mArea = aArea;
-
+		void procCallback(const Events& events) override {
 			auto history = this->mArea;
 			history.w -= 50;
 
@@ -182,36 +165,22 @@ namespace tp {
 			inputSend.x = inputMessage.x + inputMessage.z + mPadding;
 			inputSend.z = 100 - mPadding * 2;
 
-			mSend.proc(events, this->mArea, inputSend);
-			mMessage.proc(events, this->mArea, inputMessage);
+			mSend.setArea(inputSend);
+			mMessage.setArea(inputMessage);
 
 			if (mSend.mIsReleased) {
 				mSend.mIsReleased = false;
 			}
 
-			mHistoryView.proc(events, this->mArea, history);
+			mHistoryView.setArea(history);
 		}
 
-		void draw(Canvas& canvas) override {
-			canvas.rect(this->mArea, mBGColor);
-			mHistoryView.draw(canvas);
-			mMessage.draw(canvas);
-			mSend.draw(canvas);
-		}
+		void drawCallback(Canvas& canvas) override { canvas.rect(this->mArea, mBGColor); }
 
-		void updateConfigCache(WidgetManager& wm) override {
+		void updateConfigCallback(WidgetManager& wm) override {
 			wm.setActiveId("ActiveChat");
-
 			mBGColor = wm.getColor("Back", "Background");
 			mPadding = wm.getNumber("Padding", "Padding");
-
-			mHistoryView.updateConfigCache(wm);
-			mMessage.updateConfigCache(wm);
-			mSend.updateConfigCache(wm);
-
-			for (auto message : mMessages) {
-				message->updateConfigCache(wm);
-			}
 		}
 
 	public:
@@ -238,49 +207,37 @@ namespace tp {
 			mUsers[2].mArea = { 0, 0, 100, 100 };
 
 			for (auto message : mUsers) {
-				mSideView.mContents.append(&message.data());
+				mSideView.addWidget(&message.data());
 			}
 
 			mActive.mMessages.append(MessageWidget<Events, Canvas>());
 			mActive.mMessages.append(MessageWidget<Events, Canvas>());
 			mActive.mMessages.append(MessageWidget<Events, Canvas>());
 
-			mActive.mMessages[0].mArea = { 0, 0, 100, 100 };
-			mActive.mMessages[1].mArea = { 0, 0, 100, 100 };
-			mActive.mMessages[2].mArea = { 0, 0, 100, 100 };
+			mActive.mMessages[0].mArea = { 0, 0, 100, 50 };
+			mActive.mMessages[1].mArea = { 0, 0, 100, 50 };
+			mActive.mMessages[2].mArea = { 0, 0, 100, 50 };
 
 			for (auto message : mActive.mMessages) {
-				mActive.mHistoryView.mContents.append(&message.data());
+				mActive.mHistoryView.addWidget(&message.data());
 			}
+
+			this->mChildWidgets.pushBack(&mSideView);
+			this->mChildWidgets.pushBack(&mActive);
+			this->mChildWidgets.pushBack(&mSplitView);
 		}
 
-		void proc(const Events& events, const RectF& areaParent, const RectF& aArea) override {
-			this->mArea = aArea;
-
-			mSplitView.proc(events, aArea, aArea);
-			mSideView.proc(events, this->mArea, mSplitView.getSecond());
-			mActive.proc(events, aArea, mSplitView.getFirst());
+		void procCallback(const Events& events) override {
+			mSplitView.setArea(this->mArea);
+			mSideView.setArea(mSplitView.getSecond());
+			mActive.setArea(mSplitView.getFirst());
 		}
 
-		void draw(Canvas& canvas) override {
-			canvas.rect(this->mArea, mBGColor);
-			mSplitView.draw(canvas);
-			mSideView.draw(canvas);
-			mActive.draw(canvas);
-		}
+		void drawCallback(Canvas& canvas) override { canvas.rect(this->mArea, mBGColor); }
 
-		void updateConfigCache(WidgetManager& wm) override {
+		void updateConfigCallback(WidgetManager& wm) override {
 			wm.setActiveId("ChattingWidget");
-
 			mBGColor = wm.getColor("Back", "Background");
-
-			mSideView.updateConfigCache(wm);
-			mActive.updateConfigCache(wm);
-			mSplitView.updateConfigCache(wm);
-
-			for (auto user : mUsers) {
-				user->updateConfigCache(wm);
-			}
 		}
 
 	public:
@@ -295,34 +252,26 @@ namespace tp {
 	template <typename Events, typename Canvas>
 	class ComplexWidget : public Widget<Events, Canvas> {
 	public:
-		ComplexWidget() = default;
-
-		void proc(const Events& events, const RectF& areaParent, const RectF& aArea) override {
-			this->mArea = aArea;
-			if (mLogged) {
-				mChatting.proc(events, aArea, aArea);
-			} else {
-				mLogin.proc(events, aArea, aArea);
-				mLogged = mLogin.mLogged;
-				if (mLogged) {
-					mChatting.proc(events, aArea, aArea);
-				}
-			}
+		ComplexWidget() {
+			this->mChildWidgets.pushBack(&mLogin);
+			this->mChildWidgets.pushBack(&mChatting);
 		}
 
-		void draw(Canvas& canvas) override {
-			canvas.rect(this->mArea, mBGColor);
-			if (mLogged) mChatting.draw(canvas);
-			else mLogin.draw(canvas);
+		void procCallback(const Events& events) override {
+			mLogged = mLogin.mLogged;
+
+			mLogin.setEnable(!mLogged);
+			mChatting.setEnable(mLogged);
+
+			mLogin.setArea(this->mArea);
+			mChatting.setArea(this->mArea);
 		}
 
-		void updateConfigCache(WidgetManager& wm) override {
+		void drawCallback(Canvas& canvas) override { canvas.rect(this->mArea, mBGColor); }
+
+		void updateConfigCallback(WidgetManager& wm) override {
 			wm.setActiveId("ChatGui");
-
 			mBGColor = wm.getColor("Back", "Background");
-
-			mLogin.updateConfigCache(wm);
-			mChatting.updateConfigCache(wm);
 		}
 
 	private:

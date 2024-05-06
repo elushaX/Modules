@@ -17,11 +17,13 @@ public:
 	void processFrame(EventHandler* eventHandler) override {
 		auto rec = RectF{ { 0, 0 }, mWindow->getSize() };
 
-		gui.updateConfigCache(mWidgetManager);
-		gui.proc(*eventHandler, rec, rec);
+		gui.setVisible(true);
+		gui.setArea(rec);
+		gui.updateConfigWrapper(mWidgetManager);
+		gui.procWrapper(*eventHandler);
 	}
 
-	void drawFrame(Canvas* canvas) override { gui.draw(*canvas); }
+	void drawFrame(Canvas* canvas) override { gui.drawWrapper(*canvas); }
 
 private:
 	Player player;

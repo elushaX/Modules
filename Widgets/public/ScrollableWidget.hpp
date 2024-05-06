@@ -11,11 +11,7 @@ namespace tp {
 		ScrollBarWidget() = default;
 
 		// takes whole area
-		void proc(const Events& events, const tp::RectF& areaParent, const tp::RectF& aArea) override {
-			this->mArea = aArea;
-			this->mVisible = areaParent.isOverlap(aArea);
-			if (!this->mVisible) return;
-
+		void procCallback(const Events& events) override {
 			auto area = getHandle();
 			mHovered = getHandleHandle().isInside(events.getPointer());
 
@@ -24,12 +20,7 @@ namespace tp {
 				return;
 			}
 
-			if (!areaParent.isOverlap(area)) {
-				mIsScrolling = false;
-				return;
-			}
-
-			if (events.getScrollY() != 0 && areaParent.isInside(events.getPointer())) {
+			if (events.getScrollY() != 0) {
 				auto offset = events.getScrollY() < 0 ? 1.0f : -1.0f;
 				if (scrollInertia * offset > 0) {
 					scrollInertia += offset;
@@ -61,9 +52,7 @@ namespace tp {
 			mPositionFraction = tp::clamp(mPositionFraction, 0.f, 1.f - mSizeFraction);
 		}
 
-		void draw(Canvas& canvas) override {
-			if (!this->mVisible) return;
-
+		void drawCallback(Canvas& canvas) override {
 			auto area = getHandle();
 
 			if (mSizeFraction > 1.f) return;
@@ -78,7 +67,6 @@ namespace tp {
 			}
 
 			canvas.rect(area, mDefaultColor, mRounding);
-
 			canvas.rect(getHandleHandle(), col, mRounding);
 		}
 
@@ -104,7 +92,7 @@ namespace tp {
 		}
 
 	public:
-		void updateConfigCache(WidgetManager& wm) override {
+		void updateConfigCallback(WidgetManager& wm) override {
 			wm.setActiveId("Scrollbar");
 
 			mDefaultColor = wm.getColor("Default", "Base");
@@ -138,99 +126,89 @@ namespace tp {
 	template <typename Events, typename Canvas>
 	class ScrollableWindow : public Widget<Events, Canvas> {
 	public:
-		ScrollableWindow() = default;
+		ScrollableWindow() {
+			this->mChildWidgets.pushBack(&mScroller);
+			this->mChildWidgets.pushBack(&mContentWidget);
+		}
+
 		~ScrollableWindow() = default;
 
 		// takes whole area
-		void procBody(const Events& events) override {
-			updateContents();
-			updateContentSize();
+		void procCallback(const Events& events) override {
+			List<Widget<Events, Canvas>*>& content = mContentWidget.mChildWidgets;
+
+			updateContents(content);
+			updateContentSize(content);
 
 			const auto padding = mPadding;
 
-			mScroller.mSizeFraction = this->mArea.w / mContentSize;
-			mScroller.proc(events, this->mArea, this->mArea);
+			mScroller.mSizeFraction = mContentWidget.mArea.w / mContentSize;
+			mScroller.setArea(this->mArea);
+			mContentWidget.setArea(mScroller.getViewport());
 
 			if (mScroller.mSizeFraction > 1.f) {
-				setOffset(0);
+				setOffset(content, 0);
 			} else {
-				setOffset((-mScroller.mPositionFraction) * mContentSize);
+				setOffset(content, (-mScroller.mPositionFraction) * mContentSize);
 			}
 
-			for (auto widget : mContents) {
-				widget->proc(
-					events,
-					this->mArea,
-					{ this->mArea.x + padding, widget->mArea.y, mScroller.getViewport().z - padding * 2, widget->mArea.w }
-				);
+			for (auto widget : content) {
+				widget->setArea({ mContentWidget.mArea.x + padding,
+													widget->mArea.y,
+													mScroller.getViewport().z - padding * 2,
+													widget->mArea.w });
 			}
 		}
 
-		void drawBody(Canvas& canvas) override {
-			mScroller.draw(canvas);
+		void addWidget(Widget<Events, Canvas>* widget) { mContentWidget.mChildWidgets.pushBack(widget); }
+		void clearContent() { mContentWidget.mChildWidgets.removeAll(); }
+		List<Widget<Events, Canvas>*>& getContent() { return mContentWidget.mChildWidgets; }
 
-			canvas.pushClamp(this->mArea);
-			for (auto widget : mContents) {
-				widget->draw(canvas);
-			}
-			canvas.popClamp();
-		}
-
-	public:
-		void updateConfigCache(WidgetManager& wm) override {
+		void updateConfigCallback(WidgetManager& wm) override {
 			wm.setActiveId("ScrollableWidget");
-
-			mDefaultColor = wm.getColor("Default", "Base");
 			mPadding = wm.getNumber("Padding", "Padding");
-
-			mScroller.updateConfigCache(wm);
-
-			for (auto item : mContents) {
-				item->updateConfigCache(wm);
-			}
 		}
 
 	private:
-		void updateContents() {
-			if (mContents.size()) {
-				const halnf offset = mContents.first()->mArea.y + mPadding;
+		void updateContents(List<Widget<Events, Canvas>*>& contentWidgets) {
+			if (contentWidgets.size()) {
+				const halnf offset = contentWidgets.first()->mArea.y + mPadding;
 
 				halnf start = 0;
-				for (auto widget : mContents) {
+				for (auto widget : contentWidgets) {
 					widget->mArea.y = start;
 					start += widget->mArea.w + mPadding;
 				}
 
-				for (auto widget : mContents) {
+				for (auto widget : contentWidgets) {
 					widget->mArea.y += offset;
 				}
 			}
 		}
 
-		void updateContentSize() {
+		void updateContentSize(List<Widget<Events, Canvas>*>& contentWidgets) {
 			mContentSize = 0;
-			if (mContents.size()) {
-				mContentSize = mContents.last()->mArea.y - mContents.first()->mArea.y;
-				mContentSize += mContents.last()->mArea.w;
+			if (contentWidgets.size()) {
+				mContentSize = contentWidgets.last()->mArea.y - contentWidgets.first()->mArea.y;
+				mContentSize += contentWidgets.last()->mArea.w;
 				mContentSize += 2 * mPadding;
 			}
 		}
 
-		void setOffset(const halnf offset) {
-			if (!mContents.size()) return;
-			auto newOffset = offset - mContents.first()->mArea.y + mPadding;
-			for (auto widget : mContents) {
+		void setOffset(List<Widget<Events, Canvas>*>& contentWidgets, const halnf offset) {
+			if (!contentWidgets.size()) return;
+			auto newOffset = offset - contentWidgets.first()->mArea.y + mPadding;
+			for (auto widget : contentWidgets) {
 				widget->mArea.y += newOffset;
 			}
 		}
 
-	public:
-		halnf mContentSize = 0;
-
-		Buffer<Widget<Events, Canvas>*> mContents;
+	private:
+		Widget<Events, Canvas> mContentWidget;
 		ScrollBarWidget<Events, Canvas> mScroller;
 
-		RGBA mDefaultColor;
+		halnf mContentSize = 0;
+
 		halnf mPadding = 0;
 	};
 }

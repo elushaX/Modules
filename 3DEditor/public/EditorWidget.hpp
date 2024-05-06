@@ -16,17 +16,9 @@ namespace tp {
 
 		~ViewportWidget() { mCanvas->deleteImageHandle(mImage); }
 
-		void proc(const Events& events, const RectF& areaParent, const RectF& aArea) override {
-			this->mArea = aArea;
-			this->mVisible = areaParent.isOverlap(aArea);
-			if (!this->mVisible) return;
+		void procCallback(const Events& events) override { mGeometry->mCamera.rotate(0.01f, 0.0); }
 
-			mGeometry->mCamera.rotate(0.01f, 0.0);
-		}
-
-		void draw(Canvas& canvas) override {
-			if (!this->mVisible) return;
-
+		void drawCallback(Canvas& canvas) override {
 			mRender.render(*mGeometry, this->mArea.size);
 			canvas.drawImage(this->mArea, &mImage, PI);
 		}
@@ -42,32 +34,22 @@ namespace tp {
 	class EditorWidget : public Widget<Events, Canvas> {
 	public:
 		EditorWidget(Canvas* canvas, Scene* geometry, Vec2F renderResolution) :
-			mViewport(canvas, geometry, renderResolution) {}
+			mViewport(canvas, geometry, renderResolution) {
 
-		void proc(const Events& events, const RectF& areaParent, const RectF& aArea) override {
-			this->mArea = aArea;
-			this->mVisible = areaParent.isOverlap(aArea);
-			if (!this->mVisible) return;
-
-			mSplitView.proc(events, aArea, aArea);
-			mViewport.proc(events, aArea, mSplitView.getFirst());
+			this->mChildWidgets.pushBack(&mViewport);
+			this->mChildWidgets.pushBack(&mSplitView);
 		}
 
-		void draw(Canvas& canvas) override {
-			if (!this->mVisible) return;
-
-			canvas.rect(this->mArea, mBaseColor);
-			mSplitView.draw(canvas);
-			mViewport.draw(canvas);
+		void procCallback(const Events& events) override {
+			mSplitView.setArea(this->mArea);
+			mViewport.setArea(mSplitView.getFirst());
 		}
 
-		void updateConfigCache(WidgetManager& wm) override {
+		void drawCallback(Canvas& canvas) override { canvas.rect(this->mArea, mBaseColor); }
+
+		void updateConfigCallback(WidgetManager& wm) override {
 			wm.setActiveId("3DEditor");
-
 			mBaseColor = wm.getColor("Base", "Base");
-
-			mViewport.updateConfigCache(wm);
-			mSplitView.updateConfigCache(wm);
 		}
 
 	public:
