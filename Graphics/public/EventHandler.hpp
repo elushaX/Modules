@@ -20,6 +20,7 @@ namespace tp {
 		enum class ButtonAction {
 			NONE = 0,
 			PRESS,
+			HOLD,
 			RELEASE,
 			REPEAT,
 		} buttonAction = ButtonAction::NONE;
@@ -42,7 +43,7 @@ namespace tp {
 		// Transitions from state to state is strict and defined by state order in the enum
 		// If posted event conflicts with that automata, we need to emulate intermediate states
 		enum State {
-			NONE = 0,     // Button is inactive
+			NONE = 0, // Button is inactive
 			PRESSED,  // Button is pressed
 			HOLD,     // Button is still pressed
 			RELEASED, // Button is released
@@ -61,7 +62,6 @@ namespace tp {
 		~EventHandler();
 
 	public: // Event Poster Interface
-
 		// Record event
 		void postEvent(InputID inputID, InputEvent inputEvent);
 

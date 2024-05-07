@@ -18,7 +18,7 @@ namespace tp {
 
 		~Sketch3DWidget() { mCanvas->deleteImageHandle(mImage); }
 
-		void procCallback(const Events& events) override {
+		void eventProcess(const Events& events) override {
 			if (!this->mArea.isInside(events.getPointer())) {
 				return;
 			}
@@ -71,7 +71,7 @@ namespace tp {
 			mActionPosAbsolutePrev = absolutePos;
 		}
 
-		void drawCallback(Canvas& canvas) override {
+		void eventDraw(Canvas& canvas) override {
 			mRenderer.renderToTexture(&mProject, this->mArea.size);
 			canvas.drawImage(this->mArea, &mImage, 0, 1, 12);
 		}
@@ -126,27 +126,27 @@ namespace tp {
 			}
 		}
 
-		void procCallback(const Events& events) override {
+		void eventProcess(const Events& events) override {
 			mSplitView.setArea(this->mArea);
 			mViewport.setArea(mSplitView.getFirst());
 			mOptions.setArea(mSplitView.getSecond());
 
-			if (mDrawButton->mIsPressed) {
+			if (mDrawButton->isFired()) {
 				mViewport.mMode = Sketch3DWidget<Events, Canvas>::Mode::DRAW;
-			} else if (mMoveButton->mIsPressed) {
+			} else if (mMoveButton->isFired()) {
 				mViewport.mMode = Sketch3DWidget<Events, Canvas>::Mode::MOVE;
-			} else if (mRotateButton->mIsPressed) {
+			} else if (mRotateButton->isFired()) {
 				mViewport.mMode = Sketch3DWidget<Events, Canvas>::Mode::ROTATE;
-			} else if (mZoomButton->mIsPressed) {
+			} else if (mZoomButton->isFired()) {
 				mViewport.mMode = Sketch3DWidget<Events, Canvas>::Mode::ZOOM;
 			}
 
 			mViewport.setColor(RGBA(mRed->mSlider.mFactor, mGreen->mSlider.mFactor, mBlue->mSlider.mFactor, 1.f));
 		}
 
-		void drawCallback(Canvas& canvas) override { canvas.rect(this->mArea, mBackgroundColor, mRounding); }
+		void eventDraw(Canvas& canvas) override { canvas.rect(this->mArea, mBackgroundColor, mRounding); }
 
-		void updateConfigCallback(WidgetManager& wm) override {
+		void eventUpdateConfiguration(WidgetManager& wm) override {
 			wm.setActiveId("Sketch3DGui");
 
 			mBackgroundColor = wm.getColor("Background", "Background");

@@ -16,9 +16,9 @@ namespace tp {
 
 		~ViewportWidget() { mCanvas->deleteImageHandle(mImage); }
 
-		void procCallback(const Events& events) override { mGeometry->mCamera.rotate(0.01f, 0.0); }
+		void eventProcess(const Events& events) override { mGeometry->mCamera.rotate(0.01f, 0.0); }
 
-		void drawCallback(Canvas& canvas) override {
+		void eventDraw(Canvas& canvas) override {
 			mRender.render(*mGeometry, this->mArea.size);
 			canvas.drawImage(this->mArea, &mImage, PI);
 		}
@@ -40,14 +40,14 @@ namespace tp {
 			this->mChildWidgets.pushBack(&mSplitView);
 		}
 
-		void procCallback(const Events& events) override {
+		void eventProcess(const Events& events) override {
 			mSplitView.setArea(this->mArea);
 			mViewport.setArea(mSplitView.getFirst());
 		}
 
-		void drawCallback(Canvas& canvas) override { canvas.rect(this->mArea, mBaseColor); }
+		void eventDraw(Canvas& canvas) override { canvas.rect(this->mArea, mBaseColor); }
 
-		void updateConfigCallback(WidgetManager& wm) override {
+		void eventUpdateConfiguration(WidgetManager& wm) override {
 			wm.setActiveId("3DEditor");
 			mBaseColor = wm.getColor("Base", "Base");
 		}

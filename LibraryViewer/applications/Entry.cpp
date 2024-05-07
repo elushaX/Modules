@@ -20,7 +20,7 @@ public:
 		gui.setVisible(true);
 		gui.setArea(rec);
 		gui.updateConfigWrapper(mWidgetManager);
-		gui.procWrapper(*eventHandler);
+		gui.procWrapper(*eventHandler, rec);
 	}
 
 	void drawFrame(Canvas* canvas) override { gui.drawWrapper(*canvas); }
