@@ -11,7 +11,7 @@ namespace tp {
 		ScrollBarWidget() = default;
 
 		// takes whole area
-		void procCallback(const Events& events) override {
+		void eventProcess(const Events& events) override {
 			auto area = getHandle();
 			mHovered = getHandleHandle().isInside(events.getPointer());
 
@@ -52,7 +52,7 @@ namespace tp {
 			mPositionFraction = tp::clamp(mPositionFraction, 0.f, 1.f - mSizeFraction);
 		}
 
-		void drawCallback(Canvas& canvas) override {
+		void eventDraw(Canvas& canvas) override {
 			auto area = getHandle();
 
 			if (mSizeFraction > 1.f) return;
@@ -92,7 +92,7 @@ namespace tp {
 		}
 
 	public:
-		void updateConfigCallback(WidgetManager& wm) override {
+		void eventUpdateConfiguration(WidgetManager& wm) override {
 			wm.setActiveId("Scrollbar");
 
 			mDefaultColor = wm.getColor("Default", "Base");
@@ -134,7 +134,7 @@ namespace tp {
 		~ScrollableWindow() = default;
 
 		// takes whole area
-		void procCallback(const Events& events) override {
+		void eventProcess(const Events& events) override {
 			List<Widget<Events, Canvas>*>& content = mContentWidget.mChildWidgets;
 
 			updateContents(content);
@@ -164,7 +164,7 @@ namespace tp {
 		void clearContent() { mContentWidget.mChildWidgets.removeAll(); }
 		List<Widget<Events, Canvas>*>& getContent() { return mContentWidget.mChildWidgets; }
 
-		void updateConfigCallback(WidgetManager& wm) override {
+		void eventUpdateConfiguration(WidgetManager& wm) override {
 			wm.setActiveId("ScrollableWidget");
 			mPadding = wm.getNumber("Padding", "Padding");
 		}

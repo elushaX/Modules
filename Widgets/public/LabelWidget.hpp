@@ -8,12 +8,12 @@ namespace tp {
 	public:
 		LabelWidget() = default;
 
-		void drawCallback(Canvas& canvas) override {
+		void eventDraw(Canvas& canvas) override {
 			canvas.text(mLabel.c_str(), this->mArea, fontSize, Canvas::CC, padding, fontColor);
 		}
 
 	public:
-		void updateConfigCallback(WidgetManager& wm) override {
+		void eventUpdateConfiguration(WidgetManager& wm) override {
 			wm.setActiveId("Label");
 
 			fontSize = wm.getNumber("Size", "FontSize");

@@ -18,27 +18,14 @@ namespace tp {
 			this->mChildWidgets.pushBack(&mLabel);
 		}
 
-		void procCallback(const Events& events) override {
-			mLabel.setArea(this->mArea);
+		bool isFired() { return this->isReleased(); }
 
-			mIsHover = this->mArea.isInside(events.getPointer());
+		void eventProcess(const Events&) override { mLabel.setArea(this->mArea); }
 
-			if (events.isPressed(InputID::MOUSE1) && mIsHover) {
-				mIsPressed = true;
-			}
-
-			if (mIsPressed && mIsHover && events.isReleased(InputID::MOUSE1)) {
-				mIsReleased = true;
-				mIsPressed = false;
-			}
-
-			if (!mIsHover) mIsPressed = false;
-		}
-
-		void drawCallback(Canvas& canvas) override {
-			if (mIsPressed) {
+		void eventDraw(Canvas& canvas) override {
+			if (this->isHolding()) {
 				canvas.rect(this->mArea, pressedColor, rounding);
-			} else if (mIsHover) {
+			} else if (this->isFocus()) {
 				canvas.rect(this->mArea, hoveredColor, rounding);
 			} else {
 				canvas.rect(this->mArea, accentColor, rounding);
@@ -46,29 +33,21 @@ namespace tp {
 		}
 
 	public:
-		void updateConfigCallback(WidgetManager& wm) override {
+		void eventUpdateConfiguration(WidgetManager& wm) override {
 			wm.setActiveId("Button");
 
 			pressedColor = wm.getColor("Pressed", "Action");
 			hoveredColor = wm.getColor("Hovered", "Interaction");
 			accentColor = wm.getColor("Default", "Accent");
 			rounding = wm.getNumber("Rounding", "Rounding");
-
-			// mPressEvent = wm.getEventState("Activate", { { InputID::MOUSE1, InputState::PRESSED } });
 		}
 
 	public:
 		LabelWidget<Events, Canvas> mLabel;
 
-		bool mIsHover = false;
-		bool mIsPressed = false;
-		bool mIsReleased = false;
-
 		RGBA pressedColor;
 		RGBA hoveredColor;
 		RGBA accentColor;
 		halnf rounding = 0;
-
-		// InputState mPressEvent;
 	};
 }

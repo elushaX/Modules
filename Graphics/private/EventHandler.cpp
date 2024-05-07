@@ -21,16 +21,16 @@ bool EventHandler::isEvents() {
 
 InputState::State transitions[4][4] = {
 	{ InputState::State::NONE, InputState::State::PRESSED, InputState::State::PRESSED, InputState::State::NONE },
-	{ InputState::State::PRESSED, InputState::State::PRESSED, InputState::State::HOLD, InputState::State::PRESSED },
-	{ InputState::State::HOLD, InputState::State::RELEASED, InputState::State::RELEASED, InputState::State::HOLD },
-	{ InputState::State::RELEASED, InputState::State::NONE, InputState::State::NONE, InputState::State::RELEASED },
+	{ InputState::State::PRESSED, InputState::State::HOLD, InputState::State::HOLD, InputState::State::HOLD },
+	{ InputState::State::HOLD, InputState::State::HOLD, InputState::State::HOLD, InputState::State::RELEASED },
+	{ InputState::State::NONE, InputState::State::NONE, InputState::State::NONE, InputState::State::NONE },
 };
 
 bool transitionsReduce[4][4] = {
-	{ true, true, false, true },
-	{ true, true, false, true },
 	{ true, false, false, true },
-	{ true, false, true, true },
+	{ true, true, true, false },
+	{ true, true, true, false },
+	{ true, true, true, true },
 };
 
 void EventHandler::processEvent() {
@@ -54,6 +54,8 @@ void EventHandler::processEvent() {
 				auto reportedEvent = (int) eventData.buttonAction;
 
 				mInputStates[(int) inputId].mCurrentState = transitions[currentState][reportedEvent];
+
+				// printf("%i - %i \n", reportedEvent, mInputStates[(int) InputID::A].mCurrentState);
 
 				if (transitionsReduce[currentState][reportedEvent]) {
 					mEventQueue.popFront();

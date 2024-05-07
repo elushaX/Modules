@@ -9,7 +9,7 @@ namespace tp {
 		SplitView() = default;
 
 		// takes whole area
-		void procCallback(const Events& events) override {
+		void eventProcess(const Events& events) override {
 			mIsHover = getHandle().isInside(events.getPointer());
 
 			if (events.isPressed(InputID::MOUSE1) && mIsHover) {
@@ -31,7 +31,7 @@ namespace tp {
 			}
 		}
 
-		void drawCallback(Canvas& canvas) override {
+		void eventDraw(Canvas& canvas) override {
 			if (mResizeInProcess) canvas.rect(getHandle(), mResizingColor);
 			else if (mIsHover) canvas.rect(getHandle(), mHoveredColor);
 			else canvas.rect(getHandle(), mHandleColor);
@@ -53,7 +53,7 @@ namespace tp {
 		}
 
 	public:
-		void updateConfigCallback(WidgetManager& wm) override {
+		void eventUpdateConfiguration(WidgetManager& wm) override {
 			wm.setActiveId("SplitView");
 
 			mHandleColor = wm.getColor("Handle", "Accent");

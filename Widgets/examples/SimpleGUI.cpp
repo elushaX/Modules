@@ -17,9 +17,8 @@ public:
 		const auto rec = RectF({ 0, 0 }, mWindow->getSize());
 
 		mGui.setArea(rec);
-		mGui.setVisible(true);
 		mGui.updateConfigWrapper(mWidgetManager);
-		mGui.procWrapper(*eventHandler);
+		mGui.procWrapper(*eventHandler, rec);
 	}
 
 	void drawFrame(Canvas* canvas) override {

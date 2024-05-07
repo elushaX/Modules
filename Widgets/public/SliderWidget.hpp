@@ -9,8 +9,8 @@ namespace tp {
 	public:
 		SliderWidget() = default;
 
-		void procCallback(const Events& events) override {
-			if (events.isPressed(InputID::MOUSE1) && this->mArea.isInside(events.getPointer())) {
+		void eventProcess(const Events& events) override {
+			if (this->isPressed()) {
 				mIsSliding = true;
 			} else if (events.isReleased(InputID::MOUSE1)) {
 				mIsSliding = false;
@@ -19,11 +19,11 @@ namespace tp {
 			if (mIsSliding) {
 				mFactor = (events.getPointer().x - this->mArea.x - handleSize / 2.f) / (this->mArea.z - handleSize);
 			}
-
+			
 			mFactor = tp::clamp(mFactor, 0.f, 1.f);
 		}
 
-		void drawCallback(Canvas& canvas) override {
+		void eventDraw(Canvas& canvas) override {
 			canvas.rect(this->mArea, defaultColor, rounding);
 			canvas.rect(getHandle(), handleColor, rounding);
 		}
@@ -34,7 +34,7 @@ namespace tp {
 		}
 
 	public:
-		void updateConfigCallback(WidgetManager& wm) override {
+		void eventUpdateConfiguration(WidgetManager& wm) override {
 			wm.setActiveId("Slider");
 			defaultColor = wm.getColor("Default", "Base");
 			handleColor = wm.getColor("Handle", "Accent");
@@ -63,7 +63,7 @@ namespace tp {
 			this->mChildWidgets.pushBack(&mLabel);
 		}
 
-		void procCallback(const Events& events) override {
+		void eventProcess(const Events& events) override {
 			const auto widthFirst = this->mArea.z * mFactor;
 			const auto widthSecond = this->mArea.z * (1.f - mFactor);
 

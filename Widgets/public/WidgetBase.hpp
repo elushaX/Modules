@@ -13,58 +13,137 @@ namespace tp {
 
 		virtual ~Widget() = default;
 
-		virtual void procWrapper(const Events& events) {
+		virtual void procWrapper(const Events& events, const RectF& parentArea) {
 			if (!mEnable) return;
+
+			checkVisibility(events, parentArea);
+
 			if (!mVisible) return;
 
-			procCallback(events);
+			checkFocus(events);
+
+			checkClicked(events);
+
+			eventProcess(events);
 
 			for (auto child : mChildWidgets) {
-				const bool isChildVisible = getArea().isOverlap(child->getArea());
-				child->setVisible(isChildVisible);
-				child->procWrapper(events);
+				child->procWrapper(events, getArea());
 			}
 		}
 
 		virtual void drawWrapper(Canvas& canvas) {
-			if (!mEnable) return;
-			if (!mVisible) return;
+			if (!mEnable || !mVisible) return;
 
-			drawCallback(canvas);
+			eventDraw(canvas);
 
+			// draw child widgets
 			canvas.pushClamp(this->mArea);
-
 			for (auto child : mChildWidgets) {
 				child->drawWrapper(canvas);
 			}
-
 			canvas.popClamp();
 		}
 
 		virtual void updateConfigWrapper(WidgetManager& wm) {
 			wm.setActiveId("Global");
 
-			updateConfigCallback(wm);
+			eventUpdateConfiguration(wm);
 
 			for (auto child : mChildWidgets) {
 				child->updateConfigWrapper(wm);
 			}
 		}
 
-		virtual void procCallback(const Events& events) {}
-		virtual void drawCallback(Canvas& canvas) {}
-		virtual void updateConfigCallback(WidgetManager& wm) {}
+		virtual void eventProcess(const Events& events) {}
+		virtual void eventDraw(Canvas& canvas) {}
+		virtual void eventUpdateConfiguration(WidgetManager& wm) {}
+
+		virtual void eventVisible(const Events& events) {}
+		virtual void eventNotVisible(const Events& events) {}
+
+		virtual void eventFocusEnter(const Events& events) {}
+		virtual void eventFocusLeave(const Events& events) {}
+
+		virtual void eventPressed(const Events& events) {}
+		virtual void eventReleased(const Events& events) {}
+
+	public:
+		void checkVisibility(const Events& events, const RectF& parentArea) {
+			const bool currentVisibility = parentArea.isOverlap(getArea());
+
+			if (currentVisibility != mVisible) {
+				if (currentVisibility) eventVisible(events);
+				else eventNotVisible(events);
+			}
+
+			mVisible = currentVisibility;
+
+			if (!mVisible) {
+				mHolding = false;
+				mPressed = false;
+				mReleased = false;
+			}
+		}
+
+		void checkFocus(const Events& events) {
+			const bool currentFocus = getArea().isInside(events.getPointer());
+
+			if (currentFocus != mInFocus) {
+				if (currentFocus) eventFocusEnter(events);
+				else eventFocusLeave(events);
+			}
+
+			mInFocus = currentFocus;
+
+			if (!mInFocus) {
+				mHolding = false;
+				mPressed = false;
+				mReleased = false;
+			}
+		}
+
+		void checkClicked(const Events& events) {
+			mPressed = false;
+			mReleased = false;
+
+			if (!mInFocus) return;
+
+			if (mHolding) {
+				if (events.isReleased(InputID::MOUSE1)) {
+					eventReleased(events);
+					mReleased = true;
+					mHolding = false;
+				}
+			} else {
+				if (events.isPressed(InputID::MOUSE1)) {
+					eventPressed(events);
+					mHolding = true;
+					mPressed = true;
+				}
+			}
+		}
 
 	public:
 		void setEnable(bool enable) { mEnable = enable; }
 		void setVisible(bool visible) { mVisible = visible; }
-		const RectF& getArea() const { return mArea; }
 		void setArea(const RectF& area) { mArea = area; }
+
+		const RectF& getArea() const { return mArea; }
+		bool isFocus() const { return mInFocus; }
+		bool isPressed() const { return mPressed; }
+		bool isReleased() const { return mReleased; }
+		bool isHolding() const { return mHolding; }
 
 	public:
 		RectF mArea;
 		List<Widget<Events, Canvas>*> mChildWidgets;
+
 		bool mVisible = false;
 		bool mEnable = true;
+		bool mInFocus = false;
+
+		bool mHolding = false;
+		bool mPressed = false;
+		bool mReleased = false;
 	};
 }

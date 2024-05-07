@@ -17,7 +17,7 @@ public:
 		mGui.setVisible(true);
 		mGui.setArea(rec);
 		mGui.updateConfigWrapper(mWidgetManager);
-		mGui.procWrapper(*eventHandler);
+		mGui.procWrapper(*eventHandler, rec);
 	}
 
 	void drawFrame(Canvas* canvas) override { mGui.drawWrapper(*canvas); }

@@ -18,7 +18,7 @@ namespace tp {
 			col.mColor.setNoTransition({ 0.15f, 0.15f, 0.15f, 0.f });
 		};
 
-		void procCallback(const Events& events) override {
+		void eventProcess(const Events& events) override {
 			mSelected = false;
 			if (!mTrack) return;
 			if (this->mArea.isInside(events.getPointer())) {
@@ -29,7 +29,7 @@ namespace tp {
 			}
 		}
 
-		void drawCallback(Canvas& canvas) override {
+		void eventDraw(Canvas& canvas) override {
 			if (!mTrack) return;
 
 			canvas.rect(this->mArea, col.get(), 4.f);
@@ -76,7 +76,7 @@ namespace tp {
 			items.append({ "Date Last Played" });
 		}
 
-		void drawCallback(Canvas&) override {
+		void eventDraw(Canvas&) override {
 			if (!mTrack) return;
 			// canvas.rect(this->mArea, { 0.13f, 0.13f, 0.13f, 1.f }, 4.f);
 			renderUI();
@@ -210,7 +210,7 @@ namespace tp {
 			}
 		}
 
-		void procCallback(const Events& events) override {
+		void eventProcess(const Events& events) override {
 			filter();
 
 			mSplitView.setArea(this->mArea);
@@ -228,7 +228,7 @@ namespace tp {
 			// mCurrentTrack.proc(events, this->mArea, mSplitView.getFirst());
 		}
 
-		void drawCallback(Canvas& canvas) override { canvas.rect(this->mArea, { 0.1f, 0.1f, 0.1f, 1.f }); }
+		void eventDraw(Canvas& canvas) override { canvas.rect(this->mArea, { 0.1f, 0.1f, 0.1f, 1.f }); }
 
 		void filter() {
 			if (!mCurrentTrackInfo.isSongFilterChanged) return;
