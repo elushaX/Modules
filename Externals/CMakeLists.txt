@@ -31,7 +31,11 @@ endif()
 
 #add_subdirectory(unittest-cpp)
 add_subdirectory(lalr)
-target_compile_options(UnitTest++ PUBLIC -Wno-error)
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+else()
+  target_compile_options(UnitTest++ PUBLIC -Wno-error)
+endif()
+
 
 add_subdirectory(glfw)
 
