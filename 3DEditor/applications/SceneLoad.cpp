@@ -25,9 +25,9 @@ bool loadMeshes(tp::Scene& scene, const std::string& objetsPath) {
 		}
 
 		for (int j = 0; j < curMesh.Indices.size(); j += 3) {
-			uint idx1 = (int) curMesh.Indices[j];
-			uint idx2 = (int) curMesh.Indices[j + 1];
-			uint idx3 = (int) curMesh.Indices[j + 2];
+			uint4 idx1 = (int) curMesh.Indices[j];
+			uint4 idx2 = (int) curMesh.Indices[j + 1];
+			uint4 idx3 = (int) curMesh.Indices[j + 2];
 			// printf("{ %i, %i, %i },\n", idx1, idx2, idx3);
 			object->mTopology.Indexes.append({ idx1, idx2, idx3 });
 		}

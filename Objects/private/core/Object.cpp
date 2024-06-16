@@ -42,7 +42,7 @@ void obj::save_string(ArchiverOut& file, const std::string& string) {
 ualni obj::save_string_size(const std::string& string) { return string.size() + sizeof(string.size()); }
 
 void obj::load_string(ArchiverIn& file, std::string& out) {
-	typeof(out.size()) size;
+	std::size_t size;
 	file >> size;
 	auto buff = new char[size + 1];
 	file.readBytes(buff, size);
