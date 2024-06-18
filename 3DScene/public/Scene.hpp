@@ -11,11 +11,17 @@ namespace tp {
 	public:
 		GPUBuffers() = default;
 		virtual ~GPUBuffers() = default;
+
+		virtual void drawCall() = 0;
 	};
 
 	class Object {
 	public:
 		Object() = default;
+
+		~Object() {
+			delete mGUPBuffers;
+		};
 
 	public:
 		Topology mTopology;
