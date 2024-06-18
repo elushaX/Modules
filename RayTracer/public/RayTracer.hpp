@@ -56,6 +56,7 @@ namespace tp {
 			RenderBuffer normals;
 			RenderBuffer color;
 			RenderBuffer depth;
+			RenderBuffer albedo;
 			// albedo, reflectance ...
 		};
 

@@ -10,7 +10,7 @@ namespace tp {
 			mRender(renderResolution) {
 
 			mImage = canvas->createImageFromTextId(mRender.getRenderBufferID(), { 0, 0 });
-			mGeometry = geometry;
+			mScene = geometry;
 			mCanvas = canvas;
 		}
 
@@ -18,18 +18,18 @@ namespace tp {
 
 		void eventProcess(const Events& events) override {
 			mRender.getRenderBuffer()->resize(this->mArea.size);
-			mGeometry->mCamera.rotate(0.01f, 0.0);
-			mGeometry->mCamera.setRatio(this->mArea.w / this->mArea.z);
+			mScene->mCamera.rotate(0.01f, 0.0);
+			mScene->mCamera.setRatio(this->mArea.w / this->mArea.z);
 		}
 
 		void eventDraw(Canvas& canvas) override {
-			mRender.render(*mGeometry, this->mArea.size);
+			mRender.render(*mScene, this->mArea.size);
 			canvas.drawImage(this->mArea, &mImage, PI);
 		}
 
 	public:
 		Render mRender;
-		Scene* mGeometry = nullptr;
+		Scene* mScene = nullptr;
 		Canvas* mCanvas = nullptr;
 		Canvas::ImageHandle mImage;
 	};
