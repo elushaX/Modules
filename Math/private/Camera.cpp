@@ -57,7 +57,7 @@ Mat4F Camera::calculateProjectionMatrix() const {
 	return out;
 }
 
-Vec3F Camera::project(Vec2F normalized) {
+Vec3F Camera::project(Vec2F normalized) const {
 	auto camMat = calculateTransformationMatrix();
 	auto inv = camMat.inv();
 
@@ -68,7 +68,7 @@ Vec3F Camera::project(Vec2F normalized) {
 	return Vec3F(inv * world_pos4);
 }
 
-Vec2F Camera::project(const Vec3F& world) {
+Vec2F Camera::project(const Vec3F& world) const {
 	Vec4F world_pos4(world.x, world.y, world.z, 1);
 	Vec4F transformed = calculateViewMatrix() * world_pos4;
 	transformed = calculateProjectionMatrix() * transformed;

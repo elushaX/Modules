@@ -58,7 +58,7 @@ void Editor::loadDefaults() {
 
 void Editor::setViewportSize(const Vec2F& size) {
 	// TODO remove
-	mScene.mCamera.rotate(0.01f, 0.0);
+	// mScene.mCamera.rotate(0.01f, 0.0);
 
 	mScene.mRenderSettings.size = size;
 
@@ -72,6 +72,7 @@ Editor::~Editor() {
 
 void Editor::renderPathFrame() {
 	mPathRenderer.render(mScene, mPathTracerBuffers, mScene.mRenderSettings);
+	// mPathTracerBuffers.color.flipY();
 
 	{
 		glBindTexture(GL_TEXTURE_2D, mPathRenderTexture);
