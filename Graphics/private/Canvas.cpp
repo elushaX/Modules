@@ -125,6 +125,7 @@ void Canvas::drawImage(const RectF& rec, ImageHandle* image, halnf angle, halnf 
 #ifdef ENV_OS_ANDROID
 	 return { (ualni) nvglCreateImageFromHandleGLES3(mContext->vg, id, size.x, size.y, 0) };
 #else
+	 //return { (ualni) nvglCreateImageFromHandleGL3(mContext->vg, id, size.x, size.y, 0) };
 	 return { (ualni) nvglCreateImageFromHandleGL3(mContext->vg, id, size.x, size.y, 0) };
 #endif
 }

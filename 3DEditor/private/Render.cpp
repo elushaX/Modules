@@ -65,7 +65,7 @@ Render::Render(Vec2F renderResolution) :
 
 Render::~Render() {}
 
-uint4 Render::getRenderBuffer() { return mRenderBuffer.texId(); }
+uint4 Render::getRenderBufferID() { return mRenderBuffer.texId(); }
 
 Vec2F Render::getBufferSize() { return mRenderBuffer.getSize(); }
 
@@ -77,7 +77,7 @@ void Render::render(const Scene& geometry, Vec2F size) {
 		}
 	}
 
-	mRenderBuffer.mClearCol = { 0.0f, 0.0f, 0.0f, 0.f };
+	mRenderBuffer.mClearCol = { 0.0f, 0.0f, 0.0f, 1.f };
 
 	mRenderBuffer.beginDraw();
 	mRenderBuffer.clear();
@@ -108,3 +108,5 @@ void Render::render(const Scene& geometry, Vec2F size) {
 
 	mRenderBuffer.endDraw();
 }
+
+RenderBuffer* Render::getRenderBuffer() { return &mRenderBuffer; }

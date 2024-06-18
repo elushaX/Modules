@@ -9,14 +9,18 @@ namespace tp {
 		explicit ViewportWidget(Canvas* canvas, Scene* geometry, Vec2F renderResolution) :
 			mRender(renderResolution) {
 
-			mImage = canvas->createImageFromTextId(mRender.getRenderBuffer(), mRender.getBufferSize());
+			mImage = canvas->createImageFromTextId(mRender.getRenderBufferID(), { 0, 0 });
 			mGeometry = geometry;
 			mCanvas = canvas;
 		}
 
 		~ViewportWidget() { mCanvas->deleteImageHandle(mImage); }
 
-		void eventProcess(const Events& events) override { mGeometry->mCamera.rotate(0.01f, 0.0); }
+		void eventProcess(const Events& events) override {
+			mRender.getRenderBuffer()->resize(this->mArea.size);
+			mGeometry->mCamera.rotate(0.01f, 0.0);
+			mGeometry->mCamera.setRatio(this->mArea.w / this->mArea.z);
+		}
 
 		void eventDraw(Canvas& canvas) override {
 			mRender.render(*mGeometry, this->mArea.size);
