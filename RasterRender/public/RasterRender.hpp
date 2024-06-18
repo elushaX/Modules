@@ -7,10 +7,10 @@
 #include "Shader.hpp"
 
 namespace tp {
-	class Render {
+	class RasterRender {
 	public:
-		explicit Render(Vec2F renderResolution);
-		~Render();
+		explicit RasterRender(Vec2F renderResolution);
+		~RasterRender();
 
 		void render(const Scene& geometry, Vec2F size);
 		uint4 getRenderBufferID();
