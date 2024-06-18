@@ -63,6 +63,8 @@ Window* Window::createWindow(Vec2F size, const char* title) {
 	}
 	count--;
 
+	glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+
 	// Initialize GLFW
 	if (!glfwInit()) {
 		printf("Failed to initialize GLFW\n");
@@ -70,7 +72,9 @@ Window* Window::createWindow(Vec2F size, const char* title) {
 	}
 
 	// Set the GLFW error callback
-	glfwSetErrorCallback([](int error, const char* description) { printf("GLFW Error: %i %s\n", error, description); });
+	glfwSetErrorCallback([](int error, const char* description) {
+		printf("GLFW Error: %i %s\n", error, description);
+	});
 
 	auto out = new Window(size, title);
 
