@@ -80,8 +80,6 @@ namespace tp {
 		bool operator==(const RGBA& in) const { return r == in.r && g == in.g && b == in.b && a == in.a; }
 
 	public:
-		flt4 a;
-
 		union {
 			RGB rgbs;
 
@@ -91,6 +89,8 @@ namespace tp {
 				flt4 b;
 			};
 		};
+
+		flt4 a;
 	};
 
 	class HSVA {

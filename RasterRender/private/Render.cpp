@@ -15,7 +15,7 @@ uint4 RasterRender::getRenderBufferID() { return mRenderBuffer.texId(); }
 
 Vec2F RasterRender::getBufferSize() { return mRenderBuffer.getSize(); }
 
-void RasterRender::render(const Scene& geometry, Vec2F size) {
+void RasterRender::render(const Scene& geometry, const Vec2<ualni>& size) {
 
 	for (auto object : geometry.mObjects) {
 		if (!object->mGUPBuffers) {

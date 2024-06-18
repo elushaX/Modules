@@ -40,7 +40,7 @@ namespace tp {
 		void allocateBuffer(Index2D size) {
 			deleteBuffer();
 			mBuff = (tType*) mAlloc.allocate(sizeof(tType) * size.x * size.y);
-			for (ualni i = 0; i < mSize.x * mSize.y; i++) {
+			for (ualni i = 0; i < size.x * size.y; i++) {
 				new (mBuff + i) tType();
 			}
 		}

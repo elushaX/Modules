@@ -12,7 +12,7 @@ namespace tp {
 		RasterRender();
 		~RasterRender();
 
-		void render(const Scene& geometry, Vec2F size);
+		void render(const Scene& geometry, const Vec2<ualni>& size);
 		uint4 getRenderBufferID();
 		RenderBuffer* getRenderBuffer();
 		Vec2F getBufferSize();

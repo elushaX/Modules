@@ -20,6 +20,6 @@ Lights = {
 
 RenderSettings = {
     depth = 1,
-    spray = 3,
-    multisampling = 16,
+    spray = 1,
+    multisampling = 1,
 }
