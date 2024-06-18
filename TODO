@@ -85,14 +85,9 @@ LibraryViewer:
 Math:
 	FFT
 
-3DScene:
-    implement and use in raytracer on raster engines
-
 3DEditor:
     Features:
         add gizmos
-        use 3D scene
-        include raytracer engine
 
 RayTracer:
 	Features:
