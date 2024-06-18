@@ -130,6 +130,14 @@ void Canvas::drawImage(const RectF& rec, ImageHandle* image, halnf angle, halnf 
 #endif
 }
 
+void Canvas::updateTextureID(ImageHandle handle, ualni id) {
+	auto nvgl = (GLNVGcontext*) nvgInternalParams(mContext->vg)->userPtr;
+	auto glhandle = nvglImageHandleGL3(mContext->vg, handle.id);
+
+	auto tex = glnvg__findTexture(nvgl, handle.id);
+	tex->tex = id;
+}
+
 void Canvas::deleteImageHandle(ImageHandle image) {
 	if (image.id) {
 		nvgDeleteImage(mContext->vg, image.id);

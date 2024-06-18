@@ -61,6 +61,8 @@ namespace tp {
 		void text(const char*, const RectF&, halnf size, Align, halnf padding, const RGBA&);
 
 		ImageHandle createImageFromTextId(ualni id, Vec2F size);
+		void updateTextureID(ImageHandle handle, ualni id);
+
 		void deleteImageHandle(ImageHandle image);
 		void drawImage(const RectF& rec, ImageHandle* image, halnf angle = 0, halnf alpha = 1.f, halnf rounding = 0.f);
 

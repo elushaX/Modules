@@ -6,21 +6,31 @@
 namespace tp {
 	class Editor {
 	public:
-		Editor() = default;
+		enum class RenderType { RASTER, PATH_TRACER };
+
+	public:
+		Editor();
+		~Editor();
 
 		void loadDefaults();
 
 		uint4 getViewportTexID();
+
 		void setViewportSize(const Vec2F& size);
 		void renderViewport();
+
+		void renderPathFrame();
+		void setRenderType(RenderType type);
 
 	private:
 		Scene mScene;
 
+		RenderType mRenderType = RenderType::RASTER;
+
 		RasterRender mRasterRenderer;
 		RayTracer mPathRenderer;
 
-		// TODO move inside the scene
-		Vec2F mViewportSize;
+		RayTracer::OutputBuffers mPathTracerBuffers;
+		uint4 mPathRenderTexture = 0;
 	};
 }

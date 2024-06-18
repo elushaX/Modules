@@ -21,6 +21,8 @@ namespace tp {
 
 		void eventDraw(Canvas& canvas) override {
 			mEditor->renderViewport();
+
+			canvas.updateTextureID(mImage, mEditor->getViewportTexID());
 			canvas.drawImage(this->mArea, &mImage, PI);
 		}
 
@@ -37,16 +39,38 @@ namespace tp {
 		EditorWidget(Canvas* canvas, Editor* editor) :
 			mViewport(canvas, editor)
 		{
+			mEditor = editor;
+
 			this->mChildWidgets.pushBack(&mViewport);
 			this->mChildWidgets.pushBack(&mSplitView);
+			this->mChildWidgets.pushBack(&mSettingsWidget);
+
+			mRenderPathTracer.mLabel.mLabel = "Render with Path Tracer";
+			mRenderRaster.mLabel.mLabel = "Render with Raster";
+
+			mSettingsWidget.addWidget(&mRenderPathTracer);
+			mSettingsWidget.addWidget(&mRenderRaster);
 		}
 
 		void eventProcess(const Events& events) override {
 			mSplitView.setArea(this->mArea);
+
 			mViewport.setArea(mSplitView.getFirst());
+			mSettingsWidget.setArea(mSplitView.getSecond());
+
+			if (mRenderPathTracer.isFired()) {
+				mEditor->renderPathFrame();
+				mEditor->setRenderType(Editor::RenderType::PATH_TRACER);
+			}
+
+			if (mRenderRaster.isFired()) {
+				mEditor->setRenderType(Editor::RenderType::RASTER);
+			}
 		}
 
-		void eventDraw(Canvas& canvas) override { canvas.rect(this->mArea, mBaseColor); }
+		void eventDraw(Canvas& canvas) override {
+			canvas.rect(this->mArea, mBaseColor);
+		}
 
 		void eventUpdateConfiguration(WidgetManager& wm) override {
 			wm.setActiveId("3DEditor");
@@ -54,8 +78,16 @@ namespace tp {
 		}
 
 	public:
-		ViewportWidget<Events, Canvas> mViewport;
+		Editor* mEditor = nullptr;
+
 		SplitView<Events, Canvas> mSplitView;
+
+		ViewportWidget<Events, Canvas> mViewport;
+
+		// Controls
+		ScrollableWindow<Events, Canvas> mSettingsWidget;
+		ButtonWidget<Events, Canvas> mRenderPathTracer;
+		ButtonWidget<Events, Canvas> mRenderRaster;
 
 		RGBA mBaseColor;
 	};

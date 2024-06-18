@@ -8,7 +8,7 @@ namespace tp {
 	class ButtonWidget : public Widget<Events, Canvas> {
 	public:
 		ButtonWidget() {
-			this->setArea({ 0, 0, 100, 100 });
+			this->setArea({ 0, 0, 100, 30 });
 			this->mChildWidgets.pushBack(&mLabel);
 		}
 
