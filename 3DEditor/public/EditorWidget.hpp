@@ -1,5 +1,5 @@
 #include "Widgets.hpp"
-#include "Render.hpp"
+#include "RasterRender.hpp"
 
 namespace tp {
 
@@ -28,8 +28,9 @@ namespace tp {
 		}
 
 	public:
-		Render mRender;
+		RasterRender mRender;
 		Scene* mScene = nullptr;
+
 		Canvas* mCanvas = nullptr;
 		Canvas::ImageHandle mImage;
 	};

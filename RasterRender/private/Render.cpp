@@ -1,21 +1,21 @@
-#include "Render.hpp"
+#include "RasterRender.hpp"
 #include "GPUBuffers.hpp"
 
 using namespace tp;
 
-Render::Render(Vec2F renderResolution) :
+RasterRender::RasterRender(Vec2F renderResolution) :
 	mRenderBuffer(renderResolution) {
 
 	mDefaultShader.load("rsc/shaders/default.vert", nullptr, "rsc/shaders/default.frag", true);
 }
 
-Render::~Render() {}
+RasterRender::~RasterRender() {}
 
-uint4 Render::getRenderBufferID() { return mRenderBuffer.texId(); }
+uint4 RasterRender::getRenderBufferID() { return mRenderBuffer.texId(); }
 
-Vec2F Render::getBufferSize() { return mRenderBuffer.getSize(); }
+Vec2F RasterRender::getBufferSize() { return mRenderBuffer.getSize(); }
 
-void Render::render(const Scene& geometry, Vec2F size) {
+void RasterRender::render(const Scene& geometry, Vec2F size) {
 
 	for (auto object : geometry.mObjects) {
 		if (!object->mGUPBuffers) {
@@ -55,4 +55,4 @@ void Render::render(const Scene& geometry, Vec2F size) {
 	mRenderBuffer.endDraw();
 }
 
-RenderBuffer* Render::getRenderBuffer() { return &mRenderBuffer; }
+RenderBuffer* RasterRender::getRenderBuffer() { return &mRenderBuffer; }
