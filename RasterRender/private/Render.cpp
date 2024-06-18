@@ -3,9 +3,9 @@
 
 using namespace tp;
 
-RasterRender::RasterRender(Vec2F renderResolution) :
-	mRenderBuffer(renderResolution) {
-
+RasterRender::RasterRender() :
+	mRenderBuffer({ 100, 100 })
+{
 	mDefaultShader.load("rsc/shaders/default.vert", nullptr, "rsc/shaders/default.frag", true);
 }
 

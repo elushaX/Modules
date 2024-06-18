@@ -1,35 +1,31 @@
 #include "Widgets.hpp"
-#include "RasterRender.hpp"
+
+#include "Editor.hpp"
 
 namespace tp {
 
 	template <typename Events, typename Canvas>
 	class ViewportWidget : public Widget<Events, Canvas> {
 	public:
-		explicit ViewportWidget(Canvas* canvas, Scene* geometry, Vec2F renderResolution) :
-			mRender(renderResolution) {
-
-			mImage = canvas->createImageFromTextId(mRender.getRenderBufferID(), { 0, 0 });
-			mScene = geometry;
+		explicit ViewportWidget(Canvas* canvas, Editor* editor) {
+			mEditor = editor;
+			mImage = canvas->createImageFromTextId(mEditor->getViewportTexID(), { 0, 0 });
 			mCanvas = canvas;
 		}
 
 		~ViewportWidget() { mCanvas->deleteImageHandle(mImage); }
 
 		void eventProcess(const Events& events) override {
-			mRender.getRenderBuffer()->resize(this->mArea.size);
-			mScene->mCamera.rotate(0.01f, 0.0);
-			mScene->mCamera.setRatio(this->mArea.w / this->mArea.z);
+			mEditor->setViewportSize(this->mArea.size);
 		}
 
 		void eventDraw(Canvas& canvas) override {
-			mRender.render(*mScene, this->mArea.size);
+			mEditor->renderViewport();
 			canvas.drawImage(this->mArea, &mImage, PI);
 		}
 
 	public:
-		RasterRender mRender;
-		Scene* mScene = nullptr;
+		Editor* mEditor;
 
 		Canvas* mCanvas = nullptr;
 		Canvas::ImageHandle mImage;
@@ -38,9 +34,9 @@ namespace tp {
 	template <typename Events, typename Canvas>
 	class EditorWidget : public Widget<Events, Canvas> {
 	public:
-		EditorWidget(Canvas* canvas, Scene* geometry, Vec2F renderResolution) :
-			mViewport(canvas, geometry, renderResolution) {
-
+		EditorWidget(Canvas* canvas, Editor* editor) :
+			mViewport(canvas, editor)
+		{
 			this->mChildWidgets.pushBack(&mViewport);
 			this->mChildWidgets.pushBack(&mSplitView);
 		}

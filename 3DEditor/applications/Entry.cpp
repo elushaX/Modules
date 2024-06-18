@@ -9,13 +9,12 @@ using namespace tp;
 class EditorGUI : public Application {
 public:
 	EditorGUI() {
-		Vec2F renderResolution = { 1000, 1000 };
 		auto canvas = this->mGraphics->getCanvas();
-		mGui = new EditorWidget<EventHandler, Canvas>(canvas, &mScene, renderResolution);
+		mGui = new EditorWidget<EventHandler, Canvas>(canvas, &mEditor);
 
-		mScene.load("rsc/scene/script.lua");
+		mEditor.loadDefaults();
 
-		mScene.mCamera.lookAtPoint({ 0, 0, 0 }, { 3, 3, 2 }, { 0, 0, 1 });
+		// mScene.mCamera.lookAtPoint({ 0, 0, 0 }, { 3, 3, 2 }, { 0, 0, 1 });
 	}
 
 	~EditorGUI() override { delete mGui; }
@@ -32,7 +31,7 @@ public:
 	void drawFrame(Canvas* canvas) override { mGui->drawWrapper(*canvas); }
 
 private:
-	Scene mScene;
+	Editor mEditor;
 	WidgetManager mWidgetManager;
 	EditorWidget<EventHandler, Canvas>* mGui;
 };

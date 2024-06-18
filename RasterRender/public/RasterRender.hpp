@@ -9,7 +9,7 @@
 namespace tp {
 	class RasterRender {
 	public:
-		explicit RasterRender(Vec2F renderResolution);
+		RasterRender();
 		~RasterRender();
 
 		void render(const Scene& geometry, Vec2F size);
