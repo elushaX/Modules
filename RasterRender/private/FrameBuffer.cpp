@@ -4,7 +4,10 @@
 
 #include <stdio.h>
 
-void glerr(GLenum type) { printf("GL ERROR\n"); }
+void glerr(GLenum type) {
+	printf("GL ERROR - %i\n", type);
+}
+
 #define AssertGL(x)                         \
 	{                                         \
 		x;                                      \
@@ -15,7 +18,8 @@ void glerr(GLenum type) { printf("GL ERROR\n"); }
 using namespace tp;
 
 RenderBuffer::RenderBuffer(const Vec2F& size) :
-	mSize(size) {
+	mSize(size), mSamples(0)
+{
 
 	mDrawBuffers[0] = { GL_COLOR_ATTACHMENT0 };
 
@@ -47,7 +51,8 @@ RenderBuffer::RenderBuffer(const Vec2F& size) :
 }
 
 RenderBuffer::RenderBuffer(const Vec2F& size, tp::uint1 samples) :
-	mSize(size) {
+	mSize(size), mSamples(samples)
+{
 
 	mDrawBuffers[0] = { GL_COLOR_ATTACHMENT0 };
 
@@ -115,3 +120,40 @@ RenderBuffer::~RenderBuffer() {
 uint4 RenderBuffer::texId() const { return mTextureId; }
 
 const Vec2F& RenderBuffer::getSize() const { return mSize; }
+
+void RenderBuffer::resize(const Vec2F& size) {
+	if (size == mSize) return;
+
+	// Update size
+	mSize = size;
+
+	// Bind framebuffer
+	AssertGL(glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferID));
+
+	// Resize color texture
+	if (mSamples) {
+		AssertGL(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, mTextureId));
+		AssertGL(glTexImage2DMultisample(
+			GL_TEXTURE_2D_MULTISAMPLE, mSamples, GL_RGBA, (GLsizei)size.x, (GLsizei)size.y, GL_TRUE
+		));
+		AssertGL(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0));
+	} else {
+		AssertGL(glBindTexture(GL_TEXTURE_2D, mTextureId));
+		AssertGL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)size.x, (GLsizei)size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0));
+		AssertGL(glBindTexture(GL_TEXTURE_2D, 0));
+	}
+
+	// Resize depth renderbuffer
+	if (mSamples) {
+		AssertGL(glBindRenderbuffer(GL_RENDERBUFFER, mDepthBufferID));
+		AssertGL(glRenderbufferStorageMultisample(
+			GL_RENDERBUFFER, mSamples, GLW_CONTEXT_DEPTH_COMPONENT, (GLsizei)size.x, (GLsizei)size.y
+		));
+	} else {
+		AssertGL(glBindRenderbuffer(GL_RENDERBUFFER, mDepthBufferID));
+		AssertGL(glRenderbufferStorage(GL_RENDERBUFFER, GLW_CONTEXT_DEPTH_COMPONENT, (GLsizei)size.x, (GLsizei)size.y));
+	}
+
+	// Unbind framebuffer
+	AssertGL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+}

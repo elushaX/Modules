@@ -13,7 +13,8 @@ namespace tp {
 		~Render();
 
 		void render(const Scene& geometry, Vec2F size);
-		uint4 getRenderBuffer();
+		uint4 getRenderBufferID();
+		RenderBuffer* getRenderBuffer();
 		Vec2F getBufferSize();
 
 	private:
