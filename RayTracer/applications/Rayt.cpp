@@ -74,9 +74,10 @@ void renderCommand(const std::string& scenePath) {
 
 	std::cout << "\nRender finished with average render time per sample - " << (end - start) << " (ms)\n";
 
-	writeImage(output.normals, "normals.png");
+	writeImage(output.normals, "normal.png");
 	writeImage(output.color, "color.png");
 	writeImage(output.depth, "depth.png");
+	writeImage(output.albedo, "albedo.png");
 }
 
 int main(int argc, const char** argv) {

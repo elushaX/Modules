@@ -45,6 +45,7 @@ using namespace tp;
 
 void RayTracer::castRay(const Ray& ray, RayCastData& out, alnf farVal) {
 	out.hit = false;
+	out.obj = nullptr;
 
 	farVal *= farVal;
 
@@ -120,6 +121,7 @@ void RayTracer::render(const Scene& scene, OutputBuffers& out, const RenderSetti
 	out.color.reserve({ settings.size.x, settings.size.y });
 	out.normals.reserve({ settings.size.x, settings.size.y });
 	out.depth.reserve({ settings.size.x, settings.size.y });
+	out.albedo.reserve({ settings.size.x, settings.size.y });
 
 	mScene = &scene;
 	mSettings = settings;
@@ -169,6 +171,7 @@ void RayTracer::render(const Scene& scene, OutputBuffers& out, const RenderSetti
 			out.color.set({ i, j }, 0.f);
 			out.normals.set({ i, j }, 0.f);
 			out.depth.set({ i, j }, 0.f);
+			out.albedo.set({ i, j }, 0.f);
 		}
 	}
 
@@ -182,6 +185,13 @@ void RayTracer::render(const Scene& scene, OutputBuffers& out, const RenderSetti
 				ray.dir = (iterPoint - pos).unitV();
 
 				castRay(ray, castData, mScene->mCamera.getFar());
+
+				halni albedoColor = abs(hash((ualni) castData.obj));
+				halnf albedoColorR = float((albedoColor & 0x00000011) % 155) + 100;
+				halnf albedoColorG = float((albedoColor & 0x00001100) % 155) + 100;
+				halnf albedoColorB = float((albedoColor & 0x00110000) % 155) + 100;
+
+				out.albedo.set({ i, j }, { albedoColorR, albedoColorG, albedoColorB, 1.f });
 
 				if (castData.hit) {
 					LightData lightData;
@@ -198,9 +208,9 @@ void RayTracer::render(const Scene& scene, OutputBuffers& out, const RenderSetti
 					accumulateColor(out.depth.get({ i, j }), { depth, depth, depth, 1.f });
 
 				} else {
-					out.color.set({ i, j }, 0.f);
-					out.normals.set({ i, j }, 0.f);
-					out.depth.set({ i, j }, 0.f);
+					// out.color.set({ i, j }, 0.f);
+					// out.normals.set({ i, j }, 0.f);
+					// out.depth.set({ i, j }, 0.f);
 				}
 
 				// auto tmp = buff.get({i, j});
