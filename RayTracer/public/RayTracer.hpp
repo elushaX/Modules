@@ -1,41 +1,12 @@
 
 #pragma once
 
-#include "Buffer2D.hpp"
-#include "Camera.hpp"
+#include "Scene.hpp"
 #include "Color.hpp"
 #include "Module.hpp"
-#include "Topology.hpp"
 #include "Vec.hpp"
 
 namespace tp {
-
-	extern ModuleManifest gModuleRayTracer;
-
-	class Object {
-	public:
-		Object() = default;
-
-	public:
-		Topology mTopology;
-		TopologyCache mCache;
-	};
-
-	struct PointLight {
-		Vec3F pos;
-		halnf fallOut = 1.f;
-		halnf intensity = 1.f;
-	};
-
-	class Scene {
-	public:
-		Scene() = default;
-
-	public:
-		Buffer<Object> mObjects;
-		Buffer<PointLight> mLights;
-		Camera mCamera;
-	};
 
 	class RayTracer {
 	public:
