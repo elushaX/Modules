@@ -1,7 +1,7 @@
 
 // #include "NewPlacement.hpp"
 
-#include "Rayt.hpp"
+#include "RayTracer.hpp"
 
 #include "Timing.hpp"
 
@@ -53,9 +53,11 @@ void printStatus(const halnf* percentage) {
 
 void renderCommand(const std::string& scenePath) {
 	Scene scene;
-	RayTracer::RenderSettings settings;
+	RenderSettings& settings = scene.mRenderSettings;
 
-	loadScene(scene, scenePath, settings);
+	if (!scene.load(scenePath)) {
+		return;
+	}
 
 	RayTracer::OutputBuffers output;
 	RayTracer rayt;

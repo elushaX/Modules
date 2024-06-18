@@ -80,7 +80,7 @@ SUITE(RayTracer) {
 		object.mCache.Source = &object.mTopology;
 		object.mCache.updateCache();
 
-		RayTracer::RenderSettings settings = {
+		RenderSettings settings = {
 			0,
 			0,
 			1,

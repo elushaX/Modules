@@ -10,7 +10,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC 3DScene Connection)
 ### -------------------------- Applications  --------------------------  ###
 file(GLOB APP_SOURCES "./applications/*.cpp")
 add_executable(rayt ${APP_SOURCES})
-target_link_libraries(rayt ${PROJECT_NAME} Lua ImageIO)
+target_link_libraries(rayt ${PROJECT_NAME} ImageIO)
 file(COPY "rsc" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
 
 ### -------------------------- Tests  --------------------------  ###

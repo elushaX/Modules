@@ -10,4 +10,4 @@ target_include_directories(${PROJECT_NAME} PUBLIC ./public/)
 target_include_directories(${PROJECT_NAME} PRIVATE ../Externals/)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC Math)
-target_link_libraries(${PROJECT_NAME} PUBLIC ${BINDINGS_LIBS})
+target_link_libraries(${PROJECT_NAME} PRIVATE Lua)
