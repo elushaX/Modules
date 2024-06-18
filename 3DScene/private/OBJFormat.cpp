@@ -10,7 +10,7 @@ extern "C" {
 
 #include <filesystem>
 
-bool tp::Scene::load(const std::string& objetsPath) {
+bool tp::Scene::loadOBJFormat(const std::string& objetsPath) {
 	using namespace tp;
 
 	objl::Loader Loader;

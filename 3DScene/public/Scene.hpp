@@ -7,6 +7,13 @@
 #include <string>
 
 namespace tp {
+	struct RenderSettings {
+		uhalni depth = 2;
+		uhalni spray = 1;
+		ualni multisampling = 1;
+		Vec2<ualni> size;
+	};
+
 	class GPUBuffers {
 	public:
 		GPUBuffers() = default;
@@ -41,9 +48,14 @@ namespace tp {
 
 		bool load(const std::string& scenePath);
 
+		bool loadLuaFormat(const std::string& scenePath);
+		bool loadOBJFormat(const std::string& objectsPath);
+
 	public:
 		Buffer<Object> mObjects;
 		Buffer<PointLight> mLights;
 		Camera mCamera;
+
+		RenderSettings mRenderSettings;
 	};
 }

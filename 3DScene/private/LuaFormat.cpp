@@ -1,5 +1,5 @@
 
-#include "Rayt.hpp"
+#include "Scene.hpp"
 
 extern "C" {
 #include "lauxlib.h"
@@ -9,7 +9,7 @@ extern "C" {
 #include <filesystem>
 
 // Function to read a Lua table representing RenderSettings
-int readRenderSettings(lua_State* L, tp::RayTracer::RenderSettings& settings) {
+int readRenderSettings(lua_State* L, tp::RenderSettings& settings) {
 	lua_getglobal(L, "RenderSettings");
 	if (!lua_istable(L, -1)) {
 		printf("RenderSettings is not a table.\n");
@@ -83,7 +83,7 @@ int readLight(lua_State* L, tp::PointLight* light) {
 	return 1; // Success
 }
 
-void loadScene(tp::Scene& scene, const std::string& scenePath, tp::RayTracer::RenderSettings& settings) {
+bool tp::Scene::loadLuaFormat(const std::string& scenePath) {
 	lua_State* L = luaL_newstate();
 	luaL_openlibs(L);
 
@@ -100,7 +100,7 @@ void loadScene(tp::Scene& scene, const std::string& scenePath, tp::RayTracer::Re
 	if (luaL_dofile(L, scenePath.c_str()) != 0) {
 		lua_close(L);
 		printf("Cant open scene script.\n");
-		return;
+		return false;
 	}
 
 	lua_getglobal(L, "Meshes");
@@ -110,14 +110,14 @@ void loadScene(tp::Scene& scene, const std::string& scenePath, tp::RayTracer::Re
 
 		directoryPath /= meshesPath;
 
-		if (!scene.load(directoryPath.string())) {
+		if (!loadOBJFormat(directoryPath.string())) {
 			printf("No 'meshes' loaded - check ur .obj path and validate content of .obj .\n");
-			return;
+			return false;
 		}
 
 	} else {
 		printf("No 'meshes' path given.\n");
-		return;
+		return false;
 	}
 
 	// --- camera
@@ -127,7 +127,7 @@ void loadScene(tp::Scene& scene, const std::string& scenePath, tp::RayTracer::Re
 	if (!lua_istable(L, -1)) {
 		printf("Camera is not a table.\n");
 		lua_close(L);
-		return;
+		return false;
 	}
 
 	// Verify you are inside the "Camera" table
@@ -138,7 +138,7 @@ void loadScene(tp::Scene& scene, const std::string& scenePath, tp::RayTracer::Re
 	if (!lua_istable(L, -1) || lua_rawlen(L, -1) != 3) {
 		printf("Invalid 'pos' field in Camera table.\n");
 		lua_close(L);
-		return;
+		return false;
 	}
 
 	// Read the values from the table
@@ -150,7 +150,7 @@ void loadScene(tp::Scene& scene, const std::string& scenePath, tp::RayTracer::Re
 		} else {
 			printf("Invalid 'pos' field value at index %d.\n", i + 1);
 			lua_close(L);
-			return;
+			return false;
 		}
 		lua_pop(L, 1);
 	}
@@ -160,7 +160,7 @@ void loadScene(tp::Scene& scene, const std::string& scenePath, tp::RayTracer::Re
 	if (!lua_isnumber(L, -1)) {
 		printf("Invalid or missing 'size_x' field in Camera table.\n");
 		lua_close(L);
-		return;
+		return false;
 	}
 	int size_x = lua_tointeger(L, -1);
 	lua_pop(L, 1); // Pop the 'size_x' value from the stack
@@ -170,16 +170,16 @@ void loadScene(tp::Scene& scene, const std::string& scenePath, tp::RayTracer::Re
 	if (!lua_isnumber(L, -1)) {
 		printf("Invalid or missing 'size_y' field in Camera table.\n");
 		lua_close(L);
-		return;
+		return false;
 	}
 	int size_y = lua_tointeger(L, -1);
 
-	settings.size = { (tp::halnf) size_x, (tp::halnf) size_y };
+	mRenderSettings.size = { (tp::halnf) size_x, (tp::halnf) size_y };
 
-	scene.mCamera.lookAtPoint({ 0, 0, 0 }, { pos[0], pos[1], pos[2] }, { 0, 0, 1 });
-	scene.mCamera.setFOV(3.14 / 4);
-	scene.mCamera.setFar(100);
-	scene.mCamera.setRatio((tp::halnf) size_y / (tp::halnf) size_x);
+	mCamera.lookAtPoint({ 0, 0, 0 }, { pos[0], pos[1], pos[2] }, { 0, 0, 1 });
+	mCamera.setFOV(3.14 / 4);
+	mCamera.setFar(100);
+	mCamera.setRatio((tp::halnf) size_y / (tp::halnf) size_x);
 
 	// ---------- LIGHTS
 	{
@@ -187,7 +187,7 @@ void loadScene(tp::Scene& scene, const std::string& scenePath, tp::RayTracer::Re
 		if (!lua_istable(L, -1)) {
 			printf("Lights is not a table.\n");
 			lua_close(L);
-			return; // Error
+			return false; // Error
 		}
 
 		// Read and process each light in the "Lights" table
@@ -199,20 +199,22 @@ void loadScene(tp::Scene& scene, const std::string& scenePath, tp::RayTracer::Re
 				if (!readLight(L, &light)) {
 					printf("Cant read lights data\n");
 					lua_close(L);
-					return; // Error
+					return false; // Error
 				}
-				scene.mLights.append(light);
+				mLights.append(light);
 			}
 			lua_pop(L, 1); // Pop the i-th light table
 		}
 	}
 
 	// ----------- settings --------------
-	if (!readRenderSettings(L, settings)) {
+	if (!readRenderSettings(L, mRenderSettings)) {
 		printf("Cant Read Render Settings");
 		lua_close(L);
-		return; // Error
+		return false; // Error
 	}
 
 	lua_close(L);
+
+	return true;
 }

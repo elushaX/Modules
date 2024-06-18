@@ -13,7 +13,7 @@ public:
 		auto canvas = this->mGraphics->getCanvas();
 		mGui = new EditorWidget<EventHandler, Canvas>(canvas, &mScene, renderResolution);
 
-		mScene.load("rsc/scene.obj");
+		mScene.load("rsc/scene/script.lua");
 
 		mScene.mCamera.lookAtPoint({ 0, 0, 0 }, { 3, 3, 2 }, { 0, 0, 1 });
 	}
