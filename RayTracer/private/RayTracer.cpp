@@ -127,24 +127,22 @@ void RayTracer::render(const Scene& scene, OutputBuffers& out, const RenderSetti
 	mSettings = settings;
 
 	auto pos = mScene->mCamera.getPos();
-	auto fov = mScene->mCamera.getFOV();
-	auto height = sqrt(mScene->mCamera.getRatio());
-	auto width = 1.f / height;
-	auto forward = mScene->mCamera.getForward();
-	auto up = mScene->mCamera.getUp();
-	auto right = forward.cross(up);
-	auto planeCenter = pos + (forward * halnf(width / (2.f * tan(fov / 2.f))));
-	auto planeCenterOffset = (up * (halnf) height / 2.f) - (right * (halnf) width / 2.f);
+	auto camera = mScene->mCamera;
 
-	auto planeLeftTop = planeCenter + planeCenterOffset;
+	const auto planeLeftTop = camera.project({ -1, -1 });
+	const auto planeRightTop = camera.project({ 1, -1 });
+	const auto planeRightBottom = camera.project({ 1, 1 });
+
+	const auto up = (planeRightBottom - planeRightTop);
+	const auto right = planeRightTop - planeLeftTop;
 
 	RayCastData castData;
 
 	Ray ray = { { 0, 0, 0 }, pos };
 
 	Vec3F iterPoint = { 0, 0, 0 };
-	Vec3F deltaX = right * halnf(width / (alnf) mSettings.size.x);
-	Vec3F deltaY = up * halnf(-height / (alnf) mSettings.size.y);
+	Vec3F deltaX = right / halnf(mSettings.size.x);
+	Vec3F deltaY = up / halnf(mSettings.size.y);
 
 	ualni maxIterations = mSettings.size.x * mSettings.size.y;
 	ualni currIter = 0;

@@ -39,8 +39,10 @@ namespace tp {
 		[[nodiscard]] Mat4F calculateTransformationMatrix() const;
 		[[nodiscard]] Mat<halnf, 4, 4> calculateProjectionMatrix() const;
 		[[nodiscard]] Mat<halnf, 4, 4> calculateViewMatrix() const;
-		[[nodiscard]] Vec3F project(Vec2F normalized);
-		[[nodiscard]] Vec2F project(const Vec3F& world);
+
+		// from -1 -1 is top left corner. z is distance to the target
+		[[nodiscard]] Vec3F project(Vec2F normalized) const;
+		[[nodiscard]] Vec2F project(const Vec3F& world) const;
 		[[nodiscard]] static Vec2F project(const tp::Vec3F& world, const tp::Mat4F& viewMat, const tp::Mat4F& projMat);
 	};
 }

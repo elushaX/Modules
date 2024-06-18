@@ -59,6 +59,24 @@ namespace tp {
 
 		tType* getBuff() const { return mBuff; }
 
+		void flipY() {
+			for (Index i = 0; i < mSize.x; i++) {
+				const auto lenIdx = mSize.y - 1;
+				for (Index j = 0; j < mSize.y / 2; j++) {
+					swap(get({i, j}), get({i, lenIdx - j}));
+				}
+			}
+		}
+
+		void flipX() {
+			for (Index i = 0; i < mSize.y; i++) {
+				const auto lenIdx = mSize.x - 1;
+				for (Index j = 0; j < mSize.x / 2; j++) {
+					swap(get({i, j}), get({i, lenIdx - j}));
+				}
+			}
+		}
+
 		inline tType& get(const Index2D& at) {
 			DEBUG_ASSERT(mBuff && at.x < mSize.x && at.y < mSize.y && at.x >= 0 && at.y >= 0)
 			return *(mBuff + mSize.x * at.y + at.x);

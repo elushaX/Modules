@@ -93,6 +93,8 @@ SUITE(RayTracer) {
 		RayTracer rt;
 		rt.render(scene, output, settings);
 
+		output.color.flipY();
+
 		CHECK(compareCols(output.color.get({ 6, 4 }), RGBA{ 0.560100f, 0.560100f, 0.560100f, 1.000000f }));
 		CHECK(compareCols(output.color.get({ 6, 5 }), RGBA{ 0.353739f, 0.353739f, 0.353739f, 1.000000f }));
 		CHECK(compareCols(output.color.get({ 6, 6 }), RGBA{ 0.242577f, 0.242577f, 0.242577f, 1.000000f }));
