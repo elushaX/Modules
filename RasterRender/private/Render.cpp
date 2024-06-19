@@ -34,6 +34,9 @@ void RasterRender::render(const Scene& geometry, const Vec2<ualni>& size) {
 
 	glEnable(GL_DEPTH_TEST);
 
+	// glPolygonMode(GL_FRONT, GL_LINE);
+	// glPolygonMode(GL_BACK, GL_LINE);
+
 	for (auto object : geometry.mObjects) {
 
 		static auto origin = (GLint) mDefaultShader.getu("Origin");
@@ -51,6 +54,10 @@ void RasterRender::render(const Scene& geometry, const Vec2<ualni>& size) {
 	}
 
 	mDefaultShader.unbind();
+
+
+	// glPolygonMode(GL_FRONT, GL_FILL);
+	// glPolygonMode(GL_BACK, GL_FILL);
 
 	mRenderBuffer.endDraw();
 }

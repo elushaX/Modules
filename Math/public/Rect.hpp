@@ -159,6 +159,10 @@ namespace tp {
 			size = p3 - pos;
 		}
 
+		Rect<Type> shrink(Type val) const {
+			return { pos + val, size - val * 2 };
+		}
+
 		// if only one point isInside
 		bool clampOutside(Vec2<Type>& v1, Vec2<Type>& v2) {
 			bool const in1 = isInside(v1);

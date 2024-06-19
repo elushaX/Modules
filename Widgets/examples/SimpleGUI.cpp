@@ -1,16 +1,15 @@
 
-#include "ChatGUI.hpp"
+#include "SimpleGUI.hpp"
 
 #include "GraphicApplication.hpp"
+
 
 using namespace tp;
 
 class SimpleGUI : public Application {
 public:
 	SimpleGUI() {
-		mGui.addWidget(&mButton);
-		mGui.addWidget(&mLabel);
-		mGui.addWidget(&mSlider);
+
 	}
 
 	void processFrame(EventHandler* eventHandler) override {
@@ -22,17 +21,14 @@ public:
 	}
 
 	void drawFrame(Canvas* canvas) override {
-		canvas->rect(mGui.mArea, { 0, 0, 0, 1 });
+		canvas->rect(mGui.mArea, { 0.1f, 0.1f, 0.1f, 1.f });
 		mGui.drawWrapper(*canvas);
 	}
 
 private:
 	WidgetManager mWidgetManager;
-	ScrollableWindow<EventHandler, Canvas> mGui;
 
-	ButtonWidget<EventHandler, Canvas> mButton;
-	LabelWidget<EventHandler, Canvas> mLabel;
-	NamedSliderWidget<EventHandler, Canvas> mSlider;
+	SimpleWidget2<EventHandler, Canvas> mGui;
 };
 
 int main() {

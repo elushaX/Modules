@@ -43,6 +43,7 @@ void EventHandler::processEvent() {
 	switch (eventData.type) {
 		case InputEvent::Type::MOUSE_POS:
 			{
+				mPointerPrev = mPointer;
 				mPointer = eventData.mouseEvent;
 				mEventQueue.popFront();
 				break;
@@ -77,6 +78,8 @@ void EventHandler::processEvent() {
 
 const Vec2F& EventHandler::getPointer() const { return mPointer; }
 
+const Vec2F& EventHandler::getPointerPrev() const { return mPointerPrev; }
+
 bool EventHandler::isPressed(InputID id) const {
 	return mInputStates[(int) id].mCurrentState == InputState::State::PRESSED;
 }
@@ -93,3 +96,5 @@ bool EventHandler::isDown(InputID id) const {
 }
 
 halnf EventHandler::getScrollY() const { return 0; }
+
+Vec2F EventHandler::getPointerDelta() const { return mPointer - mPointerPrev; }

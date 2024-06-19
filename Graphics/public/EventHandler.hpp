@@ -70,6 +70,9 @@ namespace tp {
 		void processEvent();
 
 		[[nodiscard]] const Vec2F& getPointer() const;
+		[[nodiscard]] const Vec2F& getPointerPrev() const;
+		[[nodiscard]] Vec2F getPointerDelta() const;
+
 		[[nodiscard]] bool isPressed(InputID id) const;
 		[[nodiscard]] bool isReleased(InputID id) const;
 		[[nodiscard]] bool isDown(InputID id) const;
@@ -85,6 +88,8 @@ namespace tp {
 
 		// input states
 		Vec2F mPointer;
+		Vec2F mPointerPrev;
+
 		halnf mPointerPressure = 0;
 
 		InputState mInputStates[(int) InputID::LAST_KEY_CODE]{};

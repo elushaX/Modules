@@ -45,13 +45,36 @@ namespace tp {
 			this->mChildWidgets.pushBack(&mSplitView);
 			this->mChildWidgets.pushBack(&mSettingsWidget);
 
-			mRenderPathTracer.mLabel.mLabel = "Render with Path Tracer";
-			mRenderRaster.mLabel.mLabel = "Render with Raster";
-			mDenoiseButton.mLabel.mLabel = "Denoise (IntelOpenImage)";
+			// Render
+			{
+				mRenderPathTracer.setLabel("Render with Path Tracer");
+				mRenderRaster.setLabel("Render with Raster");
+				mRenderDeNoise.setLabel("Denoise (IntelOpenImage)");
 
-			mSettingsWidget.addWidget(&mRenderPathTracer);
-			mSettingsWidget.addWidget(&mRenderRaster);
-			mSettingsWidget.addWidget(&mDenoiseButton);
+				mRenderMenu.addWidgetToMenu(&mRenderPathTracer);
+				mRenderMenu.addWidgetToMenu(&mRenderRaster);
+				mRenderMenu.addWidgetToMenu(&mRenderDeNoise);
+
+				mRenderMenu.setLabel("Render");
+			}
+
+			// Navigation
+			{
+				mNavigationPan.setLabel("Pan");
+				mNavigationOrbit.setLabel("Orbit");
+				mNavigationZoom.setLabel("Zoom");
+				mNavigationReset.setLabel("Reset");
+
+				mNavigationMenu.addWidgetToMenu(&mNavigationPan);
+				mNavigationMenu.addWidgetToMenu(&mNavigationOrbit);
+				mNavigationMenu.addWidgetToMenu(&mNavigationZoom);
+				mNavigationMenu.addWidgetToMenu(&mNavigationReset);
+
+				mNavigationMenu.setLabel("Navigation");
+			}
+
+			mSettingsWidget.addWidget(&mRenderMenu);
+			mSettingsWidget.addWidget(&mNavigationMenu);
 		}
 
 		void eventProcess(const Events& events) override {
@@ -60,17 +83,60 @@ namespace tp {
 			mViewport.setArea(mSplitView.getFirst());
 			mSettingsWidget.setArea(mSplitView.getSecond());
 
-			if (mRenderPathTracer.isFired()) {
-				mEditor->renderPathFrame();
-				mEditor->setRenderType(Editor::RenderType::PATH_TRACER);
+			// render settings
+			{
+				if (mRenderPathTracer.isFired()) {
+					mEditor->renderPathFrame();
+					mEditor->setRenderType(Editor::RenderType::PATH_TRACER);
+				}
+
+				if (mRenderRaster.isFired()) {
+					mEditor->setRenderType(Editor::RenderType::RASTER);
+				}
+
+				if (mRenderDeNoise.isFired()) {
+					mEditor->denoisePathRenderBuffers();
+				}
 			}
 
-			if (mRenderRaster.isFired()) {
-				mEditor->setRenderType(Editor::RenderType::RASTER);
-			}
+			// navigation
+			{
+				if (mNavigationOrbit.isFired()) {
+					mNavigationType = ORBIT;
+				}
 
-			if (mDenoiseButton.isFired()) {
-				mEditor->denoisePathRenderBuffers();
+				if (mNavigationPan.isFired()) {
+					mNavigationType = PAN;
+				}
+
+				if (mNavigationZoom.isFired()) {
+					mNavigationType = ZOOM;
+				}
+
+				if (mNavigationReset.isFired()) {
+					mEditor->navigationReset();
+				}
+
+				const auto& activeArea = mViewport.mArea;
+				if (this->isHolding() &&  activeArea.isInside(events.getPointer())) {
+					switch (mNavigationType) {
+						case ORBIT:
+							mEditor->navigationOrbit(events.getPointerDelta() / activeArea.size * 3);
+							break;
+
+						case PAN:
+							{
+								auto pointer = (((events.getPointer() - activeArea.pos) / activeArea.size) - 0.5f) * 2;
+								auto prevPointer = (((events.getPointerPrev() - activeArea.pos) / activeArea.size) - 0.5f) * 2;
+								mEditor->navigationPan(prevPointer, pointer);
+							}
+							break;
+
+						case ZOOM:
+							mEditor->navigationZoom(1 + (events.getPointerDelta().y / activeArea.size.y));
+							break;
+					}
+				}
 			}
 		}
 
@@ -89,12 +155,22 @@ namespace tp {
 		SplitView<Events, Canvas> mSplitView;
 
 		ViewportWidget<Events, Canvas> mViewport;
+		ScrollableWindow<Events, Canvas> mSettingsWidget;
 
 		// Controls
-		ScrollableWindow<Events, Canvas> mSettingsWidget;
+		CollapsableMenu<Events, Canvas> mRenderMenu;
 		ButtonWidget<Events, Canvas> mRenderPathTracer;
 		ButtonWidget<Events, Canvas> mRenderRaster;
-		ButtonWidget<Events, Canvas> mDenoiseButton;
+		ButtonWidget<Events, Canvas> mRenderDeNoise;
+
+		// Navigation
+		enum NavigationType { ORBIT, PAN, ZOOM } mNavigationType = ORBIT;
+
+		CollapsableMenu<Events, Canvas> mNavigationMenu;
+		ButtonWidget<Events, Canvas> mNavigationPan;
+		ButtonWidget<Events, Canvas> mNavigationOrbit;
+		ButtonWidget<Events, Canvas> mNavigationZoom;
+		ButtonWidget<Events, Canvas> mNavigationReset;
 
 		RGBA mBaseColor;
 	};

@@ -32,6 +32,10 @@ namespace tp {
 			}
 		}
 
+		void setLabel(const std::string& string) {
+			mLabel.mLabel = string;
+		}
+
 	public:
 		void eventUpdateConfiguration(WidgetManager& wm) override {
 			wm.setActiveId("Button");

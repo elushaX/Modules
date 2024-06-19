@@ -30,9 +30,16 @@ namespace tp {
 
 	public:
 		void lookAtPoint(const Vec3F& aTarget, const Vec3F& aPos, Vec3F aUp);
-		void rotate(halnf anglex, halnf angleY);
+
+		// -1 -1 is top left 1 1 is bottom right
 		void move(Vec2F aPos, Vec2F aPrevPos);
+
+		// keeps z axis above your head
+		void rotate(halnf anglex, halnf angleY);
+
+		// -1 -1 is top left 1 1 is bottom right
 		void zoom(halnf ratio);
+
 		void offset_target(halnf val);
 
 	public:

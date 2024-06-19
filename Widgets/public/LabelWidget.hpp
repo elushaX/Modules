@@ -6,10 +6,12 @@ namespace tp {
 	template <typename Events, typename Canvas>
 	class LabelWidget : public Widget<Events, Canvas> {
 	public:
-		LabelWidget() = default;
+		LabelWidget() {
+			this->mArea = { 0, 0, 100, 30 };
+		}
 
 		void eventDraw(Canvas& canvas) override {
-			canvas.text(mLabel.c_str(), this->mArea, fontSize, Canvas::CC, padding, fontColor);
+			canvas.text(mLabel.c_str(), this->mArea, fontSize, Canvas::LC, padding, fontColor);
 		}
 
 	public:
