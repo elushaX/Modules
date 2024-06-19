@@ -85,3 +85,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 project(ImageIO)
 add_library(${PROJECT_NAME} INTERFACE)
 target_include_directories(${PROJECT_NAME} INTERFACE ./imageIO/)
+
+
+#set(OIDN_DEVICE_CPU ON)
+#set(OIDN_STATIC_LIB ON)
+#add_subdirectory(oidn)
+find_package(OpenImageDenoise REQUIRED)

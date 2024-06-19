@@ -58,7 +58,7 @@ void Editor::loadDefaults() {
 
 void Editor::setViewportSize(const Vec2F& size) {
 	// TODO remove
-	// mScene.mCamera.rotate(0.01f, 0.0);
+	mScene.mCamera.rotate(0.01f, 0.0);
 
 	mScene.mRenderSettings.size = size;
 
@@ -72,25 +72,29 @@ Editor::~Editor() {
 
 void Editor::renderPathFrame() {
 	mPathRenderer.render(mScene, mPathTracerBuffers, mScene.mRenderSettings);
-	// mPathTracerBuffers.color.flipY();
+	sendBuffersToGPU();
+}
 
-	{
-		glBindTexture(GL_TEXTURE_2D, mPathRenderTexture);
-		const auto size = mPathTracerBuffers.color.size();
-		glTexImage2D(
-			GL_TEXTURE_2D,
-			0,
-			GL_RGBA32F,
-			(GLsizei) size.x,
-			(GLsizei) size.y,
-			0,
-			GL_RGBA,
-			GL_FLOAT,
-			mPathTracerBuffers.color.getBuff()
-		);
-		glBindTexture(GL_TEXTURE_2D, 0);
+void Editor::sendBuffersToGPU() {
+	glBindTexture(GL_TEXTURE_2D, mPathRenderTexture);
+	const auto size = mPathTracerBuffers.color.size();
+	glTexImage2D(
+		GL_TEXTURE_2D,
+		0,
+		GL_RGBA32F,
+		(GLsizei) size.x,
+		(GLsizei) size.y,
+		0,
+		GL_RGBA,
+		GL_FLOAT,
+		mPathTracerBuffers.color.getBuff()
+	);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
 
-	}
+void Editor::denoisePathRenderBuffers() {
+	denoise();
+	sendBuffersToGPU();
 }
 
 void Editor::setRenderType(Editor::RenderType type) {

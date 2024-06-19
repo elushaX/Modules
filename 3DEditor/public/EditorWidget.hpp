@@ -47,9 +47,11 @@ namespace tp {
 
 			mRenderPathTracer.mLabel.mLabel = "Render with Path Tracer";
 			mRenderRaster.mLabel.mLabel = "Render with Raster";
+			mDenoiseButton.mLabel.mLabel = "Denoise (IntelOpenImage)";
 
 			mSettingsWidget.addWidget(&mRenderPathTracer);
 			mSettingsWidget.addWidget(&mRenderRaster);
+			mSettingsWidget.addWidget(&mDenoiseButton);
 		}
 
 		void eventProcess(const Events& events) override {
@@ -65,6 +67,10 @@ namespace tp {
 
 			if (mRenderRaster.isFired()) {
 				mEditor->setRenderType(Editor::RenderType::RASTER);
+			}
+
+			if (mDenoiseButton.isFired()) {
+				mEditor->denoisePathRenderBuffers();
 			}
 		}
 
@@ -88,6 +94,7 @@ namespace tp {
 		ScrollableWindow<Events, Canvas> mSettingsWidget;
 		ButtonWidget<Events, Canvas> mRenderPathTracer;
 		ButtonWidget<Events, Canvas> mRenderRaster;
+		ButtonWidget<Events, Canvas> mDenoiseButton;
 
 		RGBA mBaseColor;
 	};
