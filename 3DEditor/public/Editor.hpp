@@ -21,6 +21,11 @@ namespace tp {
 
 		void renderPathFrame();
 		void setRenderType(RenderType type);
+		void denoisePathRenderBuffers();
+
+	private:
+		void sendBuffersToGPU();
+		void denoise();
 
 	private:
 		Scene mScene;

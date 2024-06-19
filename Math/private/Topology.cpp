@@ -39,7 +39,7 @@ bool TrigCache::castRay(const Ray& ray) const {
 	static halnf a, f, u, v;
 	static halnf t;
 
-	if (ray.dir.dot(mNormal) > 0) {
+	if (ray.dir.dot(mNormal) > 0 && 0) {
 		return false;
 	}
 
