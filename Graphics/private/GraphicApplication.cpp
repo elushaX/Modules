@@ -23,6 +23,17 @@ void Application::run() {
 
 	bool redrawNeeded = false;
 
+	// proc first frame by default
+	{
+		mWindow->processEvents();
+		processFrame(eventHandler);
+
+		mGraphics->drawBegin();
+		drawFrame(mGraphics->getCanvas());
+		mGraphics->drawEnd();
+		mWindow->draw();
+	}
+
 	while (!mWindow->shouldClose()) {
 		if (mProcTimer.isTimeout()) {
 

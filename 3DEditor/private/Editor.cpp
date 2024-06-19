@@ -58,7 +58,7 @@ void Editor::loadDefaults() {
 
 void Editor::setViewportSize(const Vec2F& size) {
 	// TODO remove
-	mScene.mCamera.rotate(0.01f, 0.0);
+	// mScene.mCamera.rotate(0.01f, 0.0);
 
 	mScene.mRenderSettings.size = size;
 
@@ -99,4 +99,20 @@ void Editor::denoisePathRenderBuffers() {
 
 void Editor::setRenderType(Editor::RenderType type) {
 	mRenderType = type;
+}
+
+void Editor::navigationOrbit(const Vec2F& delta) {
+	mScene.mCamera.rotate(delta.x, delta.y);
+}
+
+void Editor::navigationPan(const Vec2F& pos, const Vec2F& prevPos) {
+	mScene.mCamera.move(pos, prevPos);
+}
+
+void Editor::navigationZoom(halnf factor) {
+	mScene.mCamera.zoom(factor);
+}
+
+void Editor::navigationReset() {
+	mScene.mCamera.lookAtPoint({ 0, 0, 0 }, { 1, 5, 1 }, { 0, 0, 1 });
 }

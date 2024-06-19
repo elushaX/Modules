@@ -131,7 +131,7 @@ namespace tp {
 			this->mChildWidgets.pushBack(&mContentWidget);
 		}
 
-		~ScrollableWindow() = default;
+		virtual ~ScrollableWindow() = default;
 
 		// takes whole area
 		void eventProcess(const Events& events) override {
@@ -154,7 +154,7 @@ namespace tp {
 
 			for (auto widget : content) {
 				widget->setArea({ mContentWidget.mArea.x + padding,
-													widget->mArea.y,
+													mContentWidget.mArea.y + widget->mArea.y,
 													mScroller.getViewport().z - padding * 2,
 													widget->mArea.w });
 			}
@@ -169,23 +169,30 @@ namespace tp {
 			mPadding = wm.getNumber("Padding", "Padding");
 		}
 
+		[[nodiscard]] halnf getContentSize() const {
+			return mContentSize;
+		}
+
 	private:
 		void updateContents(List<Widget<Events, Canvas>*>& contentWidgets) {
-			if (contentWidgets.size()) {
-				const halnf offset = contentWidgets.first()->mArea.y + mPadding;
+			if (!contentWidgets.size()) {
+				return;
+			}
 
-				halnf start = 0;
-				for (auto widget : contentWidgets) {
-					widget->mArea.y = start;
-					start += widget->mArea.w + mPadding;
-				}
+			const halnf offset = contentWidgets.first()->mArea.y + mPadding;
 
-				for (auto widget : contentWidgets) {
-					widget->mArea.y += offset;
-				}
+			halnf start = 0;
+			for (auto widget : contentWidgets) {
+				widget->mArea.y = start;
+				start += widget->mArea.w + mPadding;
+			}
+
+			for (auto widget : contentWidgets) {
+				widget->mArea.y += offset;
 			}
 		}
 
+		// ready content size
 		void updateContentSize(List<Widget<Events, Canvas>*>& contentWidgets) {
 			mContentSize = 0;
 			if (contentWidgets.size()) {

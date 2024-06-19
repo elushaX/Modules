@@ -23,6 +23,12 @@ namespace tp {
 		void setRenderType(RenderType type);
 		void denoisePathRenderBuffers();
 
+		void navigationOrbit(const Vec2F& delta);
+		void navigationPan(const Vec2F& pos, const Vec2F& prevPos);
+		void navigationZoom(halnf factor);
+		void navigationReset();
+
+
 	private:
 		void sendBuffersToGPU();
 		void denoise();
