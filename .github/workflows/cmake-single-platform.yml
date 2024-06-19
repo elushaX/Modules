@@ -31,16 +31,10 @@ jobs:
           sudo apt-get install -y libasound2-dev libglew-dev
           sudo apt-get install -y portaudio19-dev
           sudo apt-get install -y libwayland-dev libxkbcommon-dev
-          
-    - name: Download and install ISPC
-      run: |
-        wget https://github.com/ispc/ispc/releases/download/v1.19.0/ispc-v1.19.0-linux.tar.gz
-        tar -xzf ispc-v1.19.0-linux.tar.gz
-        sudo mv ispc-v1.19.0-linux/bin/ispc /usr/local/bin/
-        sudo chmod +x /usr/local/bin/ispc
         
     - name: install OpenImageDenoise
       run: |
+          sudo snap install ispc
           sudo apt-get install -y libtbb-dev
           git clone --recursive https://github.com/RenderKit/oidn.git
           cd oidn
