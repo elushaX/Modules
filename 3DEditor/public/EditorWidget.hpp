@@ -81,7 +81,10 @@ namespace tp {
 			mSplitView.setArea(this->mArea);
 
 			mViewport.setArea(mSplitView.getFirst());
+			mViewport.mEnable = mSplitView.getFirstEnabled();
+
 			mSettingsWidget.setArea(mSplitView.getSecond());
+			mSettingsWidget.mEnable = mSplitView.getSecondEnabled();
 
 			// render settings
 			{
