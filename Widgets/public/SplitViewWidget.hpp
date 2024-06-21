@@ -1,14 +1,22 @@
 #pragma once
 
-#include "WidgetBase.hpp"
+#include "LabelWidget.hpp"
 
 namespace tp {
+
+	//TODO : clean up this mess
+	// takes the whole parent area
 	template <typename Events, typename Canvas>
 	class SplitView : public Widget<Events, Canvas> {
 	public:
-		SplitView() = default;
+		SplitView() {
+			mLeftLabel.mLabel = "Left";
+			mRightLabel.mLabel = "Right";
 
-		// takes whole area
+			this->mChildWidgets.pushBack(&mLeftLabel);
+			this->mChildWidgets.pushBack(&mRightLabel);
+		}
+
 		void eventProcess(const Events& events) override {
 			mIsHover = getHandle().isInside(events.getPointer());
 
@@ -29,6 +37,22 @@ namespace tp {
 			if (mMinSize * 2.f > this->mArea.z) {
 				mFactor = 0.5f;
 			}
+
+			mLeftLabel.mEnable = mHeaders && mCollapsedSide != LEFT;
+			mRightLabel.mEnable = mHeaders && mCollapsedSide != RIGHT;
+
+			if (mHeaders) {
+				mLeftLabel.setArea(getFirstHeader());
+				mRightLabel.setArea(getSecondHeader());
+			}
+
+			if (mLeftLabel.isReleased()) {
+				mCollapsedSide = (mCollapsedSide == NONE) ? RIGHT : NONE;
+			}
+
+			if (mRightLabel.isReleased()) {
+				mCollapsedSide = (mCollapsedSide == NONE) ? LEFT : NONE;
+			}
 		}
 
 		void eventDraw(Canvas& canvas) override {
@@ -37,18 +61,76 @@ namespace tp {
 			else canvas.rect(getHandle(), mHandleColor);
 		}
 
+		[[nodiscard]] bool getFirstEnabled() const {
+			return mCollapsedSide != CollapsedSize::LEFT;
+		}
+
+		[[nodiscard]] bool getSecondEnabled() const {
+			return mCollapsedSide != CollapsedSize::RIGHT;
+		}
+
 		RectF getFirst() const {
-			return { this->mArea.x, this->mArea.y, mFactor * this->mArea.z - mHandleSize / 2.f, this->mArea.w };
+			Rect out =  { this->mArea.x, this->mArea.y, mFactor * this->mArea.z - mHandleSize / 2.f, this->mArea.w };
+
+			if (mCollapsedSide == RIGHT) {
+				out.pos.x = this->mArea.pos.x;
+				out.size.x = this->mArea.size.x;
+			}
+
+			if (mHeaders) {
+				out.pos.y += mHeaderSize;
+				out.size.y -= mHeaderSize;
+			}
+
+			return out;
+		}
+
+		RectF getFirstHeader() const {
+			Rect out =  { this->mArea.x, this->mArea.y, mFactor * this->mArea.z - mHandleSize / 2.f, mHeaderSize };
+
+			if (mCollapsedSide == RIGHT) {
+				out.pos.x = this->mArea.pos.x;
+				out.size.x = this->mArea.size.x;
+			}
+
+			return out;
+		}
+
+		RectF getSecondHeader() const {
+			RectF out = { this->mArea.x + mFactor * this->mArea.z + mHandleSize / 2.f,
+										this->mArea.y,
+										(1.f - mFactor) * this->mArea.z - mHandleSize / 2.f,
+										mHeaderSize };
+
+			if (mCollapsedSide == LEFT) {
+				out.pos.x = this->mArea.pos.x;
+				out.size.x = this->mArea.size.x;
+			}
+
+			return out;
 		}
 
 		RectF getSecond() const {
-			return { this->mArea.x + mFactor * this->mArea.z + mHandleSize / 2.f,
+			RectF out = { this->mArea.x + mFactor * this->mArea.z + mHandleSize / 2.f,
 							 this->mArea.y,
 							 (1.f - mFactor) * this->mArea.z - mHandleSize / 2.f,
 							 this->mArea.w };
+
+			if (mCollapsedSide == LEFT) {
+				out.pos.x = this->mArea.pos.x;
+				out.size.x = this->mArea.size.x;
+			}
+
+			if (mHeaders) {
+				out.pos.y += mHeaderSize;
+				out.size.y -= mHeaderSize;
+			}
+
+			return out;
 		}
 
 		RectF getHandle() const {
+			if (mCollapsedSide != NONE) return {};
 			return { this->mArea.x + mFactor * this->mArea.z - mHandleSize / 2.f, this->mArea.y, mHandleSize, this->mArea.w };
 		}
 
@@ -61,6 +143,7 @@ namespace tp {
 			mResizingColor = wm.getColor("Resizing", "Action");
 			mMinSize = wm.getNumber("Min", 200.f);
 			mHandleSize = wm.getNumber("HandleSize", 7.f);
+			mHeaderSize = wm.getNumber("HeaderSize", 30.f);
 		}
 
 	public:
@@ -73,5 +156,13 @@ namespace tp {
 		RGBA mResizingColor;
 		halnf mMinSize = 0;
 		halnf mHandleSize = 0;
+
+		// Headers
+		halnf mHeaderSize = 0;
+		bool mHeaders = true;
+		enum CollapsedSize { NONE, LEFT, RIGHT } mCollapsedSide = NONE;
+
+		LabelWidget<Events, Canvas> mLeftLabel;
+		LabelWidget<Events, Canvas> mRightLabel;
 	};
 }

@@ -23,7 +23,7 @@ void RasterRender::render(const Scene& geometry, const Vec2<ualni>& size) {
 		}
 	}
 
-	mRenderBuffer.mClearCol = { 0.0f, 0.0f, 0.0f, 1.f };
+	mRenderBuffer.mClearCol = { 0.0f, 0.0f, 0.0f, 0.f };
 
 	mRenderBuffer.beginDraw();
 	mRenderBuffer.clear();
