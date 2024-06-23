@@ -15,18 +15,10 @@ namespace tp {
 
 		void eventProcess(const Events&) override {
 			if (mHeader.isReleased()) {
-				mCollapsed = !mCollapsed;
+				toggleCollapsed();
 			}
 
-			mHeader.setArea(getHeaderRect());
-
-			mBody.mEnable = !mCollapsed;
-			if (mCollapsed) {
-				this->mArea.size.y = headerHeight;
-			} else {
-				this->mArea.size.y = headerHeight + getBodyRect().size.y + mPadding * 2;
-				mBody.setArea(getBodyRect());
-			}
+			updateGeometry();
 		}
 
 		void eventDraw(Canvas& canvas) override {
@@ -43,6 +35,36 @@ namespace tp {
 			mHeader.mLabel = string;
 		}
 
+		void toggleCollapsed() {
+			setCollapsed(!getCollapsed());
+		}
+
+		void setCollapsed(bool collapsed) {
+			if (mLocked) return;
+			if (collapsed && !mCollapsed) mPrevHeight = this->mArea.size.y;
+			if (!collapsed && mCollapsed) this->mArea.size.y = mPrevHeight;
+			mCollapsed = collapsed;
+		}
+
+		[[nodiscard]] bool getCollapsed() const{
+			return mCollapsed;
+		}
+
+		void updateGeometry() {
+			mHeader.setArea(getHeaderRect());
+
+			mBody.mEnable = !mCollapsed;
+			if (mCollapsed) {
+				this->mArea.size.y = headerHeight;
+			} else {
+				if (mAdjustHeight) {
+					this->mArea.size.y = headerHeight + getBodyRect().size.y + mPadding * 2;
+				}
+
+				mBody.setArea(getBodyRect());
+			}
+		}
+
 	private:
 		RectF getHeaderRect() {
 			RectF out = { this->mArea.pos, { this->mArea.size.x, headerHeight } };
@@ -51,8 +73,12 @@ namespace tp {
 
 		RectF getBodyRect() {
 			RectF out = { { this->mArea.pos.x, this->mArea.pos.y + headerHeight },
-							 { this->mArea.size.x, mBody.getContentSize() }
+							 { this->mArea.size.x, this->mArea.size.y - headerHeight - mPadding }
 			};
+
+			out.size.y -= mBorderSize * 2;
+
+			if (mAdjustHeight) out.size.y = mBody.getContentSize();
 
 			if (mBody.getContentSize()) {
 				out = out.shrink(mPadding);
@@ -86,6 +112,10 @@ namespace tp {
 		halnf mBorderSize = 0;
 		halnf mPadding = 0;
 
+		halnf mPrevHeight = 200;
+
 		bool mCollapsed = true;
+		bool mLocked = false;
+		bool mAdjustHeight = true;
 	};
 }

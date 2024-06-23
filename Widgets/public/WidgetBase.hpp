@@ -134,8 +134,15 @@ namespace tp {
 		bool isReleased() const { return mReleased; }
 		bool isHolding() const { return mHolding; }
 
+		void clearEvents() {
+			mReleased = false;
+			mPressed = false;
+			mHolding = false;
+		}
+
 	public:
 		RectF mArea;
+
 		List<Widget<Events, Canvas>*> mChildWidgets;
 
 		bool mVisible = false;
@@ -145,5 +152,7 @@ namespace tp {
 		bool mHolding = false;
 		bool mPressed = false;
 		bool mReleased = false;
+
+		// Vec2F mPressedRelativeLocation;
 	};
 }

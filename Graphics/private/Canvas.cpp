@@ -50,13 +50,21 @@ void Canvas::rect(const RectF& rec, const RGBA& col, halnf round) {
 	nvgFill(mContext->vg);
 }
 
+void Canvas::circle(const Vec2F& pos, halnf size, const RGBA& col) {
+	nvgBeginPath(mContext->vg);
+	nvgCircle(mContext->vg, pos.x, pos.y, size);
+
+	nvgFillColor(mContext->vg, { col.r, col.g, col.b, col.a });
+	nvgFill(mContext->vg);
+}
+
 void Canvas::pushClamp(const RectF& rec) {
 	RectF intersection = rec;
 	if (mScissors.size()) {
 		mScissors.last().calcIntersection(rec, intersection);
 	}
 	nvgScissor(mContext->vg, intersection.x, intersection.y, intersection.z, intersection.w);
-	mScissors.append(rec);
+	mScissors.append(intersection);
 }
 
 void Canvas::popClamp() {
