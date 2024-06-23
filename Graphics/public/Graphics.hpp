@@ -58,6 +58,7 @@ namespace tp {
 		void pushClamp(const RectF& rec);
 		void popClamp();
 		void rect(const RectF& rec, const RGBA& col, halnf round = 0);
+		void circle(const Vec2F& pos, halnf size, const RGBA& col);
 		void text(const char*, const RectF&, halnf size, Align, halnf padding, const RGBA&);
 
 		ImageHandle createImageFromTextId(ualni id, Vec2F size);

@@ -374,8 +374,8 @@ namespace tp {
 		}
 
 		void clamp(const Vec& min, const Vec& max) {
-			tp::clamp(x, min.x, max.x);
-			tp::clamp(y, min.y, max.y);
+			x = tp::clamp(x, min.x, max.x);
+			y = tp::clamp(y, min.y, max.y);
 		}
 	};
 
