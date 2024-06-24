@@ -1,5 +1,8 @@
 
 #include "GraphicApplication.hpp"
+#include <GL/glew.h>
+
+
 #include "imgui.h"
 
 using namespace tp;
@@ -13,6 +16,10 @@ public:
 	}
 
 	virtual void drawFrame(Canvas* canvas) override {
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		ImGui::ShowDemoWindow();
+
 		ImGui::Text("Frames processed per second: %f", this->mFramesProcessedPerSecond);
 		ImGui::Text("Frames drawn per second: %f", this->mFramesDrawnPerSecond);
 	}

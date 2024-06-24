@@ -8,8 +8,7 @@
 
 namespace tp {
 
-	template <typename Events, typename Canvas>
-	class TrackWidget : public Widget<Events, Canvas> {
+	class TrackWidget : public Widget {
 	public:
 		explicit TrackWidget(const Track* track = nullptr) :
 			mTrack(track) {
@@ -61,8 +60,7 @@ namespace tp {
 		bool mSelected = false;
 	};
 
-	template <typename Events, typename Canvas>
-	class TrackInfoWidget : public Widget<Events, Canvas> {
+	class TrackInfoWidget : public Widget {
 		struct SortType {
 			std::string text;
 			bool dec = false;
@@ -186,8 +184,7 @@ namespace tp {
 		int filterExisting = 0; // all existing no-existing
 	};
 
-	template <typename Events, typename Canvas>
-	class LibraryWidget : public Widget<Events, Canvas> {
+	class LibraryWidget : public Widget {
 	public:
 		LibraryWidget(Library* lib, Player* player) {
 			mLibrary = (lib);
@@ -206,7 +203,7 @@ namespace tp {
 		void updateTracks() {
 			mTracks.clear();
 			for (auto track : mLibrary->mTraks) {
-				mTracks.append(TrackWidget<Events, Canvas>(&track.data()));
+				mTracks.append(TrackWidget(&track.data()));
 			}
 		}
 
@@ -217,7 +214,7 @@ namespace tp {
 			mSongList.setArea(mSplitView.getFirst());
 
 			for (auto track : mSongList.getContent()) {
-				auto trackWidget = (TrackWidget<Events, Canvas>*) track.data();
+				auto trackWidget = (TrackWidget*) track.data();
 				if (trackWidget->mSelected) {
 					mCurrentTrackInfo.mTrack = trackWidget->mTrack;
 				}
@@ -265,11 +262,11 @@ namespace tp {
 		Library* mLibrary = nullptr;
 		Player* mPlayer = nullptr;
 
-		Buffer<TrackWidget<Events, Canvas>> mTracks;
+		Buffer<TrackWidget> mTracks;
 
-		SplitView<Events, Canvas> mSplitView;
-		ScrollableWindow<Events, Canvas> mSongList;
-		TrackInfoWidget<Events, Canvas> mCurrentTrackInfo;
-		TrackWidget<Events, Canvas> mCurrentTrack;
+		SplitView mSplitView;
+		ScrollableWindow mSongList;
+		TrackInfoWidget mCurrentTrackInfo;
+		TrackWidget mCurrentTrack;
 	};
 }

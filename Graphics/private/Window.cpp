@@ -89,7 +89,8 @@ void Window::destroyWindow(Window* window) {
 bool Window::shouldClose() const { return glfwWindowShouldClose(mContext->window); }
 
 void Window::processEvents() {
-	glfwWaitEvents();
+	glfwPollEvents();
+	// glfwWaitEvents();
 	checkAxisUpdates();
 }
 
@@ -119,13 +120,13 @@ void Window::checkAxisUpdates() {
 	double x, y;
 	glfwGetCursorPos(mContext->window, &x, &y);
 
-	int posX, posY;
-	glfwGetWindowPos(mContext->window, &posX, &posY);
+	// int posX, posY;
+	// glfwGetWindowPos(mContext->window, &posX, &posY);
 
 	if (mPointerPos != Vec2F{ (halnf) x, (halnf) y }) {
 		mPointerPos = { (halnf) x, (halnf) y };
 
-		auto pos = Vec2F{ (halnf) posX, (halnf) posY };
+		// auto pos = Vec2F{ (halnf) posX, (halnf) posY };
 		RectF windowRec = { { 0, 0 }, mSize };
 
 		if (windowRec.isInside(mPointerPos)) {
@@ -167,9 +168,16 @@ static void mouseButtonCallback(GLFWwindow* window, int button, int action, int 
 		);
 	} else if (action == GLFW_RELEASE) {
 		eventHandler->postEvent(id, { InputEvent::Type::BUTTON_ACTION, InputEvent::ButtonAction::RELEASE, {} });
+		// eventHandler->postEvent(id, { InputEvent::Type::BUTTON_ACTION, InputEvent::ButtonAction::NONE, {} });
 	}
 }
 
 static void scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
-	// ignore for now
+	auto* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
+	if (!self) return;
+
+	EventHandler* eventHandler = self->getEventHandler();
+	if (!eventHandler) return;
+
+	eventHandler->postEvent(InputID::SCROLL, { InputEvent::Type::SCROLL, {}, {}, { xOffset, yOffset } });
 }

@@ -23,7 +23,7 @@ public:
 
 private:
 	WidgetManager mWidgetManager;
-	ComplexWidget<EventHandler, Canvas> mGui;
+	ComplexWidget mGui;
 };
 
 int main() {

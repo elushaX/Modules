@@ -143,8 +143,10 @@ namespace tp {
 		MOUSE4 = 504,
 		MOUSE5 = 505,
 
-		LAST_KEY_CODE = 508,
+		SCROLL,
 
-		WINDOW_RESIZE = 1000,
+		WINDOW_RESIZE,
+
+		LAST_KEY_CODE,
 	};
 }

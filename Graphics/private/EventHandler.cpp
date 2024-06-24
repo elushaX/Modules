@@ -3,7 +3,10 @@
 
 using namespace tp;
 
-EventHandler::EventHandler() = default;
+EventHandler::EventHandler() {
+	mTimerEvent.reset();
+}
+
 EventHandler::~EventHandler() = default;
 
 void EventHandler::postEvent(InputID inputID, InputEvent inputEvent) {
@@ -16,6 +19,12 @@ bool EventHandler::isEvents() {
 	mMutex.lock();
 	auto res = mEventQueue.length();
 	mMutex.unlock();
+
+	if (mTimerEvent.isTimeout()) {
+		mTimerEvent.reset();
+		res = true;
+	}
+
 	return res;
 }
 
@@ -35,6 +44,12 @@ bool transitionsReduce[4][4] = {
 
 void EventHandler::processEvent() {
 	mMutex.lock();
+
+	if (!mEventQueue.size()) {
+		mMutex.unlock();
+		return;
+	}
+
 	auto lastEvent = &mEventQueue.last();
 
 	const auto& eventData = lastEvent->second;
@@ -56,12 +71,23 @@ void EventHandler::processEvent() {
 
 				mInputStates[(int) inputId].mCurrentState = transitions[currentState][reportedEvent];
 
-				// printf("%i - %i \n", reportedEvent, mInputStates[(int) InputID::A].mCurrentState);
+				// printf("%i - %i \n", reportedEvent, mInputStates[(int) InputID::MOUSE1].mCurrentState);
 
 				if (transitionsReduce[currentState][reportedEvent]) {
 					mEventQueue.popFront();
 				}
 
+				break;
+			}
+
+		case InputEvent::Type::SCROLL:
+			{
+				if (mScrollDelta == Vec2F { 0, 0 }) {
+					mScrollDelta = eventData.scrollDelta;
+				} else {
+					mEventQueue.popFront();
+					mScrollDelta = 0;
+				}
 				break;
 			}
 
@@ -95,6 +121,6 @@ bool EventHandler::isDown(InputID id) const {
 				 mInputStates[(int) id].mCurrentState == InputState::State::HOLD;
 }
 
-halnf EventHandler::getScrollY() const { return 0; }
+halnf EventHandler::getScrollY() const { return mScrollDelta.y; }
 
 Vec2F EventHandler::getPointerDelta() const { return mPointer - mPointerPrev; }
