@@ -4,43 +4,17 @@
 
 namespace tp {
 
-	template <typename Events, typename Canvas>
-	class SliderWidget : public Widget<Events, Canvas> {
+	class SliderWidget : public Widget {
 	public:
-		SliderWidget() = default;
+		SliderWidget();
 
-		void eventProcess(const Events& events) override {
-			if (this->isPressed()) {
-				mIsSliding = true;
-			} else if (events.isReleased(InputID::MOUSE1)) {
-				mIsSliding = false;
-			}
+		void eventProcess(const Events& events) override;
+		void eventDraw(Canvas& canvas) override;
 
-			if (mIsSliding) {
-				mFactor = (events.getPointer().x - this->mArea.x - handleSize / 2.f) / (this->mArea.z - handleSize);
-			}
-			
-			mFactor = tp::clamp(mFactor, 0.f, 1.f);
-		}
-
-		void eventDraw(Canvas& canvas) override {
-			canvas.rect(this->mArea, defaultColor, rounding);
-			canvas.rect(getHandle(), handleColor, rounding);
-		}
-
-		RectF getHandle() const {
-			const auto left = this->mArea.x + (this->mArea.z - handleSize) * mFactor;
-			return { left, this->mArea.y, handleSize, this->mArea.w };
-		}
+		RectF getHandle() const;
 
 	public:
-		void eventUpdateConfiguration(WidgetManager& wm) override {
-			wm.setActiveId("Slider");
-			defaultColor = wm.getColor("Default", "Base");
-			handleColor = wm.getColor("Handle", "Accent");
-			handleSize = wm.getNumber("HandleSize", 20.f);
-			rounding = wm.getNumber("Rounding", "Rounding");
-		}
+		void eventUpdateConfiguration(WidgetManager& wm) override;
 
 	public:
 		halnf mFactor = 0.f;
@@ -52,35 +26,14 @@ namespace tp {
 		halnf rounding = 0;
 	};
 
-	template <typename Events, typename Canvas>
-	class NamedSliderWidget : public Widget<Events, Canvas> {
+	class NamedSliderWidget : public Widget {
 	public:
-		explicit NamedSliderWidget(const char* name = "Value") {
-			mLabel.mLabel = name;
-			this->mArea = { 0, 0, 100, 30 };
-
-			this->mChildWidgets.pushBack(&mSlider);
-			this->mChildWidgets.pushBack(&mLabel);
-		}
-
-		void eventProcess(const Events& events) override {
-			const auto widthFirst = this->mArea.z * mFactor;
-			const auto widthSecond = this->mArea.z * (1.f - mFactor);
-
-			RectF rec = this->mArea;
-			rec.size.x = widthFirst;
-
-			mLabel.setArea(rec);
-
-			rec.pos.x += widthFirst;
-			rec.size.x = widthSecond;
-
-			mSlider.setArea(rec);
-		}
+		explicit NamedSliderWidget(const char* name = "Value");
+		void eventProcess(const Events& events) override;
 
 	public:
-		SliderWidget<Events, Canvas> mSlider;
-		LabelWidget<Events, Canvas> mLabel;
+		SliderWidget mSlider;
+		LabelWidget mLabel;
 
 		halnf mFactor = 0.5f;
 	};

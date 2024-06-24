@@ -3,25 +3,15 @@
 #include "WidgetBase.hpp"
 
 namespace tp {
-	template <typename Events, typename Canvas>
-	class LabelWidget : public Widget<Events, Canvas> {
-	public:
-		LabelWidget() {
-			this->mArea = { 0, 0, 100, 30 };
-		}
 
-		void eventDraw(Canvas& canvas) override {
-			canvas.text(mLabel.c_str(), this->mArea, fontSize, Canvas::LC, padding, fontColor);
-		}
+	class LabelWidget : public Widget {
+	public:
+		LabelWidget();
+
+		void eventDraw(Canvas& canvas) override;
 
 	public:
-		void eventUpdateConfiguration(WidgetManager& wm) override {
-			wm.setActiveId("Label");
-
-			fontSize = wm.getNumber("Size", "FontSize");
-			padding = wm.getNumber("Padding", "Padding");
-			fontColor = wm.getColor("Default", "Front");
-		}
+		void eventUpdateConfiguration(WidgetManager& wm) override;
 
 	public:
 		std::string mLabel = "Label";

@@ -28,7 +28,7 @@ public:
 private:
 	WidgetManager mWidgetManager;
 
-	SimpleWidget2<EventHandler, Canvas> mGui;
+	SimpleWidget2 mGui;
 };
 
 int main() {

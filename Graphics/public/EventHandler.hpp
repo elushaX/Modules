@@ -4,6 +4,7 @@
 #include "Vec.hpp"
 #include "List.hpp"
 #include "Map.hpp"
+#include "Timing.hpp"
 
 #include <mutex>
 
@@ -15,6 +16,7 @@ namespace tp {
 			BUTTON_ACTION,
 			MOUSE_DELTA,
 			MOUSE_POS,
+			SCROLL,
 		} type = Type::NONE;
 
 		enum class ButtonAction {
@@ -26,6 +28,7 @@ namespace tp {
 		} buttonAction = ButtonAction::NONE;
 
 		Vec2F mouseEvent = { 0, 0 };
+		Vec2F scrollDelta = { 0, 0 };
 	};
 
 	class InputState {
@@ -89,10 +92,13 @@ namespace tp {
 		// input states
 		Vec2F mPointer;
 		Vec2F mPointerPrev;
+		Vec2F mScrollDelta;
 
 		halnf mPointerPressure = 0;
 
 		InputState mInputStates[(int) InputID::LAST_KEY_CODE]{};
+
+		Timer mTimerEvent = Timer(1000);
 	};
 
 }

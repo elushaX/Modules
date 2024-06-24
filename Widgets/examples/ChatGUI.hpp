@@ -4,8 +4,7 @@
 
 namespace tp {
 
-	template <typename Events, typename Canvas>
-	class UserWidget : public Widget<Events, Canvas> {
+	class UserWidget : public Widget {
 	public:
 		UserWidget() = default;
 
@@ -39,8 +38,7 @@ namespace tp {
 		halnf mRounding = 0;
 	};
 
-	template <typename Events, typename Canvas>
-	class MessageWidget : public Widget<Events, Canvas> {
+	class MessageWidget : public Widget {
 	public:
 		MessageWidget() = default;
 
@@ -84,8 +82,7 @@ namespace tp {
 		halnf mRounding = 0;
 	};
 
-	template <typename Events, typename Canvas>
-	class LoginWidget : public Widget<Events, Canvas> {
+	class LoginWidget : public Widget {
 	public:
 		explicit LoginWidget() {
 			mPass.mId = "pass";
@@ -120,16 +117,15 @@ namespace tp {
 		}
 
 	public:
-		TextInputWidget<Events, Canvas> mUser;
-		TextInputWidget<Events, Canvas> mPass;
-		ButtonWidget<Events, Canvas> mButton;
+		TextInputWidget mUser;
+		TextInputWidget mPass;
+		ButtonWidget mButton;
 		bool mLogged = false;
 
 		RGBA mBGColor;
 	};
 
-	template <typename Events, typename Canvas>
-	class ActiveChatWidget : public Widget<Events, Canvas> {
+	class ActiveChatWidget : public Widget {
 	public:
 		ActiveChatWidget() {
 			mSend.mLabel.mLabel = "Send";
@@ -172,23 +168,22 @@ namespace tp {
 		}
 
 	public:
-		Buffer<MessageWidget<Events, Canvas>> mMessages;
-		ScrollableWindow<Events, Canvas> mHistoryView;
-		TextInputWidget<Events, Canvas> mMessage;
-		ButtonWidget<Events, Canvas> mSend;
+		Buffer<MessageWidget> mMessages;
+		ScrollableWindow mHistoryView;
+		TextInputWidget mMessage;
+		ButtonWidget mSend;
 
 		RGBA mBGColor;
 		halnf mPadding = 0;
 	};
 
-	template <typename Events, typename Canvas>
-	class ChattingWidget : public Widget<Events, Canvas> {
+	class ChattingWidget : public Widget {
 	public:
 		ChattingWidget() {
 			// todo :  fetch code
-			mUsers.append(UserWidget<Events, Canvas>());
-			mUsers.append(UserWidget<Events, Canvas>());
-			mUsers.append(UserWidget<Events, Canvas>());
+			mUsers.append(UserWidget());
+			mUsers.append(UserWidget());
+			mUsers.append(UserWidget());
 
 			mUsers[0].mArea = { 0, 0, 100, 100 };
 			mUsers[1].mArea = { 0, 0, 100, 100 };
@@ -198,9 +193,9 @@ namespace tp {
 				mSideView.addWidget(&message.data());
 			}
 
-			mActive.mMessages.append(MessageWidget<Events, Canvas>());
-			mActive.mMessages.append(MessageWidget<Events, Canvas>());
-			mActive.mMessages.append(MessageWidget<Events, Canvas>());
+			mActive.mMessages.append(MessageWidget());
+			mActive.mMessages.append(MessageWidget());
+			mActive.mMessages.append(MessageWidget());
 
 			mActive.mMessages[0].mArea = { 0, 0, 100, 50 };
 			mActive.mMessages[1].mArea = { 0, 0, 100, 50 };
@@ -229,16 +224,15 @@ namespace tp {
 		}
 
 	public:
-		Buffer<UserWidget<Events, Canvas>> mUsers;
-		ScrollableWindow<Events, Canvas> mSideView;
-		ActiveChatWidget<Events, Canvas> mActive;
-		SplitView<Events, Canvas> mSplitView;
+		Buffer<UserWidget> mUsers;
+		ScrollableWindow mSideView;
+		ActiveChatWidget mActive;
+		SplitView mSplitView;
 
 		RGBA mBGColor;
 	};
 
-	template <typename Events, typename Canvas>
-	class ComplexWidget : public Widget<Events, Canvas> {
+	class ComplexWidget : public Widget {
 	public:
 		ComplexWidget() {
 			this->mChildWidgets.pushBack(&mLogin);
@@ -264,8 +258,8 @@ namespace tp {
 
 	private:
 		bool mLogged = false;
-		LoginWidget<Events, Canvas> mLogin;
-		ChattingWidget<Events, Canvas> mChatting;
+		LoginWidget mLogin;
+		ChattingWidget mChatting;
 
 		RGBA mBGColor;
 	};

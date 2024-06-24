@@ -35,9 +35,9 @@ void Application::run() {
 	}
 
 	while (!mWindow->shouldClose()) {
-		if (mProcTimer.isTimeout()) {
+		mWindow->processEvents();
 
-			mWindow->processEvents();
+		if (mProcTimer.isTimeout() || eventHandler->isEvents()) {
 
 			while (eventHandler->isEvents()) {
 				eventHandler->processEvent();

@@ -4,50 +4,20 @@
 
 namespace tp {
 
-	template <typename Events, typename Canvas>
-	class ButtonWidget : public Widget<Events, Canvas> {
+	class ButtonWidget : public Widget {
 	public:
-		ButtonWidget() {
-			this->setArea({ 0, 0, 100, 30 });
-			this->mChildWidgets.pushBack(&mLabel);
-		}
-
-		ButtonWidget(const std::string& label, const tp::RectF& aArea) {
-			this->setArea(aArea);
-			mLabel.mLabel = label;
-			this->mChildWidgets.pushBack(&mLabel);
-		}
-
-		bool isFired() { return this->isReleased(); }
-
-		void eventProcess(const Events&) override { mLabel.setArea(this->mArea); }
-
-		void eventDraw(Canvas& canvas) override {
-			if (this->isHolding()) {
-				canvas.rect(this->mArea, pressedColor, rounding);
-			} else if (this->isFocus()) {
-				canvas.rect(this->mArea, hoveredColor, rounding);
-			} else {
-				canvas.rect(this->mArea, accentColor, rounding);
-			}
-		}
-
-		void setLabel(const std::string& string) {
-			mLabel.mLabel = string;
-		}
+		ButtonWidget();
+		ButtonWidget(const std::string& label, const tp::RectF& aArea);
+		bool isFired();
+		void eventProcess(const Events&) override;
+		void eventDraw(Canvas& canvas) override;
+		void setLabel(const std::string& string);
 
 	public:
-		void eventUpdateConfiguration(WidgetManager& wm) override {
-			wm.setActiveId("Button");
-
-			pressedColor = wm.getColor("Pressed", "Action");
-			hoveredColor = wm.getColor("Hovered", "Interaction");
-			accentColor = wm.getColor("Default", "Accent");
-			rounding = wm.getNumber("Rounding", "Rounding");
-		}
+		void eventUpdateConfiguration(WidgetManager& wm) override;
 
 	public:
-		LabelWidget<Events, Canvas> mLabel;
+		LabelWidget mLabel;
 
 		RGBA pressedColor;
 		RGBA hoveredColor;

@@ -4,8 +4,7 @@
 
 namespace tp {
 
-	template <typename Events, typename Canvas>
-	class ViewportWidget : public Widget<Events, Canvas> {
+	class ViewportWidget : public Widget {
 	public:
 		explicit ViewportWidget(Canvas* canvas, Editor* editor) {
 			mEditor = editor;
@@ -15,9 +14,7 @@ namespace tp {
 
 		~ViewportWidget() { mCanvas->deleteImageHandle(mImage); }
 
-		void eventProcess(const Events& events) override {
-			mEditor->setViewportSize(this->mArea.size);
-		}
+		void eventProcess(const Events& events) override { mEditor->setViewportSize(this->mArea.size); }
 
 		void eventDraw(Canvas& canvas) override {
 			mEditor->renderViewport();
@@ -33,12 +30,10 @@ namespace tp {
 		Canvas::ImageHandle mImage;
 	};
 
-	template <typename Events, typename Canvas>
-	class EditorWidget : public Widget<Events, Canvas> {
+	class EditorWidget : public Widget {
 	public:
 		EditorWidget(Canvas* canvas, Editor* editor) :
-			mViewport(canvas, editor)
-		{
+			mViewport(canvas, editor) {
 			mEditor = editor;
 
 			this->mChildWidgets.pushBack(&mViewport);
@@ -121,11 +116,9 @@ namespace tp {
 				}
 
 				const auto& activeArea = mViewport.mArea;
-				if (this->isHolding() &&  activeArea.isInside(events.getPointer())) {
+				if (this->isHolding() && activeArea.isInside(events.getPointer())) {
 					switch (mNavigationType) {
-						case ORBIT:
-							mEditor->navigationOrbit(events.getPointerDelta() / activeArea.size * 3);
-							break;
+						case ORBIT: mEditor->navigationOrbit(events.getPointerDelta() / activeArea.size * 3); break;
 
 						case PAN:
 							{
@@ -135,17 +128,13 @@ namespace tp {
 							}
 							break;
 
-						case ZOOM:
-							mEditor->navigationZoom(1 + (events.getPointerDelta().y / activeArea.size.y));
-							break;
+						case ZOOM: mEditor->navigationZoom(1 + (events.getPointerDelta().y / activeArea.size.y)); break;
 					}
 				}
 			}
 		}
 
-		void eventDraw(Canvas& canvas) override {
-			canvas.rect(this->mArea, mBaseColor);
-		}
+		void eventDraw(Canvas& canvas) override { canvas.rect(this->mArea, mBaseColor); }
 
 		void eventUpdateConfiguration(WidgetManager& wm) override {
 			wm.setActiveId("3DEditor");
@@ -155,25 +144,25 @@ namespace tp {
 	public:
 		Editor* mEditor = nullptr;
 
-		SplitView<Events, Canvas> mSplitView;
+		SplitView mSplitView;
 
-		ViewportWidget<Events, Canvas> mViewport;
-		ScrollableWindow<Events, Canvas> mSettingsWidget;
+		ViewportWidget mViewport;
+		ScrollableWindow mSettingsWidget;
 
 		// Controls
-		CollapsableMenu<Events, Canvas> mRenderMenu;
-		ButtonWidget<Events, Canvas> mRenderPathTracer;
-		ButtonWidget<Events, Canvas> mRenderRaster;
-		ButtonWidget<Events, Canvas> mRenderDeNoise;
+		CollapsableMenu mRenderMenu;
+		ButtonWidget mRenderPathTracer;
+		ButtonWidget mRenderRaster;
+		ButtonWidget mRenderDeNoise;
 
 		// Navigation
 		enum NavigationType { ORBIT, PAN, ZOOM } mNavigationType = ORBIT;
 
-		CollapsableMenu<Events, Canvas> mNavigationMenu;
-		ButtonWidget<Events, Canvas> mNavigationPan;
-		ButtonWidget<Events, Canvas> mNavigationOrbit;
-		ButtonWidget<Events, Canvas> mNavigationZoom;
-		ButtonWidget<Events, Canvas> mNavigationReset;
+		CollapsableMenu mNavigationMenu;
+		ButtonWidget mNavigationPan;
+		ButtonWidget mNavigationOrbit;
+		ButtonWidget mNavigationZoom;
+		ButtonWidget mNavigationReset;
 
 		RGBA mBaseColor;
 	};

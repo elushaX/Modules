@@ -12,7 +12,7 @@ namespace tp {
 		~Window();
 
 	public:
-		static Window* createWindow(Vec2F size = { 500.f, 500.f }, const char* title = "Window");
+		static Window* createWindow(Vec2F size = { 1000.f, 700.f }, const char* title = "Window");
 		static void destroyWindow(Window* window);
 
 	public:

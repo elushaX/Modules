@@ -10,7 +10,7 @@ class EditorGUI : public Application {
 public:
 	EditorGUI() {
 		auto canvas = this->mGraphics->getCanvas();
-		mGui = new EditorWidget<EventHandler, Canvas>(canvas, &mEditor);
+		mGui = new EditorWidget(canvas, &mEditor);
 
 		mEditor.loadDefaults();
 
@@ -33,7 +33,7 @@ public:
 private:
 	Editor mEditor;
 	WidgetManager mWidgetManager;
-	EditorWidget<EventHandler, Canvas>* mGui;
+	EditorWidget* mGui;
 };
 
 int main() {

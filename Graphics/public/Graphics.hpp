@@ -17,8 +17,8 @@ namespace tp {
 		explicit DebugGUI(Window* window);
 		~DebugGUI();
 
-		void procBegin() {}
-		void procEnd() {}
+		void procBegin();
+		void procEnd();
 
 		void drawBegin();
 		void drawEnd();

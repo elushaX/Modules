@@ -30,7 +30,7 @@ private:
 	Library library;
 
 	tp::WidgetManager mWidgetManager;
-	LibraryWidget<EventHandler, Canvas> gui;
+	LibraryWidget gui;
 };
 
 int main() {

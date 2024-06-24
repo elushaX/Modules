@@ -24,7 +24,7 @@ public:
 
 private:
 	WidgetManager mWidgetManager;
-	Sketch3DGUI<EventHandler, Canvas> mGui;
+	Sketch3DGUI mGui;
 };
 
 void runApp() {

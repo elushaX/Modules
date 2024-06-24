@@ -887,7 +887,7 @@ void obj::ObjectsGUI::explorer() {
 		"child_path",
 		{ 0, 45 },
 		false,
-		ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_HorizontalScrollbar
+		ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_HorizontalScrollbar
 	);
 	tp::List<ViewStackNode*> rev_path;
 	for (auto childo = mViewStack.lastNode(); childo; childo = childo->prev) {
