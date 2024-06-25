@@ -110,6 +110,7 @@ namespace tp {
 		}
 
 		void attach(Node* node, Node* node_to) {
+			node->next = node->prev = nullptr;
 			if (node_to) {
 				if (node_to->next) {
 					node->next = node_to->next;

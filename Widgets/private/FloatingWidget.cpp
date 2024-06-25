@@ -9,10 +9,10 @@ FloatingWidget::FloatingWidget() {
 }
 
 void FloatingWidget::eventProcess(const Events& events) {
+	mActionStartRelativePos = events.getPointerPrev() - this->mArea.pos;
+
 	checkFloating(events);
 	checkResizing(events);
-
-	mActionStartRelativePos = events.getPointer() - this->mArea.pos;
 
 	CollapsableMenu::eventProcess(events);
 }
