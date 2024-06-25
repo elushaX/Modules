@@ -207,6 +207,7 @@ namespace tp {
 		void insert(TypeArg data, Index idx) { insert(newNode(data), idx); }
 
 		void removeNode(Node* node) {
+			if (!node) return;
 			detach(node);
 			deleteNode(node);
 		}

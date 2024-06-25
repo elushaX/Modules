@@ -16,7 +16,13 @@ ButtonWidget::ButtonWidget(const std::string& label, const tp::RectF& aArea) {
 
 bool ButtonWidget::isFired() { return this->isReleased(); }
 
-void ButtonWidget::eventProcess(const Events&) { mLabel.setArea(this->mArea); }
+void ButtonWidget::eventProcess(const Events&) {
+	mLabel.setArea(this->mArea);
+
+	if (isFired()) {
+		mCallback();
+	}
+}
 
 void ButtonWidget::eventDraw(Canvas& canvas) {
 	if (this->isHolding()) {

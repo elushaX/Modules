@@ -63,5 +63,9 @@ namespace tp {
 		bool mHolding = false;
 		bool mPressed = false;
 		bool mReleased = false;
+
+
+		// docking
+		bool mIsDocked = false;
 	};
 }

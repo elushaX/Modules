@@ -2,6 +2,8 @@
 
 #include "LabelWidget.hpp"
 
+#include <functional>
+
 namespace tp {
 
 	class ButtonWidget : public Widget {
@@ -23,5 +25,7 @@ namespace tp {
 		RGBA hoveredColor;
 		RGBA accentColor;
 		halnf rounding = 0;
+
+		std::function<void()> mCallback = [](){};
 	};
 }
