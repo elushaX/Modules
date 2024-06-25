@@ -17,10 +17,13 @@ void Widget::procWrapper(const Events& events, const RectF& parentArea) {
 
 	checkClicked(events);
 
-	eventProcess(events);
+	if (mHandlesEvents) {
 
-	for (auto child : mChildWidgets) {
-		child->procWrapper(events, getArea());
+		eventProcess(events);
+
+		for (auto child : mChildWidgets) {
+			child->procWrapper(events, getArea());
+		}
 	}
 }
 
@@ -31,8 +34,8 @@ void Widget::drawWrapper(Canvas& canvas) {
 
 	// draw child widgets
 	canvas.pushClamp(this->mArea);
-	for (auto child : mChildWidgets) {
-		child->drawWrapper(canvas);
+	for (auto child = mChildWidgets.lastNode(); child; child = child->prev) {
+		child->data->drawWrapper(canvas);
 	}
 	canvas.popClamp();
 }

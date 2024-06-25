@@ -9,3 +9,4 @@
 #include "CollapsableMenu.hpp"
 #include "FloatingWidget.hpp"
 #include "Animations.hpp"
+#include "DockspaceWidget.hpp"

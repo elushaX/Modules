@@ -57,6 +57,7 @@ namespace tp {
 
 		bool mVisible = false;
 		bool mEnable = true;
+		bool mHandlesEvents = true;
 		bool mInFocus = false;
 
 		bool mHolding = false;

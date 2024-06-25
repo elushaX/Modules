@@ -23,15 +23,21 @@ namespace tp {
 		NamedSliderWidget mSlider;
 	};
 
-	class SimpleWidget2 : public Widget {
+	class SimpleWidget2 : public DockSpaceWidget {
 	public:
 		SimpleWidget2() {
 			this->mChildWidgets.pushBack(&mFloating);
 			mFloating.addWidgetToMenu(&mWidget);
-			mFloating.addWidgetToMenu(&mWidget2);
 
-			// this->mChildWidgets.pushBack(&mFloating2);
-			// mFloating2.addWidgetToMenu(&mWidget2);
+			this->mChildWidgets.pushBack(&mFloating2);
+			mFloating2.addWidgetToMenu(&mWidget2);
+
+			mFloating2.mArea = { 200, 100, 100, 100 };
+
+			this->mChildWidgets.pushBack(&mFloating3);
+			mFloating3.addWidgetToMenu(&mWidget3);
+
+			mFloating3.mArea = { 400, 100, 100, 100 };
 		}
 
 	private:
@@ -40,5 +46,8 @@ namespace tp {
 
 		FloatingWidget mFloating2;
 		SimpleWidget mWidget2;
+
+		FloatingWidget mFloating3;
+		SimpleWidget mWidget3;
 	};
 }
