@@ -21,7 +21,13 @@ void CollapsableMenu::eventDraw(Canvas& canvas) {
 	canvas.rect(this->mArea.shrink(mBorderSize), mMenuColor, rounding);
 }
 
-void CollapsableMenu::addWidgetToMenu(Widget* widget) { mBody.addWidget(widget); }
+void CollapsableMenu::addWidgetToMenu(Widget* widget) {
+	mBody.addWidget(widget);
+
+	EventHandler ev;
+	mBody.procWrapper(ev, this->mArea);
+	updateGeometry();
+}
 
 void CollapsableMenu::setLabel(const std::string& string) { mHeader.mLabel = string; }
 
@@ -40,6 +46,7 @@ void CollapsableMenu::updateGeometry() {
 	mHeader.setArea(getHeaderRect());
 
 	mBody.mEnable = !mCollapsed;
+
 	if (mCollapsed) {
 		this->mArea.size.y = headerHeight;
 	} else {
