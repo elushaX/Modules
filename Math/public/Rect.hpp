@@ -119,8 +119,10 @@ namespace tp {
 			return *this;
 		}
 
+		// pos
 		Vec2<Type> p1() { return pos; }
 
+		// pos + size
 		Vec2<Type> p3() { return pos + size; }
 
 		Vec2<Type> p2() { return { pos.x, pos.y + size.y }; }
@@ -223,6 +225,25 @@ namespace tp {
 		}
 
 		Vec2<Type> center() { return pos + size / 2.f; }
+
+		// splits by Factor Horizontally returning Left rect
+		Rect<Type> splitByFactorHL(halnf factor) {
+			return { x, y, size.x * factor, size.y };
+		}
+
+		Rect<Type> splitByFactorHR(halnf factor) {
+			const auto abs = size.x * factor;
+			return { x + abs, y, size.x - abs, size.y };
+		}
+
+		Rect<Type> splitByFactorVT(halnf factor) {
+			return { x, y, size.x, size.y * factor };
+		}
+
+		Rect<Type> splitByFactorVB(halnf factor) {
+			const auto abs = size.y * factor;
+			return { x, y + abs, size.x, size.y - abs };
+		}
 
 	public:
 		union {
