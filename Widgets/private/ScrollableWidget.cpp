@@ -96,6 +96,11 @@ ScrollableWindow::~ScrollableWindow() = default;
 void ScrollableWindow::eventProcess(const Events& events) {
 	List<Widget*>& content = mContentWidget.mChildWidgets;
 
+	// to account all changed geometry of child widgets
+	for (auto widget : content) {
+		widget->procWrapper(events, this->mArea);
+	}
+
 	updateContents(content);
 	updateContentSize(content);
 
@@ -119,7 +124,14 @@ void ScrollableWindow::eventProcess(const Events& events) {
 	}
 }
 
-void ScrollableWindow::addWidget(Widget* widget) { mContentWidget.mChildWidgets.pushBack(widget); }
+void ScrollableWindow::addWidget(Widget* widget) {
+	mContentWidget.mChildWidgets.pushBack(widget);
+
+	List<Widget*>& content = mContentWidget.mChildWidgets;
+	updateContents(content);
+	updateContentSize(content);
+}
+
 void ScrollableWindow::clearContent() { mContentWidget.mChildWidgets.removeAll(); }
 List<Widget*>& ScrollableWindow::getContent() { return mContentWidget.mChildWidgets; }
 
