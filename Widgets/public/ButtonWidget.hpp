@@ -8,6 +8,9 @@ namespace tp {
 
 	class ButtonWidget : public Widget {
 	public:
+		// enum State { NONE, ANTICIPATION, ACTIVATED, CONFIRMED };
+
+	public:
 		ButtonWidget();
 		ButtonWidget(const std::string& label, const tp::RectF& aArea);
 		bool isFired();
@@ -20,6 +23,7 @@ namespace tp {
 
 	public:
 		LabelWidget mLabel;
+		// State mStat = NONE;
 
 		RGBA pressedColor;
 		RGBA hoveredColor;

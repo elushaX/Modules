@@ -159,15 +159,10 @@ namespace tp {
 		}
 
 		[[nodiscard]] Node* find(const TypeArg data) const {
-			Node* found = mFirst;
-			for (alni i = 0; data != found->data; i++) {
-				if (i == length()) return nullptr;
-				if (!found->next) {
-					return nullptr;
-				}
-				found = found->next;
+			for (Node* found = mFirst; found; found = found->next) {
+				if (data == found->data) return found;
 			}
-			return found;
+			return nullptr;
 		}
 
 		[[nodiscard]] inline const Type& operator[](Index idx) const {

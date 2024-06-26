@@ -177,7 +177,7 @@ namespace tp {
 		halnf mPadding = 0;
 	};
 
-	class ChattingWidget : public Widget {
+	class ChattingWidget : public GridLayoutWidget {
 	public:
 		ChattingWidget() {
 			// todo :  fetch code
@@ -205,18 +205,9 @@ namespace tp {
 				mActive.mHistoryView.addWidget(&message.data());
 			}
 
-			this->mChildWidgets.pushBack(&mSideView);
-			this->mChildWidgets.pushBack(&mActive);
-			this->mChildWidgets.pushBack(&mSplitView);
+			addSideWidget(&mSideView, GridLayoutWidget::RIGHT);
+			setCenterWidget(&mActive);
 		}
-
-		void eventProcess(const Events& events) override {
-			mSplitView.setArea(this->mArea);
-			mSideView.setArea(mSplitView.getSecond());
-			mActive.setArea(mSplitView.getFirst());
-		}
-
-		void eventDraw(Canvas& canvas) override { canvas.rect(this->mArea, mBGColor); }
 
 		void eventUpdateConfiguration(WidgetManager& wm) override {
 			wm.setActiveId("ChattingWidget");
@@ -227,7 +218,6 @@ namespace tp {
 		Buffer<UserWidget> mUsers;
 		ScrollableWindow mSideView;
 		ActiveChatWidget mActive;
-		SplitView mSplitView;
 
 		RGBA mBGColor;
 	};

@@ -245,6 +245,12 @@ namespace tp {
 			return { x, y + abs, size.x, size.y - abs };
 		}
 
+		Rect<Type> getSizedFromCenter(Vec2<Type> size) {
+			const auto pivot = center();
+			const auto sizeHalf = size / 2;
+			return { pivot - sizeHalf, size };
+		}
+
 	public:
 		union {
 			Vec2<Type> v1;

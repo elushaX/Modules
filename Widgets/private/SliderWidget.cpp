@@ -19,7 +19,8 @@ void SliderWidget::eventProcess(const Events& events) {
 }
 
 void SliderWidget::eventDraw(Canvas& canvas) {
-	canvas.rect(this->mArea, defaultColor, rounding);
+	canvas.rect(this->mArea, handleColor, rounding);
+	canvas.rect(this->mArea.shrink(borderSize), defaultColor, rounding);
 	canvas.rect(getHandle(), handleColor, rounding);
 }
 
@@ -31,8 +32,9 @@ RectF SliderWidget::getHandle() const {
 void SliderWidget::eventUpdateConfiguration(WidgetManager& wm) {
 	wm.setActiveId("Slider");
 	defaultColor = wm.getColor("Default", "Base");
-	handleColor = wm.getColor("Handle", "Accent");
-	handleSize = wm.getNumber("HandleSize", 20.f);
+	handleColor = wm.getColor("Handle", RGBA(0.3f, 0.3f, 0.3f, 1.f));
+	borderSize = wm.getNumber("BorderSize", 2);
+	handleSize = wm.getNumber("HandleSize", 15.f);
 	rounding = wm.getNumber("Rounding", "Rounding");
 }
 

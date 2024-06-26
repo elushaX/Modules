@@ -30,15 +30,15 @@ namespace tp {
 		Canvas::ImageHandle mImage;
 	};
 
-	class EditorWidget : public Widget {
+	class EditorWidget : public WorkspaceWidget {
 	public:
 		EditorWidget(Canvas* canvas, Editor* editor) :
 			mViewport(canvas, editor) {
 			mEditor = editor;
 
-			this->mChildWidgets.pushBack(&mViewport);
-			this->mChildWidgets.pushBack(&mSplitView);
-			this->mChildWidgets.pushBack(&mSettingsWidget);
+			mDockSpace.addSideWidget(&mNavigationMenu, GridLayoutWidget::RIGHT);
+			mDockSpace.addSideWidget(&mRenderMenu, GridLayoutWidget::LEFT);
+			mDockSpace.setCenterWidget(&mViewport);
 
 			// Render
 			{
@@ -68,55 +68,24 @@ namespace tp {
 				mNavigationMenu.setLabel("Navigation");
 			}
 
-			mSettingsWidget.addWidget(&mRenderMenu);
-			mSettingsWidget.addWidget(&mNavigationMenu);
+			mRenderPathTracer.mCallback = [this]() {
+				mEditor->renderPathFrame();
+				mEditor->setRenderType(Editor::RenderType::PATH_TRACER);
+			};
+
+			mRenderRaster.mCallback = [this]() { mEditor->setRenderType(Editor::RenderType::RASTER); };
+			mRenderDeNoise.mCallback = [this]() { mEditor->denoisePathRenderBuffers(); };
+			mNavigationOrbit.mCallback = [this]() { mNavigationType = ORBIT; };
+			mNavigationPan.mCallback = [this]() { mNavigationType = PAN; };
+			mNavigationZoom.mCallback = [this](){ mNavigationType = ZOOM; };
+			mNavigationReset.mCallback = [this]() { mEditor->navigationReset(); };
 		}
 
 		void eventProcess(const Events& events) override {
-			mSplitView.setArea(this->mArea);
-
-			mViewport.setArea(mSplitView.getFirst());
-			mViewport.mEnable = mSplitView.getFirstEnabled();
-
-			mSettingsWidget.setArea(mSplitView.getSecond());
-			mSettingsWidget.mEnable = mSplitView.getSecondEnabled();
-
-			// render settings
-			{
-				if (mRenderPathTracer.isFired()) {
-					mEditor->renderPathFrame();
-					mEditor->setRenderType(Editor::RenderType::PATH_TRACER);
-				}
-
-				if (mRenderRaster.isFired()) {
-					mEditor->setRenderType(Editor::RenderType::RASTER);
-				}
-
-				if (mRenderDeNoise.isFired()) {
-					mEditor->denoisePathRenderBuffers();
-				}
-			}
-
 			// navigation
 			{
-				if (mNavigationOrbit.isFired()) {
-					mNavigationType = ORBIT;
-				}
-
-				if (mNavigationPan.isFired()) {
-					mNavigationType = PAN;
-				}
-
-				if (mNavigationZoom.isFired()) {
-					mNavigationType = ZOOM;
-				}
-
-				if (mNavigationReset.isFired()) {
-					mEditor->navigationReset();
-				}
-
 				const auto& activeArea = mViewport.mArea;
-				if (this->isHolding() && activeArea.isInside(events.getPointer())) {
+				if (mViewport.isHolding()) {
 					switch (mNavigationType) {
 						case ORBIT: mEditor->navigationOrbit(events.getPointerDelta() / activeArea.size * 3); break;
 
@@ -132,6 +101,8 @@ namespace tp {
 					}
 				}
 			}
+
+			WorkspaceWidget::eventProcess(events);
 		}
 
 		void eventDraw(Canvas& canvas) override { canvas.rect(this->mArea, mBaseColor); }
@@ -144,13 +115,13 @@ namespace tp {
 	public:
 		Editor* mEditor = nullptr;
 
-		SplitView mSplitView;
+		// SplitView mSplitView;
 
 		ViewportWidget mViewport;
-		ScrollableWindow mSettingsWidget;
+		// ScrollableWindow mSettingsWidget;
 
 		// Controls
-		CollapsableMenu mRenderMenu;
+		FloatingWidget mRenderMenu;
 		ButtonWidget mRenderPathTracer;
 		ButtonWidget mRenderRaster;
 		ButtonWidget mRenderDeNoise;
@@ -158,7 +129,7 @@ namespace tp {
 		// Navigation
 		enum NavigationType { ORBIT, PAN, ZOOM } mNavigationType = ORBIT;
 
-		CollapsableMenu mNavigationMenu;
+		FloatingWidget mNavigationMenu;
 		ButtonWidget mNavigationPan;
 		ButtonWidget mNavigationOrbit;
 		ButtonWidget mNavigationZoom;

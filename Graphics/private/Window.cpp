@@ -26,7 +26,8 @@ static void scrollCallback(GLFWwindow* window, double xOffset, double yOffset);
 Window::Window(Vec2F size, const char* title) {
 	mContext = new Context();
 
-	glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
+	// glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
+	// glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
 	// Create a window and OpenGL context
 	mContext->window = glfwCreateWindow((int) size.x, (int) size.y, title, nullptr, nullptr);
@@ -63,7 +64,8 @@ Window* Window::createWindow(Vec2F size, const char* title) {
 	}
 	count--;
 
-	glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+	// glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+	// glfwInitHint(GLFW_WAYLAND_LIBDECOR, GLFW_WAYLAND_DISABLE_LIBDECOR);
 
 	// Initialize GLFW
 	if (!glfwInit()) {
@@ -89,8 +91,8 @@ void Window::destroyWindow(Window* window) {
 bool Window::shouldClose() const { return glfwWindowShouldClose(mContext->window); }
 
 void Window::processEvents() {
-	glfwPollEvents();
-	// glfwWaitEvents();
+	// glfwPollEvents();
+	glfwWaitEvents();
 	checkAxisUpdates();
 }
 

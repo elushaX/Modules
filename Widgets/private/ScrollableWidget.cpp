@@ -13,7 +13,7 @@ void ScrollBarWidget::eventProcess(const Events& events) {
 		return;
 	}
 
-	if (events.getScrollY() != 0) {
+	if (events.getScrollY() != 0 && mArea.isInside(events.getPointer())) {
 		auto offset = events.getScrollY() < 0 ? 1.0f : -1.0f;
 		mPositionFraction += mSizeFraction * offset * 0.3f;
 		mPositionFraction = tp::clamp(mPositionFraction, 0.f, 1.f - mSizeFraction);
@@ -98,7 +98,7 @@ void ScrollableWindow::eventProcess(const Events& events) {
 
 	// to account all changed geometry of child widgets
 	for (auto widget : content) {
-		widget->procWrapper(events, this->mArea);
+		widget->procWrapper(events, mContentWidget.mVisibleArea);
 	}
 
 	updateContents(content);

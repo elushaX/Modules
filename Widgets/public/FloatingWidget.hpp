@@ -11,6 +11,9 @@ namespace tp {
 		void eventDraw(Canvas& canvas) override;
 		void eventUpdateConfiguration(WidgetManager& wm) override;
 
+		[[nodiscard]] bool isFloating() const;
+		void stopFloating();
+
 	private:
 		void checkFloating(const Events& events);
 		void checkResizing(const Events& events);
@@ -26,5 +29,8 @@ namespace tp {
 		bool mResizing = false;
 
 		Vec2F mActionStartRelativePos = {};
+
+	public:
+		bool mResizable = true;
 	};
 }
