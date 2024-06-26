@@ -17,8 +17,12 @@ void CollapsableMenu::eventProcess(const Events&) {
 }
 
 void CollapsableMenu::eventDraw(Canvas& canvas) {
-	canvas.rect(this->mArea, mBorderColor, rounding);
-	canvas.rect(this->mArea.shrink(mBorderSize), mMenuColor, rounding);
+	if (mBorders) {
+		canvas.rect(this->mArea, mBorderColor, rounding);
+		canvas.rect(this->mArea.shrink(mBorderSize), mMenuColor, rounding);
+	} else {
+		canvas.rect(this->mArea, mMenuColor, rounding);
+	}
 }
 
 void CollapsableMenu::addWidgetToMenu(Widget* widget) {
@@ -60,7 +64,8 @@ void CollapsableMenu::updateGeometry() {
 
 RectF CollapsableMenu::getHeaderRect() {
 	RectF out = { this->mArea.pos, { this->mArea.size.x, headerHeight } };
-	return out.shrink(mPadding);
+	if (mBorders) out = out.shrink(mPadding);
+	return out;
 }
 
 RectF CollapsableMenu::getBodyRect() {
@@ -71,7 +76,7 @@ RectF CollapsableMenu::getBodyRect() {
 
 	if (mAdjustHeight) out.size.y = mBody.getContentSize();
 
-	if (mBody.getContentSize()) {
+	if (mBody.getContentSize() && mBorders) {
 		out = out.shrink(mPadding);
 		out.size.y += mPadding * 2 + 1;
 	}

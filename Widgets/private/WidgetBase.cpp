@@ -22,7 +22,7 @@ void Widget::procWrapper(const Events& events, const RectF& parentArea) {
 		eventProcess(events);
 
 		for (auto child : mChildWidgets) {
-			child->procWrapper(events, getArea());
+			child->procWrapper(events, mVisibleArea);
 		}
 	}
 }
@@ -38,6 +38,8 @@ void Widget::drawWrapper(Canvas& canvas) {
 		child->data->drawWrapper(canvas);
 	}
 	canvas.popClamp();
+
+	eventDrawOver(canvas);
 }
 
 void Widget::updateConfigWrapper(WidgetManager& wm) {
@@ -52,6 +54,7 @@ void Widget::updateConfigWrapper(WidgetManager& wm) {
 
 void Widget::eventProcess(const Events& events) {}
 void Widget::eventDraw(Canvas& canvas) {}
+void Widget::eventDrawOver(Canvas& canvas) {}
 void Widget::eventUpdateConfiguration(WidgetManager& wm) {}
 
 void Widget::eventVisible(const Events& events) {}
@@ -65,6 +68,8 @@ void Widget::eventReleased(const Events& events) {}
 
 void Widget::checkVisibility(const Events& events, const RectF& parentArea) {
 	const bool currentVisibility = parentArea.isOverlap(getArea());
+
+	parentArea.calcIntersection(mArea, mVisibleArea);
 
 	if (currentVisibility != mVisible) {
 		if (currentVisibility) eventVisible(events);
@@ -81,7 +86,7 @@ void Widget::checkVisibility(const Events& events, const RectF& parentArea) {
 }
 
 void Widget::checkFocus(const Events& events) {
-	const bool currentFocus = getArea().isInside(events.getPointer());
+	const bool currentFocus = mVisibleArea.isInside(events.getPointer());
 
 	if (currentFocus != mInFocus) {
 		if (currentFocus) eventFocusEnter(events);
@@ -110,7 +115,7 @@ void Widget::checkClicked(const Events& events) {
 			mHolding = false;
 		}
 	} else {
-		if (events.isPressed(InputID::MOUSE1)) {
+		if (events.isPressed(InputID::MOUSE1) && mVisibleArea.isInside(events.getPointer())) {
 			eventPressed(events);
 			mHolding = true;
 			mPressed = true;

@@ -24,6 +24,7 @@ namespace tp {
 		RGBA handleColor;
 		halnf handleSize = 0;
 		halnf rounding = 0;
+		halnf borderSize = 2;
 	};
 
 	class NamedSliderWidget : public Widget {

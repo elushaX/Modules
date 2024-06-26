@@ -44,5 +44,8 @@ namespace tp {
 		bool mCollapsed = true;
 		bool mLocked = false;
 		bool mAdjustHeight = true;
+
+	public:
+		bool mBorders = true;
 	};
 }

@@ -67,9 +67,10 @@ Language:
 	Make automations itself a universal tool - NFA DFA conversions
 
 Widgets:
-    Add tree structure interface to simplify code
     Add shortcuts
     Config cache may be static
+    Cleanup
+    Add animations
 
 LibraryViewer:
     artworks

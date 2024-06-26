@@ -12,7 +12,7 @@ void FloatingWidget::eventProcess(const Events& events) {
 	mActionStartRelativePos = events.getPointerPrev() - this->mArea.pos;
 
 	checkFloating(events);
-	checkResizing(events);
+	if (mResizable) checkResizing(events);
 
 	CollapsableMenu::eventProcess(events);
 }
@@ -20,7 +20,7 @@ void FloatingWidget::eventProcess(const Events& events) {
 void FloatingWidget::eventDraw(Canvas& canvas) {
 	CollapsableMenu::eventDraw(canvas);
 
-	if (!this->getCollapsed()) {
+	if (!this->getCollapsed() && mResizable) {
 		auto rect = getResizeHandle();
 		canvas.rect(rect, mResizeHandleColor, 0);
 		canvas.circle(rect.pos - this->mBorderSize, rect.w, this->mMenuColor);
@@ -77,4 +77,10 @@ RectF FloatingWidget::getResizeHandle() {
 	auto size = Vec2F(mResizeHandleSize);
 	auto pos = this->mArea.pos + this->mArea.size - size;
 	return { pos, size };
+}
+
+bool FloatingWidget::isFloating() const { return mFloating; }
+
+void FloatingWidget::stopFloating() {
+	mFloating = false;
 }

@@ -91,56 +91,36 @@ namespace tp {
 	};
 
 	
-	class Sketch3DGUI : public Widget {
+	class Sketch3DGUI : public WorkspaceWidget {
 	public:
 		Sketch3DGUI(Canvas& canvas, Vec2F renderResolution) :
-			mViewport(canvas, renderResolution) {
-			mDrawButton = new ButtonWidget("Draw", { 0, 0, 100, 30 });
-			mMoveButton = new ButtonWidget("Pan View", { 0, 0, 100, 30 });
-			mRotateButton = new ButtonWidget("Rotate view", { 0, 0, 100, 30 });
-			mZoomButton = new ButtonWidget("Zoom view", { 0, 0, 100, 30 });
+			mViewport(canvas, renderResolution)
+		{
 
-			mOptions.addWidget(mDrawButton);
-			mOptions.addWidget(mMoveButton);
-			mOptions.addWidget(mRotateButton);
-			mOptions.addWidget(mZoomButton);
+			mControls.addWidgetToMenu(&mDrawButton);
+			mControls.addWidgetToMenu(&mMoveButton);
+			mControls.addWidgetToMenu(&mRotateButton);
+			mControls.addWidgetToMenu(&mZoomButton);
 
-			// add color sliders
-			mRed = new NamedSliderWidget("Red");
-			mGreen = new NamedSliderWidget("Green");
-			mBlue = new NamedSliderWidget("Blue");
+			mColorPicker.addWidgetToMenu(&mRed);
+			mColorPicker.addWidgetToMenu(&mGreen);
+			mColorPicker.addWidgetToMenu(&mBlue);
 
-			mOptions.addWidget(mRed);
-			mOptions.addWidget(mGreen);
-			mOptions.addWidget(mBlue);
+			mDockSpace.setCenterWidget(&mViewport);
 
-			this->mChildWidgets.pushBack(&mViewport);
-			this->mChildWidgets.pushBack(&mSplitView);
-			this->mChildWidgets.pushBack(&mOptions);
-		}
+			mFloatingLayer.mChildWidgets.pushBack(&mControls);
+			mFloatingLayer.mChildWidgets.pushBack(&mColorPicker);
 
-		~Sketch3DGUI() {
-			for (auto item : mOptions.getContent()) {
-				delete item.data();
-			}
+			mDrawButton.mCallback = [this]() { mViewport.mMode = Sketch3DWidget::Mode::DRAW; };
+			mMoveButton.mCallback = [this]() { mViewport.mMode = Sketch3DWidget::Mode::MOVE; };
+			mRotateButton.mCallback = [this]() { mViewport.mMode = Sketch3DWidget::Mode::ROTATE; };
+			mZoomButton.mCallback = [this]() { mViewport.mMode = Sketch3DWidget::Mode::ZOOM; };
 		}
 
 		void eventProcess(const Events& events) override {
-			mSplitView.setArea(this->mArea);
-			mViewport.setArea(mSplitView.getFirst());
-			mOptions.setArea(mSplitView.getSecond());
+			WorkspaceWidget::eventProcess(events);
 
-			if (mDrawButton->isFired()) {
-				mViewport.mMode = Sketch3DWidget::Mode::DRAW;
-			} else if (mMoveButton->isFired()) {
-				mViewport.mMode = Sketch3DWidget::Mode::MOVE;
-			} else if (mRotateButton->isFired()) {
-				mViewport.mMode = Sketch3DWidget::Mode::ROTATE;
-			} else if (mZoomButton->isFired()) {
-				mViewport.mMode = Sketch3DWidget::Mode::ZOOM;
-			}
-
-			mViewport.setColor(RGBA(mRed->mSlider.mFactor, mGreen->mSlider.mFactor, mBlue->mSlider.mFactor, 1.f));
+			mViewport.setColor(RGBA(mRed.mSlider.mFactor, mGreen.mSlider.mFactor, mBlue.mSlider.mFactor, 1.f));
 		}
 
 		void eventDraw(Canvas& canvas) override { canvas.rect(this->mArea, mBackgroundColor, mRounding); }
@@ -154,17 +134,18 @@ namespace tp {
 
 	private:
 		Sketch3DWidget mViewport;
-		SplitView mSplitView;
 		ScrollableWindow mOptions;
 
-		ButtonWidget* mDrawButton = nullptr;
-		ButtonWidget* mMoveButton = nullptr;
-		ButtonWidget* mRotateButton = nullptr;
-		ButtonWidget* mZoomButton = nullptr;
+		FloatingWidget mControls;
+		ButtonWidget mDrawButton = ButtonWidget("Draw", { 0, 0, 100, 30 });
+		ButtonWidget mMoveButton =  ButtonWidget("Pan", { 0, 0, 100, 30 });
+		ButtonWidget mRotateButton = ButtonWidget("Orbit", { 0, 0, 100, 30 });
+		ButtonWidget mZoomButton =  ButtonWidget("Zoom", { 0, 0, 100, 30 });
 
-		NamedSliderWidget* mRed = nullptr;
-		NamedSliderWidget* mGreen = nullptr;
-		NamedSliderWidget* mBlue = nullptr;
+		FloatingWidget mColorPicker;
+		NamedSliderWidget mRed = NamedSliderWidget("Red");
+		NamedSliderWidget mGreen = NamedSliderWidget("Green");
+		NamedSliderWidget mBlue  = NamedSliderWidget("Blue");
 
 		RGBA mBackgroundColor;
 		halnf mRounding = 0;

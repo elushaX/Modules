@@ -184,7 +184,7 @@ namespace tp {
 		int filterExisting = 0; // all existing no-existing
 	};
 
-	class LibraryWidget : public Widget {
+	class LibraryWidget : public WorkspaceWidget {
 	public:
 		LibraryWidget(Library* lib, Player* player) {
 			mLibrary = (lib);
@@ -194,10 +194,11 @@ namespace tp {
 
 			mCurrentTrackInfo.mPlayer = mPlayer;
 
-			this->mChildWidgets.pushBack(&mSplitView);
-			this->mChildWidgets.pushBack(&mSongList);
-			this->mChildWidgets.pushBack(&mCurrentTrackInfo);
-			this->mChildWidgets.pushBack(&mCurrentTrack);
+			mDockSpace.setCenterWidget(&mSongList);
+			mDockSpace.addSideWidget(&mCurrentTrackInfo, GridLayoutWidget::RIGHT);
+
+			// this->mChildWidgets.pushBack(&mCurrentTrackInfo);
+			// this->mChildWidgets.pushBack(&mCurrentTrack);
 		}
 
 		void updateTracks() {
@@ -210,9 +211,6 @@ namespace tp {
 		void eventProcess(const Events& events) override {
 			filter();
 
-			mSplitView.setArea(this->mArea);
-			mSongList.setArea(mSplitView.getFirst());
-
 			for (auto track : mSongList.getContent()) {
 				auto trackWidget = (TrackWidget*) track.data();
 				if (trackWidget->mSelected) {
@@ -220,12 +218,14 @@ namespace tp {
 				}
 			}
 
-			mCurrentTrackInfo.setArea(mSplitView.getSecond());
-
 			// mCurrentTrack.proc(events, this->mArea, mSplitView.getFirst());
+
+			WorkspaceWidget::eventProcess(events);
 		}
 
-		void eventDraw(Canvas& canvas) override { canvas.rect(this->mArea, { 0.1f, 0.1f, 0.1f, 1.f }); }
+		// void eventDraw(Canvas& canvas) override {
+			// canvas.rect(this->mArea, { 0.1f, 0.1f, 0.1f, 1.f });
+		// }
 
 		void filter() {
 			if (!mCurrentTrackInfo.isSongFilterChanged) return;
@@ -264,7 +264,6 @@ namespace tp {
 
 		Buffer<TrackWidget> mTracks;
 
-		SplitView mSplitView;
 		ScrollableWindow mSongList;
 		TrackInfoWidget mCurrentTrackInfo;
 		TrackWidget mCurrentTrack;

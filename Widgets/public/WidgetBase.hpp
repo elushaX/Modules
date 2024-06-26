@@ -20,7 +20,13 @@ namespace tp {
 		void updateConfigWrapper(WidgetManager& wm);
 
 		virtual void eventProcess(const Events& events);
+
+		// draws before child widgets
 		virtual void eventDraw(Canvas& canvas);
+
+		// draws overlay after child widgets
+		virtual void eventDrawOver(Canvas& canvas);
+
 		virtual void eventUpdateConfiguration(WidgetManager& wm);
 
 		virtual void eventVisible(const Events& events);
@@ -52,6 +58,7 @@ namespace tp {
 
 	public:
 		RectF mArea;
+		RectF mVisibleArea;
 
 		List<Widget*> mChildWidgets;
 

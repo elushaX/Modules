@@ -5,13 +5,19 @@ namespace tp {
 	class SimpleWidget : public CollapsableMenu {
 	public:
 		SimpleWidget() {
+			this->addWidgetToMenu(&mSlider);
+
 			this->addWidgetToMenu(&mInMenuButton1);
 			this->addWidgetToMenu(&mInMenuButton2);
 
 			this->addWidgetToMenu(&mLabel);
-			this->addWidgetToMenu(&mSlider);
 
 			mInMenuButton1.mLabel.mLabel = "Button1";
+
+			mInMenuButton1.mCallback = []() {
+				printf("asd\n");
+			};
+
 			mInMenuButton2.mLabel.mLabel = "Button2";
 		}
 
@@ -23,31 +29,41 @@ namespace tp {
 		NamedSliderWidget mSlider;
 	};
 
-	class SimpleWidget2 : public DockSpaceWidget {
+	class SimpleWidget3 : public WorkspaceWidget  {
 	public:
-		SimpleWidget2() {
-			this->mChildWidgets.pushBack(&mFloating);
-			mFloating.addWidgetToMenu(&mWidget);
+		SimpleWidget3() {
 
-			this->mChildWidgets.pushBack(&mFloating2);
-			mFloating2.addWidgetToMenu(&mWidget2);
+			mDockSpace.addSideWidget(&mButtons[0], GridLayoutWidget::BOTTOM);
+			mDockSpace.addSideWidget(&mButtons[1], GridLayoutWidget::RIGHT);
 
-			mFloating2.mArea = { 200, 100, 100, 100 };
+			mDockSpace.removeSideWidget(GridLayoutWidget::BOTTOM);
 
-			this->mChildWidgets.pushBack(&mFloating3);
-			mFloating3.addWidgetToMenu(&mWidget3);
+			mDockSpace.addSideWidget(&mButtons[0], GridLayoutWidget::TOP);
+			mDockSpace.addSideWidget(&mButtons[2], GridLayoutWidget::LEFT);
 
-			mFloating3.mArea = { 400, 100, 100, 100 };
+			mDockSpace.removeSideWidget(GridLayoutWidget::TOP);
+
+			mDockSpace.addSideWidget(&mButtons[0], GridLayoutWidget::BOTTOM);
+
+			mDockSpace.addSideWidget(&mButtons[3], GridLayoutWidget::TOP);
+			mDockSpace.setCenterWidget(&mButtons[4]);
+
+			/*
+			mButtons[4].mCallback = [&]() { mDockSpace.toggleHiddenState(DockSpaceWidget::BOTTOM); };
+			mButtons[0].mCallback = [&]() { mDockSpace.toggleHiddenState(DockSpaceWidget::TOP); };
+			mButtons[2].mCallback = [&]() { mDockSpace.toggleHiddenState(DockSpaceWidget::RIGHT); };
+			mButtons[3].mCallback = [&]() { mDockSpace.toggleHiddenState(DockSpaceWidget::LEFT); };
+			*/
+
+			mButtons[0].addWidgetToMenu(&mWidget);
+			mButtons[1].addWidgetToMenu(&mWidget2);
 		}
 
 	private:
-		FloatingWidget mFloating;
+		FloatingWidget mButtons[5];
+
 		SimpleWidget mWidget;
-
-		FloatingWidget mFloating2;
 		SimpleWidget mWidget2;
-
-		FloatingWidget mFloating3;
 		SimpleWidget mWidget3;
 	};
 }

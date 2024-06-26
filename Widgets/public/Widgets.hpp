@@ -1,12 +1,13 @@
 #pragma once
 
+#include "Animations.hpp"
 #include "ButtonWidget.hpp"
 #include "LabelWidget.hpp"
 #include "ScrollableWidget.hpp"
-#include "SplitViewWidget.hpp"
 #include "TextInputWidget.hpp"
 #include "SliderWidget.hpp"
 #include "CollapsableMenu.hpp"
 #include "FloatingWidget.hpp"
-#include "Animations.hpp"
-#include "DockspaceWidget.hpp"
+#include "FloatingLayoutWidget.hpp"
+#include "GridLayoutWidget.hpp"
+#include "WorkspaceWidget.hpp"
