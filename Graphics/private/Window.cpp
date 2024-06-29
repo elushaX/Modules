@@ -64,7 +64,7 @@ Window* Window::createWindow(Vec2F size, const char* title) {
 	}
 	count--;
 
-	// glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+	glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
 	// glfwInitHint(GLFW_WAYLAND_LIBDECOR, GLFW_WAYLAND_DISABLE_LIBDECOR);
 
 	// Initialize GLFW
