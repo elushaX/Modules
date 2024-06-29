@@ -86,7 +86,7 @@ void Widget::checkVisibility(const Events& events, const RectF& parentArea) {
 }
 
 void Widget::checkFocus(const Events& events) {
-	const bool currentFocus = mVisibleArea.isInside(events.getPointer());
+	const bool currentFocus = mVisibleArea.isInside(events.getPointerPrev());
 
 	if (currentFocus != mInFocus) {
 		if (currentFocus) eventFocusEnter(events);

@@ -22,14 +22,14 @@ void WorkspaceWidget::eventProcess(const Events& events) {
 				auto side = mDockSpace.getPreviewSide();
 				if (side != GridLayoutWidget::NONE) {
 					mFloatingLayer.mChildWidgets.removeNode(mFloatingLayer.mChildWidgets.find(widget));
-					widget->setCollapsed(true);
+					widget->setCollapsed(false);
 					widget->stopFloating();
 					mDockSpace.addSideWidget(widget, side);
 				}
-			} else {
-				mDockSpace.mHandlesEvents = true;
-				mDockSpace.mPreview = true;
 			}
+
+			mDockSpace.mHandlesEvents = true;
+			mDockSpace.mPreview = true;
 		}
 	}
 
