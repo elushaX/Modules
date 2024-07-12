@@ -41,7 +41,7 @@ void FloatingWidget::checkFloating(const Events& events) {
 		mFloating = true;
 	}
 
-	if (mFloating && isReleased()) {
+	if (mFloating && this->mHeader.isReleased()) {
 		mFloating = false;
 		this->mHeader.clearEvents();
 	}
