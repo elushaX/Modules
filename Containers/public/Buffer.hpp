@@ -317,6 +317,13 @@ namespace tp {
 			return *this;
 		}
 
+		alni find(const tType& val) {
+			for (ualni idx = 0; idx < mLoad; idx++) {
+				if (mBuff[idx] == val) return (alni) idx;
+			}
+			return -1;
+		}
+
 		tType& append(Arg data) {
 			if (mLoad == mSize) {
 				resizeBuffer(tResizePolicy(mSize));
@@ -365,6 +372,53 @@ namespace tp {
 			mLoad = aSize;
 			for (ualni i = 0; i < mLoad; i++) {
 				new (mBuff + i) tType();
+			}
+		}
+
+		void erase(ualni start, ualni end) {
+			DEBUG_ASSERT(end <= mLoad)
+			DEBUG_ASSERT(end >= start)
+
+			if (start == end) return;
+
+			for (ualni idx = start; idx < end; idx++) {
+				mBuff[idx].~tType();
+			}
+
+			const auto diff = (end - start);
+			for (ualni idx = end; idx < mLoad; idx++) {
+				new (&mBuff[idx - diff]) tType(mBuff[idx]);
+				mBuff[idx].~tType();
+			}
+
+			mLoad -= diff;
+			ualni prevSize = tResizePolicyDown(mSize);
+			DEBUG_ASSERT(prevSize < mSize)
+			if (prevSize > mLoad) {
+				resizeBuffer(prevSize);
+			}
+		}
+
+		template<typename tRemoveConditionFunctor>
+		void erase_if(tRemoveConditionFunctor functor) {
+			alni lastIndex = mLoad - 1;
+			alni currentIndex = 0;
+			while (currentIndex < lastIndex + 1) {
+				if (functor(mBuff[currentIndex])) {
+					new (&mBuff[currentIndex]) tType(mBuff[lastIndex]);
+					mBuff[lastIndex].~tType();
+					lastIndex--;
+				} else {
+					currentIndex++;
+				}
+			}
+
+			erase(lastIndex + 1, mLoad);
+		}
+
+		void reverse() {
+			for (ualni idx = 0; idx < mLoad / 2; idx++) {
+				swap(mBuff[idx], mBuff[mLoad - idx - 1]);
 			}
 		}
 
