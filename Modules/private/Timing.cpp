@@ -17,6 +17,10 @@ namespace tp {
 		return gCurrentTime;
 	}
 
+	void updateGlobalTime() {
+		get_time();
+	}
+
 	void sleep(time_ms mDuration) { THREAD_SLEEP(mDuration); }
 
 	Timer::Timer() {

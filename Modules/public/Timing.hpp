@@ -34,6 +34,7 @@ namespace tp {
 
 	void sleep(time_ms duration);
 	time_ms get_time();
+	void updateGlobalTime();
 
 	struct FpsCounter {
 		halni frames = 0;
