@@ -17,17 +17,18 @@ void WorkspaceWidget::eventProcess(const Events& events) {
 	for (auto floatingChild : mFloatingLayer.mChildWidgets) {
 		auto widget = dynamic_cast<FloatingWidget*>(floatingChild.data());
 		if (!widget) continue;
-		if (widget->isFloating()) {
-			if (widget->isReleased()) {
-				auto side = mDockSpace.getPreviewSide();
-				if (side != GridLayoutWidget::NONE) {
-					mFloatingLayer.mChildWidgets.removeNode(mFloatingLayer.mChildWidgets.find(widget));
-					widget->setCollapsed(false);
-					widget->stopFloating();
-					mDockSpace.addSideWidget(widget, side);
-				}
-			}
 
+		if (widget->mDropped) {
+			auto side = mDockSpace.getPreviewSide();
+			if (side != GridLayoutWidget::NONE) {
+				mFloatingLayer.mChildWidgets.removeNode(mFloatingLayer.mChildWidgets.find(widget));
+				widget->setCollapsed(false);
+				widget->stopFloating();
+				mDockSpace.addSideWidget(widget, side);
+			}
+		}
+
+		if (widget->isFloating()) {
 			mDockSpace.mHandlesEvents = true;
 			mDockSpace.mPreview = true;
 		}

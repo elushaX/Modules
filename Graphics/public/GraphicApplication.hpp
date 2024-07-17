@@ -12,16 +12,24 @@ namespace tp {
 
 		void run();
 
-		virtual void processFrame(EventHandler* eventHandler);
+		virtual bool forceNewFrame() { return false; }
+
+		virtual void processFrame(EventHandler* eventHandler, halnf deltaTime);
 		virtual void drawFrame(Canvas* canvas);
 
 		virtual ~Application();
+
+		void drawDebug();
+
+	private:
+		void runDefaultLoop();
+		void runDebugLoop();
 
 	protected:
 		bool mInitialized = false;
 
 		ualni mDrawPerSecond = 60;
-		ualni mProcPerSecond = 160;
+		ualni mProcPerSecond = 100;
 
 		Timer mDrawTimer;
 		Timer mProcTimer;

@@ -17,7 +17,7 @@ namespace tp {
 
 	public:
 		void draw();
-		void processEvents();
+		void processEvents(bool wait = true);
 
 		void setEventHandler(EventHandler* eventHandler);
 		[[nodiscard]] EventHandler* getEventHandler();

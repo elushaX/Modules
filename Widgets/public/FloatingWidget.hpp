@@ -32,5 +32,7 @@ namespace tp {
 
 	public:
 		bool mResizable = true;
+
+		bool mDropped = false;
 	};
 }

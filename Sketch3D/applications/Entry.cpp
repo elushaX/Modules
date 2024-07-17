@@ -11,7 +11,7 @@ public:
 	Sketch3DApplication() :
 		mGui(*mGraphics->getCanvas(), { 1920, 1080 }) {}
 
-	void processFrame(EventHandler* eventHandler) override {
+	void processFrame(EventHandler* eventHandler, halnf delta) override {
 		auto rec = RectF({ 0, 0 }, mWindow->getSize());
 
 		mGui.setVisible(true);

@@ -19,11 +19,11 @@ void Widget::procWrapper(const Events& events, const RectF& parentArea) {
 
 	if (mHandlesEvents) {
 
-		eventProcess(events);
-
 		for (auto child : mChildWidgets) {
 			child->procWrapper(events, mVisibleArea);
 		}
+
+		eventProcess(events);
 	}
 }
 
