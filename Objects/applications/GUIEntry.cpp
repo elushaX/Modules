@@ -10,7 +10,7 @@ class SimpleGUI : public Application {
 public:
 	SimpleGUI() { gui.cd(objects_api::create<DictObject>(), "root"); }
 
-	void processFrame(EventHandler* eventHandler) override {}
+	void processFrame(EventHandler* eventHandler, halnf delta) override {}
 
 	void drawFrame(Canvas* canvas) override {
 		canvas->rect({ { 0, 0 }, mWindow->getSize() }, RGBA(0.f, 0.f, 0.f, 1.f), 0);

@@ -42,6 +42,14 @@ bool transitionsReduce[4][4] = {
 	{ true, true, true, true },
 };
 
+void EventHandler::processAllEvent() {
+	mMutex.lock();
+	while (mEventQueue.size()) {
+		processEventUnguarded();
+	}
+	mMutex.unlock();
+}
+
 void EventHandler::processEvent() {
 	mMutex.lock();
 
@@ -50,10 +58,17 @@ void EventHandler::processEvent() {
 		return;
 	}
 
-	auto lastEvent = &mEventQueue.last();
+	processEventUnguarded();
 
-	const auto& eventData = lastEvent->second;
-	const auto& inputId = lastEvent->first;
+	mMutex.unlock();
+}
+
+void EventHandler::processEventUnguarded() {
+
+	auto firstEvent = &mEventQueue.first();
+
+	const auto& eventData = firstEvent->second;
+	const auto& inputId = firstEvent->first;
 
 	switch (eventData.type) {
 		case InputEvent::Type::MOUSE_POS:
@@ -70,8 +85,6 @@ void EventHandler::processEvent() {
 				auto reportedEvent = (int) eventData.buttonAction;
 
 				mInputStates[(int) inputId].mCurrentState = transitions[currentState][reportedEvent];
-
-				// printf("%i - %i \n", reportedEvent, mInputStates[(int) InputID::MOUSE1].mCurrentState);
 
 				if (transitionsReduce[currentState][reportedEvent]) {
 					mEventQueue.popFront();
@@ -98,13 +111,15 @@ void EventHandler::processEvent() {
 	}
 
 	mPointerPressure = mInputStates[(int) InputID::MOUSE1].mCurrentState != InputState::State::NONE;
-
-	mMutex.unlock();
 }
 
-const Vec2F& EventHandler::getPointer() const { return mPointer; }
+void EventHandler::setCursorOrigin(const Vec2F& origin) {
+	mPointerOrigin = origin;
+}
 
-const Vec2F& EventHandler::getPointerPrev() const { return mPointerPrev; }
+Vec2F EventHandler::getPointer() const { return mPointer - mPointerOrigin; }
+
+Vec2F EventHandler::getPointerPrev() const { return mPointerPrev - mPointerOrigin; }
 
 bool EventHandler::isPressed(InputID id) const {
 	return mInputStates[(int) id].mCurrentState == InputState::State::PRESSED;

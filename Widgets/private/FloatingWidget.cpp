@@ -37,6 +37,8 @@ void FloatingWidget::eventUpdateConfiguration(WidgetManager& wm) {
 }
 
 void FloatingWidget::checkFloating(const Events& events) {
+	mDropped = false;
+
 	if (this->mHeader.isHolding() && events.getPointerDelta().length2() > 4) {
 		mFloating = true;
 	}
@@ -44,6 +46,7 @@ void FloatingWidget::checkFloating(const Events& events) {
 	if (mFloating && this->mHeader.isReleased()) {
 		mFloating = false;
 		this->mHeader.clearEvents();
+		mDropped = true;
 	}
 
 	if (mFloating) {

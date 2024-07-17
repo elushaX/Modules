@@ -11,7 +11,7 @@ class ExampleApplication : public Application {
 public:
 	ExampleApplication() = default;
 
-	void processFrame(EventHandler* eventHandler) override { 
+	void processFrame(EventHandler* eventHandler, halnf) override {
 		// example
 	}
 
@@ -20,9 +20,10 @@ public:
 
 		ImGui::ShowDemoWindow();
 
-		ImGui::Text("Frames processed per second: %f", this->mFramesProcessedPerSecond);
-		ImGui::Text("Frames drawn per second: %f", this->mFramesDrawnPerSecond);
+		drawDebug();
 	}
+
+	bool forceNewFrame() override { return false; }
 
 	virtual ~ExampleApplication() = default;
 };

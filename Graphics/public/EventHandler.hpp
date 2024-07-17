@@ -71,9 +71,13 @@ namespace tp {
 	public: // User interface
 		bool isEvents();
 		void processEvent();
+		void processAllEvent();
 
-		[[nodiscard]] const Vec2F& getPointer() const;
-		[[nodiscard]] const Vec2F& getPointerPrev() const;
+
+		void setCursorOrigin(const Vec2F& origin);
+
+		[[nodiscard]] Vec2F getPointer() const;
+		[[nodiscard]] Vec2F getPointerPrev() const;
 		[[nodiscard]] Vec2F getPointerDelta() const;
 
 		[[nodiscard]] bool isPressed(InputID id) const;
@@ -84,12 +88,17 @@ namespace tp {
 		[[nodiscard]] halnf getPointerPressure() const;
 
 	private:
+		void processEventUnguarded();
+
+	private:
 		std::mutex mMutex = {};
 
 		// Store thread protected queue of posted events
 		List<std::pair<InputID, InputEvent>> mEventQueue;
 
 		// input states
+		Vec2F mPointerOrigin = { 0, 0 };
+
 		Vec2F mPointer;
 		Vec2F mPointerPrev;
 		Vec2F mScrollDelta;

@@ -37,7 +37,9 @@ Canvas::~Canvas() {
 	delete mContext;
 }
 
-void Canvas::rect(const RectF& rec, const RGBA& col, halnf round) {
+void Canvas::rect(RectF rec, const RGBA& col, halnf round) {
+	rec.pos += mOrigin;
+
 	nvgBeginPath(mContext->vg);
 
 	if (round == 0) {
@@ -50,12 +52,18 @@ void Canvas::rect(const RectF& rec, const RGBA& col, halnf round) {
 	nvgFill(mContext->vg);
 }
 
-void Canvas::circle(const Vec2F& pos, halnf size, const RGBA& col) {
+void Canvas::circle(Vec2F pos, halnf size, const RGBA& col) {
+	pos += mOrigin;
+
 	nvgBeginPath(mContext->vg);
 	nvgCircle(mContext->vg, pos.x, pos.y, size);
 
 	nvgFillColor(mContext->vg, { col.r, col.g, col.b, col.a });
 	nvgFill(mContext->vg);
+}
+
+void Canvas::setOrigin(const Vec2F& origin) {
+	mOrigin = origin;
 }
 
 void Canvas::pushClamp(const RectF& rec) {
@@ -82,7 +90,9 @@ void Canvas::popClamp() {
 void Canvas::text(
 	const char* string, const RectF& aRec, halnf size, Align align, halnf marging, const RGBA& col
 ) {
+
 	RectF rec = { aRec.x + marging, aRec.y + marging, aRec.z - marging * 2, aRec.w - marging * 2 };
+	rec.pos += mOrigin;
 
 	pushClamp(rec);
 
@@ -121,7 +131,9 @@ void Canvas::text(
 	popClamp();
 }
 
-void Canvas::drawImage(const RectF& rec, ImageHandle* image, halnf angle, halnf alpha, halnf rounding) {
+void Canvas::drawImage(RectF rec, ImageHandle* image, halnf angle, halnf alpha, halnf rounding) {
+	rec.pos += mOrigin;
+
 	auto imgPaint = nvgImagePattern(mContext->vg, rec.x, rec.y, rec.z, rec.w, angle, image->id, alpha);
 	nvgBeginPath(mContext->vg);
 	nvgRoundedRect(mContext->vg, rec.x, rec.y, rec.z, rec.w, rounding);

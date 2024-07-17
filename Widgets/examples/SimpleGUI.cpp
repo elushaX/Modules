@@ -12,7 +12,7 @@ public:
 		// mGui.mPreview = true;
 	}
 
-	void processFrame(EventHandler* eventHandler) override {
+	void processFrame(EventHandler* eventHandler, halnf) override {
 		const auto rec = RectF({ 0, 0 }, mWindow->getSize());
 
 		mGui.setArea(rec);

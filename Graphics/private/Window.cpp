@@ -90,9 +90,9 @@ void Window::destroyWindow(Window* window) {
 
 bool Window::shouldClose() const { return glfwWindowShouldClose(mContext->window); }
 
-void Window::processEvents() {
-	// glfwPollEvents();
-	glfwWaitEvents();
+void Window::processEvents(bool wait) {
+	if (wait) glfwWaitEvents();
+	else glfwPollEvents();
 	checkAxisUpdates();
 }
 
@@ -166,12 +166,12 @@ static void mouseButtonCallback(GLFWwindow* window, int button, int action, int 
 	auto id = (InputID) ((int) InputID::MOUSE1 + button);
 
 	if (action == GLFW_PRESS) {
-		eventHandler->postEvent(id, { InputEvent::Type::BUTTON_ACTION, InputEvent::ButtonAction::PRESS, {} }
-		);
+		// printf("mouse\n");
+		eventHandler->postEvent(id, { InputEvent::Type::BUTTON_ACTION, InputEvent::ButtonAction::PRESS, {} });
 	} else if (action == GLFW_RELEASE) {
 		eventHandler->postEvent(id, { InputEvent::Type::BUTTON_ACTION, InputEvent::ButtonAction::RELEASE, {} });
-		// eventHandler->postEvent(id, { InputEvent::Type::BUTTON_ACTION, InputEvent::ButtonAction::NONE, {} });
 	}
+
 }
 
 static void scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {

@@ -19,7 +19,7 @@ public:
 
 	~EditorGUI() override { delete mGui; }
 
-	void processFrame(EventHandler* eventHandler) override {
+	void processFrame(EventHandler* eventHandler, halnf delta) override {
 		auto rec = RectF({ 0, 0 }, mWindow->getSize());
 
 		mGui->setArea(rec);
