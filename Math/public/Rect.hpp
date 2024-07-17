@@ -120,14 +120,14 @@ namespace tp {
 		}
 
 		// pos
-		Vec2<Type> p1() { return pos; }
+		Vec2<Type> p1() const { return pos; }
 
 		// pos + size
-		Vec2<Type> p3() { return pos + size; }
+		Vec2<Type> p3() const { return pos + size; }
 
-		Vec2<Type> p2() { return { pos.x, pos.y + size.y }; }
+		Vec2<Type> p2() const { return { pos.x, pos.y + size.y }; }
 
-		Vec2<Type> p4() { return { pos.x + size.x, pos.y }; }
+		Vec2<Type> p4() const { return { pos.x + size.x, pos.y }; }
 
 		inline bool isAbove(const Rect<Type>& rect) const { return (pos.y + size.y < rect.pos.y); }
 

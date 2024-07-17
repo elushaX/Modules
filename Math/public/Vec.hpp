@@ -360,6 +360,8 @@ namespace tp {
 		Vec normal() { return { -y, x }; }
 
 		[[nodiscard]] alnf length2() const { return (x * x + y * y); }
+		[[nodiscard]] halnf max() const { return tp::max(x, y); }
+		[[nodiscard]] halnf min() const { return tp::min(x, y); }
 
 		[[nodiscard]] alnf length() const {
 			Type const tmp = (Type) (x * x + y * y);
