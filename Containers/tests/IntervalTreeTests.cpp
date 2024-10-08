@@ -16,8 +16,11 @@ struct Interval {
 	bool ignore = false;
 
 	void random(halnf span, halnf scale = 1.f) {
-		start = ((halnf) randomFloat()) * (span);
-		end = ((halnf) randomFloat()) * (span);
+		auto offset = 0;
+
+		start = ((halnf) randomFloat()) * (span) - offset;
+		end = ((halnf) randomFloat()) * (span) - offset;
+
 		if (start > end) swap(start, end);
 
 		auto len = (end - start) * scale * 0.5f;
