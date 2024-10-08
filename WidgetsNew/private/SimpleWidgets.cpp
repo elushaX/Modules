@@ -15,11 +15,15 @@ void LabelWidget::draw(Canvas& canvas) {
 	canvas.text(mText.c_str(), getRelativeArea(), mSize, Canvas::LC, mPadding, mColor);
 }
 
-
 ButtonWidget::ButtonWidget() {
 	mAction = []() {
 		printf("Button Pressed!\n");
 	};
+
+	setDebug("button", { 0.1, 0.1, 0.7, 0.7 });
+
+	mColorAnimated.setTargetColor(mColor);
+	mColorAnimated.endAnimation();
 }
 
 void ButtonWidget::setAction(const std::function<void()>& action) {
@@ -27,19 +31,11 @@ void ButtonWidget::setAction(const std::function<void()>& action) {
 }
 
 void ButtonWidget::process(const EventHandler& eventHandler) {
-	if (getRelativeArea().isInside(eventHandler.getPointer())) {
+	if (getArea().isInside(eventHandler.getPointer())) {
 		if (eventHandler.isPressed(InputID::MOUSE1)) {
 			mAction();
 		}
-
-		mColorAnimated.setTargetColor(mColor);
-	} else {
-		mColorAnimated.setTargetColor(mColorHovered);
 	}
-
-	mColorAnimated.updateCurrentRect();
-
-	setActive(needUpdate());
 }
 
 void ButtonWidget::draw(Canvas& canvas) {
@@ -47,10 +43,31 @@ void ButtonWidget::draw(Canvas& canvas) {
 	LabelWidget::draw(canvas);
 }
 
-bool ButtonWidget::needUpdate() const {
-	return !mColorAnimated.checkAnimationShouldEnd();
+bool ButtonWidget::needsNextFrame() const {
+	return LabelWidget::needsNextFrame() || !mColorAnimated.shouldEndTransition();
 }
 
-void ButtonWidget::finishAnimations() {
+void ButtonWidget::endAnimations() {
 	mColorAnimated.endAnimation();
+	LabelWidget::endAnimations();
+}
+
+void ButtonWidget::updateAnimations() {
+	mColorAnimated.updateCurrentRect();
+	LabelWidget::updateAnimations();
+}
+
+void ButtonWidget::mouseEnter() {
+	mColorAnimated.setTargetColor(mColor);
+	mColorAnimated.endAnimation();
+
+	mColorAnimated.setTargetColor(mColorHovered);
+	mColorAnimated.updateCurrentRect();
+	triggerWidgetUpdate();
+}
+
+void ButtonWidget::mouseLeave() {
+	mColorAnimated.setTargetColor(mColor);
+	mColorAnimated.updateCurrentRect();
+	triggerWidgetUpdate();
 }

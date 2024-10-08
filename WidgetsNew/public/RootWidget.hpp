@@ -2,46 +2,54 @@
 
 #include "Widget.hpp"
 
+#include <map>
+#include <vector>
+#include <set>
+
 namespace tp {
-	class RootWidget {
+	class RootWidget : public WidgetManagerInterface {
 
-		// path from leaf to root of widgets that need to be updated
-		struct ActivePath {
-			struct ActiveNode {
-				Widget* widget = nullptr;
-				Vec2F globalPos;
-			};
-
-			Buffer<ActiveNode> path;
+		struct ActiveTreeNode {
+			ActiveTreeNode* parent = nullptr;
+			std::set<ActiveTreeNode*> children;
+			Widget* widget = nullptr;
 		};
 
-
 	public:
-		RootWidget() = default;
+		RootWidget() { setDebug("root", RGBA(1)); }
 
 		void setRootWidget(Widget* widget);
+		void updateWidget(Widget*);
 
+		static void setWidgetArea(Widget& widget, const RectF& rect);
+
+	public:
 		void processFrame(EventHandler* events, const RectF& screenArea);
 		void drawFrame(Canvas& canvas);
 
 		[[nodiscard]] bool needsUpdate() const;
 
-		static void setWidgetArea(Widget& widget, const RectF& rect);
-
 	private:
-		void updateActivePaths(Buffer<ActivePath>* activePaths, const Vec2F& pointer);
+		void updateTreeToProcess();
+		void updateAnimations(ActiveTreeNode* iter);
 		void drawRecursion(Canvas& canvas, Widget* active, const Vec2F& pos);
-
-		void processPaths(const Buffer<ActivePath>& path, EventHandler& events);
-		void clearProcessedFlag(const Buffer<ActivePath>& paths);
+		void drawDebug(Canvas& canvas, Widget* active, const Vec2F& pos);
+		void findFocusWidget(Widget* iter, Widget** focus, const Vec2F& pointer);
+		void handleFocusChanges(EventHandler& events);
+		void getWidgetPath(Widget* widget, std::vector<Widget*>& out);
+		void processActiveTree(ActiveTreeNode* iter, EventHandler& events);
+		void processFocusItems(EventHandler& events);
+		void adjustSizes(ActiveTreeNode* iter);
 
 	private:
+		RectF mScreenArea;
 		Widget* mRoot = nullptr;
 
-		Buffer<Widget*> mActiveWidgets;
-		Buffer<ActivePath> mActivePaths[2]; // current and prev
-		bool mFlipFlop = false;
+		// frame to frame changes
+		std::set<Widget*> mTriggeredWidgets;
+		std::map<Widget*, ActiveTreeNode> mWidgetsToProcess;
+		Widget* mInFocusWidget = nullptr;
 
-		bool mNeedUpdate = false;
+		bool mDebug = false;
 	};
 }

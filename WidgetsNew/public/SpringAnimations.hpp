@@ -139,7 +139,7 @@ namespace tp {
 			mEndPos.updateCurrentPosition();
 		}
 
-		[[nodiscard]] bool checkAnimationShouldEnd() const {
+		[[nodiscard]] bool shouldEndTransition() const {
 			return mStartPos.checkAnimationShouldEnd() && mEndPos.checkAnimationShouldEnd();
 		}
 

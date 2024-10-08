@@ -122,10 +122,10 @@ namespace tp {
 		// pos
 		Vec2<Type> p1() const { return pos; }
 
+		Vec2<Type> p2() const { return { pos.x, pos.y + size.y }; }
+
 		// pos + size
 		Vec2<Type> p3() const { return pos + size; }
-
-		Vec2<Type> p2() const { return { pos.x, pos.y + size.y }; }
 
 		Vec2<Type> p4() const { return { pos.x + size.x, pos.y }; }
 
@@ -163,6 +163,21 @@ namespace tp {
 
 		Rect<Type> shrink(Type val) const {
 			return { pos + val, size - val * 2 };
+		}
+
+		void expand(const Vec2<Type>& point) {
+			pos.x = min(point.x, pos.x);
+			pos.y = min(point.y, pos.y);
+
+			auto p = pos + size;
+			p.x = max(point.x, p.x);
+			p.y = max(point.y, p.y);
+			size = p - pos;
+		}
+
+		void expand(const Rect<Type>& rect) {
+			expand(rect.pos);
+			expand(rect.pos + rect.size);
 		}
 
 		// if only one point isInside
@@ -267,6 +282,10 @@ namespace tp {
 			struct {
 				Type z;
 				Type w;
+			};
+			struct {
+				Type width;
+				Type height;
 			};
 		};
 	};

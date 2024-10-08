@@ -5,19 +5,33 @@
 #include "AnimationTestWidget.hpp"
 #include "FloatingWidget.hpp"
 #include "SimpleWidgets.hpp"
+#include "LayoutWidget.hpp"
 
 using namespace tp;
 
 class WidgetApplication : public Application {
 public:
 	WidgetApplication() {
-		mRootWidget.setRootWidget(&mWidget);
+		mRootWidget.setRootWidget(&mLayoutWidget);
 
-		mWidget.addChild(&mWidgetFloating);
+		mLayoutWidget.addChild(&mFloatingMenu);
+		// mLayoutWidget.addChild(&mButton2);
 
-		RootWidget::setWidgetArea(mWidgetFloating, { 100, 100, 150, 200 });
+		// mWidgetFloating.addChild(&mButton);
 
-		mWidgetFloating.addChild(&mButton);
+		// mRootWidget.setRootWidget(&mAnimationTestWidget);
+
+		// mAnimationTestWidget.addChild(&mWidgetFloating);
+		// mAnimationTestWidget.addChild(&mLayoutWidget);
+
+		// RootWidget::setWidgetArea(mButton, { 100, 100, 150, 200 });
+
+		RootWidget::setWidgetArea(mFloatingMenu, { 100, 100, 150, 200 });
+
+		// mWidgetFloating.addChild(&mLayoutWidget);
+
+		// mLayoutWidget.addChild(&mButton);
+		// mLayoutWidget.addChild(&mLabel);
 	}
 
 	void processFrame(EventHandler* eventHandler, halnf deltaTime) override {
@@ -38,10 +52,12 @@ public:
 private:
 	LabelWidget mLabel;
 	ButtonWidget mButton;
-
+	ButtonWidget mButton2;
 	FloatingWidget mWidgetFloating;
+	AnimationTestWidget mAnimationTestWidget;
+	DesktopLayout mLayoutWidget;
+	FloatingMenu mFloatingMenu;
 
-	AnimationTestWidget mWidget;
 	RootWidget mRootWidget;
 };
 

@@ -5,7 +5,11 @@
 #include "EventHandler.hpp"
 #include "Graphics.hpp"
 
+#include <vector>
+
 namespace tp {
+	class WidgetManagerInterface;
+
 	class Widget {
 		friend class RootWidget;
 
@@ -13,41 +17,68 @@ namespace tp {
 		Widget();
 		virtual ~Widget() = default;
 
-		virtual void process(const EventHandler& events) {}
-		virtual void updateArea(RectF& area) const {}
+		void setDebug(const char* name, RGBA col) {
+			mName = name;
+			mDebugColor = col;
+		}
 
-		virtual void draw(Canvas& canvas);
-		virtual void drawOverlay(Canvas& canvas) {}
+		void addChild(Widget* child) {
+			mChildren.push_back(child);
+			child->mParent = this;
 
-		virtual bool isPassThroughEvents() const { return false; }
+			triggerWidgetUpdate();
+			child->triggerWidgetUpdate();
+		}
 
-		[[nodiscard]] virtual bool needUpdate() const;
+		WidgetManagerInterface* getRoot();
 
-		virtual void finishAnimations();
+		void triggerWidgetUpdate();
 
 	public:
-		[[nodiscard]] RectF getRelativeArea() const;
-		void setActive(bool active);
+		virtual void process(const EventHandler& events) {}
+		virtual void draw(Canvas& canvas) { canvas.rect(mArea.getCurrentRect(), RGBA(1.f), 10); }
+		virtual void drawOverlay(Canvas& canvas) {}
 
-		void addChild(Widget* widget);
+		virtual void mouseEnter();
+		virtual void mouseLeave();
 
-	private:
+		// size policies
+		virtual void adjustRect();
+		virtual void adjustChildrenRect();
+
+		[[nodiscard]] virtual bool processesEvents() const;
+		[[nodiscard]] virtual bool propagateEventsToChildren() const;
+
+		[[nodiscard]] virtual bool needsNextFrame() const;
+
+		virtual void endAnimations();
+		virtual void updateAnimations();
+
+	public:
 		[[nodiscard]] RectF getArea() const;
+		[[nodiscard]] RectF getRelativeArea() const;
 		void setArea(const RectF& area);
-		void removeChild(Widget* widget);
 
-	private:
+	protected:
+		Widget* mParent = nullptr;
+
+		std::vector<Widget*> mChildren;
+
 		// relative to the parent
 		SpringRect mArea;
 
-		// tree structure of widgets
-		List<Widget*> mChildWidgets;
+		ualni mZValue = 0;
 
-		// if needed updates even though pointer is not in area
-		bool mIsActive = false;
+		bool mInFocus = false;
 
-		Widget* mParent = nullptr;
+		// debug
+		std::string mName = "widget base";
+		Vec2F mLocalPoint;
+		Vec2F mGlobalPoint;
+		RGBA mDebugColor = { 1, 1, 1, 0.3 };
+	};
 
-		bool mProcessedFlag = false;
+	struct WidgetManagerInterface : public Widget {
+		virtual void updateWidget(Widget*) = 0;
 	};
 }

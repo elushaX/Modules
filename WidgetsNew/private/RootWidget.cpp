@@ -1,35 +1,77 @@
+
+#include <algorithm>
 #include "RootWidget.hpp"
+
+#include "imgui.h"
 
 using namespace tp;
 
-void RootWidget::setRootWidget(Widget* widget) { mRoot = widget; }
+void RootWidget::setRootWidget(Widget* widget) {
+	mRoot = widget;
+	widget->mParent = this;
+}
 
 void RootWidget::processFrame(EventHandler* events, const RectF& screenArea) {
-	mNeedUpdate = false;
-
-	auto currentPaths = &mActivePaths[mFlipFlop];
-	auto prevPaths = &mActivePaths[!mFlipFlop];
-
-	updateActivePaths(currentPaths, events->getPointer());
+	mScreenArea = screenArea;
 
 	mRoot->setArea(screenArea);
 
-	clearProcessedFlag(*currentPaths);
-	clearProcessedFlag(*prevPaths);
+	// construct hierarchy tree of widgets to process
+	updateTreeToProcess();
 
-	processPaths(*currentPaths, *events);
-	processPaths(*prevPaths, *events);
+	// update active tree animations
+	updateAnimations(&mWidgetsToProcess[mRoot]);
 
-	mActiveWidgets.erase_if([](auto widget) { return !widget->mIsActive; });
+	// update all events and call all event processing callbacks
+	EventHandler dummyEvents;
 
-	mFlipFlop = !mFlipFlop;
+	processFocusItems(*events);
+	processActiveTree(&mWidgetsToProcess[mRoot], dummyEvents);
+
+	// update widget sizes base on individual size policies
+	adjustSizes(&mWidgetsToProcess[mRoot]);
+
+	// trigger some widgets by moise pointer
+	handleFocusChanges(*events);
+
+	// check triggered widgets for removal
+	erase_if(mTriggeredWidgets, [](auto widget) {
+		auto end = !widget->needsNextFrame();
+		if (end) {
+			widget->endAnimations();
+		}
+		return end;
+	});
 }
 
-bool RootWidget::needsUpdate() const { return mNeedUpdate; }
+bool RootWidget::needsUpdate() const { return !mTriggeredWidgets.empty(); }
 
 void RootWidget::drawFrame(Canvas& canvas) {
 	// draw from top to bottom
+	canvas.rect(mScreenArea, RGBA(0, 0, 0, 1));
+
+	// draw all tree from top to bottom
 	drawRecursion(canvas, mRoot, { 0, 0 });
+
+	if (mDebug) {
+		drawDebug(canvas, mRoot, { 0, 0 });
+		ImGui::Text("Triggered Widgets: %i", (int) mTriggeredWidgets.size());
+		ImGui::Text("Widgets To Process: %i", (int) mWidgetsToProcess.size());
+	}
+}
+
+
+void RootWidget::updateTreeToProcess() {
+	mWidgetsToProcess.clear();
+	for (auto widget : mTriggeredWidgets) {
+		for (auto iter = widget; iter; iter = iter->mParent) {
+			if (iter->mParent) {
+				mWidgetsToProcess[iter->mParent].children.insert(&mWidgetsToProcess[iter]);
+				mWidgetsToProcess[iter->mParent].widget= iter->mParent;
+				mWidgetsToProcess[iter].widget= iter;
+			}
+		}
+	}
 }
 
 void RootWidget::drawRecursion(Canvas& canvas, Widget* active, const Vec2F& pos) {
@@ -37,8 +79,9 @@ void RootWidget::drawRecursion(Canvas& canvas, Widget* active, const Vec2F& pos)
 	canvas.pushClamp({ pos, active->getArea().size });
 
 	active->draw(canvas);
-	for (auto child : active->mChildWidgets) {
-		drawRecursion(canvas, child.data(), pos + child->getArea().pos);
+
+	for (auto child : active->mChildren) {
+		drawRecursion(canvas, child, pos + child->getArea().pos);
 	}
 
 	canvas.setOrigin(pos);
@@ -47,57 +90,25 @@ void RootWidget::drawRecursion(Canvas& canvas, Widget* active, const Vec2F& pos)
 	active->drawOverlay(canvas);
 }
 
-void RootWidget::updateActivePaths(Buffer<ActivePath>* activePaths, const Vec2F& pointer) {
-	activePaths->clear();
+void RootWidget::drawDebug(Canvas& canvas, Widget* active, const Vec2F& pos) {
+	auto area = RectF{ pos, active->getArea().size };
 
-	// based on pointer position
-	Widget* pointedWidget = nullptr;
 
-	{
-		ActivePath& activePath = activePaths->append(ActivePath{});
-		activePath.path.append({ mRoot, {} });
-
-		auto pointerIter = pointer;
-
-		bool newActive = true;
-		while (newActive) {
-			newActive = false;
-			for (auto child : activePath.path.last().widget->mChildWidgets) {
-				const auto area = child->mArea.getCurrentRect();
-				if (area.isInside(pointerIter)) {
-					activePath.path.append({ child.data(), {} });
-					newActive = true;
-					pointerIter -= child->getArea().pos;
-					break;
-				}
-			}
-		}
-
-		pointedWidget = activePath.path.last().widget;
+	if (mWidgetsToProcess.find(active) != mWidgetsToProcess.end()) {
+		RGBA color = { 1, 0, 0, 1};
+		canvas.frame(area, color);
+		canvas.text(active->mName.c_str(), area, 12, Canvas::Align::LC, 2, color);
 	}
 
-	// based on individual widget requirements
-	{
-		for (auto widget : mActiveWidgets) {
-			if (widget.data() == pointedWidget) continue;
-
-			ActivePath& activePath = activePaths->append(ActivePath{});
-
-			for (Widget* iter = widget.data(); iter; iter = iter->mParent) {
-				activePath.path.append({ iter, {} });
-			}
-
-			activePath.path.reverse();
-		}
+	if (active->mInFocus) {
+		RGBA color = { 1, 0, 0, 0.3f};
+		canvas.debugCross(area, color);
+		canvas.circle(pos + active->mLocalPoint, 5, active->mDebugColor);
+		canvas.circle(active->mGlobalPoint, 10, active->mDebugColor);
 	}
 
-	// update paths global pos
-	for (auto activePath : *activePaths) {
-		Vec2F iterPos = { 0, 0 };
-		for (auto activeWidget : activePath->path) {
-			iterPos += activeWidget->widget->getArea().pos;
-			activeWidget->globalPos = iterPos;
-		}
+	for (auto child : active->mChildren) {
+		drawDebug(canvas, child, pos + child->getArea().pos);
 	}
 }
 
@@ -106,50 +117,135 @@ void RootWidget::setWidgetArea(Widget& widget, const RectF& rect) {
 	widget.mArea.endAnimation();
 }
 
-void RootWidget::processPaths(const Buffer<ActivePath>& paths, EventHandler& events) {
-	EventHandler dummyEvents;
-	bool eventsHandled = false;
+void RootWidget::updateAnimations(ActiveTreeNode* iter) {
+	if (!iter) return;
+	iter->widget->updateAnimations();
+	for (auto child : iter->children) {
+		updateAnimations(child);
+	}
+}
 
-	for (auto path : paths) {
+void RootWidget::getWidgetPath(Widget* widget, std::vector<Widget*>& out) {
+	for (auto iter = widget; iter && iter != this; iter = iter->mParent) {
+		out.push_back(iter);
+	}
+}
 
-		for (alni widgetIdx = (alni) path->path.size() - 1; widgetIdx >= 0; widgetIdx--) {
-			auto activeWidgetNode = path->path[widgetIdx];
-			auto activeWidget = activeWidgetNode.widget;
+void RootWidget::handleFocusChanges(EventHandler& events) {
+	auto prevFocus = mInFocusWidget;
+	findFocusWidget(mRoot, &mInFocusWidget, events.getPointer());
 
-			activeWidget->mArea.updateCurrentRect();
+	if (prevFocus) {
+		std::vector<Widget*> path1;
+		std::vector<Widget*> path2;
 
-			events.setCursorOrigin(activeWidgetNode.globalPos);
+		getWidgetPath(prevFocus, path1);
+		getWidgetPath(mInFocusWidget, path2);
 
-			bool useEvents = !eventsHandled || activeWidget->mIsActive;
+		size_t iter = 0;
+		while (path1[iter] == path2[iter]) {
+			iter++;
+		}
 
-			if (!activeWidget->mProcessedFlag) {
-				activeWidget->process(useEvents ? events : dummyEvents);
-				activeWidget->mProcessedFlag = true;
-			}
+		for (auto i = iter; i < path1.size(); i++) {
+			path1[i]->mouseLeave();
+		}
 
-			eventsHandled = !activeWidget->isPassThroughEvents();
+		for (auto i = iter; i < path2.size(); i++) {
+			path2[i]->mouseEnter();
+		}
 
-			auto area = activeWidget->mArea.getCurrentRect();
-			activeWidget->updateArea(area);
-			activeWidget->setArea(area);
-
-			mNeedUpdate |= activeWidget->needUpdate();
-
-			if (!activeWidget->needUpdate()) activeWidget->finishAnimations();
-
-			if (activeWidget->mIsActive) {
-				if (mActiveWidgets.find(activeWidget) == -1) {
-					mActiveWidgets.append(activeWidget);
-				}
-			}
+	} else {
+		for (auto iter = mInFocusWidget; iter; iter = iter->mParent) {
+			iter->mouseEnter();
 		}
 	}
 }
 
-void RootWidget::clearProcessedFlag(const Buffer<ActivePath>& paths) {
-	for (auto path : paths) {
-		for (auto widget : path->path) {
-			widget->widget->mProcessedFlag = false;
+void RootWidget::findFocusWidget(Widget* iter, Widget** focus, const Vec2F& pointer) {
+	if (!iter->mArea.getTargetRect().isInside(pointer)) return;
+
+	*focus = iter;
+
+	for (auto child : iter->mChildren) {
+		findFocusWidget(child, focus, pointer - iter->mArea.getTargetRect().pos);
+	}
+}
+
+void RootWidget::updateWidget(Widget* widget) {
+	mTriggeredWidgets.insert(widget);
+}
+
+void RootWidget::adjustSizes(ActiveTreeNode* iter) {
+	if (!iter) return;
+
+	iter->widget->adjustRect();
+	iter->widget->adjustChildrenRect();
+
+	for (auto child : iter->children) {
+		adjustSizes(child);
+	}
+}
+
+void RootWidget::processActiveTree(ActiveTreeNode* iter, EventHandler& events) {
+	if (!iter) return;
+
+	if (!iter->widget->mInFocus) {
+		iter->widget->updateAnimations();
+		iter->widget->process(events);
+	}
+
+	for (auto child : iter->children) {
+		 processActiveTree(child, events);
+	}
+}
+
+void RootWidget::processFocusItems(EventHandler& events) {
+	if (!mInFocusWidget) return;
+
+	// FIXME : cringe
+
+	std::vector<Widget*> path;
+	getWidgetPath(mInFocusWidget, path);
+
+	for (auto i = 0; i < path.size() / 2; i++) {
+		swap(path[i], path[path.size() - i - 1]);
+	}
+
+	size_t len = path.size();
+	for (auto i = 0; i < len; i++) {
+		if (!path[i]->propagateEventsToChildren()) {
+			len = i + 1;
+			break;
+		}
+	}
+
+	std::vector<Vec2F> widgetGlobalPos(path.size());
+
+	widgetGlobalPos[0] = 0;
+	for (auto widget = 0; widget < path.size() - 1; widget++) {
+		widgetGlobalPos[widget + 1] = widgetGlobalPos[widget] + path[widget + 1]->getArea().pos;
+		path[widget]->mGlobalPoint = widgetGlobalPos[widget];
+	}
+
+	bool eventsProcessed = false;
+
+	for (int iter = (int) len - 1; iter >= 0; iter--) {
+		auto widget = path[iter];
+
+		events.setCursorOrigin(widgetGlobalPos[iter]);
+
+		if (!eventsProcessed && widget->processesEvents()) {
+			events.setEnableKeyEvents(true);
+
+			widget->updateAnimations();
+			widget->process(events);
+
+			events.setEnableKeyEvents(false);
+			eventsProcessed = true;
+		} else {
+			widget->updateAnimations();
+			widget->process(events);
 		}
 	}
 }

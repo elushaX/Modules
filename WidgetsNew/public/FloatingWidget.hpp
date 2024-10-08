@@ -1,22 +1,61 @@
 #pragma once
 
-#include "Widget.hpp"
+#include "SimpleWidgets.hpp"
+#include "LayoutWidget.hpp"
 
 namespace tp {
 	class FloatingWidget : public Widget {
 	public:
-		FloatingWidget() = default;
+		FloatingWidget() {
+			setDebug("float", { 0.0, 0.9, 0.1, 0.7 });
+		}
 
 		void process(const EventHandler& events) override;
 
-		void updateArea(RectF& area) const override;
+		void adjustRect() override;
 
 		void draw(Canvas& canvas) override;
 
+		RectF resizeHandleRect();
+
+		bool propagateEventsToChildren() const override;
+
 	private:
 		bool mIsFloating = false;
+		bool mIsResizing = false;
+
+		halnf mHandleSize = 10;
+		halnf mHandlePadding = 2;
 
 		Vec2F mPointerStart;
 		Vec2F mPointerCurrent;
+	};
+
+	class FloatingMenu : public FloatingWidget {
+	public:
+		FloatingMenu() {
+			setDebug("float menu", { 0.0, 0.9, 0.1, 0.7 });
+
+			addChild(&mMenuLayout);
+
+			mMenuLayout.addChild(&mHeader);
+			mMenuLayout.addChild(&mBodyLayout);
+
+			addToMenu(&mTestButton);
+
+			mHeader.setText("Menu");
+		}
+
+	public:
+		void addToMenu(Widget* widget) {
+			mBodyLayout.addChild(widget);
+		}
+
+	private:
+		VerticalLayout mMenuLayout;
+		VerticalLayout mBodyLayout;
+		LabelWidget mHeader;
+
+		ButtonWidget mTestButton;
 	};
 }
