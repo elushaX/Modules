@@ -13,7 +13,7 @@ void AnimationTestWidget::process(const EventHandler& events) {
 
 	mTestSpring.updateCurrentRect();
 
-	if (mTestSpring.checkAnimationShouldEnd()) {
+	if (mTestSpring.shouldEndTransition()) {
 		mTestSpring.endAnimation();
 	}
 }
@@ -23,7 +23,6 @@ void AnimationTestWidget::draw(Canvas& canvas) {
 	canvas.rect(mTestSpring.getCurrentRect(), RGBA(1.f), 10);
 }
 
-bool AnimationTestWidget::needUpdate() const {
-	if (Widget::needUpdate()) return true;
-	return !mTestSpring.checkAnimationShouldEnd();
+bool AnimationTestWidget::needsNextFrame() const {
+	return Widget::needsNextFrame() || !mTestSpring.shouldEndTransition();
 }

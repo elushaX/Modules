@@ -122,16 +122,22 @@ Vec2F EventHandler::getPointer() const { return mPointer - mPointerOrigin; }
 Vec2F EventHandler::getPointerPrev() const { return mPointerPrev - mPointerOrigin; }
 
 bool EventHandler::isPressed(InputID id) const {
+	if (!mEnableKeyEvents) return false;
 	return mInputStates[(int) id].mCurrentState == InputState::State::PRESSED;
 }
 
 bool EventHandler::isReleased(InputID id) const {
+	if (!mEnableKeyEvents) return false;
 	return mInputStates[(int) id].mCurrentState == InputState::State::RELEASED;
 }
 
-halnf EventHandler::getPointerPressure() const { return mPointerPressure; }
+halnf EventHandler::getPointerPressure() const {
+	if (!mEnableKeyEvents) return 0;
+	return mPointerPressure;
+}
 
 bool EventHandler::isDown(InputID id) const {
+	if (!mEnableKeyEvents) return false;
 	return mInputStates[(int) id].mCurrentState == InputState::State::PRESSED ||
 				 mInputStates[(int) id].mCurrentState == InputState::State::HOLD;
 }
@@ -139,3 +145,7 @@ bool EventHandler::isDown(InputID id) const {
 halnf EventHandler::getScrollY() const { return mScrollDelta.y; }
 
 Vec2F EventHandler::getPointerDelta() const { return mPointer - mPointerPrev; }
+
+void EventHandler::setEnableKeyEvents(bool enable) {
+	mEnableKeyEvents = enable;
+}

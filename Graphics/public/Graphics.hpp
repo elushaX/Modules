@@ -60,7 +60,9 @@ namespace tp {
 		void pushClamp(const RectF& rec);
 		void popClamp();
 
+		void debugCross(RectF rec, const RGBA& col);
 		void rect(RectF rec, const RGBA& col, halnf round = 0);
+		void frame(RectF rec, const RGBA& col, halnf round = 0);
 		void circle(Vec2F pos, halnf size, const RGBA& col);
 		void text(const char*, const RectF&, halnf size, Align, halnf padding, const RGBA&);
 

@@ -12,9 +12,9 @@ namespace tp {
 		void draw(Canvas& canvas) override;
 		void process(const EventHandler& events) override;
 
-		[[nodiscard]] bool needUpdate() const override;
+		[[nodiscard]] bool needsNextFrame() const override;
 
 	private:
-		SpringRect mTestSpring;
+		mutable SpringRect mTestSpring;
 	};
 }

@@ -52,6 +52,36 @@ void Canvas::rect(RectF rec, const RGBA& col, halnf round) {
 	nvgFill(mContext->vg);
 }
 
+void Canvas::debugCross(RectF rec, const RGBA& col) {
+	nvgBeginPath(mContext->vg);
+
+	nvgMoveTo(mContext->vg, rec.p1().x, rec.p1().y);
+	nvgLineTo(mContext->vg, rec.p3().x, rec.p3().y);
+
+	nvgMoveTo(mContext->vg, rec.p2().x, rec.p2().y);
+	nvgLineTo(mContext->vg, rec.p4().x, rec.p4().y);
+
+	nvgStrokeWidth(mContext->vg, 2);
+	nvgStrokeColor(mContext->vg, { col.r, col.g, col.b, col.a });
+	nvgStroke(mContext->vg);
+	// nvgFill(mContext->vg);
+}
+
+void Canvas::frame(RectF rec, const RGBA& col, halnf round) {
+	nvgBeginPath(mContext->vg);
+
+	nvgMoveTo(mContext->vg, rec.p1().x, rec.p1().y);
+	nvgLineTo(mContext->vg, rec.p2().x, rec.p2().y);
+	nvgLineTo(mContext->vg, rec.p3().x, rec.p3().y);
+	nvgLineTo(mContext->vg, rec.p4().x, rec.p4().y);
+	nvgLineTo(mContext->vg, rec.p1().x, rec.p1().y);
+
+	nvgStrokeWidth(mContext->vg, 2);
+	nvgStrokeColor(mContext->vg, { col.r, col.g, col.b, col.a });
+	nvgStroke(mContext->vg);
+	// nvgFill(mContext->vg);
+}
+
 void Canvas::circle(Vec2F pos, halnf size, const RGBA& col) {
 	pos += mOrigin;
 

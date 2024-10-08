@@ -73,7 +73,6 @@ namespace tp {
 		void processEvent();
 		void processAllEvent();
 
-
 		void setCursorOrigin(const Vec2F& origin);
 
 		[[nodiscard]] Vec2F getPointer() const;
@@ -86,6 +85,8 @@ namespace tp {
 		[[nodiscard]] halnf getScrollY() const;
 
 		[[nodiscard]] halnf getPointerPressure() const;
+
+		void setEnableKeyEvents(bool);
 
 	private:
 		void processEventUnguarded();
@@ -108,6 +109,8 @@ namespace tp {
 		InputState mInputStates[(int) InputID::LAST_KEY_CODE]{};
 
 		Timer mTimerEvent = Timer(1000);
+
+		bool mEnableKeyEvents = true;
 	};
 
 }

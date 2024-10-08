@@ -7,14 +7,17 @@
 namespace tp {
 	class LabelWidget : public Widget {
 	public:
-		LabelWidget() = default;
+		LabelWidget() {
+			setDebug("label", { 0.1, 0.1, 0.1, 0.1 });
+		}
 
 		void setText(const std::string& text);
+
 		[[nodiscard]] const std::string& getText() const;
 
 		void draw(Canvas& canvas) override;
 
-		[[nodiscard]] bool isPassThroughEvents() const override { return true; }
+		[[nodiscard]] bool processesEvents() const override { return false; }
 
 	private:
 		std::string mText = "Text";
@@ -33,11 +36,14 @@ namespace tp {
 		void process(const EventHandler& eventHandler) override;
 		void draw(Canvas& canvas) override;
 
-		[[nodiscard]] bool isPassThroughEvents() const override { return false; }
+		void mouseEnter() override;
+		void mouseLeave() override;
 
-		[[nodiscard]] bool needUpdate() const override;
+		[[nodiscard]] bool processesEvents() const override { return true; }
+		[[nodiscard]] bool needsNextFrame() const override;
 
-		void finishAnimations() override;
+		void endAnimations() override;
+		void updateAnimations() override;
 
 	private:
 		std::function<void()> mAction;
@@ -45,7 +51,7 @@ namespace tp {
 		SpringRect mColorAnimated;
 
 		halnf mRounding = 5;
-		RGBA mColor = { 1.0f, 0.0f, 0.0f, 1.f };
-		RGBA mColorHovered = { 0.0f, 0.0f, 0.0f, 1.f };
+		RGBA mColorHovered = { 0.0f, 0.4f, 0.4f, 1.f };
+		RGBA mColor = { 0.0f, 0.0f, 0.0f, 1.f };
 	};
 }
