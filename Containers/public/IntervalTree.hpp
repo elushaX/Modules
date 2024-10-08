@@ -2,6 +2,8 @@
 
 #include "Tree.hpp"
 
+#include <limits>
+
 namespace tp {
 
 	template <typename tType>
@@ -31,7 +33,7 @@ namespace tp {
 
 		template <typename tTreeNodeType>
 		inline void updateNodeCache(const tTreeNodeType* node) {
-			mMax = 0;
+			mMax = std::numeric_limits<tType>::min();
 			if (node->mRight && node->mRight->key.mMax > mMax) mMax = node->mRight->key.mMax;
 			if (node->mLeft && node->mLeft->key.mMax > mMax) mMax = node->mLeft->key.mMax;
 			if (mMax < mEnd) mMax = mEnd;
