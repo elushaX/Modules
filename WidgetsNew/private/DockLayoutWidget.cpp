@@ -204,7 +204,7 @@ void DockLayoutWidget::handleResizeEvents(const EventHandler& events) {
 				sideWidget.resizeHandle.active = true;
 
 				mResizing = true;
-				triggerWidgetUpdate();
+			  triggerWidgetUpdate();
 			}
 		}
 	}

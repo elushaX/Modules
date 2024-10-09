@@ -34,7 +34,7 @@ void RootWidget::processFrame(EventHandler* events, const RectF& screenArea) {
 	adjustSizes(root);
 
 	// trigger some widgets by moise pointer
-	handleFocusChanges(*events);
+  handleFocusChanges(*events);
 
 		// check triggered widgets for removal
 	erase_if(mTriggeredWidgets, [this](auto widget) {
