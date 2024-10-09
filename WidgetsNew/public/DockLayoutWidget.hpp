@@ -1,4 +1,4 @@
-#include "WidgetBase.hpp"
+#include "Widget.hpp"
 
 namespace tp {
 	class DockLayoutWidget : public Widget {
@@ -32,23 +32,28 @@ namespace tp {
 	public:
 		DockLayoutWidget();
 
-		void eventProcess(const Events& events) override;
-		void eventDraw(Canvas& canvas) override;
-		void eventDrawOver(Canvas& canvas) override;
+	public:
+		void adjustRect() override {}
+		void adjustChildrenRect() override {}
 
-		void addSideWidget(Widget* widget, Side side);
-		void removeSideWidget(Side side);
+		void process(const EventHandler& events) override;
+		void draw(Canvas& canvas) override;
+		void drawOverlay(Canvas& canvas) override;
 
-		void toggleHiddenState(Side side);
+		[[nodiscard]] bool propagateEventsToChildren() const override;
+		[[nodiscard]] bool needsNextFrame() const override;
 
+	public:
 		void setCenterWidget(Widget* widget);
 
-		Side getPreviewSide();
+		void dockWidget(Widget* widget, Side side);
+		void undockWidget(Side side);
+		void toggleWidgetVisibility(Side side);
 
 	private:
 		void calculateSideAreas();
 		void calculateResizeHandles();
-		void handleResizeEvents(const Events& events);
+		void handleResizeEvents(const EventHandler& events);
 		void updateChildSideWidgets();
 
 		void calculateHeaderAreas();
@@ -56,17 +61,18 @@ namespace tp {
 		bool isSideVisible(Side side);
 		bool sideExists(DockLayoutWidget::Side side);
 		ualni getVisibleSidesSize();
-		void handlePreview(const Events& events);
+		void handlePreview(const EventHandler& events);
 
 	private:
 		RectF mPreviewArea = {};
 		Side mPreviewSide = NONE;
 		int resizeType[2] = { 0, 0 };
 
-	public:
 		SideWidgetData mSideWidgets[4];
 
 	private:
+		bool mResizing = false;
+
 		Widget* mCenterWidget = nullptr;
 		RectF mCenterArea {};
 

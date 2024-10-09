@@ -30,6 +30,12 @@ void ButtonWidget::setAction(const std::function<void()>& action) {
 	mAction = action;
 }
 
+void ButtonWidget::setColor(const RGBA& in) {
+	mColor = in;
+	mColorAnimated.setTargetColor(mColor);
+	triggerWidgetUpdate();
+}
+
 void ButtonWidget::process(const EventHandler& eventHandler) {
 	if (getArea().isInside(eventHandler.getPointer())) {
 		if (eventHandler.isPressed(InputID::MOUSE1)) {

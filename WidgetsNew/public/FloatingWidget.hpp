@@ -18,7 +18,7 @@ namespace tp {
 
 		RectF resizeHandleRect();
 
-		bool propagateEventsToChildren() const override;
+		[[nodiscard]] bool propagateEventsToChildren() const override;
 
 	private:
 		bool mIsFloating = false;
@@ -40,8 +40,6 @@ namespace tp {
 
 			mMenuLayout.addChild(&mHeader);
 			mMenuLayout.addChild(&mBodyLayout);
-
-			addToMenu(&mTestButton);
 
 			mHeader.setText("Menu");
 		}

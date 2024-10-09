@@ -45,6 +45,8 @@ namespace tp {
 		void endAnimations() override;
 		void updateAnimations() override;
 
+		void setColor(const RGBA& in);
+
 	private:
 		std::function<void()> mAction;
 

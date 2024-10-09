@@ -33,7 +33,7 @@ namespace tp {
 		void updateTreeToProcess();
 		void updateAnimations(ActiveTreeNode* iter);
 		void drawRecursion(Canvas& canvas, Widget* active, const Vec2F& pos);
-		void drawDebug(Canvas& canvas, Widget* active, const Vec2F& pos);
+		void drawDebug(Canvas& canvas, Widget* active, const Vec2F& pos, int depthOrder);
 		void findFocusWidget(Widget* iter, Widget** focus, const Vec2F& pointer);
 		void handleFocusChanges(EventHandler& events);
 		void getWidgetPath(Widget* widget, std::vector<Widget*>& out);
@@ -50,6 +50,6 @@ namespace tp {
 		std::map<Widget*, ActiveTreeNode> mWidgetsToProcess;
 		Widget* mInFocusWidget = nullptr;
 
-		bool mDebug = false;
+		bool mDebug = true;
 	};
 }

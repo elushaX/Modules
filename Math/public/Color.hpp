@@ -79,6 +79,15 @@ namespace tp {
 
 		bool operator==(const RGBA& in) const { return r == in.r && g == in.g && b == in.b && a == in.a; }
 
+		static RGBA random() {
+			return RGBA{
+				(halnf) randomFloat(),
+				(halnf) randomFloat(),
+				(halnf) randomFloat(),
+				1.f,
+			};
+		}
+
 	public:
 		union {
 			RGB rgbs;

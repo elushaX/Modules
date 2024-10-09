@@ -19,23 +19,26 @@ void RootWidget::processFrame(EventHandler* events, const RectF& screenArea) {
 	// construct hierarchy tree of widgets to process
 	updateTreeToProcess();
 
+	auto root = mWidgetsToProcess.find(mRoot) == mWidgetsToProcess.end() ? nullptr : &mWidgetsToProcess[mRoot];
+
 	// update active tree animations
-	updateAnimations(&mWidgetsToProcess[mRoot]);
+	updateAnimations(root);
 
 	// update all events and call all event processing callbacks
 	EventHandler dummyEvents;
 
 	processFocusItems(*events);
-	processActiveTree(&mWidgetsToProcess[mRoot], dummyEvents);
+	processActiveTree(root, dummyEvents);
 
 	// update widget sizes base on individual size policies
-	adjustSizes(&mWidgetsToProcess[mRoot]);
+	adjustSizes(root);
 
 	// trigger some widgets by moise pointer
 	handleFocusChanges(*events);
 
-	// check triggered widgets for removal
-	erase_if(mTriggeredWidgets, [](auto widget) {
+		// check triggered widgets for removal
+	erase_if(mTriggeredWidgets, [this](auto widget) {
+		if (mWidgetsToProcess.find(widget) == mWidgetsToProcess.end()) return false;
 		auto end = !widget->needsNextFrame();
 		if (end) {
 			widget->endAnimations();
@@ -53,8 +56,10 @@ void RootWidget::drawFrame(Canvas& canvas) {
 	// draw all tree from top to bottom
 	drawRecursion(canvas, mRoot, { 0, 0 });
 
+	ImGui::Checkbox("Draw debug", &mDebug);
+
 	if (mDebug) {
-		drawDebug(canvas, mRoot, { 0, 0 });
+		drawDebug(canvas, mRoot, { 0, 0 }, 0);
 		ImGui::Text("Triggered Widgets: %i", (int) mTriggeredWidgets.size());
 		ImGui::Text("Widgets To Process: %i", (int) mWidgetsToProcess.size());
 	}
@@ -80,8 +85,8 @@ void RootWidget::drawRecursion(Canvas& canvas, Widget* active, const Vec2F& pos)
 
 	active->draw(canvas);
 
-	for (auto child : active->mChildren) {
-		drawRecursion(canvas, child, pos + child->getArea().pos);
+	for (auto child = active->mDepthOrder.lastNode(); child; child = child->prev) {
+		drawRecursion(canvas, child->data, pos + child->data->getArea().pos);
 	}
 
 	canvas.setOrigin(pos);
@@ -90,14 +95,13 @@ void RootWidget::drawRecursion(Canvas& canvas, Widget* active, const Vec2F& pos)
 	active->drawOverlay(canvas);
 }
 
-void RootWidget::drawDebug(Canvas& canvas, Widget* active, const Vec2F& pos) {
+void RootWidget::drawDebug(Canvas& canvas, Widget* active, const Vec2F& pos, int depthOrder) {
 	auto area = RectF{ pos, active->getArea().size };
-
 
 	if (mWidgetsToProcess.find(active) != mWidgetsToProcess.end()) {
 		RGBA color = { 1, 0, 0, 1};
 		canvas.frame(area, color);
-		canvas.text(active->mName.c_str(), area, 12, Canvas::Align::LC, 2, color);
+		canvas.text((active->mName + ":" + std::to_string(depthOrder)).c_str(), area, 22, Canvas::Align::LC, 2, color);
 	}
 
 	if (active->mInFocus) {
@@ -107,8 +111,9 @@ void RootWidget::drawDebug(Canvas& canvas, Widget* active, const Vec2F& pos) {
 		canvas.circle(active->mGlobalPoint, 10, active->mDebugColor);
 	}
 
-	for (auto child : active->mChildren) {
-		drawDebug(canvas, child, pos + child->getArea().pos);
+	int orderIdx = 0;
+	for (auto child = active->mDepthOrder.lastNode(); child; child = child->prev) {
+		drawDebug(canvas, child->data, pos + child->data->getArea().pos, orderIdx++);
 	}
 }
 
@@ -126,39 +131,60 @@ void RootWidget::updateAnimations(ActiveTreeNode* iter) {
 }
 
 void RootWidget::getWidgetPath(Widget* widget, std::vector<Widget*>& out) {
+	if (!widget) return;
+
 	for (auto iter = widget; iter && iter != this; iter = iter->mParent) {
 		out.push_back(iter);
+	}
+
+	for (auto i = 0; i < out.size() / 2; i++) {
+		swap(out[i], out[out.size() - i - 1]);
 	}
 }
 
 void RootWidget::handleFocusChanges(EventHandler& events) {
 	auto prevFocus = mInFocusWidget;
+
 	findFocusWidget(mRoot, &mInFocusWidget, events.getPointer());
 
-	if (prevFocus) {
-		std::vector<Widget*> path1;
-		std::vector<Widget*> path2;
+	if (mInFocusWidget) updateWidget(mInFocusWidget);
 
-		getWidgetPath(prevFocus, path1);
-		getWidgetPath(mInFocusWidget, path2);
-
-		size_t iter = 0;
-		while (path1[iter] == path2[iter]) {
-			iter++;
+	std::vector<Widget*> path2;
+	getWidgetPath(mInFocusWidget, path2);
+	size_t propLen2 = path2.size();
+	for (auto i = 0; i < path2.size(); i++) {
+		if (!path2[i]->propagateEventsToChildren()) {
+			propLen2 = i + 1;
+			break;
 		}
+	}
 
-		for (auto i = iter; i < path1.size(); i++) {
-			path1[i]->mouseLeave();
+	std::vector<Widget*> path1;
+	getWidgetPath(prevFocus, path1);
+	size_t propLen1 = path1.size();
+	for (auto i = 0; i < path1.size(); i++) {
+		if (!path1[i]->propagateEventsToChildren()) {
+			propLen1 = i + 1;
+			break;
 		}
+	}
 
-		for (auto i = iter; i < path2.size(); i++) {
-			path2[i]->mouseEnter();
-		}
+	size_t mostCommonIdx = 0;
 
-	} else {
-		for (auto iter = mInFocusWidget; iter; iter = iter->mParent) {
-			iter->mouseEnter();
+	if (!(path1.empty() || path2.empty())) {
+		while (path1[mostCommonIdx] == path2[mostCommonIdx]) {
+			mostCommonIdx++;
 		}
+	}
+
+	for (auto i = 0; i < path1.size(); i++) {
+		path1[i]->mInFocus = false;
+		if (i >= mostCommonIdx && i < propLen1) path1[i]->mouseLeave();
+	}
+
+	for (auto i = 0; i < path2.size(); i++) {
+		path2[i]->mInFocus = true;
+		if (i >= mostCommonIdx && i < propLen2) path2[i]->mouseEnter();
 	}
 }
 
@@ -167,8 +193,8 @@ void RootWidget::findFocusWidget(Widget* iter, Widget** focus, const Vec2F& poin
 
 	*focus = iter;
 
-	for (auto child : iter->mChildren) {
-		findFocusWidget(child, focus, pointer - iter->mArea.getTargetRect().pos);
+	for (auto child = iter->mDepthOrder.lastNode(); child; child = child->prev) {
+		findFocusWidget(child->data, focus, pointer - iter->mArea.getTargetRect().pos);
 	}
 }
 
@@ -207,10 +233,6 @@ void RootWidget::processFocusItems(EventHandler& events) {
 
 	std::vector<Widget*> path;
 	getWidgetPath(mInFocusWidget, path);
-
-	for (auto i = 0; i < path.size() / 2; i++) {
-		swap(path[i], path[path.size() - i - 1]);
-	}
 
 	size_t len = path.size();
 	for (auto i = 0; i < len; i++) {

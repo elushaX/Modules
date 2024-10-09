@@ -20,7 +20,7 @@ void WorkspaceWidget::eventProcess(const Events& events) {
 
 		if (widget->mDropped) {
 			auto side = mDockSpace.getPreviewSide();
-			if (side != GridLayoutWidget::NONE) {
+			if (side != DockLayoutWidget::NONE) {
 				mFloatingLayer.mChildWidgets.removeNode(mFloatingLayer.mChildWidgets.find(widget));
 				widget->setCollapsed(false);
 				widget->stopFloating();
@@ -52,13 +52,13 @@ void WorkspaceWidget::eventProcess(const Events& events) {
 	// toggle hide state
 	if (events.isDown(InputID::LEFT_ALT)) {
 		if (events.isPressed(InputID::N1)) {
-			mDockSpace.toggleHiddenState(GridLayoutWidget::LEFT);
+			mDockSpace.toggleHiddenState(DockLayoutWidget::LEFT);
 		} else if (events.isPressed(InputID::N2)) {
-			mDockSpace.toggleHiddenState(GridLayoutWidget::TOP);
+			mDockSpace.toggleHiddenState(DockLayoutWidget::TOP);
 		} else if (events.isPressed(InputID::N3)) {
-			mDockSpace.toggleHiddenState(GridLayoutWidget::RIGHT);
+			mDockSpace.toggleHiddenState(DockLayoutWidget::RIGHT);
 		} else if (events.isPressed(InputID::N4)) {
-			mDockSpace.toggleHiddenState(GridLayoutWidget::BOTTOM);
+			mDockSpace.toggleHiddenState(DockLayoutWidget::BOTTOM);
 		}
 	}
 

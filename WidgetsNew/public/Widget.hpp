@@ -22,17 +22,14 @@ namespace tp {
 			mDebugColor = col;
 		}
 
-		void addChild(Widget* child) {
-			mChildren.push_back(child);
-			child->mParent = this;
-
-			triggerWidgetUpdate();
-			child->triggerWidgetUpdate();
-		}
+		void addChild(Widget* child);
 
 		WidgetManagerInterface* getRoot();
 
 		void triggerWidgetUpdate();
+
+		void bringToFront();
+		void bringToBack();
 
 	public:
 		virtual void process(const EventHandler& events) {}
@@ -63,11 +60,10 @@ namespace tp {
 		Widget* mParent = nullptr;
 
 		std::vector<Widget*> mChildren;
+		List<Widget*> mDepthOrder;
 
 		// relative to the parent
 		SpringRect mArea;
-
-		ualni mZValue = 0;
 
 		bool mInFocus = false;
 

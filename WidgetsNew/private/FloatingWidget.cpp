@@ -10,6 +10,8 @@ void FloatingWidget::process(const EventHandler& events) {
 	if (inside && events.isPressed(InputID::MOUSE1)) {
 		mPointerStart = relativePointer;
 		mIsFloating = true;
+
+		bringToFront();
 	}
 
 	if (mIsFloating && resizeHandleRect().isInside(relativePointer)) {

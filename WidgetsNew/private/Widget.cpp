@@ -62,6 +62,24 @@ void Widget::adjustRect() {
 	}
 }
 
+void Widget::bringToFront() {
+	if (!mParent) return;
+	auto& order = mParent->mDepthOrder;
+	auto node = order.find(this);
+	DEBUG_ASSERT(node);
+	order.detach(node);
+	order.pushFront(node);
+}
+
+void Widget::bringToBack() {
+	if (!mParent) return;
+	auto& order = mParent->mDepthOrder;
+	auto node = order.find(this);
+	DEBUG_ASSERT(node);
+	order.detach(node);
+	order.pushBack(node);
+}
+
 void Widget::adjustChildrenRect()  {
 	auto area = RectF({}, getArea().size);
 	for (auto widget : mChildren) {
@@ -71,7 +89,6 @@ void Widget::adjustChildrenRect()  {
 
 void Widget::mouseEnter() {
 	mInFocus = true;
-	triggerWidgetUpdate();
 }
 
 void Widget::mouseLeave() {
@@ -80,4 +97,14 @@ void Widget::mouseLeave() {
 
 bool Widget::propagateEventsToChildren() const {
 	return true;
+}
+
+void Widget::addChild(Widget* child) {
+	mChildren.push_back(child);
+	mDepthOrder.pushBack(child);
+
+	child->mParent = this;
+
+	triggerWidgetUpdate();
+	child->triggerWidgetUpdate();
 }
