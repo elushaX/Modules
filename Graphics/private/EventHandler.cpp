@@ -44,6 +44,9 @@ bool transitionsReduce[4][4] = {
 
 void EventHandler::processAllEvent() {
 	mMutex.lock();
+
+	mPointerPrev = mPointer;
+
 	while (mEventQueue.size()) {
 		processEventUnguarded();
 	}
@@ -52,6 +55,8 @@ void EventHandler::processAllEvent() {
 
 void EventHandler::processEvent() {
 	mMutex.lock();
+
+	mPointerPrev = mPointer;
 
 	if (!mEventQueue.size()) {
 		mMutex.unlock();

@@ -33,19 +33,19 @@ namespace tp {
 	public:
 		SimpleWidget3() {
 
-			mDockSpace.addSideWidget(&mButtons[0], GridLayoutWidget::BOTTOM);
-			mDockSpace.addSideWidget(&mButtons[1], GridLayoutWidget::RIGHT);
+			mDockSpace.addSideWidget(&mButtons[0], DockLayoutWidget::BOTTOM);
+			mDockSpace.addSideWidget(&mButtons[1], DockLayoutWidget::RIGHT);
 
-			mDockSpace.removeSideWidget(GridLayoutWidget::BOTTOM);
+			mDockSpace.removeSideWidget(DockLayoutWidget::BOTTOM);
 
-			mDockSpace.addSideWidget(&mButtons[0], GridLayoutWidget::TOP);
-			mDockSpace.addSideWidget(&mButtons[2], GridLayoutWidget::LEFT);
+			mDockSpace.addSideWidget(&mButtons[0], DockLayoutWidget::TOP);
+			mDockSpace.addSideWidget(&mButtons[2], DockLayoutWidget::LEFT);
 
-			mDockSpace.removeSideWidget(GridLayoutWidget::TOP);
+			mDockSpace.removeSideWidget(DockLayoutWidget::TOP);
 
-			mDockSpace.addSideWidget(&mButtons[0], GridLayoutWidget::BOTTOM);
+			mDockSpace.addSideWidget(&mButtons[0], DockLayoutWidget::BOTTOM);
 
-			mDockSpace.addSideWidget(&mButtons[3], GridLayoutWidget::TOP);
+			mDockSpace.addSideWidget(&mButtons[3], DockLayoutWidget::TOP);
 			mDockSpace.setCenterWidget(&mButtons[4]);
 
 			/*

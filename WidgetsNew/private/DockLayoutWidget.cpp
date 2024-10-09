@@ -1,4 +1,4 @@
-#include "GridLayoutWidget.hpp"
+#include "DockLayoutWidget.hpp"
 
 using namespace tp;
 
@@ -9,11 +9,68 @@ DockLayoutWidget::DockLayoutWidget() {
 	mSideWidgets[3].side = BOTTOM;
 }
 
-void DockLayoutWidget::addSideWidget(Widget* widget, Side side) {
-	if (sideExists(side)) return;
+void DockLayoutWidget::process(const EventHandler& events) {
+	// calculateHeaderAreas();
+	// handlePreview(events);
+
+	handleResizeEvents(events);
+	calculateSideAreas();
+	calculateResizeHandles();
+	updateChildSideWidgets();
+}
+
+void DockLayoutWidget::draw(Canvas& canvas) {
+	canvas.rect(getRelativeArea(), mBackgroundColor, 0);
+}
+
+void DockLayoutWidget::drawOverlay(Canvas& canvas) {
+	for (auto& sideWidget : mSideWidgets) {
+		if (!isSideVisible(sideWidget.side)) continue;
+		auto& handle = sideWidget.resizeHandle;
+
+		if (handle.active) {
+			canvas.rect(handle.area.shrink(mPadding / 1.5f), mResizeHandleColorActive, 0);
+		} else if (handle.hover) {
+			canvas.rect(handle.area.shrink(mPadding / 1.5f), mResizeHandleColorHovered, 0);
+		}
+	}
+
+	for (auto& sideWidget : mSideWidgets) {
+		if (!isSideVisible(sideWidget.side)) continue;
+		canvas.rect(sideWidget.headerArea, mResizeHandleColorActive, 0);
+	}
+
+	if (mPreview) {
+		if (mPreviewSide != NONE) canvas.rect(mPreviewArea.shrink(mPadding * 2), mPreviewColor, mRounding);
+
+		for (auto& sideWidget : mSideWidgets) {
+			if (sideWidget.widget) continue;
+			canvas.rect(sideWidget.previewHandleArea, mPreviewColor, mRounding);
+		}
+	}
+}
+
+bool DockLayoutWidget::propagateEventsToChildren() const {
+	return !mResizing;
+}
+
+bool DockLayoutWidget::needsNextFrame() const {
+	return Widget::needsNextFrame() || mResizing;
+}
+
+void DockLayoutWidget::setCenterWidget(Widget* widget) {
+	mCenterWidget = widget;
+	addChild(widget);
+}
+
+void DockLayoutWidget::dockWidget(Widget* widget, Side side) {
+	DEBUG_ASSERT(!sideExists(side))
+
+	addChild(widget);
 
 	auto& sideWidget = mSideWidgets[side];
 	sideWidget.widget = widget;
+
 	for (auto& order : mSideWidgets) {
 		if (order.order == -1) {
 			order.order = side;
@@ -22,13 +79,10 @@ void DockLayoutWidget::addSideWidget(Widget* widget, Side side) {
 	}
 
 	sideWidget.hidden = false;
-
-	mChildWidgets.pushBack(widget);
-	widget->mIsDocked = true;
 }
 
-void DockLayoutWidget::removeSideWidget(Side side) {
-	if (!sideExists(side)) return;
+void DockLayoutWidget::undockWidget(Side side) {
+	DEBUG_ASSERT(sideExists(side))
 
 	bool removed = false;
 	for (ualni i = 0; i < 3; i++) {
@@ -41,67 +95,17 @@ void DockLayoutWidget::removeSideWidget(Side side) {
 	}
 	mSideWidgets[3].order = -1;
 
-	auto widget = mSideWidgets[side].widget;
-	widget->mIsDocked = false;
-	mChildWidgets.removeNode(mChildWidgets.find(widget));
-
 	mSideWidgets[side].widget = nullptr;
 }
 
-void DockLayoutWidget::setCenterWidget(Widget* widget) {
-	mChildWidgets.removeNode(mChildWidgets.find(mCenterWidget));
-	mCenterWidget = widget;
-	mChildWidgets.pushBack(mCenterWidget);
-}
-
-void DockLayoutWidget::toggleHiddenState(DockLayoutWidget::Side side) {
-	if (!sideExists(side)) return;
+void DockLayoutWidget::toggleWidgetVisibility(Side side) {
+	DEBUG_ASSERT(sideExists(side))
 	mSideWidgets[side].hidden = !mSideWidgets[side].hidden;
 }
 
-void DockLayoutWidget::eventProcess(const tp::Events& events) {
-	calculateSideAreas();
-	calculateResizeHandles();
-	// calculateHeaderAreas();
-
-	handlePreview(events);
-	handleResizeEvents(events);
-
-	updateChildSideWidgets();
-}
-
-void DockLayoutWidget::eventDraw(Canvas& canvas) {
-	canvas.rect(this->mArea, mBackgroundColor, 0);
-
-	for (auto& sideWidget : mSideWidgets) {
-		if (!isSideVisible(sideWidget.side)) continue;
-		auto& handle = sideWidget.resizeHandle;
-		if (handle.active) {
-			canvas.rect(handle.area.shrink(mPadding / 1.5f), mResizeHandleColorActive, 0);
-		} else if (handle.hover) {
-			canvas.rect(handle.area.shrink(mPadding / 1.5f), mResizeHandleColorHovered, 0);
-		}
-	}
-
-	for (auto& sideWidget : mSideWidgets) {
-		if (!isSideVisible(sideWidget.side)) continue;
-		canvas.rect(sideWidget.headerArea, mResizeHandleColorActive, 0);
-	}
-}
-
-void DockLayoutWidget::eventDrawOver(Canvas& canvas) {
-	if (!mPreview) return;
-
-	if (mPreviewSide != NONE) canvas.rect(mPreviewArea.shrink(mPadding * 2), mPreviewColor, mRounding);
-
-	for (auto& sideWidget : mSideWidgets) {
-		if (sideWidget.widget) continue;
-		canvas.rect(sideWidget.previewHandleArea, mPreviewColor, mRounding);
-	}
-}
-
 void DockLayoutWidget::calculateSideAreas() {
-	auto startArea = this->mArea;
+	auto startArea = getRelativeArea();
+
 	for (auto& sideWidget : mSideWidgets) {
 		const auto side = sideWidget.order;
 
@@ -137,35 +141,12 @@ void DockLayoutWidget::calculateSideAreas() {
 
 void DockLayoutWidget::calculateResizeHandles() {
 	RectF rec;
+	RectF area = getRelativeArea();
 
-	if (isSideVisible(LEFT)) {
-		auto& side = mSideWidgets[LEFT];
-		rec = { side.area.p4(), { mPadding * 2, side.area.size.y } };
-		side.resizeHandle = { rec, 0, mCenterArea.p3().x };
-	}
-	if (isSideVisible(RIGHT)) {
-		auto& side = mSideWidgets[RIGHT];
-		rec = { side.area.p1(), { mPadding * 2, side.area.size.y } };
-		rec.x -= mPadding * 2;
-		side.resizeHandle = { rec, 0, (this->mArea.p3() - mCenterArea.p1()).x };
-	}
-	if (isSideVisible(TOP)) {
-		auto& side = mSideWidgets[TOP];
-		rec = { side.area.p2(), { side.area.size.x, mPadding * 2 } };
-		side.resizeHandle = { rec, 0, mCenterArea.p2().y };
-	}
-	if (isSideVisible(BOTTOM)) {
-		auto& side = mSideWidgets[BOTTOM];
-		rec = { side.area.p1(), { side.area.size.x, mPadding * 2 } };
-		rec.y -= mPadding * 2;
-		side.resizeHandle = { rec, 0, (this->mArea.p3() - mCenterArea.p1()).y };
-	}
-}
-
-void DockLayoutWidget::handleResizeEvents(const Events& events) {
 	for (auto& sideWidget : mSideWidgets) {
 		auto& sideSize = sideWidget.absoluteSize;
 		auto& resizeHandle = sideWidget.resizeHandle;
+
 		if (resizeHandle.end < mSideSizePadding * 2) {
 			sideSize = resizeHandle.end / 2.f;
 		} else {
@@ -173,55 +154,72 @@ void DockLayoutWidget::handleResizeEvents(const Events& events) {
 		}
 	}
 
-	for (auto& sideWidget : mSideWidgets) {
-		sideWidget.resizeHandle.hover = false;
-		if (sideWidget.resizeHandle.area.isInside(events.getPointerPrev())) {
-			sideWidget.resizeHandle.hover = true;
-		}
+	if (isSideVisible(LEFT)) {
+		auto& side = mSideWidgets[LEFT];
+		rec = { side.area.p4(), { mPadding * 2, side.area.size.y } };
+		side.resizeHandle.area = rec;
+		side.resizeHandle.start = 0;
+		side.resizeHandle.end = mCenterArea.p3().x;
 	}
-
-	for (auto& sideWidget : mSideWidgets) {
-		sideWidget.resizeHandle.active = false;
+	if (isSideVisible(RIGHT)) {
+		auto& side = mSideWidgets[RIGHT];
+		rec = { side.area.p1(), { mPadding * 2, side.area.size.y } };
+		rec.x -= mPadding * 2;
+		side.resizeHandle.area = rec;
+		side.resizeHandle.start = 0;
+		side.resizeHandle.end = (area.p3() - mCenterArea.p1()).x;
 	}
+	if (isSideVisible(TOP)) {
+		auto& side = mSideWidgets[TOP];
+		rec = { side.area.p2(), { side.area.size.x, mPadding * 2 } };
+		side.resizeHandle.area = rec;
+		side.resizeHandle.start = 0;
+		side.resizeHandle.end = mCenterArea.p2().y;
+	}
+	if (isSideVisible(BOTTOM)) {
+		auto& side = mSideWidgets[BOTTOM];
+		rec = { side.area.p1(), { side.area.size.x, mPadding * 2 } };
+		rec.y -= mPadding * 2;
+		side.resizeHandle.area = rec;
+		side.resizeHandle.start = 0;
+		side.resizeHandle.end = (area.p3() - mCenterArea.p1()).y;
+	}
+}
 
-	if (mPreview) return;
+void DockLayoutWidget::handleResizeEvents(const EventHandler& events) {
+	auto pointer = events.getPointer();
+	auto pointerDelta = events.getPointerDelta();
 
-	auto resizeSideWidget = [&events](SideWidgetData& sideWidget, Vec2F deltaVec) {
-		halnf delta = deltaVec[(sideWidget.side == TOP || sideWidget.side == BOTTOM)];
-		if (sideWidget.side == BOTTOM || sideWidget.side == RIGHT) delta *= -1;
-		sideWidget.absoluteSize += delta;
-		sideWidget.resizeHandle.active = true;
-	};
-
-	if (events.isDown(InputID::MOUSE1)) {
+	// check triggers
+	if (events.isReleased(InputID::MOUSE1)) {
 		for (auto& sideWidget : mSideWidgets) {
-			if (sideWidget.resizeHandle.area.isInside(events.getPointerPrev())) {
-				resizeSideWidget(sideWidget, events.getPointerDelta());
+			sideWidget.resizeHandle.active = false;
+		}
+
+		mResizing = false;
+	} else {
+		for (auto& sideWidget : mSideWidgets) {
+			sideWidget.resizeHandle.hover = sideWidget.resizeHandle.area.isInside(pointer);
+			if (sideWidget.resizeHandle.hover && events.isPressed(InputID::MOUSE1)) {
+				sideWidget.resizeHandle.active = true;
+
+				mResizing = true;
+				triggerWidgetUpdate();
 			}
 		}
 	}
 
-	if (events.isDown(InputID::LEFT_ALT)) {
-		const auto pointer = events.getPointerPrev();
-		if (!mCenterArea.isInside(pointer)) return;
+	// do the resizing
+	for (auto& sideWidget : mSideWidgets) {
+		if (!sideWidget.resizeHandle.active) continue;
 
-		if (events.isPressed(InputID::MOUSE1)) {
-			for (auto i : { 0, 1 }) {
-				const auto step = mCenterArea.size[i] / 3.f;
-				const auto rec1 = mCenterArea.pos[i];
-				const auto pos = pointer[i];
-				if (pos > rec1 && pos < rec1 + step) resizeType[i] = 0;
-				if (pos > rec1 + step && pos < rec1 + step * 2) resizeType[i] = 1;
-				if (pos > rec1 + step * 2) resizeType[i] = 2;
-			}
-		} else if (events.isDown(InputID::MOUSE1)) {
-			const auto deltaVec = events.getPointerDelta();
+		halnf delta = pointerDelta[(sideWidget.side == TOP || sideWidget.side == BOTTOM)];
 
-			if (resizeType[0] == 0) resizeSideWidget(mSideWidgets[LEFT], deltaVec);
-			if (resizeType[1] == 0) resizeSideWidget(mSideWidgets[TOP], deltaVec);
-			if (resizeType[0] == 2) resizeSideWidget(mSideWidgets[RIGHT], deltaVec);
-			if (resizeType[1] == 2) resizeSideWidget(mSideWidgets[BOTTOM], deltaVec);
+		if (sideWidget.side == BOTTOM || sideWidget.side == RIGHT) {
+			delta *= -1;
 		}
+
+		sideWidget.absoluteSize += delta;
 	}
 }
 
@@ -233,10 +231,10 @@ void DockLayoutWidget::updateChildSideWidgets() {
 			auto widget = mSideWidgets[i].widget;
 
 			if (!isSideVisible(Side(i))) {
-				widget->mEnable = false;
+				// widget->mEnable = false;
 			} else {
 				widget->setArea(mSideWidgets[i].area);
-				widget->mEnable = true;
+				// widget->mEnable = true;
 			}
 		}
 
@@ -287,9 +285,7 @@ ualni DockLayoutWidget::getVisibleSidesSize() {
 	return out;
 }
 
-DockLayoutWidget::Side DockLayoutWidget::getPreviewSide() { return mPreviewSide; }
-
-void DockLayoutWidget::handlePreview(const Events& events) {
+void DockLayoutWidget::handlePreview(const EventHandler& events) {
 	if (!mPreview) {
 		mPreviewSide = NONE;
 		return;

@@ -4,17 +4,27 @@
 #include "RootWidget.hpp"
 #include "AnimationTestWidget.hpp"
 #include "FloatingWidget.hpp"
-#include "SimpleWidgets.hpp"
-#include "LayoutWidget.hpp"
+#include "DockLayoutWidget.hpp"
 
 using namespace tp;
 
 class WidgetApplication : public Application {
 public:
 	WidgetApplication() {
-		mRootWidget.setRootWidget(&mLayoutWidget);
+		mRootWidget.setRootWidget(&mDockLayout);
 
-		mLayoutWidget.addChild(&mFloatingMenu);
+		mDockLayout.addChild(&mFloatingMenu);
+		mDockLayout.addChild(&mFloatingMenu2);
+
+		mDockLayout.setCenterWidget(&mButton3);
+		mDockLayout.dockWidget(&mButton4, DockLayoutWidget::RIGHT);
+
+		mFloatingMenu.addToMenu(&mButton);
+		mFloatingMenu2.addToMenu(&mButton2);
+
+		mButton.setAction([this]() { mButton2.setColor(RGBA::random()); });
+		mButton2.setAction([this]() { mButton.setColor(RGBA::random()); });
+
 		// mLayoutWidget.addChild(&mButton2);
 
 		// mWidgetFloating.addChild(&mButton);
@@ -24,8 +34,7 @@ public:
 		// mAnimationTestWidget.addChild(&mWidgetFloating);
 		// mAnimationTestWidget.addChild(&mLayoutWidget);
 
-		// RootWidget::setWidgetArea(mButton, { 100, 100, 150, 200 });
-
+		RootWidget::setWidgetArea(mFloatingMenu2, { 300, 100, 150, 200 });
 		RootWidget::setWidgetArea(mFloatingMenu, { 100, 100, 150, 200 });
 
 		// mWidgetFloating.addChild(&mLayoutWidget);
@@ -50,13 +59,20 @@ public:
 	}
 
 private:
-	LabelWidget mLabel;
 	ButtonWidget mButton;
 	ButtonWidget mButton2;
+	ButtonWidget mButton3;
+	ButtonWidget mButton4;
+
+	FloatingMenu mFloatingMenu;
+	FloatingMenu mFloatingMenu2;
+
+	LabelWidget mLabel;
 	FloatingWidget mWidgetFloating;
 	AnimationTestWidget mAnimationTestWidget;
 	DesktopLayout mLayoutWidget;
-	FloatingMenu mFloatingMenu;
+
+	DockLayoutWidget mDockLayout;
 
 	RootWidget mRootWidget;
 };
