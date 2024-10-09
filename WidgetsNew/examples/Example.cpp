@@ -11,6 +11,10 @@ using namespace tp;
 class WidgetApplication : public Application {
 public:
 	WidgetApplication() {
+		setup1();
+	}
+
+	void setup1() {
 		mRootWidget.setRootWidget(&mDockLayout);
 
 		mDockLayout.addChild(&mFloatingMenu);
@@ -41,6 +45,10 @@ public:
 
 		// mLayoutWidget.addChild(&mButton);
 		// mLayoutWidget.addChild(&mLabel);
+	}
+
+	void setup2() {
+		mRootWidget.setRootWidget(&mLabel);
 	}
 
 	void processFrame(EventHandler* eventHandler, halnf deltaTime) override {

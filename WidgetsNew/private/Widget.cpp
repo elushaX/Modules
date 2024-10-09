@@ -50,7 +50,7 @@ void Widget::updateAnimations() {
 }
 
 bool Widget::needsNextFrame() const {
-	return !mArea.shouldEndTransition() || mInFocus;
+	return !mArea.shouldEndTransition();
 }
 
 void Widget::adjustRect() {

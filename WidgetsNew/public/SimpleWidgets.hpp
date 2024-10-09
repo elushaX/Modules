@@ -54,6 +54,6 @@ namespace tp {
 
 		halnf mRounding = 5;
 		RGBA mColorHovered = { 0.0f, 0.4f, 0.4f, 1.f };
-		RGBA mColor = { 0.0f, 0.0f, 0.0f, 1.f };
+		RGBA mColor = { 0.13f, 0.13f, 0.13f, 1.f };
 	};
 }
