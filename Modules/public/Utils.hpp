@@ -46,7 +46,7 @@ namespace tp {
 	};
 
 	template <typename tType = ualni>
-	class Range {
+	class IterRange {
 	public:
 		class Iterator {
 		public:
@@ -71,13 +71,13 @@ namespace tp {
 		tType mBegin{};
 		tType mEnd{};
 
-		Range() = default;
+		IterRange() = default;
 
-		explicit Range(tType pEndIndex) :
+		explicit IterRange(tType pEndIndex) :
 			mBegin(0),
 			mEnd(pEndIndex) {}
 
-		Range(tType pStartIndex, tType pEndIndex) :
+		IterRange(tType pStartIndex, tType pEndIndex) :
 			mBegin(pStartIndex),
 			mEnd(pEndIndex) {}
 

@@ -1,4 +1,5 @@
 #include "DockLayoutWidget.hpp"
+#include "FloatingWidget.hpp"
 
 using namespace tp;
 
@@ -11,9 +12,33 @@ DockLayoutWidget::DockLayoutWidget() {
 
 void DockLayoutWidget::process(const EventHandler& events) {
 	// calculateHeaderAreas();
-	// handlePreview(events);
 
-	handleResizeEvents(events);
+	Widget* floater = nullptr;
+	for (auto child : mChildren) {
+		if (auto iter = dynamic_cast<FloatingWidget*>(child)) {
+			if (iter->isFloating()) {
+				floater = iter;
+				break;
+			}
+		}
+	}
+
+	if (floater) undockWidget(getSideFromWidget(floater), false);
+
+	if (floater) {
+		handlePreview(events);
+	}
+
+	if (mPreviewWidget && !floater) {
+		dockWidget(mPreviewWidget, mPreviewSide);
+	}
+
+	mPreviewWidget = floater;
+
+	if (!mPreviewWidget) {
+		handleResizeEvents(events);
+	}
+
 	calculateSideAreas();
 	calculateResizeHandles();
 	updateChildSideWidgets();
@@ -40,7 +65,7 @@ void DockLayoutWidget::drawOverlay(Canvas& canvas) {
 		canvas.rect(sideWidget.headerArea, mResizeHandleColorActive, 0);
 	}
 
-	if (mPreview) {
+	if (mPreviewWidget) {
 		if (mPreviewSide != NONE) canvas.rect(mPreviewArea.shrink(mPadding * 2), mPreviewColor, mRounding);
 
 		for (auto& sideWidget : mSideWidgets) {
@@ -64,9 +89,15 @@ void DockLayoutWidget::setCenterWidget(Widget* widget) {
 }
 
 void DockLayoutWidget::dockWidget(Widget* widget, Side side) {
-	DEBUG_ASSERT(!sideExists(side))
+	if (sideExists(side) || side == Side::NONE) return;
 
 	addChild(widget);
+
+	widget->bringToBack();
+	if (mCenterWidget) mCenterWidget->bringToBack();
+	for (auto& order : mSideWidgets) {
+		if (order.widget) order.widget->bringToBack();
+	}
 
 	auto& sideWidget = mSideWidgets[side];
 	sideWidget.widget = widget;
@@ -79,10 +110,21 @@ void DockLayoutWidget::dockWidget(Widget* widget, Side side) {
 	}
 
 	sideWidget.hidden = false;
+	sideWidget.areaBeforeDocking = widget->getArea();
 }
 
-void DockLayoutWidget::undockWidget(Side side) {
-	DEBUG_ASSERT(sideExists(side))
+void DockLayoutWidget::undockWidget(Side side, bool restoreArea) {
+	if (!sideExists(side) || (side == Side::NONE)) return;
+
+	auto& sideWidget = mSideWidgets[side];
+
+	sideWidget.widget->bringToFront();
+
+	if (restoreArea) {
+		sideWidget.widget->setArea(sideWidget.areaBeforeDocking);
+	} else {
+		sideWidget.widget->endAnimations();
+	}
 
 	bool removed = false;
 	for (ualni i = 0; i < 3; i++) {
@@ -275,7 +317,9 @@ bool DockLayoutWidget::isSideVisible(DockLayoutWidget::Side side) {
 	return sideExists(side) && !mSideWidgets[side].hidden;
 }
 
-bool DockLayoutWidget::sideExists(DockLayoutWidget::Side side) { return mSideWidgets[side].widget; }
+bool DockLayoutWidget::sideExists(DockLayoutWidget::Side side) {
+	return mSideWidgets[side].widget;
+}
 
 ualni DockLayoutWidget::getVisibleSidesSize() {
 	ualni out = 0;
@@ -286,11 +330,6 @@ ualni DockLayoutWidget::getVisibleSidesSize() {
 }
 
 void DockLayoutWidget::handlePreview(const EventHandler& events) {
-	if (!mPreview) {
-		mPreviewSide = NONE;
-		return;
-	}
-
 	const halnf factor = 0.3;
 	const halnf handleFactor = 0.1;
 
@@ -313,6 +352,7 @@ void DockLayoutWidget::handlePreview(const EventHandler& events) {
 
 	mPreviewArea = {};
 	mPreviewSide = NONE;
+
 	for (auto& sideWidget : mSideWidgets) {
 		if (sideWidget.widget) continue;
 		
@@ -321,4 +361,11 @@ void DockLayoutWidget::handlePreview(const EventHandler& events) {
 			mPreviewSide = sideWidget.side;
 		}
 	}
+}
+
+auto DockLayoutWidget::getSideFromWidget(Widget* widget) -> Side {
+	for (auto& sideWidget : mSideWidgets) {
+		if (sideWidget.widget == widget) return sideWidget.side;
+	}
+	return DockLayoutWidget::NONE;
 }

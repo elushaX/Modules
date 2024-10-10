@@ -79,7 +79,7 @@ void RayTracer::cycle(const RayCastData& castData, LightData& out, uhalni depth)
 		const auto delta1 = castData.trig->mEdgeP1P2.unitV();
 		const auto delta2 = normal.cross(delta1);
 
-		for (auto idx : Range(mSettings.spray)) {
+		for (auto idx : IterRange(mSettings.spray)) {
 			RayCastData materialCastData;
 			LightData lightData;
 

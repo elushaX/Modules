@@ -99,7 +99,7 @@ SUITE(IntervalTree) {
 		};
 
 		// initialize
-		for (auto i : Range<ualni>(NUM_TEST_INTERVALS)) {
+		for (auto i : IterRange<ualni>(NUM_TEST_INTERVALS)) {
 			auto interval = Interval();
 			interval.random(SPAN);
 
@@ -114,7 +114,7 @@ SUITE(IntervalTree) {
 		test();
 
 		// remove some
-		for (auto i : Range<ualni>(NUM_TEST_INTERVALS / 2)) {
+		for (auto i : IterRange<ualni>(NUM_TEST_INTERVALS / 2)) {
 			auto idx = ualni(randomFloat() * (alnf) pool.size());
 			pool[idx].ignore = true;
 			intervalTree.remove({ pool[idx].start, pool[idx].end });
@@ -139,18 +139,18 @@ SUITE(IntervalTree) {
 			Buffer<Interval> testIntervals;
 
 			auto WOBBLE = SPAN * 0;
-			for (auto i : Range<ualni>(NUM_TEST_INTERVALS)) {
+			for (auto i : IterRange<ualni>(NUM_TEST_INTERVALS)) {
 				auto interval = Interval();
 				interval.randomSized(SPAN, SCALE, WOBBLE);
 				intervalTree.insert({ interval.start, interval.end }, i);
 				// WOBBLE -= 1.f;
 			}
 
-			for (auto i : Range(0))
+			for (auto i : IterRange(0))
 				intervalTree.insert({ (halnf) i * 0.01f, SPAN }, 0);
 
 			WOBBLE = 0;
-			for (auto i : Range<ualni>(NUM_CHECKS)) {
+			for (auto i : IterRange<ualni>(NUM_CHECKS)) {
 				auto interval = Interval();
 				interval.randomSized(SPAN, SCALE, WOBBLE);
 				testIntervals.append(interval);
@@ -200,7 +200,7 @@ SUITE(IntervalTree) {
 		};
 
 		Buffer<Stat> stats;
-		for (auto i : Range(2, 5)) {
+		for (auto i : IterRange(2, 5)) {
 			Stat stat = test(pow(10, i), 100);
 			stats.append(stat);
 		}

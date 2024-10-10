@@ -8,26 +8,26 @@ SUITE(HashTable) {
 	TEST(SimpleReference) {
 		tp::Map<tp::ualni, TestClass, TestAllocator> map;
 
-		for (auto i : Range(1000, 100000)) {
+		for (auto i : IterRange(1000, 100000)) {
 			map.put(i, TestClass(i));
 		}
 
-		for (auto i : Range(1000, 100000)) {
+		for (auto i : IterRange(1000, 100000)) {
 			CHECK(map.presents(i));
 			CHECK_EQUAL((tp::ualni) map.get(i).getVal(), (tp::ualni) i);
 		}
 
-		for (auto i : Range(1000, 100000)) {
+		for (auto i : IterRange(1000, 100000)) {
 			map.put(i, TestClass(i));
 		}
 
-		for (auto i : Range(1000, 2000)) {
+		for (auto i : IterRange(1000, 2000)) {
 			CHECK(map.presents(i));
 			map.remove(i);
 			CHECK(!map.presents(i));
 		}
 
-		for (auto i : Range(2000, 100000)) {
+		for (auto i : IterRange(2000, 100000)) {
 			CHECK(map.presents(i));
 			CHECK_EQUAL((tp::ualni) map.get(i).getVal(), (tp::ualni) i);
 		}
@@ -42,29 +42,29 @@ SUITE(HashTable) {
 	TEST(SimplePointer) {
 		tp::Map<tp::ualni, TestClass*, TestAllocator> map;
 
-		for (auto i : Range(1000)) {
+		for (auto i : IterRange(1000)) {
 			map.put(i, new TestClass(i));
 		}
 
-		for (auto i : Range(1000)) {
+		for (auto i : IterRange(1000)) {
 			CHECK(map.presents(i));
 			CHECK_EQUAL((tp::ualni) map.get(i)->getVal(), (tp::ualni) i);
 		}
 
-		for (auto i : Range(1000)) {
+		for (auto i : IterRange(1000)) {
 			auto del = map.get(i);
 			map.put(i, new TestClass(i));
 			delete del;
 		}
 
-		for (auto i : Range(900, 1000)) {
+		for (auto i : IterRange(900, 1000)) {
 			CHECK(map.presents(i));
 			delete map.get(i);
 			map.remove(i);
 			CHECK(!map.presents(i));
 		}
 
-		for (auto i : Range(900)) {
+		for (auto i : IterRange(900)) {
 			CHECK(map.presents(i));
 			CHECK_EQUAL((tp::ualni) map.get(i)->getVal(), (tp::ualni) i);
 		}
@@ -80,7 +80,7 @@ SUITE(HashTable) {
 	TEST(Copy) {
 		tp::Map<tp::ualni, TestClass, TestAllocator> map;
 
-		for (auto i : Range(10)) {
+		for (auto i : IterRange(10)) {
 			map.put(i, TestClass(i));
 		}
 
@@ -95,7 +95,7 @@ SUITE(HashTable) {
 	TEST(SaveLoad) {
 		tp::Map<tp::ualni, TestClass, TestAllocator> map;
 
-		for (auto i : Range(10)) {
+		for (auto i : IterRange(10)) {
 			map.put(i, TestClass(i));
 		}
 
@@ -114,7 +114,7 @@ SUITE(HashTable) {
 
 		CHECK(map.size() == 10);
 
-		for (auto i : Range(10)) {
+		for (auto i : IterRange(10)) {
 			CHECK(map.presents(i));
 			CHECK_EQUAL(map.get(i).getVal(), i);
 		}

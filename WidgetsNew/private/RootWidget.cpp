@@ -12,6 +12,12 @@ void RootWidget::setRootWidget(Widget* widget) {
 }
 
 void RootWidget::processFrame(EventHandler* events, const RectF& screenArea) {
+	if (mDebug) {
+		events->setEnableKeyEvents(true);
+		if (events->isPressed(InputID::K)) mDebugStopProcessing = !mDebugStopProcessing;
+		if (mDebugStopProcessing) return;
+	}
+
 	mScreenArea = screenArea;
 
 	mRoot->setArea(screenArea);
@@ -38,6 +44,7 @@ void RootWidget::processFrame(EventHandler* events, const RectF& screenArea) {
 
 		// check triggered widgets for removal
 	erase_if(mTriggeredWidgets, [this](auto widget) {
+		widget->updateAnimations();
 		if (mWidgetsToProcess.find(widget) == mWidgetsToProcess.end()) return false;
 		auto end = !widget->needsNextFrame();
 		if (end) {
@@ -47,7 +54,7 @@ void RootWidget::processFrame(EventHandler* events, const RectF& screenArea) {
 	});
 }
 
-bool RootWidget::needsUpdate() const { return !mTriggeredWidgets.empty(); }
+bool RootWidget::needsUpdate() const { return !mTriggeredWidgets.empty() || mDebugRedrawAlways; }
 
 void RootWidget::drawFrame(Canvas& canvas) {
 	// draw from top to bottom
@@ -60,8 +67,44 @@ void RootWidget::drawFrame(Canvas& canvas) {
 
 	if (mDebug) {
 		drawDebug(canvas, mRoot, { 0, 0 }, 0);
+
 		ImGui::Text("Triggered Widgets: %i", (int) mTriggeredWidgets.size());
 		ImGui::Text("Widgets To Process: %i", (int) mWidgetsToProcess.size());
+
+		ImGui::Text("To Toggle processing press k");
+		ImGui::Checkbox("Stop processing", &mDebugStopProcessing);
+		ImGui::Checkbox("Force new frames", &mDebugRedrawAlways);
+
+
+		if (mInFocusWidget) {
+			ImGui::Text("Item under cursor %s", mInFocusWidget->mName.c_str());
+
+			if (ImGui::BeginListBox("##empty", { -FLT_MIN, 0 })) {
+				for (auto widget = mInFocusWidget; widget && widget != this; widget = widget->mParent) {
+					if (ImGui::CollapsingHeader(widget->mName.c_str())) {
+						ImGui::InputFloat2("min size", &widget->mMinSize.x);
+						ImGui::InputFloat2("max size", &widget->mMaxSize.x);
+
+						int sizePolicyX = int(widget->mSizePolicy.x);
+						int sizePolicyY = int(widget->mSizePolicy.y);
+						int layout = int(widget->mLayoutPolicy);
+
+						if (ImGui::Combo("Size Policy X", &sizePolicyX, "Passive\0Expand\0Contract\0")) {
+							widget->setSizePolicy(SizePolicy(sizePolicyX), SizePolicy(sizePolicyY));
+						}
+
+						if (ImGui::Combo("Size Policy Y", &sizePolicyY, "Passive\0Expand\0Contract\0")) {
+							widget->setSizePolicy(SizePolicy(sizePolicyX), SizePolicy(sizePolicyY));
+						}
+
+						if (ImGui::Combo("Layout", &layout, "Passive\0Vertical\0Horizontal\0")) {
+							widget->setLayoutPolicy(LayoutPolicy(layout));
+						}
+					}
+				}
+				ImGui::EndListBox();
+			}
+		}
 	}
 }
 
@@ -205,12 +248,13 @@ void RootWidget::updateWidget(Widget* widget) {
 void RootWidget::adjustSizes(ActiveTreeNode* iter) {
 	if (!iter) return;
 
-	iter->widget->adjustRect();
-	iter->widget->adjustChildrenRect();
-
 	for (auto child : iter->children) {
 		adjustSizes(child);
 	}
+
+	iter->widget->pickRect();
+	iter->widget->adjustChildrenRect();
+	// iter->widget->pickRect();
 }
 
 void RootWidget::processActiveTree(ActiveTreeNode* iter, EventHandler& events) {
@@ -257,6 +301,8 @@ void RootWidget::processFocusItems(EventHandler& events) {
 
 		events.setCursorOrigin(widgetGlobalPos[iter]);
 
+		widget->mLocalPoint = events.getPointer();
+
 		if (!eventsProcessed && widget->processesEvents()) {
 			events.setEnableKeyEvents(true);
 
@@ -266,6 +312,7 @@ void RootWidget::processFocusItems(EventHandler& events) {
 			events.setEnableKeyEvents(false);
 			eventsProcessed = true;
 		} else {
+
 			widget->updateAnimations();
 			widget->process(events);
 		}
