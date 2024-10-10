@@ -28,16 +28,20 @@ void FloatingWidget::process(const EventHandler& events) {
 	// triggerWidgetUpdate();
 }
 
-void FloatingWidget::adjustRect() {
-	auto area = getArea();
+void FloatingWidget::pickRect() {
+	if (mIsFloating) {
+		auto area = getArea();
 
-	if (mIsResizing) {
-		area.size = mPointerCurrent + mHandleSize / 2.f;
-	} else if (mIsFloating) {
-		area.pos += mPointerCurrent - mPointerStart;
+		if (mIsResizing) {
+			area.size = mPointerCurrent + mHandleSize / 2.f;
+		} else if (mIsFloating) {
+			area.pos += mPointerCurrent - mPointerStart;
+		}
+
+		setArea(area);
+	} else {
+		Widget::pickRect();
 	}
-
-	setArea(area);
 }
 
 void FloatingWidget::draw(Canvas& canvas) {
@@ -55,4 +59,8 @@ RectF FloatingWidget::resizeHandleRect() {
 
 bool FloatingWidget::propagateEventsToChildren() const {
 	return !mIsFloating;
+}
+
+bool FloatingWidget::isFloating() const {
+	return mIsFloating;
 }

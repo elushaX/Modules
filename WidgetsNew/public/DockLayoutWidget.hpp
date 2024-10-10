@@ -27,13 +27,15 @@ namespace tp {
 			RectF previewHandleArea = {};
 
 			ResizeHandle resizeHandle;
+
+			RectF areaBeforeDocking = {};
 		};
 
 	public:
 		DockLayoutWidget();
 
 	public:
-		void adjustRect() override {}
+		void pickRect() override {}
 		void adjustChildrenRect() override {}
 
 		void process(const EventHandler& events) override;
@@ -47,10 +49,11 @@ namespace tp {
 		void setCenterWidget(Widget* widget);
 
 		void dockWidget(Widget* widget, Side side);
-		void undockWidget(Side side);
+		void undockWidget(Side side, bool restoreArea = true);
 		void toggleWidgetVisibility(Side side);
 
 	private:
+		Side getSideFromWidget(Widget*);
 		void calculateSideAreas();
 		void calculateResizeHandles();
 		void handleResizeEvents(const EventHandler& events);
@@ -86,9 +89,9 @@ namespace tp {
 		RGBA mResizeHandleColorHovered = RGBA(0.3, 0.3, 0.3, 1);
 		RGBA mResizeHandleColorActive = RGBA(0.6, 0.6, 0.6, 1);
 		RGBA mBackgroundColor = RGBA(0, 0, 0, 1);
-		RGBA mPreviewColor = RGBA(0.6, 0.6, 0.6, 1);
+		RGBA mPreviewColor = RGBA(0.6, 0.6, 0.6, 0.2);
 
 	public:
-		bool mPreview = false;
+		Widget* mPreviewWidget = nullptr;
 	};
 }

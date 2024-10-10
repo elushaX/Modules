@@ -51,5 +51,7 @@ namespace tp {
 		Widget* mInFocusWidget = nullptr;
 
 		bool mDebug = true;
+		bool mDebugStopProcessing = false;
+		bool mDebugRedrawAlways = false;
 	};
 }

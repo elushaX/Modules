@@ -11,7 +11,7 @@ namespace tp {
 			// canvas.rect(getRelativeArea(), RGBA(0, 0, 0, 1));
 		}
 
-		void adjustRect() override {
+		void pickRect() override {
 			// do nothing
 		}
 

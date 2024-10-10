@@ -37,7 +37,7 @@ SUITE(AvlTree) {
 
 		Item buff[size];
 
-		for (auto i : Range(size)) {
+		for (auto i : IterRange(size)) {
 			buff[i].data.setVal(i);
 		}
 

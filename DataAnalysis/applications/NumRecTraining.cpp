@@ -52,7 +52,7 @@ bool loadDataset(Dataset& out, const std::string& location) {
 	out.labels.reserve(out.length);
 	out.images.reserve(out.length);
 
-	for (auto i : Range(out.length)) {
+	for (auto i : IterRange(out.length)) {
 		auto& image = out.images[i];
 		image.reserve(sizeX * sizeY);
 		dataset.readBytes((LocalConnection::Byte*) image.getBuff(), sizeX * sizeY);
@@ -89,7 +89,7 @@ struct NumberRec {
 		}
 
 		mTestcases.reserve(dataset.images.size());
-		for (auto i : Range(dataset.images.size())) {
+		for (auto i : IterRange(dataset.images.size())) {
 			auto& image = dataset.images[i];
 			auto label = dataset.labels[i];
 
@@ -97,13 +97,13 @@ struct NumberRec {
 
 			testcase.output.reserve(10);
 
-			for (auto dig : Range(10)) {
+			for (auto dig : IterRange(10)) {
 				testcase.output[dig] = label == dig ? 1 : 0;
 			}
 
 			testcase.input.reserve(image.size());
 
-			for (auto pxl : Range(image.size())) {
+			for (auto pxl : IterRange(image.size())) {
 				testcase.input[pxl] = (halnf) image[pxl] / 255.f;
 			}
 		}
@@ -137,7 +137,7 @@ struct NumberRec {
 
 	static halni getMaxIdx(const Buffer<halnf>& in) {
 		halni out = 0;
-		for (auto i : Range(in.size())) {
+		for (auto i : IterRange(in.size())) {
 			if (in[i] > in[out]) {
 				out = i;
 			}
@@ -165,15 +165,15 @@ struct NumberRec {
 	void displayImage(ualni idx) {
 		auto& testcase = mTestcases[idx];
 		printf("Image : %i\n", int(getMaxIdx(testcase.output)));
-		for (auto i : Range(28)) {
-			for (auto j : Range(28)) {
+		for (auto i : IterRange(28)) {
+			for (auto j : IterRange(28)) {
 				printf("%c", char(testcase.input[j * 28 + i] * 255));
 			}
 			printf("\n");
 		}
 	}
 
-	halnf test(const Range<halni>& range) {
+	halnf test(const IterRange<halni>& range) {
 		halnf avgCost = 0;
 		for (auto i : range) {
 			avgCost += eval(i);
@@ -182,7 +182,7 @@ struct NumberRec {
 		return avgCost;
 	}
 
-	void trainStep(const Range<halni>& range) {
+	void trainStep(const IterRange<halni>& range) {
 		nn.clearGrad();
 		for (auto i : range) {
 			nn.evaluate(mTestcases[i].input, output);
@@ -210,18 +210,19 @@ int main() {
 	NumberRec app;
 
 	auto numBatches = 10;
-	auto trainRange = Range(0, 50000);
-	auto testRange = Range(50000, 70000);
+	auto trainRange = IterRange(0, 50000);
+	auto testRange = IterRange(50000, 70000);
 
 	auto batchSize = trainRange.idxDiff() / numBatches;
 
-	for (auto epoch : Range(1)) {
+	for (auto epoch : IterRange(1)) {
 		printf("Epoch %i\n", epoch.index());
 
-		for (auto batchIdx : Range(trainRange.idxDiff() / batchSize)) {
+		for (auto batchIdx : IterRange(trainRange.idxDiff() / batchSize)) {
 			printf(" - Batch :%i \n", batchIdx.index());
 
-			auto batchRange = Range(trainRange.idxBegin() + batchSize * batchIdx, trainRange.idxBegin() + batchSize * (batchIdx + 1));
+			auto batchRange =
+				IterRange(trainRange.idxBegin() + batchSize * batchIdx, trainRange.idxBegin() + batchSize * (batchIdx + 1));
 
 			app.trainStep(batchRange);
 

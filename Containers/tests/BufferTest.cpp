@@ -9,7 +9,7 @@ SUITE(Buffer) {
 	TEST(Simple1) {
 		Buffer<TestClass, TestAllocator> buff;
 		CHECK(buff.size() == 0);
-		for (auto i : Range(size * 10)) {
+		for (auto i : IterRange(size * 10)) {
 			buff.append(TestClass(i));
 		}
 		CHECK(buff.size() == size * 10);
@@ -21,7 +21,7 @@ SUITE(Buffer) {
 	TEST(Simple2) {
 		Buffer<TestClass, TestAllocator> buff(size);
 		CHECK(buff.size() == size);
-		for (auto i : Range(size * 10))
+		for (auto i : IterRange(size * 10))
 			buff.append(TestClass(i));
 		CHECK(buff.size() == size + size * 10);
 		while (buff.size())

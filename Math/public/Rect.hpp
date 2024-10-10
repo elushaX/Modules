@@ -2,6 +2,7 @@
 #pragma once
 
 #include "Vec.hpp"
+#include "Range.hpp"
 
 #include "Intersections.hpp"
 
@@ -35,6 +36,11 @@ namespace tp {
 			this->size = size;
 		}
 
+		Rect(const Range<Type>& rx, const Range<Type>& ry) {
+			this->pos = { rx.start, ry.start };
+			this->size = { rx.size(), ry.size() };
+		}
+
 		Rect(Type aPosX, Type posy, Type aSizeX, Type aSizeY) {
 			pos.assign(aPosX, posy);
 			size.assign(aSizeX, aSizeY);
@@ -64,7 +70,7 @@ namespace tp {
 			return *this;
 		}
 
-		bool operator==(Rect<Type>& rect) const { return (pos == rect.pos && size == rect.size); }
+		bool operator==(const Rect<Type>& rect) const { return (pos == rect.pos && size == rect.size); }
 
 		bool isEnclosedIn(const Rect<Type>& rect, bool aParent = false) const {
 			if (aParent) {
@@ -102,6 +108,11 @@ namespace tp {
 
 		void invertY(Type scr_y) { pos.y = scr_y - pos.y - size.y; }
 
+		Rect& move(Vec2<Type> delta) {
+			move(delta.x, delta.y);
+			return *this;
+		}
+
 		void move(Type dx, Type dy) {
 			pos.x += dx;
 			pos.y += dy;
@@ -118,6 +129,9 @@ namespace tp {
 			}
 			return *this;
 		}
+
+		Range<Type> getRangeX() const { return { x, x + z }; }
+		Range<Type> getRangeY() const { return { y, y + w }; }
 
 		// pos
 		Vec2<Type> p1() const { return pos; }

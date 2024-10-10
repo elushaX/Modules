@@ -12,13 +12,15 @@ namespace tp {
 
 		void process(const EventHandler& events) override;
 
-		void adjustRect() override;
+		void pickRect() override;
 
 		void draw(Canvas& canvas) override;
 
 		RectF resizeHandleRect();
 
 		[[nodiscard]] bool propagateEventsToChildren() const override;
+
+		[[nodiscard]] bool isFloating() const;
 
 	private:
 		bool mIsFloating = false;

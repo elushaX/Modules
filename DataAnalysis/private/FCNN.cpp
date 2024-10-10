@@ -32,7 +32,7 @@ void FCNN::initializeRandom(const Buffer<halni>& description) {
 
 	mLayers.reserve(description.size());
 
-	for (auto i : Range<halni>(0, (halni) description.size())) {
+	for (auto i : IterRange<halni>(0, (halni) description.size())) {
 		mLayers[i].neurons.reserve(description[i]);
 		if (i == 0) {
 			continue;
@@ -50,17 +50,17 @@ void FCNN::initializeRandom(const Buffer<halni>& description) {
 void FCNN::evaluate(const Buffer<halnf>& input, Buffer<halnf>& output) {
 	ASSERT(output.size() == mLayers.last().neurons.size() && input.size() == mLayers.first().neurons.size())
 
-	for (auto idx : Range(input.size())) {
+	for (auto idx : IterRange(input.size())) {
 		mLayers.first().neurons[idx].activationValue = input[idx];
 	}
 
-	for (auto layerIdx : Range<halni>(1, (halni) mLayers.size())) {
+	for (auto layerIdx : IterRange<halni>(1, (halni) mLayers.size())) {
 		auto& layer = mLayers[layerIdx];
 		auto& layerPrev = mLayers[layerIdx - 1];
 
 		for (auto neuron : layer.neurons) {
 			neuron->activationValue = 0;
-			for (auto connectionIdx : Range(neuron->weights.size())) {
+			for (auto connectionIdx : IterRange(neuron->weights.size())) {
 				neuron->activationValue += neuron->weights[connectionIdx].val * layerPrev.neurons[connectionIdx].activationValue;
 			}
 			neuron->activationValue += neuron->bias.val;
@@ -69,26 +69,26 @@ void FCNN::evaluate(const Buffer<halnf>& input, Buffer<halnf>& output) {
 		}
 	}
 
-	for (auto idx : Range(output.size())) {
+	for (auto idx : IterRange(output.size())) {
 		output[idx] = mLayers.last().neurons[idx].activationValue;
 	}
 }
 
 halnf FCNN::calcCost(const Buffer<halnf>& output) {
 	halnf out = 0;
-	for (auto neuronIdx : Range(mLayers.last().neurons.size())) {
+	for (auto neuronIdx : IterRange(mLayers.last().neurons.size())) {
 		out += pow(output[neuronIdx] - mLayers.last().neurons[neuronIdx].activationValue, 2);
 	}
 	return out;
 }
 
 void FCNN::clearGrad() {
-	for (auto layIdx : Range<halni>(1, (halni) mLayers.size())) {
+	for (auto layIdx : IterRange<halni>(1, (halni) mLayers.size())) {
 		auto& layer = mLayers[layIdx];
 
 		for (auto neuron : layer.neurons) {
 			neuron->bias.grad = 0;
-			for (auto weightIdx : Range(neuron->weights.size())) {
+			for (auto weightIdx : IterRange(neuron->weights.size())) {
 				neuron->weights[weightIdx].grad = 0;
 			}
 		}
@@ -102,7 +102,7 @@ void FCNN::calcGrad(const Buffer<halnf>& output) {
 	auto& lastLayer = mLayers.last();
 
 	// calculate chaining cache value for each neuron in last layer
-	for (auto neuronIdx : Range(lastLayer.neurons.size())) {
+	for (auto neuronIdx : IterRange(lastLayer.neurons.size())) {
 		auto& neuron = lastLayer.neurons[neuronIdx];
 		neuron.cache = 2 * (neuron.activationValue - output[neuronIdx]);
 	}
@@ -113,7 +113,7 @@ void FCNN::calcGrad(const Buffer<halnf>& output) {
 		auto& currentLayer = mLayers[layerIdx];
 		auto& inputLayer = mLayers[layerIdx - 1];
 
-		for (auto currentNeuronIdx : Range(currentLayer.neurons.size())) {
+		for (auto currentNeuronIdx : IterRange(currentLayer.neurons.size())) {
 			auto& currentNeuron = currentLayer.neurons[currentNeuronIdx];
 
 			// calculate cache value (chaining)
@@ -131,7 +131,7 @@ void FCNN::calcGrad(const Buffer<halnf>& output) {
 			currentNeuron.bias.grad += currentNeuron.cache;
 
 			// calculate gradient for weights of current neuron
-			for (auto weightIdx : Range(currentNeuron.weights.size())) {
+			for (auto weightIdx : IterRange(currentNeuron.weights.size())) {
 				currentNeuron.weights[weightIdx].grad += inputLayer.neurons[weightIdx].activationValue * currentNeuron.cache;
 			}
 		}
@@ -142,12 +142,12 @@ void FCNN::calcGrad(const Buffer<halnf>& output) {
 
 void FCNN::applyGrad(halnf step) {
 
-	for (auto layIdx : Range<halni>(1, (halni) mLayers.size())) {
+	for (auto layIdx : IterRange<halni>(1, (halni) mLayers.size())) {
 		auto& layer = mLayers[layIdx];
 
 		for (auto neuron : layer.neurons) {
 			neuron->bias.val -= neuron->bias.grad / (halnf) mAvgCount * step;
-			for (auto weightIdx : Range(neuron->weights.size())) {
+			for (auto weightIdx : IterRange(neuron->weights.size())) {
 				neuron->weights[weightIdx].val -= (neuron->weights[weightIdx].grad / (halnf) mAvgCount) * step;
 			}
 		}

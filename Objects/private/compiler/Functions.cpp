@@ -410,14 +410,14 @@ alni instSize(const Instruction& inst) {
 }
 
 void writeConst(ByteCode& out, alni& idx, uint2 data) {
-	for (auto byte : Range(sizeof(uint2))) {
+	for (auto byte : IterRange(sizeof(uint2))) {
 		out.mInstructions[idx] = OpCode((int1) (data >> byte * 8));
 		idx++;
 	}
 }
 
 void writeParam(ByteCode& out, alni& idx, const int1* data, alni size) {
-	for (auto byte : Range(size)) {
+	for (auto byte : IterRange(size)) {
 		out.mInstructions[idx] = OpCode(data[byte]);
 		idx++;
 	}

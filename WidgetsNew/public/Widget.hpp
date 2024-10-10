@@ -14,6 +14,19 @@ namespace tp {
 		friend class RootWidget;
 
 	public:
+		enum class SizePolicy {
+			Passive,
+			Expand,
+			Contract,
+		};
+
+		enum class LayoutPolicy {
+			Passive,
+			Vertically,
+			Horizontally,
+		};
+
+	public:
 		Widget();
 		virtual ~Widget() = default;
 
@@ -23,6 +36,7 @@ namespace tp {
 		}
 
 		void addChild(Widget* child);
+		void removeChild(Widget* child);
 
 		WidgetManagerInterface* getRoot();
 
@@ -31,17 +45,32 @@ namespace tp {
 		void bringToFront();
 		void bringToBack();
 
+		void setSizePolicy(SizePolicy x, SizePolicy y);
+		void setLayoutPolicy(LayoutPolicy layoutPolicy);
+
+		const Vec2F& getMinSize();
+		void setMinSize(const Vec2F& size);
+
 	public:
 		virtual void process(const EventHandler& events) {}
-		virtual void draw(Canvas& canvas) { canvas.rect(mArea.getCurrentRect(), RGBA(1.f), 10); }
+		virtual void draw(Canvas& canvas) {}
 		virtual void drawOverlay(Canvas& canvas) {}
 
 		virtual void mouseEnter();
 		virtual void mouseLeave();
 
 		// size policies
-		virtual void adjustRect();
+		virtual void pickRect();
+		virtual void clampRect();
 		virtual void adjustChildrenRect();
+
+		// resizing
+		RangeF pickRange(const RangeF& current, const RangeF& children, const RangeF& parent, bool vertical);
+		RangeF clampRange(const RangeF& current, const RangeF& children, const RangeF& parent, bool vertical);
+		RectF getChildrenEnclosure();
+		RectF getParentEnclosure();
+		void adjustLayout(bool vertical);
+		halnf changeChildSize(Widget*, halnf diff, bool vertical);
 
 		[[nodiscard]] virtual bool processesEvents() const;
 		[[nodiscard]] virtual bool propagateEventsToChildren() const;
@@ -53,7 +82,11 @@ namespace tp {
 
 	public:
 		[[nodiscard]] RectF getArea() const;
+		[[nodiscard]] RectF getAreaT() const;
+
 		[[nodiscard]] RectF getRelativeArea() const;
+		[[nodiscard]] RectF getRelativeAreaT() const;
+
 		void setArea(const RectF& area);
 
 	protected:
@@ -64,6 +97,12 @@ namespace tp {
 
 		// relative to the parent
 		SpringRect mArea;
+
+		// resizing
+		LayoutPolicy mLayoutPolicy = LayoutPolicy::Passive;
+		Vec2<SizePolicy> mSizePolicy = { SizePolicy::Passive, SizePolicy::Passive };
+		Vec2F mMinSize = { 50, 50 };
+		Vec2F mMaxSize = { FLT_MAX / 2, FLT_MAX / 2 };
 
 		bool mInFocus = false;
 

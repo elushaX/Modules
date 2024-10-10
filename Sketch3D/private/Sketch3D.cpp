@@ -35,16 +35,16 @@ const RGBA& Stroke::getColor() const { return mColor; }
 void Stroke::updateGpuBuffers() { mGPUHandles.sendDataToGPU(&mPoints); }
 
 void Stroke::denoisePos(halni passes) {
-	for (auto pass : Range(passes)) {
-		for (auto pi : Range(mPoints.size() - 2)) {
+	for (auto pass : IterRange(passes)) {
+		for (auto pi : IterRange(mPoints.size() - 2)) {
 			mPoints[pi + 1].pos = (mPoints[pi + 1].pos + mPoints[pi].pos + mPoints[pi + 2].pos) / 3.f;
 		}
 	}
 }
 
 void Stroke::denoiseThickness(halni passes) {
-	for (auto pass : Range(passes)) {
-		for (auto pi : Range(mPoints.size() - 2)) {
+	for (auto pass : IterRange(passes)) {
+		for (auto pi : IterRange(mPoints.size() - 2)) {
 			mPoints[pi + 1].thickness = (mPoints[pi].thickness + mPoints[pi + 2].thickness) / 2.f;
 		}
 	}
@@ -57,7 +57,7 @@ void Stroke::compress(halnf factor) {
 
 	List<StrokePoint> passed_poits;
 
-	for (auto idx : Range(mPoints.size())) {
+	for (auto idx : IterRange(mPoints.size())) {
 		passed_poits.pushBack(mPoints[idx]);
 	}
 
@@ -100,14 +100,14 @@ void Stroke::subdiv(halnf precision, const Camera* cam, halni passes) {
 	}
 
 	List<StrokePoint> new_points;
-	for (auto idx : Range(mPoints.size())) {
+	for (auto idx : IterRange(mPoints.size())) {
 		new_points.pushBack(mPoints[idx]);
 	}
 
 	auto viewmat = cam->calculateViewMatrix();
 	auto projmat = cam->calculateProjectionMatrix();
 
-	for (auto i : Range(passes)) {
+	for (auto i : IterRange(passes)) {
 
 		auto n_points = new_points.length();
 

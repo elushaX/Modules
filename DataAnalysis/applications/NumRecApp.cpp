@@ -18,7 +18,7 @@ void loadImage(Buffer<halnf>& output, const char* name) {
 
 	output.reserve(x * y);
 
-	for (auto i : Range(output.size())) {
+	for (auto i : IterRange(output.size())) {
 		output[i] = loadedImage[i * 4] / 255.f;
 	}
 

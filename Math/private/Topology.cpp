@@ -88,18 +88,18 @@ void TopologyCache::updateCache() {
 	}
 
 	TransformedPoints.reserve(Source->Points.size());
-	for (auto idx : Range(TransformedPoints.size())) {
+	for (auto idx : IterRange(TransformedPoints.size())) {
 		TransformedPoints[idx] = Source->Basis.transform(Source->Points[idx]);
 		TransformedPoints[idx] += Source->Origin;
 	}
 
 	TransformedNormals.reserve(Source->Normals.size());
-	for (auto idx : Range(TransformedNormals.size())) {
+	for (auto idx : IterRange(TransformedNormals.size())) {
 		TransformedNormals[idx] = Source->Basis.transform(Source->Normals[idx]);
 	}
 
 	TrigCaches.reserve(Source->Indexes.size());
-	for (auto idx : Range(TrigCaches.size())) {
+	for (auto idx : IterRange(TrigCaches.size())) {
 		TrigCaches[idx].mP1 = Source->Indexes[idx].x;
 		TrigCaches[idx].mP2 = Source->Indexes[idx].y;
 		TrigCaches[idx].mP3 = Source->Indexes[idx].z;

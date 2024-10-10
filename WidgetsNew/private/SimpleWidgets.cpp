@@ -37,7 +37,7 @@ void ButtonWidget::setColor(const RGBA& in) {
 }
 
 void ButtonWidget::process(const EventHandler& eventHandler) {
-	if (getArea().isInside(eventHandler.getPointer())) {
+	if (getRelativeArea().isInside(eventHandler.getPointer())) {
 		if (eventHandler.isPressed(InputID::MOUSE1)) {
 			mAction();
 		}

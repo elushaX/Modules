@@ -31,11 +31,11 @@ SUITE(FCNN) {
 		Buffer<halnf> outputExpected(layers.last());
 		Buffer<halnf> output(layers.last());
 
-		for (auto inputVal : Range(layers.first())) {
+		for (auto inputVal : IterRange(layers.first())) {
 			input[inputVal] = inputLayer[inputVal];
 		}
 
-		for (auto outIdx : Range(layers.last())) {
+		for (auto outIdx : IterRange(layers.last())) {
 			outputExpected[outIdx] = outputLayer[outIdx];
 		}
 
@@ -44,7 +44,7 @@ SUITE(FCNN) {
 
 		halnf cost = 0;
 
-		for (auto i : Range(150)) {
+		for (auto i : IterRange(150)) {
 
 			nn.evaluate(input, output);
 		

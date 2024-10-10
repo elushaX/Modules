@@ -17,7 +17,7 @@ Item buff[size];
 int main() {
 	AvlTree<AvlNumericKey<alni>, alni> tree;
 
-	for (auto i : Range(size)) {
+	for (auto i : IterRange(size)) {
 		buff[i].data = i;
 	}
 

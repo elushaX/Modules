@@ -226,8 +226,8 @@ namespace tp {
 		Type y;
 
 		Vec() :
-			x(0),
-			y(0) {}
+			x{},
+			y{} {}
 
 		// Initialization
 		template <typename TypeIn>
