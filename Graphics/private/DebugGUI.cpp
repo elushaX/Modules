@@ -41,6 +41,8 @@ DebugGUI::DebugGUI(Window* window) {
 	// appearance
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
+	return;
+
 	auto& colors = ImGui::GetStyle().Colors;
 	colors[ImGuiCol_WindowBg] = ImVec4{ 0.1f, 0.105f, 0.11f, 1.0f };
 

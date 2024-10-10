@@ -12,9 +12,9 @@ WidgetManagerInterface* Widget::getRoot() {
 	return dynamic_cast<WidgetManagerInterface*>(iter);
 }
 
-void Widget::triggerWidgetUpdate() {
+void Widget::triggerWidgetUpdate(const char* reason) {
 	if (auto root = getRoot()) {
-		root->updateWidget(this);
+		root->updateWidget(this, reason);
 	}
 }
 
@@ -23,11 +23,15 @@ Widget::Widget() {
 	mArea.endAnimation();
 }
 
+void Widget::setAreaCache(const tp::RectF& area) {
+	mAreaCache = area;
+}
+
 void Widget::setArea(const RectF& area) {
 	if (mArea.getTargetRect() == area) return;
 
 	mArea.setTargetRect(area);
-	triggerWidgetUpdate();
+	triggerWidgetUpdate("new area");
 }
 
 RectF Widget::getArea() const {
@@ -38,6 +42,10 @@ RectF Widget::getAreaT() const {
 	return mArea.getTargetRect();
 }
 
+RectF Widget::getAreaCache() const {
+	return mAreaCache;
+}
+
 RectF Widget::getRelativeArea() const {
 	return { {}, mArea.getCurrentRect().size };
 }
@@ -46,12 +54,16 @@ RectF Widget::getRelativeAreaT() const {
 	return { {}, mArea.getTargetRect().size };
 }
 
+RectF Widget::getRelativeAreaCache() const {
+	return { {}, mAreaCache.size };
+}
+
 void Widget::endAnimations() {
 	mArea.endAnimation();
 }
 
 bool Widget::processesEvents() const {
-	return true;
+	return false;
 }
 
 void Widget::updateAnimations() {
@@ -59,7 +71,7 @@ void Widget::updateAnimations() {
 }
 
 bool Widget::needsNextFrame() const {
-	return !mArea.shouldEndTransition();
+	return !mArea.shouldEndTransition(); // || mInFocus;
 }
 
 void Widget::bringToFront() {
@@ -107,8 +119,8 @@ void Widget::addChild(Widget* child) {
 
 	child->mParent = this;
 
-	triggerWidgetUpdate();
-	child->triggerWidgetUpdate();
+	triggerWidgetUpdate("add child");
+	child->triggerWidgetUpdate("new parent");
 }
 
 void Widget::removeChild(Widget* child) {
@@ -118,29 +130,29 @@ void Widget::removeChild(Widget* child) {
 	mDepthOrder.removeNode(node);
 	mChildren.erase(std::remove(mChildren.begin(), mChildren.end(), child), mChildren.end());
 
-	triggerWidgetUpdate();
-	child->triggerWidgetUpdate();
+	triggerWidgetUpdate("removed child");
+	child->triggerWidgetUpdate("parent changed");
 }
 
 void Widget::setSizePolicy(tp::Widget::SizePolicy x, tp::Widget::SizePolicy y) {
 	mSizePolicy = { x, y };
-	triggerWidgetUpdate();
+	triggerWidgetUpdate("chane size policy");
 }
 
 void Widget::setLayoutPolicy(LayoutPolicy layoutPolicy) {
 	mLayoutPolicy = layoutPolicy;
-	triggerWidgetUpdate();
+	triggerWidgetUpdate("new layout");
 }
 
 const Vec2F& Widget::getMinSize() { return mMinSize; }
 
 void Widget::setMinSize(const Vec2F& size) {
 	mMinSize = size;
-	triggerWidgetUpdate();
+	triggerWidgetUpdate("new min size");
 }
 
 void Widget::pickRect() {
-	auto current = getAreaT();
+	auto current = getAreaCache();
 	auto children = getChildrenEnclosure();
 	auto parent = getParentEnclosure();
 
@@ -150,21 +162,21 @@ void Widget::pickRect() {
 	auto newArea = RectF(rangeX, rangeY);
 
 	for (auto child :  mChildren) {
-		child->setArea(child->getAreaT().move(current.pos - newArea.pos));
+		child->setAreaCache(child->getAreaCache().move(current.pos - newArea.pos));
 	}
 
-	setArea(newArea);
+	setAreaCache(newArea);
 }
 
 void Widget::clampRect() {
-	auto current = getAreaT();
+	auto current = getAreaCache();
 	auto children = getChildrenEnclosure();
 	auto parent = getParentEnclosure();
 
 	auto rangeX = clampRange(current.getRangeX(), children.getRangeX(), parent.getRangeX(), false);
 	auto rangeY = clampRange(current.getRangeY(), children.getRangeY(), parent.getRangeY(), true);
 
-	setArea(RectF(rangeX, rangeY));
+	setAreaCache(RectF(rangeX, rangeY));
 }
 
 void Widget::adjustChildrenRect()  {
@@ -179,14 +191,14 @@ void Widget::adjustChildrenRect()  {
 
 
 halnf Widget::changeChildSize(tp::Widget* widget, halnf diff, bool vertical) {
-	auto prevSize = widget->getAreaT().size[vertical];
+	auto prevSize = widget->getAreaCache().size[vertical];
 	{
-		auto area = widget->getAreaT();
+		auto area = widget->getAreaCache();
 		area.size[vertical] += diff;
-		widget->setArea(area);
-		widget->clampRect();
+		widget->setAreaCache(area);
+		widget->clampMinMaxSize();
 	}
-	auto newSize = widget->getAreaT().size[vertical];
+	auto newSize = widget->getAreaCache().size[vertical];
 
 	return newSize - prevSize;
 }
@@ -197,11 +209,21 @@ void Widget::adjustLayout(bool vertical) {
 	Vec2F availableSize = getRelativeAreaT().size;
 
 	for (auto child : mChildren) {
-		contentSize += child->getAreaT().size;
-		if (child->mSizePolicy[vertical] == SizePolicy::Expand) {
+		if (child->mSizePolicy[vertical] == SizePolicy::Expanding) {
 			contributors.emplace_back( child, true );
+
+			auto area = child->getAreaCache();
+			area.size[vertical] = 0;
+			child->setAreaCache(area);
+			child->clampRect();
+
+		} else {
+			// child->triggerWidgetUpdate("expand child in layout");
 		}
+		contentSize += child->getAreaCache().size;
 	}
+
+	availableSize -= mLayoutGap * ((halnf) mChildren.size() - 1) + mLayoutMargin * 2;
 
 	auto diff = availableSize - contentSize;
 
@@ -212,6 +234,7 @@ void Widget::adjustLayout(bool vertical) {
 		for (auto& contributor : contributors) {
 			if (!contributor.second) continue;
 
+			// contributor.first->endAnimations();
 			auto contribution = changeChildSize(contributor.first, quota[vertical], vertical);
 
 			if (contribution == 0) {
@@ -228,12 +251,16 @@ void Widget::adjustLayout(bool vertical) {
 	}
 
 	// arrange
-	halnf iterPos = 0;
+	halnf iterPos = mLayoutMargin;
 	for (auto child : mChildren) {
-		auto area = child->getAreaT();
+		auto area = child->getAreaCache();
 		area.pos[vertical] = iterPos;
-		iterPos += area.size[vertical];
-		child->setArea(area);
+		iterPos += area.size[vertical] + mLayoutGap;
+		child->setAreaCache(area);
+
+
+		// child->updateAnimations();
+		// child->triggerWidgetUpdate("layout changed");
 	}
 }
 
@@ -241,13 +268,19 @@ RangeF Widget::pickRange(const RangeF& current, const RangeF& children, const Ra
 	RangeF out;
 
 	switch (mSizePolicy[vertical]) {
-		case SizePolicy::Passive: out = current; break;
-		case SizePolicy::Expand: out = parent; break;
-		case SizePolicy::Contract: out = children; break;
+		case SizePolicy::Fixed: out = current; break;
+		case SizePolicy::Expanding: out = parent; break;
+		case SizePolicy::Minimal: out = children; break;
 	}
 
 	out = clampRange(out, children, parent, vertical);
 	return out;
+}
+
+void Widget::clampMinMaxSize() {
+	auto current = getAreaCache();
+	current.size.clamp(mMinSize, mMaxSize);
+	setAreaCache(current);
 }
 
 RangeF Widget::clampRange(const RangeF& current, const RangeF& children, const RangeF& parent, bool vertical) {
@@ -274,12 +307,13 @@ RectF Widget::getChildrenEnclosure() {
 	RectF out;
 
 	if (mChildren.empty()) {
-		out = { getAreaT().center(), { 0, 0 } };
+		out = { getAreaCache().center(), { 0, 0 } };
 	} else {
+		out = mChildren.front()->getAreaCache();
 		for (auto child : mChildren) {
-			out.expand(child->getAreaT());
+			out.expand(child->getAreaCache());
 		}
-		out.pos += getAreaT().pos;
+		out.pos += getAreaCache().pos;
 	}
 
 	return out;
@@ -288,5 +322,10 @@ RectF Widget::getChildrenEnclosure() {
 RectF Widget::getParentEnclosure() {
 	DEBUG_ASSERT(mParent);
 	if (!mParent) return { { 0, 0 }, mMaxSize };
-	return mParent->getRelativeAreaT();
+
+	auto out = mParent->getRelativeAreaT();
+	if (mParent->mLayoutPolicy != LayoutPolicy::Passive) {
+		return out.scaleFromCenter(mParent->mLayoutMargin, true);
+	}
+	return out;
 }

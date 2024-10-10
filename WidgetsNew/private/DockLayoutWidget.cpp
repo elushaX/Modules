@@ -38,10 +38,6 @@ void DockLayoutWidget::process(const EventHandler& events) {
 	if (!mPreviewWidget) {
 		handleResizeEvents(events);
 	}
-
-	calculateSideAreas();
-	calculateResizeHandles();
-	updateChildSideWidgets();
 }
 
 void DockLayoutWidget::draw(Canvas& canvas) {
@@ -146,7 +142,7 @@ void DockLayoutWidget::toggleWidgetVisibility(Side side) {
 }
 
 void DockLayoutWidget::calculateSideAreas() {
-	auto startArea = getRelativeArea();
+	auto startArea = getRelativeAreaCache();
 
 	for (auto& sideWidget : mSideWidgets) {
 		const auto side = sideWidget.order;
@@ -246,7 +242,7 @@ void DockLayoutWidget::handleResizeEvents(const EventHandler& events) {
 				sideWidget.resizeHandle.active = true;
 
 				mResizing = true;
-			  triggerWidgetUpdate();
+			  triggerWidgetUpdate("new docked child");
 			}
 		}
 	}
@@ -275,12 +271,12 @@ void DockLayoutWidget::updateChildSideWidgets() {
 			if (!isSideVisible(Side(i))) {
 				// widget->mEnable = false;
 			} else {
-				widget->setArea(mSideWidgets[i].area);
+				widget->setAreaCache(mSideWidgets[i].area);
 				// widget->mEnable = true;
 			}
 		}
 
-		if (mCenterWidget) mCenterWidget->setArea(mCenterArea);
+		if (mCenterWidget) mCenterWidget->setAreaCache(mCenterArea);
 	}
 
 	// update depth order
@@ -368,4 +364,10 @@ auto DockLayoutWidget::getSideFromWidget(Widget* widget) -> Side {
 		if (sideWidget.widget == widget) return sideWidget.side;
 	}
 	return DockLayoutWidget::NONE;
+}
+
+void DockLayoutWidget::adjustChildrenRect() {
+	calculateSideAreas();
+	calculateResizeHandles();
+	updateChildSideWidgets();
 }

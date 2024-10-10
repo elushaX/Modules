@@ -12,15 +12,15 @@ void RootWidget::setRootWidget(Widget* widget) {
 }
 
 void RootWidget::processFrame(EventHandler* events, const RectF& screenArea) {
+	mScreenArea = screenArea;
+
 	if (mDebug) {
-		events->setEnableKeyEvents(true);
+		mScreenArea.size -= { 400, 0 };
 		if (events->isPressed(InputID::K)) mDebugStopProcessing = !mDebugStopProcessing;
 		if (mDebugStopProcessing) return;
 	}
 
-	mScreenArea = screenArea;
-
-	mRoot->setArea(screenArea);
+	mRoot->setArea(mScreenArea);
 
 	// construct hierarchy tree of widgets to process
 	updateTreeToProcess();
@@ -31,30 +31,77 @@ void RootWidget::processFrame(EventHandler* events, const RectF& screenArea) {
 	updateAnimations(root);
 
 	// update all events and call all event processing callbacks
-	EventHandler dummyEvents;
-
+	events->setEnableKeyEvents(true);
+	events->setCursorOrigin({ 0, 0 });
 	processFocusItems(*events);
-	processActiveTree(root, dummyEvents);
+
+	events->setEnableKeyEvents(false);
+	events->setCursorOrigin({ 0, 0 });
+	processActiveTree(root, *events, { 0, 0 });
+
+	updateAreaCache(root, true);
 
 	// update widget sizes base on individual size policies
 	adjustSizes(root);
 
+	updateAreaCache(root, false);
+
 	// trigger some widgets by moise pointer
   handleFocusChanges(*events);
 
-		// check triggered widgets for removal
-	erase_if(mTriggeredWidgets, [this](auto widget) {
+	// check triggered widgets for removal
+	erase_if(mTriggeredWidgets, [](auto iter) {
+		auto widget = iter.first;
+		auto flag = iter.second;
+
+		if (!flag) return false;
+
+		// if (mWidgetsToProcess.find(widget) == mWidgetsToProcess.end()) return false;
 		widget->updateAnimations();
-		if (mWidgetsToProcess.find(widget) == mWidgetsToProcess.end()) return false;
 		auto end = !widget->needsNextFrame();
 		if (end) {
 			widget->endAnimations();
+			widget->mTriggerReason = "del";
 		}
 		return end;
 	});
 }
 
 bool RootWidget::needsUpdate() const { return !mTriggeredWidgets.empty() || mDebugRedrawAlways; }
+
+void RootWidget::debugDrawWidget(Widget* widget) {
+
+	ImGui::PushID(widget);
+	if (ImGui::CollapsingHeader(widget->mName.c_str())) {
+
+		ImGui::Text("trigger reason: %s", widget->mTriggerReason.c_str());
+
+		auto area = widget->getAreaT();
+		if (ImGui::InputFloat4("rect", &area.x)) {
+			widget->setArea(area);
+		}
+
+		ImGui::InputFloat2("min size", &widget->mMinSize.x);
+		ImGui::InputFloat2("max size", &widget->mMaxSize.x);
+
+		int sizePolicyX = int(widget->mSizePolicy.x);
+		int sizePolicyY = int(widget->mSizePolicy.y);
+		int layout = int(widget->mLayoutPolicy);
+
+		if (ImGui::Combo("Size Policy X", &sizePolicyX, "Fixed\0Expanding\0Minimal\0")) {
+			widget->setSizePolicy(SizePolicy(sizePolicyX), SizePolicy(sizePolicyY));
+		}
+
+		if (ImGui::Combo("Size Policy Y", &sizePolicyY, "Fixed\0Expanding\0Minimal\0")) {
+			widget->setSizePolicy(SizePolicy(sizePolicyX), SizePolicy(sizePolicyY));
+		}
+
+		if (ImGui::Combo("Layout", &layout, "Passive\0Vertical\0Horizontal\0")) {
+			widget->setLayoutPolicy(LayoutPolicy(layout));
+		}
+	}
+	ImGui::PopID();
+}
 
 void RootWidget::drawFrame(Canvas& canvas) {
 	// draw from top to bottom
@@ -75,34 +122,23 @@ void RootWidget::drawFrame(Canvas& canvas) {
 		ImGui::Checkbox("Stop processing", &mDebugStopProcessing);
 		ImGui::Checkbox("Force new frames", &mDebugRedrawAlways);
 
-
-		if (mInFocusWidget) {
-			ImGui::Text("Item under cursor %s", mInFocusWidget->mName.c_str());
-
-			if (ImGui::BeginListBox("##empty", { -FLT_MIN, 0 })) {
-				for (auto widget = mInFocusWidget; widget && widget != this; widget = widget->mParent) {
-					if (ImGui::CollapsingHeader(widget->mName.c_str())) {
-						ImGui::InputFloat2("min size", &widget->mMinSize.x);
-						ImGui::InputFloat2("max size", &widget->mMaxSize.x);
-
-						int sizePolicyX = int(widget->mSizePolicy.x);
-						int sizePolicyY = int(widget->mSizePolicy.y);
-						int layout = int(widget->mLayoutPolicy);
-
-						if (ImGui::Combo("Size Policy X", &sizePolicyX, "Passive\0Expand\0Contract\0")) {
-							widget->setSizePolicy(SizePolicy(sizePolicyX), SizePolicy(sizePolicyY));
-						}
-
-						if (ImGui::Combo("Size Policy Y", &sizePolicyY, "Passive\0Expand\0Contract\0")) {
-							widget->setSizePolicy(SizePolicy(sizePolicyX), SizePolicy(sizePolicyY));
-						}
-
-						if (ImGui::Combo("Layout", &layout, "Passive\0Vertical\0Horizontal\0")) {
-							widget->setLayoutPolicy(LayoutPolicy(layout));
-						}
-					}
+		if (ImGui::CollapsingHeader("Triggered")) {
+			if (ImGui::BeginListBox("##triggered", { -FLT_MIN, 300 })) {
+				for (auto widget : mTriggeredWidgets) {
+					debugDrawWidget(widget.first);
 				}
 				ImGui::EndListBox();
+			}
+		}
+
+		if (mInFocusWidget) {
+			if (ImGui::CollapsingHeader("Under cursor")) {
+				if (ImGui::BeginListBox("##under_cursor", { -FLT_MIN, 300 })) {
+					for (auto widget = mInFocusWidget; widget && widget != this; widget = widget->mParent) {
+						debugDrawWidget(widget);
+					}
+					ImGui::EndListBox();
+				}
 			}
 		}
 	}
@@ -111,7 +147,8 @@ void RootWidget::drawFrame(Canvas& canvas) {
 
 void RootWidget::updateTreeToProcess() {
 	mWidgetsToProcess.clear();
-	for (auto widget : mTriggeredWidgets) {
+	for (auto& [widget, flag] : mTriggeredWidgets) {
+		flag = true;
 		for (auto iter = widget; iter; iter = iter->mParent) {
 			if (iter->mParent) {
 				mWidgetsToProcess[iter->mParent].children.insert(&mWidgetsToProcess[iter]);
@@ -139,24 +176,29 @@ void RootWidget::drawRecursion(Canvas& canvas, Widget* active, const Vec2F& pos)
 }
 
 void RootWidget::drawDebug(Canvas& canvas, Widget* active, const Vec2F& pos, int depthOrder) {
-	auto area = RectF{ pos, active->getArea().size };
+	auto area = RectF{ pos, active->getAreaT().size };
 
-	if (mWidgetsToProcess.find(active) != mWidgetsToProcess.end()) {
+	auto processed = mWidgetsToProcess.find(active) != mWidgetsToProcess.end();
+
+	if (processed) {
 		RGBA color = { 1, 0, 0, 1};
 		canvas.frame(area, color);
 		canvas.text((active->mName + ":" + std::to_string(depthOrder)).c_str(), area, 22, Canvas::Align::LC, 2, color);
 	}
 
+	if (processed || active->mInFocus) {
+		canvas.circle(pos + active->mLocalPoint, 5, active->mDebugColor);
+		canvas.circle(active->mGlobalPoint, 15, active->mDebugColor);
+	}
+
 	if (active->mInFocus) {
 		RGBA color = { 1, 0, 0, 0.3f};
 		canvas.debugCross(area, color);
-		canvas.circle(pos + active->mLocalPoint, 5, active->mDebugColor);
-		canvas.circle(active->mGlobalPoint, 10, active->mDebugColor);
 	}
 
 	int orderIdx = 0;
 	for (auto child = active->mDepthOrder.lastNode(); child; child = child->prev) {
-		drawDebug(canvas, child->data, pos + child->data->getArea().pos, orderIdx++);
+		drawDebug(canvas, child->data, pos + child->data->getAreaT().pos, orderIdx++);
 	}
 }
 
@@ -188,9 +230,12 @@ void RootWidget::getWidgetPath(Widget* widget, std::vector<Widget*>& out) {
 void RootWidget::handleFocusChanges(EventHandler& events) {
 	auto prevFocus = mInFocusWidget;
 
+	events.setCursorOrigin({ 0, 0 });
+
 	findFocusWidget(mRoot, &mInFocusWidget, events.getPointer());
 
-	if (mInFocusWidget) updateWidget(mInFocusWidget);
+	// if (mInFocusWidget == prevFocus) return;
+	if (mInFocusWidget) updateWidget(mInFocusWidget, "focus entered");
 
 	std::vector<Widget*> path2;
 	getWidgetPath(mInFocusWidget, path2);
@@ -213,21 +258,21 @@ void RootWidget::handleFocusChanges(EventHandler& events) {
 	}
 
 	size_t mostCommonIdx = 0;
-
 	if (!(path1.empty() || path2.empty())) {
-		while (path1[mostCommonIdx] == path2[mostCommonIdx]) {
+		while (path1[mostCommonIdx] == path2[mostCommonIdx] && mostCommonIdx < min(path1.size(), path2.size())) {
 			mostCommonIdx++;
 		}
 	}
+	mostCommonIdx--;
 
 	for (auto i = 0; i < path1.size(); i++) {
 		path1[i]->mInFocus = false;
-		if (i >= mostCommonIdx && i < propLen1) path1[i]->mouseLeave();
+		if (i > mostCommonIdx && i < propLen1) path1[i]->mouseLeave();
 	}
 
 	for (auto i = 0; i < path2.size(); i++) {
 		path2[i]->mInFocus = true;
-		if (i >= mostCommonIdx && i < propLen2) path2[i]->mouseEnter();
+		if (i > mostCommonIdx && i < propLen2) path2[i]->mouseEnter();
 	}
 }
 
@@ -241,32 +286,62 @@ void RootWidget::findFocusWidget(Widget* iter, Widget** focus, const Vec2F& poin
 	}
 }
 
-void RootWidget::updateWidget(Widget* widget) {
-	mTriggeredWidgets.insert(widget);
+void RootWidget::updateWidget(Widget* widget, const char* reason) {
+	DEBUG_ASSERT(reason)
+	widget->mTriggerReason = reason;
+	mTriggeredWidgets.insert({ widget, false });
+}
+
+void RootWidget::updateAreaCache(ActiveTreeNode* iter, bool read) {
+	if (!iter) return;
+
+	if (read) {
+		iter->widget->mAreaCache = iter->widget->getAreaT();
+	} else {
+		iter->widget->setArea(iter->widget->mAreaCache);
+		iter->widget->mArea.updateCurrentRect();
+	}
+
+	for (auto child : iter->widget->mChildren) {
+		if (read) {
+			child->mAreaCache = child->getAreaT();
+		} else {
+			child->setArea(child->mAreaCache);
+			child->mArea.updateCurrentRect();
+		}
+	}
+
+	for (auto child : iter->children) {
+		updateAreaCache(child, read);
+	}
 }
 
 void RootWidget::adjustSizes(ActiveTreeNode* iter) {
 	if (!iter) return;
 
+	iter->widget->pickRect();
+
 	for (auto child : iter->children) {
 		adjustSizes(child);
 	}
 
-	iter->widget->pickRect();
 	iter->widget->adjustChildrenRect();
-	// iter->widget->pickRect();
 }
 
-void RootWidget::processActiveTree(ActiveTreeNode* iter, EventHandler& events) {
+void RootWidget::processActiveTree(ActiveTreeNode* iter, EventHandler& events, Vec2F parent) {
 	if (!iter) return;
 
+	auto current = parent + iter->widget->getAreaT().pos;
+
 	if (!iter->widget->mInFocus) {
-		iter->widget->updateAnimations();
+		iter->widget->mGlobalPoint = current;
+
+		events.setCursorOrigin(current);
 		iter->widget->process(events);
 	}
 
 	for (auto child : iter->children) {
-		 processActiveTree(child, events);
+		processActiveTree(child, events, current);
 	}
 }
 
@@ -290,8 +365,8 @@ void RootWidget::processFocusItems(EventHandler& events) {
 
 	widgetGlobalPos[0] = 0;
 	for (auto widget = 0; widget < path.size() - 1; widget++) {
-		widgetGlobalPos[widget + 1] = widgetGlobalPos[widget] + path[widget + 1]->getArea().pos;
-		path[widget]->mGlobalPoint = widgetGlobalPos[widget];
+		widgetGlobalPos[widget + 1] = widgetGlobalPos[widget] + path[widget + 1]->getAreaT().pos;
+		// path[widget]->mGlobalPoint = widgetGlobalPos[widget];
 	}
 
 	bool eventsProcessed = false;
@@ -301,19 +376,15 @@ void RootWidget::processFocusItems(EventHandler& events) {
 
 		events.setCursorOrigin(widgetGlobalPos[iter]);
 
-		widget->mLocalPoint = events.getPointer();
+		widget->mGlobalPoint = widgetGlobalPos[iter];
 
 		if (!eventsProcessed && widget->processesEvents()) {
 			events.setEnableKeyEvents(true);
-
-			widget->updateAnimations();
 			widget->process(events);
 
 			events.setEnableKeyEvents(false);
 			eventsProcessed = true;
 		} else {
-
-			widget->updateAnimations();
 			widget->process(events);
 		}
 	}
