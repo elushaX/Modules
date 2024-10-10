@@ -5,18 +5,19 @@ using namespace tp;
 void FloatingWidget::process(const EventHandler& events) {
 	const auto relativePointer = events.getPointer();
 
-	bool inside = getRelativeArea().isInside(relativePointer);
+	bool inside = getRelativeAreaT().isInside(relativePointer);
 
 	if (inside && events.isPressed(InputID::MOUSE1)) {
 		mPointerStart = relativePointer;
 		mIsFloating = true;
 
+		if (resizeHandleRect().isInside(relativePointer)) {
+			mIsResizing = true;
+		}
+
 		bringToFront();
 	}
 
-	if (mIsFloating && resizeHandleRect().isInside(relativePointer)) {
-    mIsResizing = true;
-	}
 
 	if (mIsFloating && events.isReleased(InputID::MOUSE1)) {
 		mIsFloating = false;
@@ -30,18 +31,25 @@ void FloatingWidget::process(const EventHandler& events) {
 
 void FloatingWidget::pickRect() {
 	if (mIsFloating) {
-		auto area = getArea();
+		auto area = getAreaCache();
 
 		if (mIsResizing) {
+			mPointerCurrent.clamp(mMinSize, mMaxSize);
+
 			area.size = mPointerCurrent + mHandleSize / 2.f;
+
+			for (auto child : mChildren) {
+				child->triggerWidgetUpdate("floating menu resized");
+			}
+
 		} else if (mIsFloating) {
 			area.pos += mPointerCurrent - mPointerStart;
 		}
 
-		setArea(area);
-	} else {
-		Widget::pickRect();
+		setAreaCache(area);
 	}
+
+	clampMinMaxSize();
 }
 
 void FloatingWidget::draw(Canvas& canvas) {
@@ -63,4 +71,8 @@ bool FloatingWidget::propagateEventsToChildren() const {
 
 bool FloatingWidget::isFloating() const {
 	return mIsFloating;
+}
+
+bool FloatingWidget::needsNextFrame() const {
+	return Widget::needsNextFrame() || isFloating();
 }

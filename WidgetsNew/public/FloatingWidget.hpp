@@ -7,7 +7,10 @@ namespace tp {
 	class FloatingWidget : public Widget {
 	public:
 		FloatingWidget() {
-			setDebug("float", { 0.0, 0.9, 0.1, 0.7 });
+			setDebug("float", { 0.0, 0.9, 0.1, 1 });
+
+			// mSizePolicy = { SizePolicy::Contract, SizePolicy::Contract };
+			mLayoutPolicy = LayoutPolicy::Horizontally;
 		}
 
 		void process(const EventHandler& events) override;
@@ -18,7 +21,10 @@ namespace tp {
 
 		RectF resizeHandleRect();
 
+		[[nodiscard]] bool needsNextFrame() const override;
+
 		[[nodiscard]] bool propagateEventsToChildren() const override;
+		[[nodiscard]] bool processesEvents() const override { return true; }
 
 		[[nodiscard]] bool isFloating() const;
 
@@ -38,24 +44,31 @@ namespace tp {
 		FloatingMenu() {
 			setDebug("float menu", { 0.0, 0.9, 0.1, 0.7 });
 
-			addChild(&mMenuLayout);
+			// addChild(&mMenuLayout);
 
-			mMenuLayout.addChild(&mHeader);
-			mMenuLayout.addChild(&mBodyLayout);
+			addChild(&mHeader);
+			addChild(&mBodyLayout);
 
 			mHeader.setText("Menu");
+
+			mHeader.setSizePolicy(SizePolicy::Expanding, SizePolicy::Minimal);
+			mBodyLayout.setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
+
+			setLayoutPolicy(LayoutPolicy::Vertically);
+			mBodyLayout.setLayoutPolicy(LayoutPolicy::Vertically);
 		}
 
 	public:
 		void addToMenu(Widget* widget) {
+			widget->setSizePolicy(SizePolicy::Expanding, SizePolicy::Minimal);
 			mBodyLayout.addChild(widget);
 		}
 
 	private:
-		VerticalLayout mMenuLayout;
-		VerticalLayout mBodyLayout;
+		// VerticalLayout mMenuLayout;
+		Widget mBodyLayout;
 		LabelWidget mHeader;
 
-		ButtonWidget mTestButton;
+		// ButtonWidget mTestButton;
 	};
 }

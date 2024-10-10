@@ -36,7 +36,7 @@ namespace tp {
 
 	public:
 		void pickRect() override {}
-		void adjustChildrenRect() override {}
+		void adjustChildrenRect() override;
 
 		void process(const EventHandler& events) override;
 		void draw(Canvas& canvas) override;

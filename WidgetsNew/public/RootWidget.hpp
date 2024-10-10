@@ -19,7 +19,7 @@ namespace tp {
 		RootWidget() { setDebug("root", RGBA(1)); }
 
 		void setRootWidget(Widget* widget);
-		void updateWidget(Widget*);
+		void updateWidget(Widget*, const char* reason = nullptr) override;
 
 		static void setWidgetArea(Widget& widget, const RectF& rect);
 
@@ -37,16 +37,18 @@ namespace tp {
 		void findFocusWidget(Widget* iter, Widget** focus, const Vec2F& pointer);
 		void handleFocusChanges(EventHandler& events);
 		void getWidgetPath(Widget* widget, std::vector<Widget*>& out);
-		void processActiveTree(ActiveTreeNode* iter, EventHandler& events);
+		void processActiveTree(ActiveTreeNode* iter, EventHandler& events, Vec2F pos);
 		void processFocusItems(EventHandler& events);
 		void adjustSizes(ActiveTreeNode* iter);
+		void updateAreaCache(ActiveTreeNode* iter, bool read);
+		static void debugDrawWidget(Widget* widget);
 
 	private:
 		RectF mScreenArea;
 		Widget* mRoot = nullptr;
 
 		// frame to frame changes
-		std::set<Widget*> mTriggeredWidgets;
+		std::map<Widget*, bool> mTriggeredWidgets;
 		std::map<Widget*, ActiveTreeNode> mWidgetsToProcess;
 		Widget* mInFocusWidget = nullptr;
 

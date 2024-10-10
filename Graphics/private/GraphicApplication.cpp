@@ -6,7 +6,7 @@
 using namespace tp;
 
 Application::Application() {
-	mWindow = Window::createWindow();
+	mWindow = Window::createWindow({1500, 900});
 	mGraphics = new Graphics(mWindow);
 
 	mDrawTimer.setDuration(1000.f / mDrawPerSecond);

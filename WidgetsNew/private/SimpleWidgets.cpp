@@ -33,7 +33,7 @@ void ButtonWidget::setAction(const std::function<void()>& action) {
 void ButtonWidget::setColor(const RGBA& in) {
 	mColor = in;
 	mColorAnimated.setTargetColor(mColor);
-	triggerWidgetUpdate();
+	triggerWidgetUpdate("color changed");
 }
 
 void ButtonWidget::process(const EventHandler& eventHandler) {
@@ -68,12 +68,14 @@ void ButtonWidget::mouseEnter() {
 	mColorAnimated.endAnimation();
 
 	mColorAnimated.setTargetColor(mColorHovered);
-	mColorAnimated.updateCurrentRect();
-	triggerWidgetUpdate();
+
+	// mColorAnimated.updateCurrentRect();
+	triggerWidgetUpdate("button hovered");
 }
 
 void ButtonWidget::mouseLeave() {
 	mColorAnimated.setTargetColor(mColor);
-	mColorAnimated.updateCurrentRect();
-	triggerWidgetUpdate();
+	//mColorAnimated.updateCurrentRect();
+
+	triggerWidgetUpdate("button out of focus");
 }

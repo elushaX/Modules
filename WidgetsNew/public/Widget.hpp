@@ -15,9 +15,9 @@ namespace tp {
 
 	public:
 		enum class SizePolicy {
-			Passive,
-			Expand,
-			Contract,
+			Fixed,
+			Expanding,
+			Minimal,
 		};
 
 		enum class LayoutPolicy {
@@ -40,7 +40,7 @@ namespace tp {
 
 		WidgetManagerInterface* getRoot();
 
-		void triggerWidgetUpdate();
+		void triggerWidgetUpdate(const char* reason = nullptr);
 
 		void bringToFront();
 		void bringToBack();
@@ -67,6 +67,9 @@ namespace tp {
 		// resizing
 		RangeF pickRange(const RangeF& current, const RangeF& children, const RangeF& parent, bool vertical);
 		RangeF clampRange(const RangeF& current, const RangeF& children, const RangeF& parent, bool vertical);
+
+		void clampMinMaxSize();
+
 		RectF getChildrenEnclosure();
 		RectF getParentEnclosure();
 		void adjustLayout(bool vertical);
@@ -83,11 +86,14 @@ namespace tp {
 	public:
 		[[nodiscard]] RectF getArea() const;
 		[[nodiscard]] RectF getAreaT() const;
+		[[nodiscard]] RectF getAreaCache() const;
 
 		[[nodiscard]] RectF getRelativeArea() const;
 		[[nodiscard]] RectF getRelativeAreaT() const;
+		[[nodiscard]] RectF getRelativeAreaCache() const;
 
 		void setArea(const RectF& area);
+		void setAreaCache(const RectF& area);
 
 	protected:
 		Widget* mParent = nullptr;
@@ -100,20 +106,28 @@ namespace tp {
 
 		// resizing
 		LayoutPolicy mLayoutPolicy = LayoutPolicy::Passive;
-		Vec2<SizePolicy> mSizePolicy = { SizePolicy::Passive, SizePolicy::Passive };
+		Vec2<SizePolicy> mSizePolicy = { SizePolicy::Fixed, SizePolicy::Fixed };
 		Vec2F mMinSize = { 50, 50 };
 		Vec2F mMaxSize = { FLT_MAX / 2, FLT_MAX / 2 };
 
 		bool mInFocus = false;
 
+		halnf mLayoutGap = 5;
+		halnf mLayoutMargin = 10;
+
+		// cache
+		RectF mAreaCache;
+
 		// debug
+		int inOutCallbacks = 0;
 		std::string mName = "widget base";
 		Vec2F mLocalPoint;
 		Vec2F mGlobalPoint;
 		RGBA mDebugColor = { 1, 1, 1, 0.3 };
+		std::string mTriggerReason = "none";
 	};
 
 	struct WidgetManagerInterface : public Widget {
-		virtual void updateWidget(Widget*) = 0;
+		virtual void updateWidget(Widget*, const char* reason = nullptr) = 0;
 	};
 }
