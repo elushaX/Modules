@@ -27,22 +27,26 @@ public:
 	void setup1() {
 		mRootWidget.setRootWidget(&mDockLayout);
 
-		mDockLayout.addChild(&mFloatingMenu);
 		mDockLayout.addChild(&mFloatingMenu2);
+		mDockLayout.addChild(&mFloatingMenu);
 
-		mDockLayout.setCenterWidget(&mButton4);
-		mDockLayout.dockWidget(&mButton3, DockLayoutWidget::RIGHT);
+		mDockLayout.setCenterWidget(&mButton5);
+		mDockLayout.dockWidget(&mButton6, DockLayoutWidget::RIGHT);
 
 		mFloatingMenu.addToMenu(&mButton);
 		mFloatingMenu2.addToMenu(&mButton2);
+		//mFloatingMenu2.addToMenu(&mFloatingMenu);
+		mFloatingMenu2.addToMenu(&mButton3);
+		mFloatingMenu2.addToMenu(&mButton4);
 
 		mButton.setAction([this]() { mButton2.setColor(RGBA::random()); });
 		mButton2.setAction([this]() { mButton.setColor(RGBA::random()); });
 
-		mButton3.setAction([this]() { mDockLayout.dockWidget(&mFloatingMenu, DockLayoutWidget::Side::LEFT); });
-		mButton3.setText("dock");
+		mButton5.setAction([this]() { mDockLayout.dockWidget(&mFloatingMenu, DockLayoutWidget::Side::LEFT); });
+		mButton6.setAction([this]() { mDockLayout.undockWidget(DockLayoutWidget::Side::LEFT); });
 
-		mButton4.setAction([this]() { mDockLayout.undockWidget(DockLayoutWidget::Side::LEFT); });
+		mButton5.setText("dock");
+		mButton6.setText("undock");
 
 		// mLayoutWidget.addChild(&mButton2);
 
@@ -53,8 +57,8 @@ public:
 		// mAnimationTestWidget.addChild(&mWidgetFloating);
 		// mAnimationTestWidget.addChild(&mLayoutWidget);
 
-		RootWidget::setWidgetArea(mFloatingMenu2, { 300, 100, 150, 200 });
-		RootWidget::setWidgetArea(mFloatingMenu, { 100, 100, 150, 200 });
+		RootWidget::setWidgetArea(mFloatingMenu2, { 300, 100, 150, 500 });
+		RootWidget::setWidgetArea(mFloatingMenu, { 100, 100, 150, 300 });
 
 		// mWidgetFloating.addChild(&mLayoutWidget);
 
@@ -120,6 +124,8 @@ private:
 	ButtonWidget mButton2;
 	ButtonWidget mButton3;
 	ButtonWidget mButton4;
+	ButtonWidget mButton5;
+	ButtonWidget mButton6;
 
 	FloatingWidget mFloatingWidget;
 	FloatingMenu mFloatingMenu;

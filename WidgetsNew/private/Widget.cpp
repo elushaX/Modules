@@ -209,6 +209,10 @@ void Widget::adjustLayout(bool vertical) {
 	Vec2F availableSize = getRelativeAreaT().size;
 
 	for (auto child : mChildren) {
+		if (child->mSizePolicy[!vertical] != SizePolicy::Minimal) {
+			child->pickRect();
+		}
+
 		if (child->mSizePolicy[vertical] == SizePolicy::Expanding) {
 			contributors.emplace_back( child, true );
 
@@ -217,8 +221,6 @@ void Widget::adjustLayout(bool vertical) {
 			child->setAreaCache(area);
 			child->clampRect();
 
-		} else {
-			// child->triggerWidgetUpdate("expand child in layout");
 		}
 		contentSize += child->getAreaCache().size;
 	}

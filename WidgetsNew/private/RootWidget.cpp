@@ -16,6 +16,7 @@ void RootWidget::processFrame(EventHandler* events, const RectF& screenArea) {
 
 	if (mDebug) {
 		mScreenArea.size -= { 400, 0 };
+		events->setEnableKeyEvents(true);
 		if (events->isPressed(InputID::K)) mDebugStopProcessing = !mDebugStopProcessing;
 		if (mDebugStopProcessing) return;
 	}
