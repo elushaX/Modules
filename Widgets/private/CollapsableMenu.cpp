@@ -69,8 +69,8 @@ RectF CollapsableMenu::getHeaderRect() {
 }
 
 RectF CollapsableMenu::getBodyRect() {
-	RectF out = { { this->mArea.pos.x, this->mArea.pos.y + headerHeight },
-								{ this->mArea.size.x, this->mArea.size.y - headerHeight - mPadding } };
+	RectF out = { Vec2F{ this->mArea.pos.x, this->mArea.pos.y + headerHeight },
+								Vec2F{ this->mArea.size.x, this->mArea.size.y - headerHeight - mPadding } };
 
 	out.size.y -= mBorderSize * 2;
 
