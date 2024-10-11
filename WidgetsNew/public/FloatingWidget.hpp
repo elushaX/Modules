@@ -9,7 +9,7 @@ namespace tp {
 		FloatingWidget() {
 			setDebug("float", { 0.0, 0.9, 0.1, 1 });
 
-			// mSizePolicy = { SizePolicy::Contract, SizePolicy::Contract };
+			mSizePolicy = { SizePolicy::Fixed, SizePolicy::Fixed };
 			mLayoutPolicy = LayoutPolicy::Horizontally;
 		}
 
