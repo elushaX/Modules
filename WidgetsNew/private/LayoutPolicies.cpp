@@ -1,10 +1,11 @@
+#include <algorithm>
 #include "LayoutPolicies.hpp"
 
 #include "Widget.hpp"
 
 using namespace tp;
 
-const RectF& WidgetLayout::getArea() {
+const RectF& WidgetLayout::getArea() const {
 	return mWidget->getAreaCache();
 }
 
@@ -12,7 +13,15 @@ void WidgetLayout::setArea(const RectF& area) {
 	mWidget->setAreaCache(area);
 }
 
-void WidgetLayout::pickRect() {
+Widget* WidgetLayout::parent() const { return mWidget->mParent; }
+
+const std::vector<Widget*>& WidgetLayout::children() const { return mWidget->mChildren; }
+
+const Vec2F& BasicLayout::getMinSize() { return mMinSize; }
+
+void BasicLayout::setMinSize(const Vec2F& size) { mMinSize = size; }
+
+void BasicLayout::pickRect() {
 	auto current = getArea();
 	auto children = getChildrenEnclosure();
 	auto parent = getParentEnclosure();
@@ -25,7 +34,7 @@ void WidgetLayout::pickRect() {
 	setArea(newArea);
 }
 
-void WidgetLayout::clampRect() {
+void BasicLayout::clampRect() {
 	auto current = getArea();
 	auto children = getChildrenEnclosure();
 	auto parent = getParentEnclosure();
@@ -36,10 +45,10 @@ void WidgetLayout::clampRect() {
 	setArea(RectF(rangeX, rangeY));
 }
 
-void WidgetLayout::adjustChildrenRect()  {
-	if (mWidget->mChildren.empty()) return;
+void BasicLayout::adjustChildrenRect()  {
+	if (children().empty()) return;
 
-	switch (mWidget->mLayoutPolicy) {
+	switch (mLayoutPolicy) {
 		case LayoutPolicy::Passive: break;
 		case LayoutPolicy::Vertical: adjustLayout(true); break;
 		case LayoutPolicy::Horizontal: adjustLayout(false); break;
@@ -47,42 +56,45 @@ void WidgetLayout::adjustChildrenRect()  {
 }
 
 
-halnf WidgetLayout::changeChildSize(tp::Widget* widget, halnf diff, bool vertical) {
+halnf BasicLayout::changeChildSize(tp::Widget* widget, halnf diff, bool vertical) {
 	auto prevSize = widget->getAreaCache().size[vertical];
 	{
 		auto area = widget->getAreaCache();
 		area.size[vertical] += diff;
 		widget->setAreaCache(area);
-		widget->clampMinMaxSize();
+
+		// FIXME : widget->clampMinMaxSize();
 	}
 	auto newSize = widget->getAreaCache().size[vertical];
 
 	return newSize - prevSize;
 }
 
-void WidgetLayout::adjustLayout(bool vertical) {
+void BasicLayout::adjustLayout(bool vertical) {
 	std::vector<std::pair<Widget*, bool>> contributors;
 	Vec2F contentSize = { 0, 0 };
-	Vec2F availableSize = getRelativeAreaT().size;
+	Vec2F availableSize = getArea().size;
 
-	for (auto child : mChildren) {
-		if (child->mSizePolicy[!vertical] != SizePolicy::Minimal) {
-			child->pickRect();
-		}
+	for (auto child : children()) {
+		// FIXME :
 
-		if (child->mSizePolicy[vertical] == SizePolicy::Expanding) {
+		// if (child->mSizePolicy[!vertical] != SizePolicy::Minimal) {
+		//	child->pickRect();
+		// }
+
+		// if (child->mSizePolicy[vertical] == SizePolicy::Expanding) {
 			contributors.emplace_back( child, true );
 
 			auto area = child->getAreaCache();
 			area.size[vertical] = 0;
 			child->setAreaCache(area);
-			child->clampRect();
+			// child->clampRect();
 
-		}
+		//}
 		contentSize += child->getAreaCache().size;
 	}
 
-	availableSize -= mLayoutGap * ((halnf) mChildren.size() - 1) + mLayoutMargin * 2;
+	availableSize -= mLayoutGap * ((halnf) children().size() - 1) + mLayoutMargin * 2;
 
 	auto diff = availableSize - contentSize;
 
@@ -111,7 +123,7 @@ void WidgetLayout::adjustLayout(bool vertical) {
 
 	// arrange
 	halnf iterPos = mLayoutMargin;
-	for (auto child : mChildren) {
+	for (auto child : children()) {
 		auto area = child->getAreaCache();
 		area.pos[vertical] = iterPos;
 		iterPos += area.size[vertical] + mLayoutGap;
@@ -123,7 +135,7 @@ void WidgetLayout::adjustLayout(bool vertical) {
 	}
 }
 
-RangeF WidgetLayout::pickRange(const RangeF& current, const RangeF& children, const RangeF& parent, bool vertical) {
+RangeF BasicLayout::pickRange(const RangeF& current, const RangeF& children, const RangeF& parent, bool vertical) const {
 	RangeF out;
 
 	switch (mSizePolicy[vertical]) {
@@ -136,17 +148,17 @@ RangeF WidgetLayout::pickRange(const RangeF& current, const RangeF& children, co
 	return out;
 }
 
-void WidgetLayout::clampMinMaxSize() {
-	auto current = getAreaCache();
+void BasicLayout::clampMinMaxSize() {
+	auto current = getArea();
 	current.size.clamp(mMinSize, mMaxSize);
-	setAreaCache(current);
+	setArea(current);
 }
 
-RangeF WidgetLayout::clampRange(const RangeF& current, const RangeF& children, const RangeF& parent, bool vertical) {
+RangeF BasicLayout::clampRange(const RangeF& current, const RangeF& child, const RangeF& parent, bool vertical) const {
 	auto out = current;
 
-	if (!mChildren.empty()) {
-		auto clampedChild = children;
+	if (!children().empty()) {
+		auto clampedChild = child;
 		clampedChild.clamp(parent);
 		out.clamp(clampedChild, parent);
 	} else {
@@ -162,29 +174,33 @@ RangeF WidgetLayout::clampRange(const RangeF& current, const RangeF& children, c
 	return out;
 }
 
-RectF WidgetLayout::getChildrenEnclosure() const {
+RectF BasicLayout::getChildrenEnclosure() const {
 	RectF out;
 
-	if (mChildren.empty()) {
-		out = { getAreaCache().center(), { 0, 0 } };
+	if (children().empty()) {
+		out = { getArea().center(), { 0, 0 } };
 	} else {
-		out = mChildren.front()->getAreaCache();
-		for (auto child : mChildren) {
+		out = children().front()->getAreaCache();
+		for (auto child : children()) {
 			out.expand(child->getAreaCache());
 		}
-		out.pos += getAreaCache().pos;
+		out.pos += getArea().pos;
 	}
 
 	return out;
 }
 
-RectF WidgetLayout::getParentEnclosure() {
-	DEBUG_ASSERT(mParent);
-	if (!mParent) return { { 0, 0 }, mMaxSize };
+RectF BasicLayout::getParentEnclosure() const {
+	DEBUG_ASSERT(parent())
+	if (!parent()) return { { 0, 0 }, mMaxSize };
 
-	auto out = mParent->getRelativeAreaT();
-	if (mParent->mLayoutPolicy != LayoutPolicy::Passive) {
-		return out.scaleFromCenter(mParent->mLayoutMargin, true);
-	}
-	return out;
+	// FIXME :
+	// auto out = parent()->getRelativeAreaT();
+
+	// if (parent()->mLayoutPolicy != LayoutPolicy::Passive) {
+		// return out.scaleFromCenter(parent()->mLayoutMargin, true);
+	// }
+
+	// return out;
+	return {};
 }

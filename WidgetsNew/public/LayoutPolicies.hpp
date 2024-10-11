@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Rect.hpp"
+#include <vector>
 
 namespace tp {
 	class Widget;
@@ -20,26 +21,17 @@ namespace tp {
 	class WidgetLayout {
 	public:
 		explicit WidgetLayout(Widget* widget) { mWidget = widget; }
+		virtual ~WidgetLayout() = default;
 
-		virtual void adjustWidget() = 0;
-
-		virtual void pickRect();
-		virtual void clampRect();
-		virtual void adjustChildrenRect();
-		void adjustLayout(bool vertical);
-		halnf changeChildSize(Widget*, halnf diff, bool vertical);
-
-		RangeF pickRange(const RangeF& current, const RangeF& children, const RangeF& parent, bool vertical);
-		RangeF clampRange(const RangeF& current, const RangeF& children, const RangeF& parent, bool vertical);
-
-		void clampMinMaxSize();
-
-		RectF getChildrenEnclosure();
-		RectF getParentEnclosure();
+		virtual void pickRect() = 0;
+		virtual void clampRect() = 0;
+		virtual void adjustChildrenRect() = 0;
 
 	protected:
-		const RectF& getArea();
+		[[nodiscard]] const RectF& getArea() const;
 		void setArea(const RectF& area);
+		[[nodiscard]] Widget* parent() const;
+		[[nodiscard]] const std::vector<Widget*>& children() const;
 
 	private:
 		Widget* mWidget = nullptr;
@@ -47,12 +39,27 @@ namespace tp {
 
 	class BasicLayout : public WidgetLayout {
 	public:
-		BasicLayout() = default;
+		explicit BasicLayout(Widget* widget) : WidgetLayout(widget) {}
 
-		void adjustWidget() override;
+		void pickRect() override;
+		void clampRect() override;
+		void adjustChildrenRect() override;
+
+	public:
+		const Vec2F& getMinSize();
+		void setMinSize(const Vec2F& size);
 
 	private:
+		void adjustLayout(bool vertical);
+		static halnf changeChildSize(Widget*, halnf diff, bool vertical);
 
+		[[nodiscard]] RangeF pickRange(const RangeF& current, const RangeF& child, const RangeF& parent, bool v) const;
+		[[nodiscard]] RangeF clampRange(const RangeF& current, const RangeF& child, const RangeF& parent, bool v) const;
+
+		void clampMinMaxSize();
+
+		[[nodiscard]] RectF getChildrenEnclosure() const;
+		[[nodiscard]] RectF getParentEnclosure() const;
 
 	private:
 		LayoutPolicy mLayoutPolicy = LayoutPolicy::Vertical;
