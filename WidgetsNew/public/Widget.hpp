@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SpringAnimations.hpp"
+#include "LayoutPolicies.hpp"
 
 #include "EventHandler.hpp"
 #include "Graphics.hpp"
@@ -12,19 +13,6 @@ namespace tp {
 
 	class Widget {
 		friend class RootWidget;
-
-	public:
-		enum class SizePolicy {
-			Fixed,
-			Expanding,
-			Minimal,
-		};
-
-		enum class LayoutPolicy {
-			Passive,
-			Vertically,
-			Horizontally,
-		};
 
 	public:
 		Widget();
@@ -70,7 +58,7 @@ namespace tp {
 
 		void clampMinMaxSize();
 
-		RectF getChildrenEnclosure();
+		RectF getChildrenEnclosure() const;
 		RectF getParentEnclosure();
 		void adjustLayout(bool vertical);
 		halnf changeChildSize(Widget*, halnf diff, bool vertical);
@@ -86,7 +74,7 @@ namespace tp {
 	public:
 		[[nodiscard]] RectF getArea() const;
 		[[nodiscard]] RectF getAreaT() const;
-		[[nodiscard]] RectF getAreaCache() const;
+		[[nodiscard]] const RectF& getAreaCache() const;
 
 		[[nodiscard]] RectF getRelativeArea() const;
 		[[nodiscard]] RectF getRelativeAreaT() const;
@@ -96,6 +84,8 @@ namespace tp {
 		void setAreaCache(const RectF& area);
 
 	protected:
+		friend class WidgetLayout;
+
 		Widget* mParent = nullptr;
 
 		std::vector<Widget*> mChildren;
@@ -119,7 +109,6 @@ namespace tp {
 		RectF mAreaCache;
 
 		// debug
-		int inOutCallbacks = 0;
 		std::string mName = "widget base";
 		Vec2F mLocalPoint;
 		Vec2F mGlobalPoint;

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SimpleWidgets.hpp"
-#include "LayoutWidget.hpp"
 
 namespace tp {
 	class FloatingWidget : public Widget {
@@ -10,7 +9,7 @@ namespace tp {
 			setDebug("float", { 0.0, 0.9, 0.1, 1 });
 
 			mSizePolicy = { SizePolicy::Fixed, SizePolicy::Fixed };
-			mLayoutPolicy = LayoutPolicy::Horizontally;
+			mLayoutPolicy = LayoutPolicy::Horizontal;
 		}
 
 		void process(const EventHandler& events) override;
@@ -54,8 +53,8 @@ namespace tp {
 			mHeader.setSizePolicy(SizePolicy::Expanding, SizePolicy::Minimal);
 			mBodyLayout.setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
 
-			setLayoutPolicy(LayoutPolicy::Vertically);
-			mBodyLayout.setLayoutPolicy(LayoutPolicy::Vertically);
+			setLayoutPolicy(LayoutPolicy::Vertical);
+			mBodyLayout.setLayoutPolicy(LayoutPolicy::Vertical);
 		}
 
 	public:

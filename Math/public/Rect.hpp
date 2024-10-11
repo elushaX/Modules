@@ -253,7 +253,7 @@ namespace tp {
 			return out;
 		}
 
-		Vec2<Type> center() { return pos + size / 2.f; }
+		Vec2<Type> center() const { return pos + size / 2.f; }
 
 		// splits by Factor Horizontally returning Left rect
 		Rect<Type> splitByFactorHL(halnf factor) {

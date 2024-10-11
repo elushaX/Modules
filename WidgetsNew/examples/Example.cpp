@@ -67,34 +67,34 @@ public:
 	}
 
 	void setup3() {
-		mRootWidget.setRootWidget(&mDesktopLayout);
-		mDesktopLayout.addChild(&mFloatingWidget);
+		mRootWidget.setRootWidget(&mWidget);
+		mWidget.addChild(&mFloatingWidget);
 
 		mFloatingWidget.addChild(&mButton);
 		mFloatingWidget.addChild(&mButton2);
 		mFloatingWidget.addChild(&mButton3);
 
-		mButton.setSizePolicy(Widget::SizePolicy::Minimal, Widget::SizePolicy::Expanding);
-		mButton2.setSizePolicy(Widget::SizePolicy::Minimal, Widget::SizePolicy::Expanding);
-		mButton3.setSizePolicy(Widget::SizePolicy::Expanding, Widget::SizePolicy::Expanding);
+		mButton.setSizePolicy(SizePolicy::Minimal, SizePolicy::Expanding);
+		mButton2.setSizePolicy(SizePolicy::Minimal, SizePolicy::Expanding);
+		mButton3.setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
 
 		RootWidget::setWidgetArea(mFloatingWidget, { 100, 100, 400, 400 });
 	}
 
 	void setup2() {
-		mRootWidget.setRootWidget(&mDesktopLayout);
-		mDesktopLayout.addChild(&mWidget);
+		mRootWidget.setRootWidget(&mWidget);
+		// mDesktopLayout.addChild(&mWidget);
 
 		mWidget.addChild(&mButton);
 		mWidget.addChild(&mButton2);
 		mWidget.addChild(&mButton3);
 
-		mButton.setSizePolicy(Widget::SizePolicy::Expanding, Widget::SizePolicy::Minimal);
-		mButton2.setSizePolicy(Widget::SizePolicy::Expanding, Widget::SizePolicy::Minimal);
-		mButton3.setSizePolicy(Widget::SizePolicy::Expanding, Widget::SizePolicy::Minimal);
+		mButton.setSizePolicy(SizePolicy::Expanding, SizePolicy::Minimal);
+		mButton2.setSizePolicy(SizePolicy::Expanding, SizePolicy::Minimal);
+		mButton3.setSizePolicy(SizePolicy::Expanding, SizePolicy::Minimal);
 
-		mWidget.setSizePolicy(Widget::SizePolicy::Minimal, Widget::SizePolicy::Minimal);
-		mWidget.setLayoutPolicy(Widget::LayoutPolicy::Horizontally);
+		mWidget.setSizePolicy(SizePolicy::Minimal, SizePolicy::Minimal);
+		mWidget.setLayoutPolicy(LayoutPolicy::Horizontal);
 
 		mButton.setAction([this]() { mButton2.setMinSize(mButton2.getMinSize() + 10); });
 		mButton2.setAction([this]() { mButton.setMinSize(mButton.getMinSize() + 10); } );
@@ -134,7 +134,6 @@ private:
 	LabelWidget mLabel;
 	FloatingWidget mWidgetFloating;
 	AnimationTestWidget mAnimationTestWidget;
-	DesktopLayout mDesktopLayout;
 
 	DockLayoutWidget mDockLayout;
 

@@ -1,158 +1,19 @@
-#include "Widget.hpp"
+#include "LayoutPolicies.hpp"
 
-#include <algorithm>
+#include "Widget.hpp"
 
 using namespace tp;
 
-WidgetManagerInterface* Widget::getRoot() {
-	Widget* iter = mParent;
-	while (iter && iter->mParent) {
-		iter = iter->mParent;
-	}
-	return dynamic_cast<WidgetManagerInterface*>(iter);
+const RectF& WidgetLayout::getArea() {
+	return mWidget->getAreaCache();
 }
 
-void Widget::triggerWidgetUpdate(const char* reason) {
-	if (auto root = getRoot()) {
-		root->updateWidget(this, reason);
-	}
+void WidgetLayout::setArea(const RectF& area) {
+	mWidget->setAreaCache(area);
 }
 
-Widget::Widget() {
-	mArea.setTargetRect({ 100, 100, 10, 10, });
-	mArea.endAnimation();
-}
-
-void Widget::setAreaCache(const tp::RectF& area) {
-	mAreaCache = area;
-}
-
-void Widget::setArea(const RectF& area) {
-	if (mArea.getTargetRect() == area) return;
-
-	mArea.setTargetRect(area);
-	triggerWidgetUpdate("new area");
-}
-
-RectF Widget::getArea() const {
-	return mArea.getCurrentRect();
-}
-
-RectF Widget::getAreaT() const {
-	return mArea.getTargetRect();
-}
-
-const RectF& Widget::getAreaCache() const {
-	return mAreaCache;
-}
-
-RectF Widget::getRelativeArea() const {
-	return { {}, mArea.getCurrentRect().size };
-}
-
-RectF Widget::getRelativeAreaT() const {
-	return { {}, mArea.getTargetRect().size };
-}
-
-RectF Widget::getRelativeAreaCache() const {
-	return { {}, mAreaCache.size };
-}
-
-void Widget::endAnimations() {
-	mArea.endAnimation();
-}
-
-bool Widget::processesEvents() const {
-	return false;
-}
-
-void Widget::updateAnimations() {
-	mArea.updateCurrentRect();
-}
-
-bool Widget::needsNextFrame() const {
-	return !mArea.shouldEndTransition(); // || mInFocus;
-}
-
-void Widget::bringToFront() {
-	if (!mParent) return;
-	auto& order = mParent->mDepthOrder;
-	auto node = order.find(this);
-	DEBUG_ASSERT(node)
-	order.detach(node);
-	order.pushFront(node);
-}
-
-void Widget::bringToBack() {
-	if (!mParent) return;
-	auto& order = mParent->mDepthOrder;
-	auto node = order.find(this);
-	DEBUG_ASSERT(node)
-	order.detach(node);
-	order.pushBack(node);
-}
-
-void Widget::mouseEnter() {
-	mInFocus = true;
-}
-
-void Widget::mouseLeave() {
-	mInFocus = false;
-}
-
-bool Widget::propagateEventsToChildren() const {
-	return true;
-}
-
-void Widget::addChild(Widget* child) {
-	if (auto node = mDepthOrder.find(child)) {
-		node->data->bringToFront();
-		return;
-	}
-
-	if (child->mParent) {
-		child->mParent->removeChild(child);
-	}
-
-	mChildren.push_back(child);
-	mDepthOrder.pushBack(child);
-
-	child->mParent = this;
-
-	triggerWidgetUpdate("add child");
-	child->triggerWidgetUpdate("new parent");
-}
-
-void Widget::removeChild(Widget* child) {
-	auto node = mDepthOrder.find(child);
-	if (!node) return;
-
-	mDepthOrder.removeNode(node);
-	mChildren.erase(std::remove(mChildren.begin(), mChildren.end(), child), mChildren.end());
-
-	triggerWidgetUpdate("removed child");
-	child->triggerWidgetUpdate("parent changed");
-}
-
-void Widget::setSizePolicy(SizePolicy x, SizePolicy y) {
-	mSizePolicy = { x, y };
-	triggerWidgetUpdate("chane size policy");
-}
-
-void Widget::setLayoutPolicy(LayoutPolicy layoutPolicy) {
-	mLayoutPolicy = layoutPolicy;
-	triggerWidgetUpdate("new layout");
-}
-
-const Vec2F& Widget::getMinSize() { return mMinSize; }
-
-void Widget::setMinSize(const Vec2F& size) {
-	mMinSize = size;
-	triggerWidgetUpdate("new min size");
-}
-
-void Widget::pickRect() {
-	auto current = getAreaCache();
+void WidgetLayout::pickRect() {
+	auto current = getArea();
 	auto children = getChildrenEnclosure();
 	auto parent = getParentEnclosure();
 
@@ -161,28 +22,24 @@ void Widget::pickRect() {
 
 	auto newArea = RectF(rangeX, rangeY);
 
-	for (auto child :  mChildren) {
-		child->setAreaCache(RectF(child->getAreaCache()).move(current.pos - newArea.pos));
-	}
-
-	setAreaCache(newArea);
+	setArea(newArea);
 }
 
-void Widget::clampRect() {
-	auto current = getAreaCache();
+void WidgetLayout::clampRect() {
+	auto current = getArea();
 	auto children = getChildrenEnclosure();
 	auto parent = getParentEnclosure();
 
 	auto rangeX = clampRange(current.getRangeX(), children.getRangeX(), parent.getRangeX(), false);
 	auto rangeY = clampRange(current.getRangeY(), children.getRangeY(), parent.getRangeY(), true);
 
-	setAreaCache(RectF(rangeX, rangeY));
+	setArea(RectF(rangeX, rangeY));
 }
 
-void Widget::adjustChildrenRect()  {
-	if (mChildren.empty()) return;
+void WidgetLayout::adjustChildrenRect()  {
+	if (mWidget->mChildren.empty()) return;
 
-	switch (mLayoutPolicy) {
+	switch (mWidget->mLayoutPolicy) {
 		case LayoutPolicy::Passive: break;
 		case LayoutPolicy::Vertical: adjustLayout(true); break;
 		case LayoutPolicy::Horizontal: adjustLayout(false); break;
@@ -190,7 +47,7 @@ void Widget::adjustChildrenRect()  {
 }
 
 
-halnf Widget::changeChildSize(tp::Widget* widget, halnf diff, bool vertical) {
+halnf WidgetLayout::changeChildSize(tp::Widget* widget, halnf diff, bool vertical) {
 	auto prevSize = widget->getAreaCache().size[vertical];
 	{
 		auto area = widget->getAreaCache();
@@ -203,7 +60,7 @@ halnf Widget::changeChildSize(tp::Widget* widget, halnf diff, bool vertical) {
 	return newSize - prevSize;
 }
 
-void Widget::adjustLayout(bool vertical) {
+void WidgetLayout::adjustLayout(bool vertical) {
 	std::vector<std::pair<Widget*, bool>> contributors;
 	Vec2F contentSize = { 0, 0 };
 	Vec2F availableSize = getRelativeAreaT().size;
@@ -266,7 +123,7 @@ void Widget::adjustLayout(bool vertical) {
 	}
 }
 
-RangeF Widget::pickRange(const RangeF& current, const RangeF& children, const RangeF& parent, bool vertical) {
+RangeF WidgetLayout::pickRange(const RangeF& current, const RangeF& children, const RangeF& parent, bool vertical) {
 	RangeF out;
 
 	switch (mSizePolicy[vertical]) {
@@ -279,13 +136,13 @@ RangeF Widget::pickRange(const RangeF& current, const RangeF& children, const Ra
 	return out;
 }
 
-void Widget::clampMinMaxSize() {
+void WidgetLayout::clampMinMaxSize() {
 	auto current = getAreaCache();
 	current.size.clamp(mMinSize, mMaxSize);
 	setAreaCache(current);
 }
 
-RangeF Widget::clampRange(const RangeF& current, const RangeF& children, const RangeF& parent, bool vertical) {
+RangeF WidgetLayout::clampRange(const RangeF& current, const RangeF& children, const RangeF& parent, bool vertical) {
 	auto out = current;
 
 	if (!mChildren.empty()) {
@@ -305,7 +162,7 @@ RangeF Widget::clampRange(const RangeF& current, const RangeF& children, const R
 	return out;
 }
 
-RectF Widget::getChildrenEnclosure() const {
+RectF WidgetLayout::getChildrenEnclosure() const {
 	RectF out;
 
 	if (mChildren.empty()) {
@@ -321,7 +178,7 @@ RectF Widget::getChildrenEnclosure() const {
 	return out;
 }
 
-RectF Widget::getParentEnclosure() {
+RectF WidgetLayout::getParentEnclosure() {
 	DEBUG_ASSERT(mParent);
 	if (!mParent) return { { 0, 0 }, mMaxSize };
 
