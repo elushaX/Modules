@@ -36,8 +36,8 @@ namespace tp {
 			mViewport(canvas, editor) {
 			mEditor = editor;
 
-			mDockSpace.addSideWidget(&mNavigationMenu, DockLayoutWidget::RIGHT);
-			mDockSpace.addSideWidget(&mRenderMenu, DockLayoutWidget::LEFT);
+			mDockSpace.addSideWidget(&mNavigationMenu, DockWidget::RIGHT);
+			mDockSpace.addSideWidget(&mRenderMenu, DockWidget::LEFT);
 			mDockSpace.setCenterWidget(&mViewport);
 
 			// Render

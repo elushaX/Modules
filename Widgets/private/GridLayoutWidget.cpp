@@ -2,14 +2,14 @@
 
 using namespace tp;
 
-DockLayoutWidget::DockLayoutWidget() {
+DockWidget::DockWidget() {
 	mSideWidgets[0].side = LEFT;
 	mSideWidgets[1].side = TOP;
 	mSideWidgets[2].side = RIGHT;
 	mSideWidgets[3].side = BOTTOM;
 }
 
-void DockLayoutWidget::addSideWidget(Widget* widget, Side side) {
+void DockWidget::addSideWidget(Widget* widget, Side side) {
 	if (sideExists(side)) return;
 
 	auto& sideWidget = mSideWidgets[side];
@@ -27,7 +27,7 @@ void DockLayoutWidget::addSideWidget(Widget* widget, Side side) {
 	widget->mIsDocked = true;
 }
 
-void DockLayoutWidget::removeSideWidget(Side side) {
+void DockWidget::removeSideWidget(Side side) {
 	if (!sideExists(side)) return;
 
 	bool removed = false;
@@ -48,18 +48,18 @@ void DockLayoutWidget::removeSideWidget(Side side) {
 	mSideWidgets[side].widget = nullptr;
 }
 
-void DockLayoutWidget::setCenterWidget(Widget* widget) {
+void DockWidget::setCenterWidget(Widget* widget) {
 	mChildWidgets.removeNode(mChildWidgets.find(mCenterWidget));
 	mCenterWidget = widget;
 	mChildWidgets.pushBack(mCenterWidget);
 }
 
-void DockLayoutWidget::toggleHiddenState(DockLayoutWidget::Side side) {
+void DockWidget::toggleHiddenState(DockWidget::Side side) {
 	if (!sideExists(side)) return;
 	mSideWidgets[side].hidden = !mSideWidgets[side].hidden;
 }
 
-void DockLayoutWidget::eventProcess(const tp::Events& events) {
+void DockWidget::eventProcess(const tp::Events& events) {
 	calculateSideAreas();
 	calculateResizeHandles();
 	// calculateHeaderAreas();
@@ -70,7 +70,7 @@ void DockLayoutWidget::eventProcess(const tp::Events& events) {
 	updateChildSideWidgets();
 }
 
-void DockLayoutWidget::eventDraw(Canvas& canvas) {
+void DockWidget::eventDraw(Canvas& canvas) {
 	canvas.rect(this->mArea, mBackgroundColor, 0);
 
 	for (auto& sideWidget : mSideWidgets) {
@@ -89,7 +89,7 @@ void DockLayoutWidget::eventDraw(Canvas& canvas) {
 	}
 }
 
-void DockLayoutWidget::eventDrawOver(Canvas& canvas) {
+void DockWidget::eventDrawOver(Canvas& canvas) {
 	if (!mPreview) return;
 
 	if (mPreviewSide != NONE) canvas.rect(mPreviewArea.shrink(mPadding * 2), mPreviewColor, mRounding);
@@ -100,7 +100,7 @@ void DockLayoutWidget::eventDrawOver(Canvas& canvas) {
 	}
 }
 
-void DockLayoutWidget::calculateSideAreas() {
+void DockWidget::calculateSideAreas() {
 	auto startArea = this->mArea;
 	for (auto& sideWidget : mSideWidgets) {
 		const auto side = sideWidget.order;
@@ -135,7 +135,7 @@ void DockLayoutWidget::calculateSideAreas() {
 	mCenterArea = startArea.shrink(mPadding);
 }
 
-void DockLayoutWidget::calculateResizeHandles() {
+void DockWidget::calculateResizeHandles() {
 	RectF rec;
 
 	if (isSideVisible(LEFT)) {
@@ -162,7 +162,7 @@ void DockLayoutWidget::calculateResizeHandles() {
 	}
 }
 
-void DockLayoutWidget::handleResizeEvents(const Events& events) {
+void DockWidget::handleResizeEvents(const Events& events) {
 	for (auto& sideWidget : mSideWidgets) {
 		auto& sideSize = sideWidget.absoluteSize;
 		auto& resizeHandle = sideWidget.resizeHandle;
@@ -225,7 +225,7 @@ void DockLayoutWidget::handleResizeEvents(const Events& events) {
 	}
 }
 
-void DockLayoutWidget::updateChildSideWidgets() {
+void DockWidget::updateChildSideWidgets() {
 	// Update Child Widgets
 	{
 		for (ualni i = 0; i < 4; i++) {
@@ -261,7 +261,7 @@ void DockLayoutWidget::updateChildSideWidgets() {
 	*/
 }
 
-void DockLayoutWidget::calculateHeaderAreas() {
+void DockWidget::calculateHeaderAreas() {
 	for (ualni i = 0; i < 4; i++) {
 		if (!isSideVisible(Side(i))) continue;
 		auto& area = mSideWidgets[i].area;
@@ -273,13 +273,13 @@ void DockLayoutWidget::calculateHeaderAreas() {
 	}
 }
 
-bool DockLayoutWidget::isSideVisible(DockLayoutWidget::Side side) {
+bool DockWidget::isSideVisible(DockWidget::Side side) {
 	return sideExists(side) && !mSideWidgets[side].hidden;
 }
 
-bool DockLayoutWidget::sideExists(DockLayoutWidget::Side side) { return mSideWidgets[side].widget; }
+bool DockWidget::sideExists(DockWidget::Side side) { return mSideWidgets[side].widget; }
 
-ualni DockLayoutWidget::getVisibleSidesSize() {
+ualni DockWidget::getVisibleSidesSize() {
 	ualni out = 0;
 	for (ualni i = 0; i < 4; i++) {
 		if (isSideVisible(Side(i))) out++;
@@ -287,9 +287,9 @@ ualni DockLayoutWidget::getVisibleSidesSize() {
 	return out;
 }
 
-DockLayoutWidget::Side DockLayoutWidget::getPreviewSide() { return mPreviewSide; }
+DockWidget::Side DockWidget::getPreviewSide() { return mPreviewSide; }
 
-void DockLayoutWidget::handlePreview(const Events& events) {
+void DockWidget::handlePreview(const Events& events) {
 	if (!mPreview) {
 		mPreviewSide = NONE;
 		return;

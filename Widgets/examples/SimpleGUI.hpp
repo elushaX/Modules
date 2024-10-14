@@ -33,19 +33,19 @@ namespace tp {
 	public:
 		SimpleWidget3() {
 
-			mDockSpace.addSideWidget(&mButtons[0], DockLayoutWidget::BOTTOM);
-			mDockSpace.addSideWidget(&mButtons[1], DockLayoutWidget::RIGHT);
+			mDockSpace.addSideWidget(&mButtons[0], DockWidget::BOTTOM);
+			mDockSpace.addSideWidget(&mButtons[1], DockWidget::RIGHT);
 
-			mDockSpace.removeSideWidget(DockLayoutWidget::BOTTOM);
+			mDockSpace.removeSideWidget(DockWidget::BOTTOM);
 
-			mDockSpace.addSideWidget(&mButtons[0], DockLayoutWidget::TOP);
-			mDockSpace.addSideWidget(&mButtons[2], DockLayoutWidget::LEFT);
+			mDockSpace.addSideWidget(&mButtons[0], DockWidget::TOP);
+			mDockSpace.addSideWidget(&mButtons[2], DockWidget::LEFT);
 
-			mDockSpace.removeSideWidget(DockLayoutWidget::TOP);
+			mDockSpace.removeSideWidget(DockWidget::TOP);
 
-			mDockSpace.addSideWidget(&mButtons[0], DockLayoutWidget::BOTTOM);
+			mDockSpace.addSideWidget(&mButtons[0], DockWidget::BOTTOM);
 
-			mDockSpace.addSideWidget(&mButtons[3], DockLayoutWidget::TOP);
+			mDockSpace.addSideWidget(&mButtons[3], DockWidget::TOP);
 			mDockSpace.setCenterWidget(&mButtons[4]);
 
 			/*

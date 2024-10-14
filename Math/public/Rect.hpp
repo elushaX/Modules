@@ -97,6 +97,10 @@ namespace tp {
 			}
 		}
 
+		Rect relative() const {
+			return { { 0, 0 }, size };
+		}
+
 		// argument isInside
 		bool isInside(const Vec2<Type>& p) const { return isInside(p.x, p.y); }
 

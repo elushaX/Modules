@@ -177,7 +177,7 @@ namespace tp {
 		halnf mPadding = 0;
 	};
 
-	class ChattingWidget : public DockLayoutWidget {
+	class ChattingWidget : public DockWidget {
 	public:
 		ChattingWidget() {
 			// todo :  fetch code
@@ -205,7 +205,7 @@ namespace tp {
 				mActive.mHistoryView.addWidget(&message.data());
 			}
 
-			addSideWidget(&mSideView, DockLayoutWidget::RIGHT);
+			addSideWidget(&mSideView, DockWidget::RIGHT);
 			setCenterWidget(&mActive);
 		}
 
