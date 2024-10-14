@@ -5,13 +5,18 @@
 namespace tp {
 
 	class BasicLayout : public WidgetLayout {
+		friend class DebugManager;
+
 	public:
 		explicit BasicLayout(Widget* widget) : WidgetLayout(widget) {}
 
-		void pickRect() override;
+		void updateLayout(bool vertical) override;
+
+		void pickRect(bool vertical) override;
 		void clampRect() override;
-		void adjustChildrenRect() override;
 		[[nodiscard]] RectF getAvailableChildArea() const override;
+
+		void setLayoutPolicy(LayoutPolicy layout) { mLayoutPolicy = layout; }
 
 	private:
 		void adjustLayout(bool vertical);
@@ -20,6 +25,6 @@ namespace tp {
 	private:
 		LayoutPolicy mLayoutPolicy = LayoutPolicy::Vertical;
 		halnf mLayoutGap = 5;
-		halnf mLayoutMargin = 10;
+		halnf mLayoutMargin = 9;
 	};
 }

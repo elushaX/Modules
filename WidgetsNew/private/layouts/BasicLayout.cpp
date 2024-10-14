@@ -7,20 +7,26 @@
 using namespace tp;
 
 
-void BasicLayout::pickRect() {
+void BasicLayout::pickRect(bool vertical) {
 	auto current = getArea();
 	auto children = getChildrenEnclosure();
 	auto parent = getParentEnclosure();
+	RectF newArea = current;
 
-	auto rangeX = pickRange(current.getRangeX(), children.getRangeX(), parent.getRangeX(), false);
-	auto rangeY = pickRange(current.getRangeY(), children.getRangeY(), parent.getRangeY(), true);
-
-	auto newArea = RectF(rangeX, rangeY);
+	if (vertical) {
+		auto rangeY = pickRange(current.getRangeY(), children.getRangeY(), parent.getRangeY(), true);
+		newArea = RectF(current.getRangeX(), rangeY);
+	} else {
+		auto rangeX = pickRange(current.getRangeX(), children.getRangeX(), parent.getRangeX(), false);
+		newArea = RectF(rangeX, current.getRangeY());
+	}
 
 	setArea(newArea);
 }
 
 void BasicLayout::clampRect() {
+	DEBUG_ASSERT(0)
+
 	auto current = getArea();
 	auto children = getChildrenEnclosure();
 	auto parent = getParentEnclosure();
@@ -31,13 +37,21 @@ void BasicLayout::clampRect() {
 	setArea(RectF(rangeX, rangeY));
 }
 
-void BasicLayout::adjustChildrenRect()  {
+void BasicLayout::updateLayout(bool vertical) {
 	if (children().empty()) return;
 
-	switch (mLayoutPolicy) {
-		case LayoutPolicy::Passive: break;
-		case LayoutPolicy::Vertical: adjustLayout(true); break;
-		case LayoutPolicy::Horizontal: adjustLayout(false); break;
+	if (vertical) {
+		switch (mLayoutPolicy) {
+			case LayoutPolicy::Vertical: adjustLayout(true); break;
+			case LayoutPolicy::Passive:
+			case LayoutPolicy::Horizontal: break;
+		}
+	} else {
+		switch (mLayoutPolicy) {
+			case LayoutPolicy::Horizontal: adjustLayout(false); break;
+			case LayoutPolicy::Passive:
+			case LayoutPolicy::Vertical: break;
+		}
 	}
 }
 
@@ -61,9 +75,7 @@ void BasicLayout::adjustLayout(bool vertical) {
 	Vec2F availableSize = getArea().size;
 
 	for (auto child : children()) {
-		if (child->getLayout()->getSizePolicy()[!vertical] != SizePolicy::Minimal) {
-			child->getLayout()->pickRect();
-		}
+		child->getLayout()->pickRect(vertical);
 
 		if (child->getLayout()->getSizePolicy()[vertical] == SizePolicy::Expanding) {
 			contributors.emplace_back( child, true );
@@ -71,7 +83,7 @@ void BasicLayout::adjustLayout(bool vertical) {
 			auto area = child->getLayout()->getArea();
 			area.size[vertical] = 0;
 			child->setAreaCache(area);
-			child->getLayout()->clampRect();
+			child->getLayout()->clampMinMaxSize();
 		}
 
 		contentSize += child->getLayout()->getArea().size;
@@ -104,14 +116,25 @@ void BasicLayout::adjustLayout(bool vertical) {
 		);
 	}
 
-	// arrange
+	// set opposite direction size
+	for (auto child : children()) {
+		// if (child->getLayout()->getSizePolicy()[!vertical] != SizePolicy::Minimal) {
+			auto area = child->getLayout()->getArea();
+			area.size[!vertical] = getArea().size[!vertical] - mLayoutMargin * 2;
+			child->setAreaCache(area);
+		// }
+	}
+
+	// set pos
 	halnf iterPos = mLayoutMargin;
 	for (auto child : children()) {
 		auto area = child->getLayout()->getArea();
+
 		area.pos[vertical] = iterPos;
+		area.pos[!vertical] = mLayoutMargin;
+
 		iterPos += area.size[vertical] + mLayoutGap;
 		child->setAreaCache(area);
-
 
 		// child->updateAnimations();
 		// child->triggerWidgetUpdate("layout changed");

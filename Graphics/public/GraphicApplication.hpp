@@ -28,8 +28,8 @@ namespace tp {
 	protected:
 		bool mInitialized = false;
 
-		ualni mDrawPerSecond = 60;
-		ualni mProcPerSecond = 100;
+		ualni mDrawPerSecond = 1160;
+		ualni mProcPerSecond = 1300;
 
 		Timer mDrawTimer;
 		Timer mProcTimer;

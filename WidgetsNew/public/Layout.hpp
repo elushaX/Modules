@@ -19,13 +19,16 @@ namespace tp {
 	};
 
 	class WidgetLayout {
+		friend class DebugManager;
+
 	public:
 		explicit WidgetLayout(Widget* widget) { mWidget = widget; }
 		virtual ~WidgetLayout() = default;
 
-		virtual void pickRect() = 0;
+		virtual void updateLayout(bool vertical) {}
+
+		virtual void pickRect(bool vertical) = 0;
 		virtual void clampRect() = 0;
-		virtual void adjustChildrenRect() = 0;
 		[[nodiscard]] virtual RectF getAvailableChildArea() const;
 
 	public:

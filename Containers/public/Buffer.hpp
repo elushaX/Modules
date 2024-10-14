@@ -418,7 +418,7 @@ namespace tp {
 
 		void reverse() {
 			for (ualni idx = 0; idx < mLoad / 2; idx++) {
-				swap(mBuff[idx], mBuff[mLoad - idx - 1]);
+				swapV(mBuff[idx], mBuff[mLoad - idx - 1]);
 			}
 		}
 

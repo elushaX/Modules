@@ -221,7 +221,7 @@ namespace tp {
 			static_assert(tNRows == tNColoumns);
 			for (halni i = 0; i < tNColoumns; i++) {
 				for (halni j = i + 1; j < tNColoumns; j++) {
-					swap((*this)[i][j], (*this)[j][i]);
+					swapV((*this)[i][j], (*this)[j][i]);
 				}
 			}
 			return *this;
@@ -479,7 +479,7 @@ namespace tp {
 		Mat operator*(const Mat& in) { return transform(in); }
 
 		Mat& transpose() {
-			swap(j.x, i.y);
+			swapV(j.x, i.y);
 			return *this;
 		}
 
@@ -635,9 +635,9 @@ namespace tp {
 		}
 
 		Mat& transpose() {
-			swap(I.y, J.x);
-			swap(I.z, K.x);
-			swap(J.z, K.y);
+			swapV(I.y, J.x);
+			swapV(I.z, K.x);
+			swapV(J.z, K.y);
 			return *this;
 		}
 

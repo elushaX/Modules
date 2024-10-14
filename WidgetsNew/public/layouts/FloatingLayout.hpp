@@ -18,7 +18,7 @@ namespace tp {
 		RectF resizeHandleRect();
 
 	public:
-		void pickRect() override;
+		void pickRect(bool vertical) override;
 
 	private:
 		bool mIsFloating = false;

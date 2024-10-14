@@ -37,6 +37,5 @@ namespace tp {
 
 		LayoutManager mLayoutManager;
 		UpdateManager mUpdateManager;
-		DebugManager mDebugManager;
 	};
 }

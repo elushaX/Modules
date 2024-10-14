@@ -24,6 +24,34 @@ public:
 		setup1();
 	}
 
+	void setupLay() {
+		mRootWidget.setRootWidget(&mWidget);
+
+		mWidget.addChild(&mWidgets[1]);
+
+		mWidgets[1].addChild(&mButtons[1]);
+		mWidgets[1].addChild(&mButtons[2]);
+		mWidgets[1].addChild(&mWidgets[2]);
+
+		RootWidget::setWidgetArea(mWidgets[1], { 300, 100, 350, 800 });
+		RootWidget::setWidgetArea(mButtons[2], { 100, 100, 150, 300 });
+
+		mWidgets[2].addChild(&mButtons[3]);
+		mWidgets[2].addChild(&mButtons[4]);
+		mWidgets[2].addChild(&mButtons[5]);
+		mWidgets[2].addChild(&mButtons[6]);
+
+		mButtons[1].setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
+		mButtons[2].setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
+		mButtons[3].setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
+		mButtons[4].setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
+		mButtons[5].setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
+		mButtons[6].setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
+
+		mWidgets[2].setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
+		((BasicLayout*)mWidgets[1].getLayout())->setLayoutPolicy(LayoutPolicy::Horizontal);
+	}
+
 	void setup1() {
 		mRootWidget.setRootWidget(&mDockLayout);
 
@@ -122,6 +150,9 @@ public:
 	}
 
 private:
+	Widget mWidgets[15];
+	ButtonWidget mButtons[15];
+
 	Widget mWidget;
 
 	ButtonWidget mButton;

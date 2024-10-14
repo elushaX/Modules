@@ -1,11 +1,19 @@
 #include "DebugManager.hpp"
 #include "RootWidget.hpp"
+#include "BasicLayout.hpp"
 
 #include "imgui.h"
+#include <sstream>
 
 using namespace tp;
 
+DebugManager tp::gDebugWidget;
+
+#define LIST_SIZE { -FLT_MIN, 150 }
+
 bool DebugManager::update(RootWidget* rootWidget, EventHandler& events) {
+	mRootWidget = rootWidget;
+
 	if (mDebug) {
 		auto area = rootWidget->mRoot->getAreaT();
 		area.size -= { 400, 0 };
@@ -14,53 +22,86 @@ bool DebugManager::update(RootWidget* rootWidget, EventHandler& events) {
 		events.setEnableKeyEvents(true);
 		if (events.isPressed(InputID::K)) mDebugStopProcessing = !mDebugStopProcessing;
 		if (mDebugStopProcessing) return false;
+
+		if (auto widget = rootWidget->mUpdateManager.mInFocusWidget) {
+			if (auto lay = dynamic_cast<BasicLayout*>(widget->getLayout())) {
+				if (events.isPressed(InputID::V)) lay->setLayoutPolicy(LayoutPolicy::Vertical);
+				if (events.isPressed(InputID::H)) lay->setLayoutPolicy(LayoutPolicy::Horizontal);
+
+				auto sizing = lay->getSizePolicy();
+
+				if (events.isDown(InputID::X)) {
+					if (events.isPressed(InputID::S)) lay->setSizePolicy(SizePolicy::Minimal, sizing.y);
+					if (events.isPressed(InputID::E)) lay->setSizePolicy(SizePolicy::Expanding, sizing.y);
+				}
+				if (events.isDown(InputID::Y)) {
+					if (events.isPressed(InputID::S)) lay->setSizePolicy(sizing.x, SizePolicy::Minimal);
+					if (events.isPressed(InputID::E)) lay->setSizePolicy(sizing.x, SizePolicy::Expanding);
+				}
+			}
+		}
+
+		if (auto breakWidget = rootWidget->mUpdateManager.mInFocusWidget) {
+			if (events.isPressed(InputID::P)) mProcBreakpoints.insert(breakWidget);
+			if (events.isPressed(InputID::L)) mLayBreakpoints.insert(breakWidget);
+		}
 	}
 
 	return true;
 }
 
 void DebugManager::drawDebug(RootWidget* rootWidget, Canvas& canvas) {
+	mRootWidget = rootWidget;
+
 	ImGui::Checkbox("Draw debug", &mDebug);
+
+	if (!mDebug) {
+		return;
+	}
+
+	ImGui::SameLine(); ImGui::Text("To Toggle processing press k");
 
 	auto& upd = rootWidget->mUpdateManager;
 
-	if (mDebug) {
-		recursiveDraw(canvas, rootWidget->mRoot, { 0, 0 }, 0);
+	recursiveDraw(canvas, rootWidget->mRoot, { 0, 0 }, 0);
 
-		ImGui::Text("Triggered Widgets: %i", (int) upd.mTriggeredWidgets.size());
-		ImGui::Text("Widgets To Process: %i", upd.mDebugWidgetsToProcess);
+	ImGui::Text("Triggered: %i", (int) upd.mTriggeredWidgets.size());
+	ImGui::SameLine(); ImGui::Text("Processing: %i", upd.mDebugWidgetsToProcess);
 
-		ImGui::Text("To Toggle processing press k");
-		ImGui::Checkbox("Stop processing", &mDebugStopProcessing);
-		ImGui::Checkbox("Force new frames", &mDebugRedrawAlways);
+	ImGui::Checkbox("Stop processing", &mDebugStopProcessing);
+	ImGui::SameLine(); ImGui::Checkbox("Force new frames", &mDebugRedrawAlways);
+	ImGui::SameLine(); ImGui::Checkbox("Slow-mo", &mSlowMotion);
 
-		if (ImGui::CollapsingHeader("Triggered")) {
-			if (ImGui::BeginListBox("##triggered", { -FLT_MIN, 300 })) {
-				for (auto widget : upd.mTriggeredWidgets) {
-					widgetMenu(widget.first);
+	if (upd.mInFocusWidget) {
+		ImGui::Text("Under cursor");
+		{
+			if (ImGui::BeginListBox("##under_cursor", LIST_SIZE)) {
+				for (auto widget = upd.mInFocusWidget; widget && widget->mParent; widget = widget->mParent) {
+					widgetMenu(widget);
 				}
 				ImGui::EndListBox();
 			}
 		}
+	}
 
-		if (upd.mInFocusWidget) {
-			if (ImGui::CollapsingHeader("Under cursor")) {
-				if (ImGui::BeginListBox("##under_cursor", { -FLT_MIN, 300 })) {
-					for (auto widget = upd.mInFocusWidget; widget && widget->mParent; widget = widget->mParent) {
-						widgetMenu(widget);
-					}
-					ImGui::EndListBox();
-				}
+	ImGui::Text("Triggered");
+	{
+		if (ImGui::BeginListBox("##triggered", LIST_SIZE)) {
+			for (auto widget : upd.mTriggeredWidgets) {
+				widgetMenu(widget.first);
 			}
+			ImGui::EndListBox();
 		}
 	}
+
+	drawLayoutOrder();
 }
 
 void DebugManager::recursiveDraw(Canvas& canvas, Widget* active, const Vec2F& pos, int depthOrder) {
 	auto area = RectF{ pos, active->getAreaT().size };
 
 	if (active->isUpdate()) {
-		RGBA color = { 1, 0, 0, 1};
+		RGBA color = { 1, 0, 0, 1 };
 		canvas.frame(area, color);
 		canvas.text((active->mDebug.id + ":" + std::to_string(depthOrder)).c_str(), area, 22, Canvas::Align::LC, 2, color);
 	}
@@ -71,7 +112,7 @@ void DebugManager::recursiveDraw(Canvas& canvas, Widget* active, const Vec2F& po
 			canvas.circle(active->mDebug.pGlobal, 15, active->mDebug.col);
 		}
 
-		RGBA color = { 1, 0, 0, 0.3f};
+		RGBA color = { 1, 0, 0, 0.3f };
 		canvas.debugCross(area, color);
 	}
 
@@ -84,7 +125,8 @@ void DebugManager::recursiveDraw(Canvas& canvas, Widget* active, const Vec2F& po
 void DebugManager::widgetMenu(Widget* widget) {
 
 	ImGui::PushID(widget);
-	if (ImGui::CollapsingHeader(widget->mDebug.id.c_str())) {
+
+	if (ImGui::CollapsingHeader((widget->mDebug.id + std::to_string((long) widget)).c_str())) {
 
 		ImGui::Text("trigger reason: %s", widget->mDebug.triggerReason.c_str());
 
@@ -93,24 +135,38 @@ void DebugManager::widgetMenu(Widget* widget) {
 			widget->setArea(area);
 		}
 
-		// ImGui::InputFloat2("min size", &widget->mMinSize.x);
-		// ImGui::InputFloat2("max size", &widget->mMaxSize.x);
+		auto layout = widget->getLayout();
 
-		// int sizePolicyX = int(widget->mSizePolicy.x);
-		// int sizePolicyY = int(widget->mSizePolicy.y);
-		// int layout = int(widget->mLayoutPolicy);
+		ImGui::InputFloat2("min size", &layout->mMinSize.x);
+		ImGui::InputFloat2("max size", &layout->mMaxSize.x);
 
-		// if (ImGui::Combo("Size Policy X", &sizePolicyX, "Fixed\0Expanding\0Minimal\0")) {
-		// widget->setSizePolicy(SizePolicy(sizePolicyX), SizePolicy(sizePolicyY));
-		// }
+		if (auto pBasicLayout = dynamic_cast<BasicLayout*>(widget->getLayout())) {
+			int sizePolicyX = int(pBasicLayout->mSizePolicy.x);
+			int sizePolicyY = int(pBasicLayout->mSizePolicy.y);
+			int policy = int(pBasicLayout->mLayoutPolicy);
 
-		// if (ImGui::Combo("Size Policy Y", &sizePolicyY, "Fixed\0Expanding\0Minimal\0")) {
-		// widget->setSizePolicy(SizePolicy(sizePolicyX), SizePolicy(sizePolicyY));
-		// }
+			if (ImGui::Combo("Size Policy X", &sizePolicyX, "Fixed\0Expanding\0Minimal\0")) {
+				widget->setSizePolicy(SizePolicy(sizePolicyX), SizePolicy(sizePolicyY));
+			}
 
-		// if (ImGui::Combo("Layout", &layout, "Passive\0Vertical\0Horizontal\0")) {
-		// widget->setLayoutPolicy(LayoutPolicy(layout));
-		// }
+			if (ImGui::Combo("Size Policy Y", &sizePolicyY, "Fixed\0Expanding\0Minimal\0")) {
+				widget->setSizePolicy(SizePolicy(sizePolicyX), SizePolicy(sizePolicyY));
+			}
+
+			if (ImGui::Combo("Layout", &policy, "Passive\0Vertical\0Horizontal\0")) {
+				pBasicLayout->mLayoutPolicy = LayoutPolicy(policy);
+			}
+		}
 	}
 	ImGui::PopID();
+}
+
+void DebugManager::drawLayoutOrder() {
+	ImGui::Text("Layout Processing Order");
+	if (ImGui::BeginListBox("##layout_order", LIST_SIZE)) {
+		for (auto iter : mRootWidget->mLayoutManager.mLayOrder) {
+			ImGui::Text("%i %s (%s)", iter.second, iter.first->mDebug.id.c_str(), std::to_string((long) iter.first).c_str());
+		}
+		ImGui::EndListBox();
+	}
 }

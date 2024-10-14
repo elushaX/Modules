@@ -29,6 +29,9 @@ namespace tp {
 		void processFocusItems(EventHandler& events);
 
 	private:
+		static void procWidget(Widget* widget, EventHandler& events, bool withEvents = false);
+
+	private:
 		std::map<Widget*, bool> mTriggeredWidgets;
 		Widget* mInFocusWidget = nullptr;
 
