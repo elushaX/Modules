@@ -26,18 +26,18 @@ namespace tp {
 		virtual void pickRect() = 0;
 		virtual void clampRect() = 0;
 		virtual void adjustChildrenRect() = 0;
-		virtual RectF getAvailableChildArea() const;
+		[[nodiscard]] virtual RectF getAvailableChildArea() const;
 
 	public:
 		const Vec2F& getMinSize();
 		void setMinSize(const Vec2F& size);
 
-		const Vec2<SizePolicy>& getSizePolicy() const;
+		[[nodiscard]] const Vec2<SizePolicy>& getSizePolicy() const;
 		void setSizePolicy(SizePolicy x, SizePolicy y);
 
 	public:
 		[[nodiscard]] const RectF& getArea() const;
-		RectF getAnimatedArea() const;
+		[[nodiscard]] RectF getAnimatedArea() const;
 
 		void setArea(const RectF& area);
 		[[nodiscard]] Widget* parent() const;
@@ -59,31 +59,5 @@ namespace tp {
 		Vec2<SizePolicy> mSizePolicy = { SizePolicy::Fixed, SizePolicy::Fixed };
 		Vec2F mMinSize = { 50, 50 };
 		Vec2F mMaxSize = { FLT_MAX / 2, FLT_MAX / 2 };
-	};
-
-	class BasicLayout : public WidgetLayout {
-	public:
-		explicit BasicLayout(Widget* widget) : WidgetLayout(widget) {}
-
-		void pickRect() override;
-		void clampRect() override;
-		void adjustChildrenRect() override;
-		RectF getAvailableChildArea() const override;
-
-	private:
-		void adjustLayout(bool vertical);
-		static halnf changeChildSize(Widget*, halnf diff, bool vertical);
-
-	private:
-		LayoutPolicy mLayoutPolicy = LayoutPolicy::Vertical;
-		halnf mLayoutGap = 5;
-		halnf mLayoutMargin = 10;
-	};
-
-	class LayoutManager {
-	public:
-		LayoutManager() = default;
-
-		void adjust(Widget* root);
 	};
 }

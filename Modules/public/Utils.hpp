@@ -34,13 +34,13 @@ namespace tp {
 			}
 		}
 
-		bool get(int1 idx) { return mFlags & (1l << idx); }
+		[[nodiscard]] bool get(int1 idx) const { return mFlags & (1l << idx); }
 
 		void set(int1 idx, bool val) {
 			if (val) {
-				mFlags |= (1l << idx);
+				mFlags |= (1 << idx);
 			} else {
-				mFlags &= ~(1l << idx);
+				mFlags &= ~(1 << idx);
 			}
 		}
 	};

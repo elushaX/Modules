@@ -1,7 +1,8 @@
 #pragma once
 
 #include "SpringAnimations.hpp"
-#include "LayoutManager.hpp"
+
+#include "Layout.hpp"
 
 #include "EventHandler.hpp"
 #include "Graphics.hpp"
@@ -10,14 +11,32 @@
 #include <functional>
 
 namespace tp {
-	class WidgetManagerInterface;
 	class WidgetLayout;
+
 	class LayoutManager;
+	class UpdateManager;
+	class DebugManager;
+
+	class WidgetManagerInterface;
 	class RootWidget;
 
 	class Widget {
 		friend RootWidget;
+
 		friend LayoutManager;
+		friend UpdateManager;
+		friend DebugManager;
+
+		using BitField = Bits<ualni>;
+
+		using DFSAction = std::function<void(Widget*)>;
+
+		enum Flags : int1 {
+			ENABLED = 0,
+			NEEDS_UPDATE,
+			IN_FOCUS,
+			TRIGGERED,
+		};
 
 	public:
 		Widget();
@@ -30,10 +49,12 @@ namespace tp {
 		void bringToBack();
 
 		void setLayout(WidgetLayout* layout);
-		void setSizePolicy(SizePolicy x, SizePolicy y) { getLayout()->setSizePolicy(x, y); }
+		void setSizePolicy(SizePolicy x, SizePolicy y);
+
+		void setEnabled(bool val) { mFlags.set(ENABLED, val); }
 
 		WidgetLayout* getLayout();
-		const WidgetLayout* getLayout() const;
+		[[nodiscard]] const WidgetLayout* getLayout() const;
 
 		void triggerWidgetUpdate(const char* reason = nullptr);
 
@@ -58,20 +79,19 @@ namespace tp {
 	public:
 		[[nodiscard]] RectF getArea() const;
 		[[nodiscard]] RectF getAreaT() const;
-		// [[nodiscard]] const RectF& getAreaCache() const;
 
 		[[nodiscard]] RectF getRelativeArea() const;
 		[[nodiscard]] RectF getRelativeAreaT() const;
-		// [[nodiscard]] RectF getRelativeAreaCache() const;
 
 		void setArea(const RectF& area);
 		void setAreaCache(const RectF& area);
 
 	private:
-		using DFSAction = std::function<void(Widget*)>;
+		[[nodiscard]] bool isUpdate() const { return mFlags.get(ENABLED) && mFlags.get(NEEDS_UPDATE); }
+		[[nodiscard]] bool isDraw() const { return mFlags.get(ENABLED); }
 
 		static void dfs(Widget* iter, const DFSAction& before, const DFSAction& after = [](auto){}) {
-			if (!iter->mNeedsProcessing) return;
+			if (!iter->isUpdate()) return;
 
 			before(iter);
 
@@ -96,10 +116,7 @@ namespace tp {
 
 		WidgetLayout* mLayout = nullptr;
 
-		// TODO : make bitfield processing flags
-		bool mInFocus = false;
-		bool mNeedsProcessing = false;
-		bool mTriggered = false;
+		BitField mFlags;
 
 		// debug
 		struct {
@@ -113,5 +130,6 @@ namespace tp {
 
 	struct WidgetManagerInterface : public Widget {
 		virtual void updateWidget(Widget*, const char* reason) = 0;
+		static WidgetLayout* defaultLayout(Widget* widget);
 	};
 }

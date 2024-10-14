@@ -241,4 +241,23 @@ SUITE(BaseModule) {
 	}
 }
 
+SUITE(BitFields) {
+	TEST(Basic) {
+		Bits<ualni> bits;
+
+		for (auto i = 0; i < 8; i ++) {
+			bits.set((int1) i, true);
+			CHECK(bits.get(i));
+		}
+
+		bits.set(1, false);
+		CHECK(!bits.get(1));
+
+		bits.set(3, false);
+		CHECK(!bits.get(3));
+
+		bits.set(4, false);
+		CHECK(!bits.get(4));
+	}
+}
 int main() { return UnitTest::RunAllTests(); }

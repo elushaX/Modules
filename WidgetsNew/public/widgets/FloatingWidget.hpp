@@ -6,7 +6,7 @@
 namespace tp {
 	class FloatingWidget : public Widget {
 	public:
-		FloatingWidget() {
+		FloatingWidget() : Widget() {
 			setDebug("float", { 0.0, 0.9, 0.1, 1 });
 			setLayout(new FloatingLayout(this));
 		}
@@ -30,7 +30,7 @@ namespace tp {
 
 	class FloatingMenu : public FloatingWidget {
 	public:
-		FloatingMenu() {
+		FloatingMenu() : FloatingWidget() {
 			setDebug("float menu", { 0.0, 0.9, 0.1, 0.7 });
 
 			// addChild(&mMenuLayout);
