@@ -21,7 +21,7 @@ struct Interval {
 		start = ((halnf) randomFloat()) * (span) - offset;
 		end = ((halnf) randomFloat()) * (span) - offset;
 
-		if (start > end) swap(start, end);
+		if (start > end) swapV(start, end);
 
 		auto len = (end - start) * scale * 0.5f;
 		auto mid = (start + end) / 2.f;

@@ -85,7 +85,7 @@ namespace tp {
 	}
 
 	template <typename T>
-	inline void swap(T& t1, T& t2) {
+	inline void swapV(T& t1, T& t2) {
 		const T tmp = t1;
 		t1 = t2;
 		t2 = tmp;

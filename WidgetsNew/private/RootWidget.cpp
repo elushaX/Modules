@@ -23,7 +23,7 @@ void RootWidget::setRootWidget(Widget* widget) {
 void RootWidget::processFrame(EventHandler* events, const RectF& screenArea) {
 	mRoot->setArea(screenArea);
 
-	if (!mDebugManager.update(this, *events)) return;
+	if (!gDebugWidget.update(this, *events)) return;
 
 	// construct hierarchy tree of widgets to process
 	mUpdateManager.updateTreeToProcess(mRoot);
@@ -49,7 +49,7 @@ void RootWidget::processFrame(EventHandler* events, const RectF& screenArea) {
 }
 
 bool RootWidget::needsUpdate() const {
-	if (mDebugManager.isRedrawAlways()) return true;
+	if (gDebugWidget.isRedrawAlways()) return true;
 	return mUpdateManager.isPendingUpdates();
 }
 
@@ -58,7 +58,7 @@ void RootWidget::drawFrame(Canvas& canvas) {
 
 	drawRecursion(canvas, mRoot, { 0, 0 });
 
-	mDebugManager.drawDebug(this, canvas);
+	gDebugWidget.drawDebug(this, canvas);
 }
 
 

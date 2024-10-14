@@ -42,9 +42,10 @@ namespace tp {
 		void updatePreviewSide(const Vec2F& pointer);
 
 	public:
-		void pickRect() override {}
-		void adjustChildrenRect() override;
+		void pickRect(bool vertical) override {}
 		void clampRect() override {};
+		void updateLayout(bool vertical) override;
+		void adjustChildrenRect();
 
 	public:
 		bool setCenterWidget(Widget* widget);

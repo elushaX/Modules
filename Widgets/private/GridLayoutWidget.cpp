@@ -36,7 +36,7 @@ void DockWidget::removeSideWidget(Side side) {
 			removed = true;
 		}
 		if (removed) {
-			swap(mSideWidgets[i].order, mSideWidgets[i + 1].order);
+			swapV(mSideWidgets[i].order, mSideWidgets[i + 1].order);
 		}
 	}
 	mSideWidgets[3].order = -1;

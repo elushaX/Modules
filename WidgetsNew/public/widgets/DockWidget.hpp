@@ -12,6 +12,7 @@ namespace tp {
 
 		[[nodiscard]] bool propagateEventsToChildren() const override;
 		[[nodiscard]] bool needsNextFrame() const override;
+		[[nodiscard]]bool processesEvents() const override { return true; }
 
 		void drawSide(DockLayout::Side side, Canvas& canvas);
 

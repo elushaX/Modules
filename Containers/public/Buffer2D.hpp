@@ -63,7 +63,7 @@ namespace tp {
 			for (Index i = 0; i < mSize.x; i++) {
 				const auto lenIdx = mSize.y - 1;
 				for (Index j = 0; j < mSize.y / 2; j++) {
-					swap(get({i, j}), get({i, lenIdx - j}));
+					swapV(get({ i, j }), get({ i, lenIdx - j }));
 				}
 			}
 		}
@@ -72,7 +72,7 @@ namespace tp {
 			for (Index i = 0; i < mSize.y; i++) {
 				const auto lenIdx = mSize.x - 1;
 				for (Index j = 0; j < mSize.x / 2; j++) {
-					swap(get({i, j}), get({i, lenIdx - j}));
+					swapV(get({ i, j }), get({ i, lenIdx - j }));
 				}
 			}
 		}

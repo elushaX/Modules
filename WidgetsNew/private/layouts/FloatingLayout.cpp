@@ -3,21 +3,21 @@
 
 using namespace tp;
 
-void FloatingLayout::pickRect() {
+void FloatingLayout::pickRect(bool vertical) {
 	if (mIsFloating) {
 		auto area = getArea();
 
 		if (mIsResizing) {
 			mPointerCurrent.clamp(mMinSize, mMaxSize);
 
-			area.size = mPointerCurrent + mHandleSize / 2.f;
+			area.size[vertical] = (mPointerCurrent + mHandleSize / 2.f)[vertical];
 
 			for (auto child : children()) {
 				child->triggerWidgetUpdate("floating menu resized");
 			}
 
 		} else if (mIsFloating) {
-			area.pos += mPointerCurrent - mPointerStart;
+			area.pos[vertical] += (mPointerCurrent - mPointerStart)[vertical];
 		}
 
 		setArea(area);

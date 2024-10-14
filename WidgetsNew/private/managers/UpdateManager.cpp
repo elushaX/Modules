@@ -1,4 +1,5 @@
 #include "UpdateManager.hpp"
+#include "DebugManager.hpp"
 
 using namespace tp;
 
@@ -64,7 +65,7 @@ void UpdateManager::getWidgetPath(Widget* widget, std::vector<Widget*>& out) {
 	}
 
 	for (auto i = 0; i < out.size() / 2; i++) {
-		swap(out[i], out[out.size() - i - 1]);
+		swapV(out[i], out[out.size() - i - 1]);
 	}
 }
 
@@ -136,7 +137,7 @@ void UpdateManager::processActiveTree(Widget* iter, EventHandler& events, Vec2F 
 		iter->mDebug.pGlobal = current;
 
 		events.setCursorOrigin(current);
-		iter->process(events);
+		procWidget(iter, events, false);
 	}
 
 	for (auto child : iter->mDepthOrder) {
@@ -178,14 +179,16 @@ void UpdateManager::processFocusItems(EventHandler& events) {
 		widget->mDebug.pGlobal = widgetGlobalPos[iter];
 
 		if (!eventsProcessed && widget->processesEvents()) {
-			events.setEnableKeyEvents(true);
-			widget->process(events);
-
-			events.setEnableKeyEvents(false);
+			procWidget(widget, events, true);
 			eventsProcessed = true;
 		} else {
-			widget->process(events);
+			procWidget(widget, events, false);
 		}
 	}
 }
 
+void UpdateManager::procWidget(Widget* widget, EventHandler& events, bool withEvents) {
+	events.setEnableKeyEvents(withEvents);
+	gDebugWidget.checkProcBreakPoints(widget);
+	widget->process(events);
+}

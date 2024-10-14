@@ -697,13 +697,13 @@ obj::ObjectsGUI::ViewStackNode obj::ObjectsGUI::listView(obj::ListObject* obj) {
 					}
 
 					if (childo.node()->prev && ImGui::Selectable("Move Up")) {
-						tp::swap(childo.node()->prev->data, childo.data());
+						tp::swapV(childo.node()->prev->data, childo.data());
 						ImGui::EndPopup();
 						break;
 					}
 
 					if (childo.node()->next && ImGui::Selectable("Move Down")) {
-						tp::swap(childo.node()->next->data, childo.data());
+						tp::swapV(childo.node()->next->data, childo.data());
 						ImGui::EndPopup();
 						break;
 					}

@@ -288,9 +288,9 @@ namespace tp {
 			while (iter) {
 				tmp = iter;
 				iter = iter->next;
-				swap(tmp->next, tmp->prev);
+				swapV(tmp->next, tmp->prev);
 			}
-			swap(mFirst, mLast);
+			swapV(mFirst, mLast);
 		}
 
 		void detachAll() {

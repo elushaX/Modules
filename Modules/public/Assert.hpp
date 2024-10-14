@@ -33,9 +33,12 @@ namespace tp {
 		__builtin_debugtrap(); \
 	}
 #elif defined(ENV_OS_LINUX)
+
+#include <csignal>
+
 #define DEBUG_BREAK(expr) \
 	if (expr) {             \
-		__builtin_trap();     \
+		raise(SIGTRAP);       \
 	}
 #else
 #define DEBUG_BREAK(expr) ()

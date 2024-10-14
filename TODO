@@ -1,13 +1,30 @@
+Widgets-New:
+  Lock-focus feature
+  Collapsing menu
+  Scrolling in basic layout
+
+  Add Widgets:
+    popups, drop-downs, tool-tips
+    list menu
+
+  Add UI scaling
+  Add Theming
+
+
+Sketch3D:
+  Use new widgets
+  add gizmos
+  add save and loads
+  add better bui
+  selection
 
 ALL:
-  Gradually introduce STL into the project (replace own classes or add seamless interface and conversions into STL)
-
   Remove BaseModule and Connection modules
-  remove archiver and add boost serialization
-  Bring windows old window to graphics
-
+  remove archiver and add boost serialization ??
+  Bring ms-windows old window to graphics
   Check Warnings
   Make all modules stable with tests
+
 
 Modules:
   Remove all static variable into module's data
@@ -65,23 +82,23 @@ Language:
 	Make two grammars Regular and Context-free
 	For each grammar make grammar rules parser, example sentence generation and sentence parsing
 	Make automations itself a universal tool - NFA DFA conversions
-
+  
 Widgets:
-    Add shortcuts
-    Config cache may be static
-    Cleanup
-    Add animations
+  Add shortcuts
+  Config cache may be static
+  Cleanup
+  Add animations
 
 LibraryViewer:
-    artworks
-    how to easily add more songs?
-    seeker
-    song idx
-    non-existing highlight
-    prev next
-    remove debug gui
-    queue & repeat & shuffle...
-    new database with history
+  artworks
+  how to easily add more songs?
+  seeker
+  song idx
+  non-existing highlight
+  prev next
+  remove debug gui
+  queue & repeat & shuffle...
+  new database with history
 
 Math:
 	FFT
@@ -92,7 +109,6 @@ Math:
 
 RayTracer:
 	Features:
-	    iodn
 		Normals flag
 		Material, Normals, per trig info
 

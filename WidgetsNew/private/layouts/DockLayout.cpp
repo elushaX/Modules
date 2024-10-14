@@ -44,7 +44,7 @@ bool DockLayout::undockWidget(Side side) {
 			removed = true;
 		}
 		if (removed) {
-			swap(mSideWidgets[i].order, mSideWidgets[i + 1].order);
+			swapV(mSideWidgets[i].order, mSideWidgets[i + 1].order);
 		}
 	}
 	mSideWidgets[3].order = -1;
@@ -182,6 +182,15 @@ auto DockLayout::getSideFromWidget(Widget* widget) -> Side {
 		if (sideWidget.widget == widget) return sideWidget.side;
 	}
 	return DockLayout::NONE;
+}
+
+void DockLayout::updateLayout(bool vertical) {
+	for (auto child : children()) {
+		child->getLayout()->pickRect(vertical);
+	}
+
+	if (vertical) return;
+	adjustChildrenRect();
 }
 
 void DockLayout::adjustChildrenRect() {
