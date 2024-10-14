@@ -1,7 +1,7 @@
 #include "WidgetBase.hpp"
 
 namespace tp {
-	class DockLayoutWidget : public Widget {
+	class DockWidget : public Widget {
 	public:
 		enum Side { LEFT, TOP, RIGHT, BOTTOM, NONE  };
 
@@ -30,7 +30,7 @@ namespace tp {
 		};
 
 	public:
-		DockLayoutWidget();
+		DockWidget();
 
 		void eventProcess(const Events& events) override;
 		void eventDraw(Canvas& canvas) override;
@@ -54,7 +54,7 @@ namespace tp {
 		void calculateHeaderAreas();
 
 		bool isSideVisible(Side side);
-		bool sideExists(DockLayoutWidget::Side side);
+		bool sideExists(DockWidget::Side side);
 		ualni getVisibleSidesSize();
 		void handlePreview(const Events& events);
 

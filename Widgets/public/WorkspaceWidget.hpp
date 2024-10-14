@@ -10,7 +10,7 @@ namespace tp {
 		void eventProcess(const Events& events) override;
 
 	protected:
-		DockLayoutWidget mDockSpace;
+		DockWidget mDockSpace;
 		FloatingLayoutWidget mFloatingLayer;
 
 		// Parameters

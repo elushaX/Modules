@@ -3,76 +3,39 @@
 using namespace tp;
 
 void FloatingWidget::process(const EventHandler& events) {
-	const auto relativePointer = events.getPointer();
+	const auto pointer = events.getPointer();
 
-	bool inside = getRelativeAreaT().isInside(relativePointer);
-
-	if (inside && events.isPressed(InputID::MOUSE1)) {
-		mPointerStart = relativePointer;
-		mIsFloating = true;
-
-		if (resizeHandleRect().isInside(relativePointer)) {
-			mIsResizing = true;
-		}
-
+	if (getRelativeAreaT().isInside(pointer) && events.isPressed(InputID::MOUSE1)) {
+		layout()->startAction(pointer);
 		bringToFront();
 	}
 
-
-	if (mIsFloating && events.isReleased(InputID::MOUSE1)) {
-		mIsFloating = false;
-		mIsResizing = false;
+	if (layout()->isFloating() && events.isReleased(InputID::MOUSE1)) {
+		layout()->endAction();
 	}
 
-	mPointerCurrent = relativePointer;
-
-	// triggerWidgetUpdate();
-}
-
-void FloatingWidget::pickRect() {
-	if (mIsFloating) {
-		auto area = getAreaCache();
-
-		if (mIsResizing) {
-			mPointerCurrent.clamp(mMinSize, mMaxSize);
-
-			area.size = mPointerCurrent + mHandleSize / 2.f;
-
-			for (auto child : mChildren) {
-				child->triggerWidgetUpdate("floating menu resized");
-			}
-
-		} else if (mIsFloating) {
-			area.pos += mPointerCurrent - mPointerStart;
-		}
-
-		setAreaCache(area);
-	}
-
-	clampMinMaxSize();
+	layout()->updateAction(pointer);
 }
 
 void FloatingWidget::draw(Canvas& canvas) {
-	canvas.rect(resizeHandleRect(), RGBA(0.7f), 2);
+	canvas.rect(layout()->resizeHandleRect(), RGBA(0.7f), 2);
 	canvas.rect(getRelativeArea(), RGBA(0.5f), 10);
 }
 
-RectF FloatingWidget::resizeHandleRect() {
-	auto area = getRelativeArea();
-	area.pos = area.p3() - mHandleSize;
-	area.size = mHandleSize;
-	area.shrink(mHandlePadding);
-	return area;
-}
-
 bool FloatingWidget::propagateEventsToChildren() const {
-	return !mIsFloating;
+	return !layout()->isFloating();
 }
 
 bool FloatingWidget::isFloating() const {
-	return mIsFloating;
+	return layout()->isFloating();
 }
 
 bool FloatingWidget::needsNextFrame() const {
 	return Widget::needsNextFrame() || isFloating();
+}
+
+FloatingLayout* FloatingWidget::layout() { return dynamic_cast<FloatingLayout*>(Widget::getLayout()); }
+
+const FloatingLayout* FloatingWidget::layout() const {
+	return dynamic_cast<const FloatingLayout*>(Widget::getLayout());
 }

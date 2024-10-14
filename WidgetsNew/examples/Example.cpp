@@ -4,7 +4,7 @@
 #include "RootWidget.hpp"
 #include "AnimationTestWidget.hpp"
 #include "FloatingWidget.hpp"
-#include "DockLayoutWidget.hpp"
+#include "DockWidget.hpp"
 
 using namespace tp;
 
@@ -31,7 +31,7 @@ public:
 		mDockLayout.addChild(&mFloatingMenu);
 
 		mDockLayout.setCenterWidget(&mButton5);
-		mDockLayout.dockWidget(&mButton6, DockLayoutWidget::RIGHT);
+		mDockLayout.dockWidget(&mButton6, DockLayout::RIGHT);
 
 		mFloatingMenu.addToMenu(&mButton);
 		mFloatingMenu2.addToMenu(&mButton2);
@@ -42,8 +42,8 @@ public:
 		mButton.setAction([this]() { mButton2.setColor(RGBA::random()); });
 		mButton2.setAction([this]() { mButton.setColor(RGBA::random()); });
 
-		mButton5.setAction([this]() { mDockLayout.dockWidget(&mFloatingMenu, DockLayoutWidget::Side::LEFT); });
-		mButton6.setAction([this]() { mDockLayout.undockWidget(DockLayoutWidget::Side::LEFT); });
+		mButton5.setAction([this]() { mDockLayout.dockWidget(&mFloatingMenu, DockLayout::LEFT); });
+		mButton6.setAction([this]() { mDockLayout.undockWidget(DockLayout::LEFT); });
 
 		mButton5.setText("dock");
 		mButton6.setText("undock");
@@ -94,10 +94,10 @@ public:
 		mButton3.setSizePolicy(SizePolicy::Expanding, SizePolicy::Minimal);
 
 		mWidget.setSizePolicy(SizePolicy::Minimal, SizePolicy::Minimal);
-		mWidget.setLayoutPolicy(LayoutPolicy::Horizontal);
+		// mWidget.setLayoutPolicy(LayoutPolicy::Horizontal);
 
-		mButton.setAction([this]() { mButton2.setMinSize(mButton2.getMinSize() + 10); });
-		mButton2.setAction([this]() { mButton.setMinSize(mButton.getMinSize() + 10); } );
+		// mButton.setAction([this]() { mButton2.setMinSize(mButton2.getMinSize() + 10); });
+		// mButton2.setAction([this]() { mButton.setMinSize(mButton.getMinSize() + 10); } );
 
 		RootWidget::setWidgetArea(mWidget, { 400, 100, 150, 200 });
 	}
@@ -135,7 +135,7 @@ private:
 	FloatingWidget mWidgetFloating;
 	AnimationTestWidget mAnimationTestWidget;
 
-	DockLayoutWidget mDockLayout;
+	DockWidget mDockLayout;
 
 	RootWidget mRootWidget;
 };

@@ -26,15 +26,39 @@ namespace tp {
 		virtual void pickRect() = 0;
 		virtual void clampRect() = 0;
 		virtual void adjustChildrenRect() = 0;
+		virtual RectF getAvailableChildArea() const;
 
-	protected:
+	public:
+		const Vec2F& getMinSize();
+		void setMinSize(const Vec2F& size);
+
+		const Vec2<SizePolicy>& getSizePolicy() const;
+		void setSizePolicy(SizePolicy x, SizePolicy y);
+
+	public:
 		[[nodiscard]] const RectF& getArea() const;
+		RectF getAnimatedArea() const;
+
 		void setArea(const RectF& area);
 		[[nodiscard]] Widget* parent() const;
 		[[nodiscard]] const std::vector<Widget*>& children() const;
 
+	public:
+		void clampMinMaxSize();
+
+		[[nodiscard]] RangeF pickRange(const RangeF& current, const RangeF& child, const RangeF& parent, bool v) const;
+		[[nodiscard]] RangeF clampRange(const RangeF& current, const RangeF& child, const RangeF& parent, bool v) const;
+
+		[[nodiscard]] RectF getChildrenEnclosure() const;
+		[[nodiscard]] RectF getParentEnclosure() const;
+
 	private:
 		Widget* mWidget = nullptr;
+
+	protected:
+		Vec2<SizePolicy> mSizePolicy = { SizePolicy::Fixed, SizePolicy::Fixed };
+		Vec2F mMinSize = { 50, 50 };
+		Vec2F mMaxSize = { FLT_MAX / 2, FLT_MAX / 2 };
 	};
 
 	class BasicLayout : public WidgetLayout {
@@ -44,31 +68,22 @@ namespace tp {
 		void pickRect() override;
 		void clampRect() override;
 		void adjustChildrenRect() override;
-
-	public:
-		const Vec2F& getMinSize();
-		void setMinSize(const Vec2F& size);
+		RectF getAvailableChildArea() const override;
 
 	private:
 		void adjustLayout(bool vertical);
 		static halnf changeChildSize(Widget*, halnf diff, bool vertical);
 
-		[[nodiscard]] RangeF pickRange(const RangeF& current, const RangeF& child, const RangeF& parent, bool v) const;
-		[[nodiscard]] RangeF clampRange(const RangeF& current, const RangeF& child, const RangeF& parent, bool v) const;
-
-		void clampMinMaxSize();
-
-		[[nodiscard]] RectF getChildrenEnclosure() const;
-		[[nodiscard]] RectF getParentEnclosure() const;
-
 	private:
 		LayoutPolicy mLayoutPolicy = LayoutPolicy::Vertical;
-		Vec2<SizePolicy> mSizePolicy = { SizePolicy::Fixed, SizePolicy::Fixed };
-
-		Vec2F mMinSize = { 50, 50 };
-		Vec2F mMaxSize = { FLT_MAX / 2, FLT_MAX / 2 };
-
 		halnf mLayoutGap = 5;
 		halnf mLayoutMargin = 10;
+	};
+
+	class LayoutManager {
+	public:
+		LayoutManager() = default;
+
+		void adjust(Widget* root);
 	};
 }

@@ -195,7 +195,7 @@ namespace tp {
 			mCurrentTrackInfo.mPlayer = mPlayer;
 
 			mDockSpace.setCenterWidget(&mSongList);
-			mDockSpace.addSideWidget(&mCurrentTrackInfo, DockLayoutWidget::RIGHT);
+			mDockSpace.addSideWidget(&mCurrentTrackInfo, DockWidget::RIGHT);
 
 			// this->mChildWidgets.pushBack(&mCurrentTrackInfo);
 			// this->mChildWidgets.pushBack(&mCurrentTrack);

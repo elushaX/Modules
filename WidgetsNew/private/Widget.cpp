@@ -14,7 +14,7 @@ Widget::~Widget() {
 	delete mLayout;
 }
 
-void Widget::addChild(Widget* child) {
+void Widget::addChild(Widget* child, bool front) {
 	if (auto node = mDepthOrder.find(child)) {
 		node->data->bringToFront();
 		return;
@@ -25,7 +25,12 @@ void Widget::addChild(Widget* child) {
 	}
 
 	mChildren.push_back(child);
-	mDepthOrder.pushBack(child);
+
+	if (front) {
+		mDepthOrder.pushFront(child);
+	} else {
+		mDepthOrder.pushBack(child);
+	}
 
 	child->mParent = this;
 
@@ -78,6 +83,8 @@ void Widget::setLayout(tp::WidgetLayout* layout) {
 
 WidgetLayout* Widget::getLayout() { return mLayout; }
 
+const WidgetLayout* Widget::getLayout() const { return mLayout; }
+
 WidgetManagerInterface* Widget::getRoot() {
 	Widget* iter = mParent;
 	while (iter && iter->mParent) {
@@ -105,13 +112,13 @@ RectF Widget::getArea() const { return mArea.getCurrentRect(); }
 
 RectF Widget::getAreaT() const { return mArea.getTargetRect(); }
 
-const RectF& Widget::getAreaCache() const { return mAreaCache; }
+// const RectF& Widget::getAreaCache() const { return mAreaCache; }
 
 RectF Widget::getRelativeArea() const { return { {}, mArea.getCurrentRect().size }; }
 
 RectF Widget::getRelativeAreaT() const { return { {}, mArea.getTargetRect().size }; }
 
-RectF Widget::getRelativeAreaCache() const { return { {}, mAreaCache.size }; }
+// RectF Widget::getRelativeAreaCache() const { return { {}, mAreaCache.size }; }
 
 void Widget::setDebug(const char* name, RGBA col) {
 	mDebug.id = name;

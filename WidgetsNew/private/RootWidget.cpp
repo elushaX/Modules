@@ -26,10 +26,8 @@ void RootWidget::processFrame(EventHandler* events, const RectF& screenArea) {
 	// construct hierarchy tree of widgets to process
 	updateTreeToProcess();
 
-	auto root = mWidgetsToProcess.find(mRoot) == mWidgetsToProcess.end() ? nullptr : &mWidgetsToProcess[mRoot];
-
-	// update active tree animations
-	updateAnimations(root);
+	updateAnimations();
+	updateAreaCache(mRoot, true);
 
 	// update all events and call all event processing callbacks
 	events->setEnableKeyEvents(true);
@@ -38,14 +36,14 @@ void RootWidget::processFrame(EventHandler* events, const RectF& screenArea) {
 
 	events->setEnableKeyEvents(false);
 	events->setCursorOrigin({ 0, 0 });
-	processActiveTree(root, *events, { 0, 0 });
+	processActiveTree(mRoot, *events, { 0, 0 });
 
-	updateAreaCache(root, true);
+	updateAreaCache(mRoot, true);
 
 	// update widget sizes base on individual size policies
-	adjustSizes(root);
+	processLayout();
 
-	updateAreaCache(root, false);
+	updateAreaCache(mRoot, false);
 
 	// trigger some widgets by moise pointer
   handleFocusChanges(*events);
@@ -62,7 +60,7 @@ void RootWidget::processFrame(EventHandler* events, const RectF& screenArea) {
 		auto end = !widget->needsNextFrame();
 		if (end) {
 			widget->endAnimations();
-			widget->mTriggerReason = "del";
+			widget->mDebug.triggerReason = "del";
 		}
 		return end;
 	});
@@ -73,33 +71,33 @@ bool RootWidget::needsUpdate() const { return !mTriggeredWidgets.empty() || mDeb
 void RootWidget::debugDrawWidget(Widget* widget) {
 
 	ImGui::PushID(widget);
-	if (ImGui::CollapsingHeader(widget->mName.c_str())) {
+	if (ImGui::CollapsingHeader(widget->mDebug.id.c_str())) {
 
-		ImGui::Text("trigger reason: %s", widget->mTriggerReason.c_str());
+		ImGui::Text("trigger reason: %s", widget->mDebug.triggerReason.c_str());
 
 		auto area = widget->getAreaT();
 		if (ImGui::InputFloat4("rect", &area.x)) {
 			widget->setArea(area);
 		}
 
-		ImGui::InputFloat2("min size", &widget->mMinSize.x);
-		ImGui::InputFloat2("max size", &widget->mMaxSize.x);
+		// ImGui::InputFloat2("min size", &widget->mMinSize.x);
+		// ImGui::InputFloat2("max size", &widget->mMaxSize.x);
 
-		int sizePolicyX = int(widget->mSizePolicy.x);
-		int sizePolicyY = int(widget->mSizePolicy.y);
-		int layout = int(widget->mLayoutPolicy);
+		// int sizePolicyX = int(widget->mSizePolicy.x);
+		// int sizePolicyY = int(widget->mSizePolicy.y);
+		// int layout = int(widget->mLayoutPolicy);
 
-		if (ImGui::Combo("Size Policy X", &sizePolicyX, "Fixed\0Expanding\0Minimal\0")) {
-			widget->setSizePolicy(SizePolicy(sizePolicyX), SizePolicy(sizePolicyY));
-		}
+		// if (ImGui::Combo("Size Policy X", &sizePolicyX, "Fixed\0Expanding\0Minimal\0")) {
+			// widget->setSizePolicy(SizePolicy(sizePolicyX), SizePolicy(sizePolicyY));
+		// }
 
-		if (ImGui::Combo("Size Policy Y", &sizePolicyY, "Fixed\0Expanding\0Minimal\0")) {
-			widget->setSizePolicy(SizePolicy(sizePolicyX), SizePolicy(sizePolicyY));
-		}
+		// if (ImGui::Combo("Size Policy Y", &sizePolicyY, "Fixed\0Expanding\0Minimal\0")) {
+			// widget->setSizePolicy(SizePolicy(sizePolicyX), SizePolicy(sizePolicyY));
+		// }
 
-		if (ImGui::Combo("Layout", &layout, "Passive\0Vertical\0Horizontal\0")) {
-			widget->setLayoutPolicy(LayoutPolicy(layout));
-		}
+		// if (ImGui::Combo("Layout", &layout, "Passive\0Vertical\0Horizontal\0")) {
+			// widget->setLayoutPolicy(LayoutPolicy(layout));
+		// }
 	}
 	ImGui::PopID();
 }
@@ -117,7 +115,7 @@ void RootWidget::drawFrame(Canvas& canvas) {
 		drawDebug(canvas, mRoot, { 0, 0 }, 0);
 
 		ImGui::Text("Triggered Widgets: %i", (int) mTriggeredWidgets.size());
-		ImGui::Text("Widgets To Process: %i", (int) mWidgetsToProcess.size());
+		ImGui::Text("Widgets To Process: %i", mDebugWidgetsToProcess);
 
 		ImGui::Text("To Toggle processing press k");
 		ImGui::Checkbox("Stop processing", &mDebugStopProcessing);
@@ -147,17 +145,22 @@ void RootWidget::drawFrame(Canvas& canvas) {
 
 
 void RootWidget::updateTreeToProcess() {
-	mWidgetsToProcess.clear();
+	dfs(mRoot, [](Widget* widget) {
+		widget->mNeedsProcessing = false;
+	});
+
 	for (auto& [widget, flag] : mTriggeredWidgets) {
 		flag = true;
-		for (auto iter = widget; iter; iter = iter->mParent) {
-			if (iter->mParent) {
-				mWidgetsToProcess[iter->mParent].children.insert(&mWidgetsToProcess[iter]);
-				mWidgetsToProcess[iter->mParent].widget= iter->mParent;
-				mWidgetsToProcess[iter].widget= iter;
-			}
+
+		for (auto iter = widget; iter && iter != this; iter = iter->mParent) {
+			iter->mNeedsProcessing = true;
 		}
 	}
+
+	mDebugWidgetsToProcess = 0;
+	dfs(mRoot, [this](Widget*) {
+		mDebugWidgetsToProcess++;
+	});
 }
 
 void RootWidget::drawRecursion(Canvas& canvas, Widget* active, const Vec2F& pos) {
@@ -179,17 +182,15 @@ void RootWidget::drawRecursion(Canvas& canvas, Widget* active, const Vec2F& pos)
 void RootWidget::drawDebug(Canvas& canvas, Widget* active, const Vec2F& pos, int depthOrder) {
 	auto area = RectF{ pos, active->getAreaT().size };
 
-	auto processed = mWidgetsToProcess.find(active) != mWidgetsToProcess.end();
-
-	if (processed) {
+	if (active->mNeedsProcessing) {
 		RGBA color = { 1, 0, 0, 1};
 		canvas.frame(area, color);
-		canvas.text((active->mName + ":" + std::to_string(depthOrder)).c_str(), area, 22, Canvas::Align::LC, 2, color);
+		canvas.text((active->mDebug.id + ":" + std::to_string(depthOrder)).c_str(), area, 22, Canvas::Align::LC, 2, color);
 	}
 
-	if (processed || active->mInFocus) {
-		canvas.circle(pos + active->mLocalPoint, 5, active->mDebugColor);
-		canvas.circle(active->mGlobalPoint, 15, active->mDebugColor);
+	if (active->mNeedsProcessing || active->mInFocus) {
+		canvas.circle(pos + active->mDebug.pLocal, 5, active->mDebug.col);
+		canvas.circle(active->mDebug.pGlobal, 15, active->mDebug.col);
 	}
 
 	if (active->mInFocus) {
@@ -208,12 +209,10 @@ void RootWidget::setWidgetArea(Widget& widget, const RectF& rect) {
 	widget.mArea.endAnimation();
 }
 
-void RootWidget::updateAnimations(ActiveTreeNode* iter) {
-	if (!iter) return;
-	iter->widget->updateAnimations();
-	for (auto child : iter->children) {
-		updateAnimations(child);
-	}
+void RootWidget::updateAnimations() {
+	dfs(mRoot, [](Widget* widget) {
+		widget->updateAnimations();
+	});
 }
 
 void RootWidget::getWidgetPath(Widget* widget, std::vector<Widget*>& out) {
@@ -289,21 +288,21 @@ void RootWidget::findFocusWidget(Widget* iter, Widget** focus, const Vec2F& poin
 
 void RootWidget::updateWidget(Widget* widget, const char* reason) {
 	DEBUG_ASSERT(reason)
-	widget->mTriggerReason = reason;
+	widget->mDebug.triggerReason = reason;
 	mTriggeredWidgets.insert({ widget, false });
 }
 
-void RootWidget::updateAreaCache(ActiveTreeNode* iter, bool read) {
-	if (!iter) return;
+void RootWidget::updateAreaCache(Widget* iter, bool read) {
+	if (!iter || !iter->mNeedsProcessing) return;
 
 	if (read) {
-		iter->widget->mAreaCache = iter->widget->getAreaT();
+		iter->mAreaCache = iter->getAreaT();
 	} else {
-		iter->widget->setArea(iter->widget->mAreaCache);
-		iter->widget->mArea.updateCurrentRect();
+		iter->setArea(iter->mAreaCache);
+		iter->mArea.updateCurrentRect();
 	}
 
-	for (auto child : iter->widget->mChildren) {
+	for (auto child : iter->mChildren) {
 		if (read) {
 			child->mAreaCache = child->getAreaT();
 		} else {
@@ -312,37 +311,29 @@ void RootWidget::updateAreaCache(ActiveTreeNode* iter, bool read) {
 		}
 	}
 
-	for (auto child : iter->children) {
-		updateAreaCache(child, read);
+	for (auto child : iter->mDepthOrder) {
+		updateAreaCache(child.data(), read);
 	}
 }
 
-void RootWidget::adjustSizes(ActiveTreeNode* iter) {
-	if (!iter) return;
-
-	iter->widget->pickRect();
-
-	for (auto child : iter->children) {
-		adjustSizes(child);
-	}
-
-	iter->widget->adjustChildrenRect();
+void RootWidget::processLayout() {
+	mLayoutManager.adjust(mRoot);
 }
 
-void RootWidget::processActiveTree(ActiveTreeNode* iter, EventHandler& events, Vec2F parent) {
-	if (!iter) return;
+void RootWidget::processActiveTree(Widget* iter, EventHandler& events, Vec2F parent) {
+	if (!iter || !iter->mNeedsProcessing) return;
 
-	auto current = parent + iter->widget->getAreaT().pos;
+	auto current = parent + iter->getAreaT().pos;
 
-	if (!iter->widget->mInFocus) {
-		iter->widget->mGlobalPoint = current;
+	if (!iter->mInFocus) {
+		iter->mDebug.pGlobal = current;
 
 		events.setCursorOrigin(current);
-		iter->widget->process(events);
+		iter->process(events);
 	}
 
-	for (auto child : iter->children) {
-		processActiveTree(child, events, current);
+	for (auto child : iter->mDepthOrder) {
+		processActiveTree(child.data(), events, current);
 	}
 }
 
@@ -377,7 +368,7 @@ void RootWidget::processFocusItems(EventHandler& events) {
 
 		events.setCursorOrigin(widgetGlobalPos[iter]);
 
-		widget->mGlobalPoint = widgetGlobalPos[iter];
+		widget->mDebug.pGlobal = widgetGlobalPos[iter];
 
 		if (!eventsProcessed && widget->processesEvents()) {
 			events.setEnableKeyEvents(true);

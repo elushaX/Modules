@@ -8,13 +8,6 @@
 
 namespace tp {
 	class RootWidget : public WidgetManagerInterface {
-
-		struct ActiveTreeNode {
-			ActiveTreeNode* parent = nullptr;
-			std::set<ActiveTreeNode*> children;
-			Widget* widget = nullptr;
-		};
-
 	public:
 		RootWidget() { setDebug("root", RGBA(1)); }
 
@@ -31,29 +24,32 @@ namespace tp {
 
 	private:
 		void updateTreeToProcess();
-		void updateAnimations(ActiveTreeNode* iter);
+		void updateAnimations();
+		void processLayout();
 		void drawRecursion(Canvas& canvas, Widget* active, const Vec2F& pos);
 		void drawDebug(Canvas& canvas, Widget* active, const Vec2F& pos, int depthOrder);
 		void findFocusWidget(Widget* iter, Widget** focus, const Vec2F& pointer);
 		void handleFocusChanges(EventHandler& events);
 		void getWidgetPath(Widget* widget, std::vector<Widget*>& out);
-		void processActiveTree(ActiveTreeNode* iter, EventHandler& events, Vec2F pos);
+		void processActiveTree(Widget* iter, EventHandler& events, Vec2F pos);
 		void processFocusItems(EventHandler& events);
-		void adjustSizes(ActiveTreeNode* iter);
-		void updateAreaCache(ActiveTreeNode* iter, bool read);
+
+		void updateAreaCache(Widget* iter, bool read);
 		static void debugDrawWidget(Widget* widget);
 
 	private:
+		LayoutManager mLayoutManager;
+
 		RectF mScreenArea;
 		Widget* mRoot = nullptr;
 
 		// frame to frame changes
 		std::map<Widget*, bool> mTriggeredWidgets;
-		std::map<Widget*, ActiveTreeNode> mWidgetsToProcess;
 		Widget* mInFocusWidget = nullptr;
 
 		bool mDebug = true;
 		bool mDebugStopProcessing = false;
 		bool mDebugRedrawAlways = false;
+		int mDebugWidgetsToProcess = 0;
 	};
 }

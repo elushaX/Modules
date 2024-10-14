@@ -1,24 +1,20 @@
 #pragma once
 
 #include "SimpleWidgets.hpp"
+#include "FloatingLayout.hpp"
 
 namespace tp {
 	class FloatingWidget : public Widget {
 	public:
 		FloatingWidget() {
 			setDebug("float", { 0.0, 0.9, 0.1, 1 });
-
-			mSizePolicy = { SizePolicy::Fixed, SizePolicy::Fixed };
-			mLayoutPolicy = LayoutPolicy::Horizontal;
+			setLayout(new FloatingLayout(this));
 		}
 
 		void process(const EventHandler& events) override;
 
-		void pickRect() override;
-
 		void draw(Canvas& canvas) override;
 
-		RectF resizeHandleRect();
 
 		[[nodiscard]] bool needsNextFrame() const override;
 
@@ -28,14 +24,8 @@ namespace tp {
 		[[nodiscard]] bool isFloating() const;
 
 	private:
-		bool mIsFloating = false;
-		bool mIsResizing = false;
-
-		halnf mHandleSize = 10;
-		halnf mHandlePadding = 2;
-
-		Vec2F mPointerStart;
-		Vec2F mPointerCurrent;
+		FloatingLayout* layout();
+		[[nodiscard]] const FloatingLayout* layout() const;
 	};
 
 	class FloatingMenu : public FloatingWidget {
@@ -53,8 +43,8 @@ namespace tp {
 			mHeader.setSizePolicy(SizePolicy::Expanding, SizePolicy::Minimal);
 			mBodyLayout.setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
 
-			setLayoutPolicy(LayoutPolicy::Vertical);
-			mBodyLayout.setLayoutPolicy(LayoutPolicy::Vertical);
+			// getLayout()->setLayoutPolicy(LayoutPolicy::Vertical);
+			// mBodyLayout.getLayout()->setLayoutPolicy(LayoutPolicy::Vertical);
 		}
 
 	public:
