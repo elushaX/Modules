@@ -45,6 +45,10 @@ public:
 		mButton5.setAction([this]() { mDockLayout.dockWidget(&mFloatingMenu, DockLayout::LEFT); });
 		mButton6.setAction([this]() { mDockLayout.undockWidget(DockLayout::LEFT); });
 
+		mButton3.setAction([this]() { mDockLayout.toggleWidgetVisibility(DockLayout::LEFT); });
+		// mButton4.setAction([this]() { mDockLayout.undockWidget(DockLayout::LEFT); });
+
+		mButton3.setText("toggle");
 		mButton5.setText("dock");
 		mButton6.setText("undock");
 

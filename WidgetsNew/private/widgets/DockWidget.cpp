@@ -3,7 +3,8 @@
 
 using namespace tp;
 
-DockWidget::DockWidget() {
+DockWidget::DockWidget() : Widget() {
+	setDebug("dock", {});
 	setLayout(new DockLayout(this));
 }
 
@@ -39,7 +40,13 @@ void DockWidget::setCenterWidget(Widget* widget) {
 }
 
 void DockWidget::toggleWidgetVisibility(DockLayout::Side side) {
-	layout()->toggleWidgetVisibility(side);
+	if (layout()->sideExists(side)) {
+		auto widget = layout()->getSideWidget(side);
+		widget->setEnabled(!layout()->isSideVisible(side));
+		widget->bringToBack();
+
+		layout()->toggleWidgetVisibility(side);
+	}
 }
 
 void DockWidget::process(const EventHandler& events) {

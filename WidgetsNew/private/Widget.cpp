@@ -6,8 +6,10 @@ using namespace tp;
 
 Widget::Widget() {
 	mArea.setTargetRect({ 100, 100, 10, 10 });
-	setLayout(new BasicLayout(this));
+	setLayout(WidgetManagerInterface::defaultLayout(this));
 	mArea.endAnimation();
+
+	mFlags.set(ENABLED, true);
 }
 
 Widget::~Widget() {
@@ -72,11 +74,13 @@ void Widget::bringToBack() {
 	order.pushBack(node);
 }
 
-void Widget::mouseEnter() { mInFocus = true; }
-void Widget::mouseLeave() { mInFocus = false; }
+void Widget::mouseEnter() { mFlags.set(IN_FOCUS, true); }
+void Widget::mouseLeave() { mFlags.set(IN_FOCUS, false); }
+
 bool Widget::propagateEventsToChildren() const { return true; }
 
 void Widget::setLayout(tp::WidgetLayout* layout) {
+	delete mLayout;
 	mLayout = layout;
 	triggerWidgetUpdate("chane layout");
 }
@@ -112,15 +116,15 @@ RectF Widget::getArea() const { return mArea.getCurrentRect(); }
 
 RectF Widget::getAreaT() const { return mArea.getTargetRect(); }
 
-// const RectF& Widget::getAreaCache() const { return mAreaCache; }
-
 RectF Widget::getRelativeArea() const { return { {}, mArea.getCurrentRect().size }; }
 
 RectF Widget::getRelativeAreaT() const { return { {}, mArea.getTargetRect().size }; }
 
-// RectF Widget::getRelativeAreaCache() const { return { {}, mAreaCache.size }; }
-
 void Widget::setDebug(const char* name, RGBA col) {
 	mDebug.id = name;
 	mDebug.col = col;
+}
+
+void Widget::setSizePolicy(SizePolicy x, SizePolicy y) {
+	getLayout()->setSizePolicy(x, y);
 }

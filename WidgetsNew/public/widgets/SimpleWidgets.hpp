@@ -7,7 +7,7 @@
 namespace tp {
 	class LabelWidget : public Widget {
 	public:
-		LabelWidget() {
+		LabelWidget() : Widget() {
 			setDebug("label", { 0.1, 0.1, 0.1, 0.1 });
 		}
 

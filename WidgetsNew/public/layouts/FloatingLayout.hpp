@@ -1,11 +1,11 @@
 #pragma once
 
-#include "LayoutManager.hpp"
+#include "BasicLayout.hpp"
 
 namespace tp {
 	class FloatingLayout : public BasicLayout {
 	public:
-		FloatingLayout(Widget* widget) :
+		explicit FloatingLayout(Widget* widget) :
 			BasicLayout(widget) {}
 
 	public:
