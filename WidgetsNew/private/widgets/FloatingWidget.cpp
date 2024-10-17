@@ -1,4 +1,5 @@
 #include "FloatingWidget.hpp"
+#include "ScrollableLayout.hpp"
 
 using namespace tp;
 
@@ -47,3 +48,25 @@ const FloatingLayout* FloatingWidget::layout() const {
 	return dynamic_cast<const FloatingLayout*>(Widget::getLayout());
 }
 
+FloatingMenu::FloatingMenu() : FloatingWidget() {
+	setDebug("float menu", { 0.0, 0.9, 0.1, 0.7 });
+
+	// addChild(&mMenuLayout);
+
+	addChild(&mHeader);
+	addChild(&mBodyLayout);
+
+	mHeader.setText("Menu");
+
+	mHeader.setSizePolicy(SizePolicy::Expanding, SizePolicy::Minimal);
+	mBodyLayout.setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
+
+	mBodyLayout.setLayout(new ScrollableLayout(&mBodyLayout));
+	mBodyLayout.addChild(&mScrollBar);
+	mBodyLayout.addChild(&mContentWidget);
+
+	mContentWidget.setSizePolicy(SizePolicy::Minimal, SizePolicy::Minimal);
+
+	// getLayout()->setLayoutPolicy(LayoutPolicy::Vertical);
+	// mBodyLayout.getLayout()->setLayoutPolicy(LayoutPolicy::Vertical);
+}

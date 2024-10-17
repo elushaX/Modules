@@ -16,7 +16,7 @@ void ScrollableLayout::updateLayout(bool vertical) {
 
 	if (!scroller || !content) return;
 
-	updateWidgetRects(getArea(), content, scroller);
+	updateWidgetRects(getArea().relative(), content, scroller);
 }
 
 void ScrollableLayout::updateWidgetRects(const RectF& area, Widget* content, ScrollableBarWidget* scroller) const {
