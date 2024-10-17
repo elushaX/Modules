@@ -7,11 +7,14 @@ void FloatingWidget::process(const EventHandler& events) {
 
 	if (getRelativeAreaT().isInside(pointer) && events.isPressed(InputID::MOUSE1)) {
 		layout()->startAction(pointer);
+
 		bringToFront();
+		lockFocus();
 	}
 
 	if (layout()->isFloating() && events.isReleased(InputID::MOUSE1)) {
 		layout()->endAction();
+		freeFocus();
 	}
 
 	layout()->updateAction(pointer);
@@ -20,6 +23,10 @@ void FloatingWidget::process(const EventHandler& events) {
 void FloatingWidget::draw(Canvas& canvas) {
 	canvas.rect(layout()->resizeHandleRect(), RGBA(0.7f), 2);
 	canvas.rect(getRelativeArea(), RGBA(0.5f), 10);
+}
+
+bool FloatingWidget::processesEvents() const {
+	return true;
 }
 
 bool FloatingWidget::propagateEventsToChildren() const {
@@ -39,3 +46,4 @@ FloatingLayout* FloatingWidget::layout() { return dynamic_cast<FloatingLayout*>(
 const FloatingLayout* FloatingWidget::layout() const {
 	return dynamic_cast<const FloatingLayout*>(Widget::getLayout());
 }
+

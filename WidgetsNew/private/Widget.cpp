@@ -97,12 +97,6 @@ WidgetManagerInterface* Widget::getRoot() {
 	return dynamic_cast<WidgetManagerInterface*>(iter);
 }
 
-void Widget::triggerWidgetUpdate(const char* reason) {
-	if (auto root = getRoot()) {
-		root->updateWidget(this, reason);
-	}
-}
-
 void Widget::setAreaCache(const tp::RectF& area) { mAreaCache = area; }
 
 void Widget::setArea(const RectF& area) {
@@ -127,4 +121,27 @@ void Widget::setDebug(const char* name, RGBA col) {
 
 void Widget::setSizePolicy(SizePolicy x, SizePolicy y) {
 	getLayout()->setSizePolicy(x, y);
+}
+
+void Widget::triggerWidgetUpdate(const char* reason) {
+	if (auto root = getRoot()) {
+		root->updateWidget(this, reason);
+	}
+}
+
+void Widget::openPopup(Widget* widget) {
+	addChild(widget);
+	getRoot()->openPopup(widget);
+}
+
+void Widget::closePopup(Widget* widget) {
+	getRoot()->closePopup(widget);
+}
+
+void Widget::lockFocus() {
+	getRoot()->lockFocus(this);
+}
+
+void Widget::freeFocus() {
+	getRoot()->freeFocus(this);
 }

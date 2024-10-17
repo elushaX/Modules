@@ -58,6 +58,12 @@ namespace tp {
 
 		void triggerWidgetUpdate(const char* reason = nullptr);
 
+		void openPopup(Widget*);
+		void closePopup(Widget*);
+
+		void lockFocus();
+		void freeFocus();
+
 	protected:
 		virtual void process(const EventHandler& events) {}
 		virtual void draw(Canvas& canvas) {}
@@ -130,6 +136,13 @@ namespace tp {
 
 	struct WidgetManagerInterface : public Widget {
 		virtual void updateWidget(Widget*, const char* reason) = 0;
+
+		virtual void openPopup(Widget*) = 0;
+		virtual void closePopup(Widget*) = 0;
+
+		virtual void lockFocus(Widget*) = 0;
+		virtual void freeFocus(Widget*) = 0;
+
 		static WidgetLayout* defaultLayout(Widget* widget);
 	};
 }

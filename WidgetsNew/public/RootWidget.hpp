@@ -29,11 +29,21 @@ namespace tp {
 		void drawRecursion(Canvas& canvas, Widget* active, const Vec2F& pos);
 
 		void updateWidget(Widget*, const char* reason = nullptr) override;
+
+		void openPopup(Widget*) override;
+		void closePopup(Widget*) override;
+
+		void lockFocus(Widget*) override;
+		void freeFocus(Widget*) override;
+
 		void updateAnimations();
 		void updateAreaCache(Widget* iter, bool read);
 
 	private:
-		Widget* mRoot = nullptr;
+		Widget mRoot;
+		Widget mPopups;
+
+		Widget* mUserRoot = nullptr;
 
 		LayoutManager mLayoutManager;
 		UpdateManager mUpdateManager;

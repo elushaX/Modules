@@ -74,10 +74,18 @@ void UpdateManager::handleFocusChanges(Widget* root, EventHandler& events) {
 
 	events.setCursorOrigin({ 0, 0 });
 
-	findFocusWidget(root, &mInFocusWidget, events.getPointer());
+	mInFocusWidget = nullptr;
+
+	if (!mFocusLockWidget) {
+		findFocusWidget(root, &mInFocusWidget, events.getPointer());
+	} else {
+		mInFocusWidget = mFocusLockWidget;
+	}
 
 	// if (mInFocusWidget == prevFocus) return;
 	if (mInFocusWidget) scheduleUpdate(mInFocusWidget, "focus entered");
+
+	if (!mInFocusWidget && !prevFocus) return;
 
 	std::vector<Widget*> path2;
 	getWidgetPath(mInFocusWidget, path2);
@@ -99,7 +107,7 @@ void UpdateManager::handleFocusChanges(Widget* root, EventHandler& events) {
 		}
 	}
 
-	size_t mostCommonIdx = 0;
+	int mostCommonIdx = 0;
 	if (!(path1.empty() || path2.empty())) {
 		while (path1[mostCommonIdx] == path2[mostCommonIdx] && mostCommonIdx < min(path1.size(), path2.size())) {
 			mostCommonIdx++;
@@ -121,7 +129,9 @@ void UpdateManager::handleFocusChanges(Widget* root, EventHandler& events) {
 void UpdateManager::findFocusWidget(Widget* iter, Widget** focus, const Vec2F& pointer) {
 	if (!iter->mArea.getTargetRect().isInside(pointer) || !iter->mFlags.get(Widget::ENABLED)) return;
 
-	*focus = iter;
+	if (iter->processesEvents()) {
+		*focus = iter;
+	}
 
 	for (auto child = iter->mDepthOrder.lastNode(); child; child = child->prev) {
 		findFocusWidget(child->data, focus, pointer - iter->mArea.getTargetRect().pos);
@@ -147,8 +157,6 @@ void UpdateManager::processActiveTree(Widget* iter, EventHandler& events, Vec2F 
 
 void UpdateManager::processFocusItems(EventHandler& events) {
 	if (!mInFocusWidget) return;
-
-	// FIXME : cringe
 
 	std::vector<Widget*> path;
 	getWidgetPath(mInFocusWidget, path);
@@ -191,4 +199,13 @@ void UpdateManager::procWidget(Widget* widget, EventHandler& events, bool withEv
 	events.setEnableKeyEvents(withEvents);
 	gDebugWidget.checkProcBreakPoints(widget);
 	widget->process(events);
+}
+
+void UpdateManager::lockFocus(tp::Widget* widget) {
+	mFocusLockWidget = widget;
+}
+
+void UpdateManager::freeFocus(tp::Widget* widget) {
+	DEBUG_ASSERT(mFocusLockWidget == widget)
+	mFocusLockWidget = nullptr;
 }

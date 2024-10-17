@@ -21,117 +21,141 @@ using namespace tp;
 class WidgetApplication : public Application {
 public:
 	WidgetApplication() {
-		setup1();
+		exampleNestedMenus();
+		// examplePopup();
 	}
 
-	void setupLay() {
-		mRootWidget.setRootWidget(&mWidget);
+	void examplePopup() {
+		static Widget root;
+		static ButtonWidget closeButton;
+		static ButtonWidget openButton;
 
-		mWidget.addChild(&mWidgets[1]);
+		root.addChild(&openButton);
+		((BasicLayout*)root.getLayout())->setLayoutPolicy(LayoutPolicy::Passive);
 
-		mWidgets[1].addChild(&mButtons[1]);
-		mWidgets[1].addChild(&mButtons[2]);
-		mWidgets[1].addChild(&mWidgets[2]);
+		openButton.setAction([&](){
+			closeButton.setArea({ 50, 50, 100, 100 });
+			openButton.openPopup(&closeButton);
+		});
 
-		RootWidget::setWidgetArea(mWidgets[1], { 300, 100, 350, 800 });
-		RootWidget::setWidgetArea(mButtons[2], { 100, 100, 150, 300 });
+		closeButton.setAction([&](){
+			closeButton.closePopup(&closeButton);
+		});
 
-		mWidgets[2].addChild(&mButtons[3]);
-		mWidgets[2].addChild(&mButtons[4]);
-		mWidgets[2].addChild(&mButtons[5]);
-		mWidgets[2].addChild(&mButtons[6]);
+		openButton.setText("open");
+		closeButton.setText("close");
 
-		mButtons[1].setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
-		mButtons[2].setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
-		mButtons[3].setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
-		mButtons[4].setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
-		mButtons[5].setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
-		mButtons[6].setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
+		RootWidget::setWidgetArea(openButton, { 333, 333, 222, 222 });
 
-		mWidgets[2].setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
-		((BasicLayout*)mWidgets[1].getLayout())->setLayoutPolicy(LayoutPolicy::Horizontal);
+		mRootWidget.setRootWidget(&root);
+	}
+
+	void exampleNestedMenus() {
+		static DockWidget dock;
+		static FloatingMenu menu1;
+		static FloatingMenu menu2;
+		static ButtonWidget buttons[15];
+
+		mRootWidget.setRootWidget(&dock);
+
+		dock.addChild(&menu1);
+		dock.addChild(&menu2);
+
+		dock.setCenterWidget(&buttons[5]);
+		dock.dockWidget(&buttons[6], DockLayout::RIGHT);
+
+		menu1.addToMenu(&buttons[0]);
+
+		menu2.addToMenu(&buttons[2]);
+		menu2.addToMenu(&buttons[3]);
+		menu2.addToMenu(&buttons[4]);
+
+		menu2.addToMenu(&menu1);
+
+		RootWidget::setWidgetArea(menu1, { 300, 100, 150, 500 });
+		RootWidget::setWidgetArea(menu2, { 100, 100, 150, 300 });
+	}
+
+	void exampleLayouts() {
+		static Widget widgets[15];
+		static ButtonWidget buttons[15];
+
+		mRootWidget.setRootWidget(&widgets[0]);
+
+		widgets[0].addChild(&widgets[1]);
+
+		widgets[1].addChild(&buttons[1]);
+		widgets[1].addChild(&buttons[2]);
+		widgets[1].addChild(&widgets[2]);
+
+		RootWidget::setWidgetArea(buttons[1], { 300, 100, 350, 800 });
+		RootWidget::setWidgetArea(buttons[2], { 100, 100, 150, 300 });
+
+		widgets[2].addChild(&buttons[3]);
+		widgets[2].addChild(&buttons[4]);
+		widgets[2].addChild(&buttons[5]);
+		widgets[2].addChild(&buttons[6]);
+
+		buttons[1].setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
+		buttons[2].setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
+		buttons[3].setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
+		buttons[4].setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
+		buttons[5].setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
+		buttons[6].setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
+
+		widgets[2].setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
+		((BasicLayout*)widgets[1].getLayout())->setLayoutPolicy(LayoutPolicy::Horizontal);
 	}
 
 	void setup1() {
-		mRootWidget.setRootWidget(&mDockLayout);
+		static DockWidget dock;
+		static FloatingMenu menu1;
+		static FloatingMenu menu2;
+		static ButtonWidget buttons[15];
+		
+		mRootWidget.setRootWidget(&dock);
 
-		mDockLayout.addChild(&mFloatingMenu2);
-		mDockLayout.addChild(&mFloatingMenu);
+		dock.addChild(&menu2);
+		dock.addChild(&menu1);
 
-		mDockLayout.setCenterWidget(&mButton5);
-		mDockLayout.dockWidget(&mButton6, DockLayout::RIGHT);
+		dock.setCenterWidget(&buttons[5]);
+		dock.dockWidget(&buttons[6], DockLayout::RIGHT);
 
-		mFloatingMenu.addToMenu(&mButton);
-		mFloatingMenu2.addToMenu(&mButton2);
-		//mFloatingMenu2.addToMenu(&mFloatingMenu);
-		mFloatingMenu2.addToMenu(&mButton3);
-		mFloatingMenu2.addToMenu(&mButton4);
+		menu1.addToMenu(&buttons[0]);
+		menu2.addToMenu(&buttons[2]);
+		//menu2.addToMenu(&menu1);
+		menu2.addToMenu(&buttons[3]);
+		menu2.addToMenu(&buttons[4]);
 
-		mButton.setAction([this]() { mButton2.setColor(RGBA::random()); });
-		mButton2.setAction([this]() { mButton.setColor(RGBA::random()); });
+		buttons[0].setAction([&]() { buttons[2].setColor(RGBA::random()); });
+		buttons[2].setAction([&]() { buttons[0].setColor(RGBA::random()); });
 
-		mButton5.setAction([this]() { mDockLayout.dockWidget(&mFloatingMenu, DockLayout::LEFT); });
-		mButton6.setAction([this]() { mDockLayout.undockWidget(DockLayout::LEFT); });
+		buttons[5].setAction([&]() { dock.dockWidget(&menu1, DockLayout::LEFT); });
+		buttons[6].setAction([&]() { dock.undockWidget(DockLayout::LEFT); });
 
-		mButton3.setAction([this]() { mDockLayout.toggleWidgetVisibility(DockLayout::LEFT); });
-		// mButton4.setAction([this]() { mDockLayout.undockWidget(DockLayout::LEFT); });
+		buttons[3].setAction([&]() { dock.toggleWidgetVisibility(DockLayout::LEFT); });
+		// buttons[4].setAction([this]() { mDockLayout.undockWidget(DockLayout::LEFT); });
 
-		mButton3.setText("toggle");
-		mButton5.setText("dock");
-		mButton6.setText("undock");
+		buttons[3].setText("toggle");
+		buttons[5].setText("dock");
+		buttons[6].setText("undock");
 
-		// mLayoutWidget.addChild(&mButton2);
+		// mLayoutWidget.addChild(&buttons[2]);
 
-		// mWidgetFloating.addChild(&mButton);
+		// mWidgetFloating.addChild(&buttons[0]);
 
 		// mRootWidget.setRootWidget(&mAnimationTestWidget);
 
 		// mAnimationTestWidget.addChild(&mWidgetFloating);
 		// mAnimationTestWidget.addChild(&mLayoutWidget);
 
-		RootWidget::setWidgetArea(mFloatingMenu2, { 300, 100, 150, 500 });
-		RootWidget::setWidgetArea(mFloatingMenu, { 100, 100, 150, 300 });
+		RootWidget::setWidgetArea(menu2, { 300, 100, 150, 500 });
+		RootWidget::setWidgetArea(menu1, { 100, 100, 150, 300 });
 
 		// mWidgetFloating.addChild(&mLayoutWidget);
 
-		// mLayoutWidget.addChild(&mButton);
+		// mLayoutWidget.addChild(&buttons[0]);
 		// mLayoutWidget.addChild(&mLabel);
-	}
-
-	void setup3() {
-		mRootWidget.setRootWidget(&mWidget);
-		mWidget.addChild(&mFloatingWidget);
-
-		mFloatingWidget.addChild(&mButton);
-		mFloatingWidget.addChild(&mButton2);
-		mFloatingWidget.addChild(&mButton3);
-
-		mButton.setSizePolicy(SizePolicy::Minimal, SizePolicy::Expanding);
-		mButton2.setSizePolicy(SizePolicy::Minimal, SizePolicy::Expanding);
-		mButton3.setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
-
-		RootWidget::setWidgetArea(mFloatingWidget, { 100, 100, 400, 400 });
-	}
-
-	void setup2() {
-		mRootWidget.setRootWidget(&mWidget);
-		// mDesktopLayout.addChild(&mWidget);
-
-		mWidget.addChild(&mButton);
-		mWidget.addChild(&mButton2);
-		mWidget.addChild(&mButton3);
-
-		mButton.setSizePolicy(SizePolicy::Expanding, SizePolicy::Minimal);
-		mButton2.setSizePolicy(SizePolicy::Expanding, SizePolicy::Minimal);
-		mButton3.setSizePolicy(SizePolicy::Expanding, SizePolicy::Minimal);
-
-		mWidget.setSizePolicy(SizePolicy::Minimal, SizePolicy::Minimal);
-		// mWidget.setLayoutPolicy(LayoutPolicy::Horizontal);
-
-		// mButton.setAction([this]() { mButton2.setMinSize(mButton2.getMinSize() + 10); });
-		// mButton2.setAction([this]() { mButton.setMinSize(mButton.getMinSize() + 10); } );
-
-		RootWidget::setWidgetArea(mWidget, { 400, 100, 150, 200 });
 	}
 
 	void processFrame(EventHandler* eventHandler, halnf deltaTime) override {
@@ -150,28 +174,6 @@ public:
 	}
 
 private:
-	Widget mWidgets[15];
-	ButtonWidget mButtons[15];
-
-	Widget mWidget;
-
-	ButtonWidget mButton;
-	ButtonWidget mButton2;
-	ButtonWidget mButton3;
-	ButtonWidget mButton4;
-	ButtonWidget mButton5;
-	ButtonWidget mButton6;
-
-	FloatingWidget mFloatingWidget;
-	FloatingMenu mFloatingMenu;
-	FloatingMenu mFloatingMenu2;
-
-	LabelWidget mLabel;
-	FloatingWidget mWidgetFloating;
-	AnimationTestWidget mAnimationTestWidget;
-
-	DockWidget mDockLayout;
-
 	RootWidget mRootWidget;
 };
 

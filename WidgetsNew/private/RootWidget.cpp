@@ -1,7 +1,8 @@
 
 #include "RootWidget.hpp"
-#include "BasicLayout.hpp"
 
+#include "BasicLayout.hpp"
+#include "OverlayLayout.hpp"
 
 #include <algorithm>
 
@@ -13,36 +14,47 @@ WidgetLayout* WidgetManagerInterface::defaultLayout(Widget* widget) {
 
 RootWidget::RootWidget() {
 	setDebug("root", RGBA(1));
+
+	addChild(&mRoot);
+
+	mRoot.addChild(&mPopups);
+	mRoot.setLayout(new OverlayLayout(&mRoot));
+
+	dynamic_cast<BasicLayout*>(mPopups.getLayout())->setLayoutPolicy(LayoutPolicy::Passive);
 }
 
 void RootWidget::setRootWidget(Widget* widget) {
-	mRoot = widget;
-	widget->mParent = this;
+	mRoot.removeChild(mUserRoot);
+	mRoot.addChild(widget);
+
+	widget->bringToBack();
+
+	mUserRoot = widget;
 }
 
 void RootWidget::processFrame(EventHandler* events, const RectF& screenArea) {
-	mRoot->setArea(screenArea);
+	mRoot.setArea(screenArea);
 
 	if (!gDebugWidget.update(this, *events)) return;
 
 	// construct hierarchy tree of widgets to process
-	mUpdateManager.updateTreeToProcess(mRoot);
+	mUpdateManager.updateTreeToProcess(&mRoot);
 
 	updateAnimations();
-	updateAreaCache(mRoot, true);
+	updateAreaCache(&mRoot, true);
 
 	// update all events and call all event processing callbacks
-	mUpdateManager.processWidgets(mRoot, *events);
+	mUpdateManager.processWidgets(&mRoot, *events);
 
-	updateAreaCache(mRoot, true);
+	updateAreaCache(&mRoot, true);
 
 	// update widget sizes base on individual size policies
-	mLayoutManager.adjust(mRoot);
+	mLayoutManager.adjust(&mRoot);
 
-	updateAreaCache(mRoot, false);
+	updateAreaCache(&mRoot, false);
 
 	// trigger some widgets by moise pointer
-  mUpdateManager.handleFocusChanges(mRoot, *events);
+  mUpdateManager.handleFocusChanges(&mRoot, *events);
 
 	// check triggered widgets for removal
 	mUpdateManager.clean();
@@ -54,9 +66,9 @@ bool RootWidget::needsUpdate() const {
 }
 
 void RootWidget::drawFrame(Canvas& canvas) {
-	canvas.rect(mRoot->getAreaT(), RGBA(0, 0, 0, 1));
+	canvas.rect(mRoot.getAreaT(), RGBA(0, 0, 0, 1));
 
-	drawRecursion(canvas, mRoot, { 0, 0 });
+	drawRecursion(canvas, &mRoot, { 0, 0 });
 
 	gDebugWidget.drawDebug(this, canvas);
 }
@@ -86,15 +98,9 @@ void RootWidget::setWidgetArea(Widget& widget, const RectF& rect) {
 }
 
 void RootWidget::updateAnimations() {
-	dfs(mRoot, [](Widget* widget) {
+	dfs(&mRoot, [](Widget* widget) {
 		widget->updateAnimations();
 	});
-}
-
-
-void RootWidget::updateWidget(Widget* widget, const char* reason) {
-	DEBUG_ASSERT(reason)
-	mUpdateManager.scheduleUpdate(widget, reason);
 }
 
 void RootWidget::updateAreaCache(Widget* iter, bool read) {
@@ -120,3 +126,27 @@ void RootWidget::updateAreaCache(Widget* iter, bool read) {
 		updateAreaCache(child.data(), read);
 	}
 }
+
+void RootWidget::updateWidget(Widget* widget, const char* reason) {
+	DEBUG_ASSERT(reason)
+	mUpdateManager.scheduleUpdate(widget, reason);
+}
+
+void RootWidget::openPopup(Widget* widget) {
+	auto relativeArea = widget->getAreaT();
+	for (auto iter = widget->mParent; iter && iter->mParent; iter = iter->mParent) {
+		relativeArea.pos += iter->getAreaT().pos;
+	}
+	setWidgetArea(*widget, relativeArea);
+
+	mPopups.addChild(widget);
+	mUpdateManager.lockFocus(widget);
+}
+
+void RootWidget::closePopup(Widget* widget) {
+	mPopups.removeChild(widget);
+	mUpdateManager.freeFocus(widget);
+}
+
+void RootWidget::lockFocus(Widget* widget) { mUpdateManager.lockFocus(widget); }
+void RootWidget::freeFocus(Widget* widget) { mUpdateManager.freeFocus(widget); }
