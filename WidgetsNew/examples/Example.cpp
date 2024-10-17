@@ -4,26 +4,36 @@
 #include "RootWidget.hpp"
 #include "FloatingWidget.hpp"
 #include "DockWidget.hpp"
-#include "ScrollableWidget.hpp"
 
 #include "ScrollableLayout.hpp"
 
 using namespace tp;
 
 
-/*
- * adjust child widgets in the layout view
- * make scrollable area
- * change Widget::clampMinMax function to include child enclosure
- * refactor all sizing in Widget -> move to separate files
- * refactor root widget -> reorganize code
-*/
-
-
 class WidgetApplication : public Application {
 public:
 	WidgetApplication() {
-		exampleScrolling();
+		exampleAll();
+	}
+
+	void exampleAll() {
+		static DockWidget dock;
+		static LabelWidget centralWidget;
+		static FloatingMenu menus[4];
+		static FloatingMenu nestedMenus[4];
+		static FloatingMenu buttons[10];
+
+		dock.setCenterWidget(&centralWidget);
+
+		for (auto& menu : menus) {
+			dock.addChild(&menu);
+		}
+
+		for (auto& menu : nestedMenus) {
+			menus[0].addToMenu(&menu);
+		}
+
+		mRootWidget.setRootWidget(&dock);
 	}
 
 	void exampleScrolling() {

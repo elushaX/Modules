@@ -2,6 +2,7 @@
 
 #include "SimpleWidgets.hpp"
 #include "FloatingLayout.hpp"
+#include "ScrollableWidget.hpp"
 
 namespace tp {
 	class FloatingWidget : public Widget {
@@ -30,32 +31,20 @@ namespace tp {
 
 	class FloatingMenu : public FloatingWidget {
 	public:
-		FloatingMenu() : FloatingWidget() {
-			setDebug("float menu", { 0.0, 0.9, 0.1, 0.7 });
-
-			// addChild(&mMenuLayout);
-
-			addChild(&mHeader);
-			addChild(&mBodyLayout);
-
-			mHeader.setText("Menu");
-
-			mHeader.setSizePolicy(SizePolicy::Expanding, SizePolicy::Minimal);
-			mBodyLayout.setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
-
-			// getLayout()->setLayoutPolicy(LayoutPolicy::Vertical);
-			// mBodyLayout.getLayout()->setLayoutPolicy(LayoutPolicy::Vertical);
-		}
+		FloatingMenu();
 
 	public:
 		void addToMenu(Widget* widget) {
 			widget->setSizePolicy(SizePolicy::Expanding, SizePolicy::Minimal);
-			mBodyLayout.addChild(widget);
+			mContentWidget.addChild(widget);
 		}
 
 	private:
 		// VerticalLayout mMenuLayout;
 		Widget mBodyLayout;
+		Widget mContentWidget;
+		ScrollableBarWidget mScrollBar;
+
 		LabelWidget mHeader;
 
 		// ButtonWidget mTestButton;

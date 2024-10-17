@@ -8,7 +8,9 @@ namespace tp {
 	class ScrollableLayout : public WidgetLayout {
 	public:
 		explicit ScrollableLayout(Widget* widget) :
-			WidgetLayout(widget) {}
+			WidgetLayout(widget) {
+			setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
+		}
 
 		void updateLayout(bool vertical) override;
 		[[nodiscard]] RectF getAvailableChildArea() const override;

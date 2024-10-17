@@ -59,7 +59,7 @@ namespace tp {
 		Widget* mWidget = nullptr;
 
 	protected:
-		Vec2<SizePolicy> mSizePolicy = { SizePolicy::Fixed, SizePolicy::Minimal };
+		Vec2<SizePolicy> mSizePolicy = { SizePolicy::Fixed, SizePolicy::Fixed };
 		Vec2F mMinSize = { 50, 50 };
 		Vec2F mMaxSize = { FLT_MAX / 2, FLT_MAX / 2 };
 	};

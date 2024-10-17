@@ -1,17 +1,26 @@
-Widgets-New:
-  Make visual parameters static
-  Make visual parameters configurable
-  Make get-areas fetch cache and not animation objects
+Widgets:
+    Optimize:
+      Make visual parameters static
+      Make get-areas fetch cache and not animation objects
 
-  Scrolling in basic layout
-  Collapsing menu
+    New Widgets:
+        Collapsing menu
+        Sliders
+        Check Boxes
+        Drop-Downs
+        Toaster notifications
+        Confirmations Popups
+        Hover menus
+        Tool-tips
 
-  Add Widgets:
-    popups, drop-downs, tool-tips
-    list menu
+    Implement:
+        Make visual parameters configurable
+        Add UI scaling
+        Add Theming
 
-  Add UI scaling
-  Add Theming
+    Refactor:
+        Refactor Update Manager
+        change Widget::clampMinMax function to include child enclosure
 
 
 Sketch3D:
