@@ -14,6 +14,9 @@ DebugManager tp::gDebugWidget;
 bool DebugManager::update(RootWidget* rootWidget, EventHandler& events) {
 	mRootWidget = rootWidget;
 
+	events.setEnableKeyEvents(true);
+	if (events.isPressed(InputID::D)) mDebug = !mDebug;
+
 	if (mDebug) {
 		auto area = rootWidget->mRoot.getAreaT();
 		area.size -= { 400, 0 };
@@ -53,11 +56,11 @@ bool DebugManager::update(RootWidget* rootWidget, EventHandler& events) {
 void DebugManager::drawDebug(RootWidget* rootWidget, Canvas& canvas) {
 	mRootWidget = rootWidget;
 
-	ImGui::Checkbox("Draw debug", &mDebug);
-
 	if (!mDebug) {
 		return;
 	}
+
+	// ImGui::Checkbox("Draw debug", &mDebug);
 
 	ImGui::SameLine(); ImGui::Text("To Toggle processing press k");
 

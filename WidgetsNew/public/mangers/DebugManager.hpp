@@ -37,7 +37,7 @@ namespace tp {
 		RootWidget* mRootWidget = nullptr;
 
 		// debug
-		bool mDebug = true;
+		bool mDebug = false;
 		bool mDebugStopProcessing = false;
 		bool mDebugRedrawAlways = false;
 		bool mSlowMotion = false;

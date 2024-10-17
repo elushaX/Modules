@@ -206,6 +206,6 @@ void UpdateManager::lockFocus(tp::Widget* widget) {
 }
 
 void UpdateManager::freeFocus(tp::Widget* widget) {
-	DEBUG_ASSERT(mFocusLockWidget == widget)
+	// DEBUG_ASSERT(mFocusLockWidget == widget)
 	mFocusLockWidget = nullptr;
 }

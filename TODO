@@ -1,7 +1,10 @@
 Widgets-New:
-  Lock-focus feature
-  Collapsing menu
+  Make visual parameters static
+  Make visual parameters configurable
+  Make get-areas fetch cache and not animation objects
+
   Scrolling in basic layout
+  Collapsing menu
 
   Add Widgets:
     popups, drop-downs, tool-tips

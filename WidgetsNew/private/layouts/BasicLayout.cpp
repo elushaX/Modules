@@ -11,8 +11,10 @@ void BasicLayout::pickRect(bool vertical) {
 	auto current = getArea();
 	auto children = getChildrenEnclosure();
 	auto parent = getParentEnclosure();
-	RectF newArea = current;
 
+	children.shrinkFromCenter(-mLayoutMargin, true);
+
+	RectF newArea;
 	if (vertical) {
 		auto rangeY = pickRange(current.getRangeY(), children.getRangeY(), parent.getRangeY(), true);
 		newArea = RectF(current.getRangeX(), rangeY);
@@ -143,5 +145,5 @@ void BasicLayout::adjustLayout(bool vertical) {
 
 RectF BasicLayout::getAvailableChildArea() const {
 	auto out = WidgetLayout::getAvailableChildArea();
-	return out.scaleFromCenter(mLayoutMargin, true);
+	return out.shrinkFromCenter(mLayoutMargin, true);
 }

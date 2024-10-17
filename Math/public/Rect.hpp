@@ -122,7 +122,7 @@ namespace tp {
 			pos.y += dy;
 		}
 
-		Rect<Type>& scaleFromCenter(tp::halnf fac, bool add = false) {
+		Rect<Type>& shrinkFromCenter(tp::halnf fac, bool add = false) {
 			if (add) {
 				pos += fac;
 				size -= fac * 2;
@@ -260,20 +260,20 @@ namespace tp {
 		Vec2<Type> center() const { return pos + size / 2.f; }
 
 		// splits by Factor Horizontally returning Left rect
-		Rect<Type> splitByFactorHL(halnf factor) {
+		Rect<Type> splitByFactorHL(halnf factor) const {
 			return { x, y, size.x * factor, size.y };
 		}
 
-		Rect<Type> splitByFactorHR(halnf factor) {
+		Rect<Type> splitByFactorHR(halnf factor) const {
 			const auto abs = size.x * factor;
 			return { x + abs, y, size.x - abs, size.y };
 		}
 
-		Rect<Type> splitByFactorVT(halnf factor) {
+		Rect<Type> splitByFactorVT(halnf factor) const {
 			return { x, y, size.x, size.y * factor };
 		}
 
-		Rect<Type> splitByFactorVB(halnf factor) {
+		Rect<Type> splitByFactorVB(halnf factor) const {
 			const auto abs = size.y * factor;
 			return { x, y + abs, size.x, size.y - abs };
 		}
