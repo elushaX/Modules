@@ -1,4 +1,5 @@
 #include "ScrollableWidget.hpp"
+#include "../../WidgetsNew/public/widgets/ScrollableWidget.hpp"
 
 using namespace tp;
 

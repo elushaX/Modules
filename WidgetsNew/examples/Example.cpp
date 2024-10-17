@@ -2,9 +2,11 @@
 #include "GraphicApplication.hpp"
 
 #include "RootWidget.hpp"
-#include "AnimationTestWidget.hpp"
 #include "FloatingWidget.hpp"
 #include "DockWidget.hpp"
+#include "ScrollableWidget.hpp"
+
+#include "ScrollableLayout.hpp"
 
 using namespace tp;
 
@@ -21,8 +23,27 @@ using namespace tp;
 class WidgetApplication : public Application {
 public:
 	WidgetApplication() {
-		exampleNestedMenus();
-		// examplePopup();
+		exampleScrolling();
+	}
+
+	void exampleScrolling() {
+		static Widget widget;
+		static Widget content;
+		static ButtonWidget buttons[10];
+		static ScrollableBarWidget scrollBar;
+
+		mRootWidget.setRootWidget(&widget);
+
+		widget.addChild(&scrollBar);
+		widget.addChild(&content);
+
+		for (auto& button : buttons) {
+			content.addChild(&button);
+		}
+
+		widget.setLayout(new ScrollableLayout(&widget));
+
+		RootWidget::setWidgetArea(content, { 333, 333, 522, 522 });
 	}
 
 	void examplePopup() {
@@ -72,6 +93,22 @@ public:
 
 		menu2.addToMenu(&menu1);
 
+		// popup
+		{
+			buttons[0].setAction([&](){
+				buttons[10].setArea({ 30, 30, 100, 100 });
+				buttons[0].openPopup(&buttons[10]);
+			});
+
+			buttons[0].setText("open popup");
+
+			buttons[10].setAction([&](){
+				buttons[10].closePopup(&buttons[10]);
+			});
+
+			buttons[10].setText("close popup");
+		}
+
 		RootWidget::setWidgetArea(menu1, { 300, 100, 150, 500 });
 		RootWidget::setWidgetArea(menu2, { 100, 100, 150, 300 });
 	}
@@ -107,7 +144,7 @@ public:
 		((BasicLayout*)widgets[1].getLayout())->setLayoutPolicy(LayoutPolicy::Horizontal);
 	}
 
-	void setup1() {
+	void exampleDock() {
 		static DockWidget dock;
 		static FloatingMenu menu1;
 		static FloatingMenu menu2;
@@ -140,22 +177,8 @@ public:
 		buttons[5].setText("dock");
 		buttons[6].setText("undock");
 
-		// mLayoutWidget.addChild(&buttons[2]);
-
-		// mWidgetFloating.addChild(&buttons[0]);
-
-		// mRootWidget.setRootWidget(&mAnimationTestWidget);
-
-		// mAnimationTestWidget.addChild(&mWidgetFloating);
-		// mAnimationTestWidget.addChild(&mLayoutWidget);
-
 		RootWidget::setWidgetArea(menu2, { 300, 100, 150, 500 });
 		RootWidget::setWidgetArea(menu1, { 100, 100, 150, 300 });
-
-		// mWidgetFloating.addChild(&mLayoutWidget);
-
-		// mLayoutWidget.addChild(&buttons[0]);
-		// mLayoutWidget.addChild(&mLabel);
 	}
 
 	void processFrame(EventHandler* eventHandler, halnf deltaTime) override {
@@ -166,7 +189,7 @@ public:
 	void drawFrame(Canvas* canvas) override {
 		mRootWidget.drawFrame(*canvas);
 
-		drawDebug();
+		// drawDebug();
 	}
 
 	bool forceNewFrame() override {

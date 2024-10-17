@@ -27,8 +27,8 @@ namespace tp {
 
 		virtual void updateLayout(bool vertical) {}
 
-		virtual void pickRect(bool vertical) = 0;
-		virtual void clampRect() = 0;
+		virtual void pickRect(bool vertical) {}
+		virtual void clampRect() {}
 		[[nodiscard]] virtual RectF getAvailableChildArea() const;
 
 	public:
@@ -59,7 +59,7 @@ namespace tp {
 		Widget* mWidget = nullptr;
 
 	protected:
-		Vec2<SizePolicy> mSizePolicy = { SizePolicy::Fixed, SizePolicy::Fixed };
+		Vec2<SizePolicy> mSizePolicy = { SizePolicy::Fixed, SizePolicy::Minimal };
 		Vec2F mMinSize = { 50, 50 };
 		Vec2F mMaxSize = { FLT_MAX / 2, FLT_MAX / 2 };
 	};

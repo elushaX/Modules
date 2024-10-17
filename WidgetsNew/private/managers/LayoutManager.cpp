@@ -2,6 +2,7 @@
 #include "DebugManager.hpp"
 
 #include "DockLayout.hpp"
+#include "ScrollableLayout.hpp"
 
 #include <algorithm>
 
@@ -91,6 +92,7 @@ int LayoutManager::getLayoutOrder(WidgetLayout* parent, WidgetLayout* child) con
 	auto policyChild = parent->getSizePolicy()[mVertical];
 
 	if (dynamic_cast<DockLayout*>(parent)) return -1;
+	// if (dynamic_cast<ScrollableLayout*>(parent)) return -1;
 
 	return sizePolicyDep[int(policyParent)][int(policyChild)];
 }
