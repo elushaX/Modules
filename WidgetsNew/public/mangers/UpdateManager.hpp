@@ -5,6 +5,7 @@
 #include <map>
 
 namespace tp {
+	// FIXME : desperately needs refactor
 	class UpdateManager {
 		friend DebugManager;
 
@@ -12,6 +13,9 @@ namespace tp {
 		UpdateManager() = default;
 
 		void scheduleUpdate(Widget* widget, const char* reason);
+
+		void lockFocus(Widget* widget);
+		void freeFocus(Widget* widget);
 
 		[[nodiscard]] bool isPendingUpdates() const {
 			return !mTriggeredWidgets.empty();
@@ -34,6 +38,7 @@ namespace tp {
 	private:
 		std::map<Widget*, bool> mTriggeredWidgets;
 		Widget* mInFocusWidget = nullptr;
+		Widget* mFocusLockWidget = nullptr;
 
 	private:
 		int mDebugWidgetsToProcess = 0;

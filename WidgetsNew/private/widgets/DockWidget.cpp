@@ -4,7 +4,7 @@
 using namespace tp;
 
 DockWidget::DockWidget() : Widget() {
-	setDebug("dock", {});
+	setDebug("dock", { 1, 1, 1, 1 });
 	setLayout(new DockLayout(this));
 }
 

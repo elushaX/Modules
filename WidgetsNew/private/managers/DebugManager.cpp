@@ -15,9 +15,9 @@ bool DebugManager::update(RootWidget* rootWidget, EventHandler& events) {
 	mRootWidget = rootWidget;
 
 	if (mDebug) {
-		auto area = rootWidget->mRoot->getAreaT();
+		auto area = rootWidget->mRoot.getAreaT();
 		area.size -= { 400, 0 };
-		rootWidget->mRoot->setArea(area);
+		rootWidget->mRoot.setArea(area);
 
 		events.setEnableKeyEvents(true);
 		if (events.isPressed(InputID::K)) mDebugStopProcessing = !mDebugStopProcessing;
@@ -63,7 +63,7 @@ void DebugManager::drawDebug(RootWidget* rootWidget, Canvas& canvas) {
 
 	auto& upd = rootWidget->mUpdateManager;
 
-	recursiveDraw(canvas, rootWidget->mRoot, { 0, 0 }, 0);
+	recursiveDraw(canvas, &rootWidget->mRoot, { 0, 0 }, 0);
 
 	ImGui::Text("Triggered: %i", (int) upd.mTriggeredWidgets.size());
 	ImGui::SameLine(); ImGui::Text("Processing: %i", upd.mDebugWidgetsToProcess);
@@ -140,10 +140,9 @@ void DebugManager::widgetMenu(Widget* widget) {
 		ImGui::InputFloat2("min size", &layout->mMinSize.x);
 		ImGui::InputFloat2("max size", &layout->mMaxSize.x);
 
-		if (auto pBasicLayout = dynamic_cast<BasicLayout*>(widget->getLayout())) {
-			int sizePolicyX = int(pBasicLayout->mSizePolicy.x);
-			int sizePolicyY = int(pBasicLayout->mSizePolicy.y);
-			int policy = int(pBasicLayout->mLayoutPolicy);
+		{
+			int sizePolicyX = int(widget->getLayout()->getSizePolicy().x);
+			int sizePolicyY = int(widget->getLayout()->getSizePolicy().y);
 
 			if (ImGui::Combo("Size Policy X", &sizePolicyX, "Fixed\0Expanding\0Minimal\0")) {
 				widget->setSizePolicy(SizePolicy(sizePolicyX), SizePolicy(sizePolicyY));
@@ -152,7 +151,10 @@ void DebugManager::widgetMenu(Widget* widget) {
 			if (ImGui::Combo("Size Policy Y", &sizePolicyY, "Fixed\0Expanding\0Minimal\0")) {
 				widget->setSizePolicy(SizePolicy(sizePolicyX), SizePolicy(sizePolicyY));
 			}
+		}
 
+		if (auto pBasicLayout = dynamic_cast<BasicLayout*>(widget->getLayout())) {
+			int policy = int(pBasicLayout->mLayoutPolicy);
 			if (ImGui::Combo("Layout", &policy, "Passive\0Vertical\0Horizontal\0")) {
 				pBasicLayout->mLayoutPolicy = LayoutPolicy(policy);
 			}

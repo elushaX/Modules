@@ -19,7 +19,7 @@ namespace tp {
 		[[nodiscard]] bool needsNextFrame() const override;
 
 		[[nodiscard]] bool propagateEventsToChildren() const override;
-		[[nodiscard]] bool processesEvents() const override { return true; }
+		[[nodiscard]] bool processesEvents() const override;
 
 		[[nodiscard]] bool isFloating() const;
 
