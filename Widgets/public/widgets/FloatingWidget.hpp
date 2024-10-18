@@ -39,6 +39,16 @@ namespace tp {
 			mContentWidget.addChild(widget);
 		}
 
+		const List<Widget*>& getContent() {
+			return mContentWidget.getChildren();
+		}
+
+		void clearChildren() {
+			mContentWidget.clear();
+		}
+
+		void setText(const std::string& text);
+
 	private:
 		// VerticalLayout mMenuLayout;
 		Widget mBodyLayout;

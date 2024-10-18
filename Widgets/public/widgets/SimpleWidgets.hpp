@@ -73,8 +73,10 @@ namespace tp {
 		[[nodiscard]] bool processesEvents() const override { return true; }
 		[[nodiscard]] bool needsNextFrame() const override { return mState != SLIDING; }
 
+		[[nodiscard]] halnf val() const { return mFactor; }
+
 	private:
-		RectF getHandleArea() const;
+		[[nodiscard]] RectF getHandleArea() const;
 
 	private:
 		halnf mFactor = 0;

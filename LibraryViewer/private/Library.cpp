@@ -1,7 +1,6 @@
 
 #include "Library.hpp"
 #include "LocalConnection.hpp"
-#include "WidgetBase.hpp"
 
 #include "picojson.h"
 #include <filesystem>

@@ -1,6 +1,8 @@
-#include "Widgets.hpp"
+#include "Widget.hpp"
+#include "DockWidget.hpp"
 
 #include "Editor.hpp"
+#include "FloatingWidget.hpp"
 
 namespace tp {
 
@@ -12,15 +14,17 @@ namespace tp {
 			mCanvas = canvas;
 		}
 
-		~ViewportWidget() { mCanvas->deleteImageHandle(mImage); }
+		~ViewportWidget() override { mCanvas->deleteImageHandle(mImage); }
 
-		void eventProcess(const Events& events) override { mEditor->setViewportSize(this->mArea.size); }
+		void process(const EventHandler& events) override {
+			mEditor->setViewportSize(getArea().size);
+		}
 
-		void eventDraw(Canvas& canvas) override {
+		void draw(Canvas& canvas) override {
 			mEditor->renderViewport();
 
 			canvas.updateTextureID(mImage, mEditor->getViewportTexID());
-			canvas.drawImage(this->mArea, &mImage, PI);
+			canvas.drawImage(getArea().relative(), &mImage, PI);
 		}
 
 	public:
@@ -30,98 +34,96 @@ namespace tp {
 		Canvas::ImageHandle mImage;
 	};
 
-	class EditorWidget : public WorkspaceWidget {
+	class EditorWidget : public DockWidget {
 	public:
 		EditorWidget(Canvas* canvas, Editor* editor) :
 			mViewport(canvas, editor) {
 			mEditor = editor;
 
-			mDockSpace.addSideWidget(&mNavigationMenu, DockWidget::RIGHT);
-			mDockSpace.addSideWidget(&mRenderMenu, DockWidget::LEFT);
-			mDockSpace.setCenterWidget(&mViewport);
+			mPanel.setText("Controls");
+			mPanel.addToMenu(&mNavigationMenu);
+			mPanel.addToMenu(&mRenderMenu);
+
+			dockWidget(&mPanel, DockLayout::RIGHT);
+			setCenterWidget(&mViewport);
 
 			// Render
 			{
-				mRenderPathTracer.setLabel("Render with Path Tracer");
-				mRenderRaster.setLabel("Render with Raster");
-				mRenderDeNoise.setLabel("Denoise (IntelOpenImage)");
+				mRenderPathTracer.setText("Render with Path Tracer");
+				mRenderRaster.setText("Render with Raster");
+				mRenderDeNoise.setText("Denoise (IntelOpenImage)");
 
-				mRenderMenu.addWidgetToMenu(&mRenderPathTracer);
-				mRenderMenu.addWidgetToMenu(&mRenderRaster);
-				mRenderMenu.addWidgetToMenu(&mRenderDeNoise);
+				mRenderMenu.addToMenu(&mRenderPathTracer);
+				mRenderMenu.addToMenu(&mRenderRaster);
+				mRenderMenu.addToMenu(&mRenderDeNoise);
 
-				mRenderMenu.setLabel("Render");
+				mRenderMenu.setText("Render");
 			}
 
 			// Navigation
 			{
-				mNavigationPan.setLabel("Pan");
-				mNavigationOrbit.setLabel("Orbit");
-				mNavigationZoom.setLabel("Zoom");
-				mNavigationReset.setLabel("Reset");
+				mNavigationPan.setText("Pan");
+				mNavigationOrbit.setText("Orbit");
+				mNavigationZoom.setText("Zoom");
+				mNavigationReset.setText("Reset");
 
-				mNavigationMenu.addWidgetToMenu(&mNavigationPan);
-				mNavigationMenu.addWidgetToMenu(&mNavigationOrbit);
-				mNavigationMenu.addWidgetToMenu(&mNavigationZoom);
-				mNavigationMenu.addWidgetToMenu(&mNavigationReset);
+				mNavigationMenu.addToMenu(&mNavigationPan);
+				mNavigationMenu.addToMenu(&mNavigationOrbit);
+				mNavigationMenu.addToMenu(&mNavigationZoom);
+				mNavigationMenu.addToMenu(&mNavigationReset);
 
-				mNavigationMenu.setLabel("Navigation");
+				mNavigationMenu.setText("Navigation");
 			}
 
-			mRenderPathTracer.mCallback = [this]() {
+			mRenderPathTracer.setAction([this]() {
 				mEditor->renderPathFrame();
 				mEditor->setRenderType(Editor::RenderType::PATH_TRACER);
-			};
+			});
 
-			mRenderRaster.mCallback = [this]() { mEditor->setRenderType(Editor::RenderType::RASTER); };
-			mRenderDeNoise.mCallback = [this]() { mEditor->denoisePathRenderBuffers(); };
-			mNavigationOrbit.mCallback = [this]() { mNavigationType = ORBIT; };
-			mNavigationPan.mCallback = [this]() { mNavigationType = PAN; };
-			mNavigationZoom.mCallback = [this](){ mNavigationType = ZOOM; };
-			mNavigationReset.mCallback = [this]() { mEditor->navigationReset(); };
+			mRenderRaster.setAction( [this]() { mEditor->setRenderType(Editor::RenderType::RASTER); });
+			mRenderDeNoise.setAction( [this]() { mEditor->denoisePathRenderBuffers(); });
+			mNavigationOrbit.setAction( [this]() { mNavigationType = ORBIT; });
+			mNavigationPan.setAction( [this]() { mNavigationType = PAN; });
+			mNavigationZoom.setAction( [this](){ mNavigationType = ZOOM; });
+			mNavigationReset.setAction( [this]() { mEditor->navigationReset(); });
 		}
 
-		void eventProcess(const Events& events) override {
-			// navigation
-			{
-				const auto& activeArea = mViewport.mArea;
-				if (mViewport.isHolding()) {
-					switch (mNavigationType) {
-						case ORBIT: mEditor->navigationOrbit(events.getPointerDelta() / activeArea.size * 3); break;
+		void process(const EventHandler& events) override {
+			DockWidget::process(events);
 
-						case PAN:
-							{
-								auto pointer = (((events.getPointer() - activeArea.pos) / activeArea.size) - 0.5f) * 2;
-								auto prevPointer = (((events.getPointerPrev() - activeArea.pos) / activeArea.size) - 0.5f) * 2;
-								mEditor->navigationPan(prevPointer, pointer);
-							}
-							break;
+			auto pointer = events.getPointer();
+			auto pointerPrev = events.getPointerPrev();
 
-						case ZOOM: mEditor->navigationZoom(1 + (events.getPointerDelta().y / activeArea.size.y)); break;
-					}
+			const auto& activeArea = mViewport.getArea();
+
+			if (activeArea.isInside(pointer) && events.isDown(InputID::MOUSE1)) {
+				switch (mNavigationType) {
+					case ORBIT: mEditor->navigationOrbit(events.getPointerDelta() / activeArea.size * 3); break;
+
+					case PAN:
+						{
+							auto pointerRelative = (((pointer - activeArea.pos) / activeArea.size) - 0.5f) * 2;
+							auto prevPointerRelative = (((pointerPrev - activeArea.pos) / activeArea.size) - 0.5f) * 2;
+							mEditor->navigationPan(prevPointerRelative, pointerRelative);
+						}
+						break;
+
+					case ZOOM: mEditor->navigationZoom(1 + (events.getPointerDelta().y / activeArea.size.y)); break;
 				}
 			}
-
-			WorkspaceWidget::eventProcess(events);
 		}
 
-		void eventDraw(Canvas& canvas) override { canvas.rect(this->mArea, mBaseColor); }
-
-		void eventUpdateConfiguration(WidgetManager& wm) override {
-			wm.setActiveId("3DEditor");
-			mBaseColor = wm.getColor("Base", "Base");
-		}
+		void draw(Canvas& canvas) override { canvas.rect(getArea().relative(), mBaseColor); }
 
 	public:
 		Editor* mEditor = nullptr;
 
-		// SplitView mSplitView;
-
 		ViewportWidget mViewport;
-		// ScrollableWindow mSettingsWidget;
+
+		FloatingMenu mPanel;
 
 		// Controls
-		FloatingWidget mRenderMenu;
+		FloatingMenu mRenderMenu;
 		ButtonWidget mRenderPathTracer;
 		ButtonWidget mRenderRaster;
 		ButtonWidget mRenderDeNoise;
@@ -129,7 +131,7 @@ namespace tp {
 		// Navigation
 		enum NavigationType { ORBIT, PAN, ZOOM } mNavigationType = ORBIT;
 
-		FloatingWidget mNavigationMenu;
+		FloatingMenu mNavigationMenu;
 		ButtonWidget mNavigationPan;
 		ButtonWidget mNavigationOrbit;
 		ButtonWidget mNavigationZoom;

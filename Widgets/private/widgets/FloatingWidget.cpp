@@ -70,3 +70,7 @@ FloatingMenu::FloatingMenu() : FloatingWidget() {
 	// getLayout()->setLayoutPolicy(LayoutPolicy::Vertical);
 	// mBodyLayout.getLayout()->setLayoutPolicy(LayoutPolicy::Vertical);
 }
+
+void FloatingMenu::setText(const std::string& text) {
+	mHeader.setText(text);
+}

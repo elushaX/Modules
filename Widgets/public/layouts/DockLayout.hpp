@@ -17,7 +17,7 @@ namespace tp {
 		struct SideWidgetData {
 			Widget* widget = nullptr;
 			bool hidden = false;
-			halnf absoluteSize = 200;
+			halnf absoluteSize = 300;
 			alni order = -1;
 
 			Side side = { TOP };
@@ -76,7 +76,7 @@ namespace tp {
 		const std::vector<Widget*>& getDockedWidgets();
 
 	private:
-		ualni getVisibleSidesSize();
+		ualni getVisibleSidesSize() const;
 
 		void calculateSideAreas();
 		void calculateResizeHandles();

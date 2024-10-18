@@ -27,6 +27,8 @@ namespace tp {
 			}
 		}
 
+		[[nodiscard]] bool isDebug() const { return mDebug; }
+
 	private:
 		void recursiveDraw(Canvas& canvas, Widget* active, const Vec2F& pos, int depthOrder);
 

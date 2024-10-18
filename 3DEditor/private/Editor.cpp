@@ -57,6 +57,8 @@ void Editor::loadDefaults() {
 }
 
 void Editor::setViewportSize(const Vec2F& size) {
+	if (size.x < 0 || size.y < 0) return;
+
 	// TODO remove
 	// mScene.mCamera.rotate(0.01f, 0.0);
 

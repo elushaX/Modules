@@ -1,29 +1,19 @@
 
-#include "GraphicApplication.hpp"
+#include "WidgetApplication.hpp"
 
 #include "Sketch3D.hpp"
 #include "Sketch3DWidget.hpp"
 
 using namespace tp;
 
-class Sketch3DApplication : public Application {
+class Sketch3DApplication : public WidgetApplication {
 public:
 	Sketch3DApplication() :
-		mGui(*mGraphics->getCanvas(), { 1920, 1080 }) {}
-
-	void processFrame(EventHandler* eventHandler, halnf delta) override {
-		auto rec = RectF({ 0, 0 }, mWindow->getSize());
-
-		mGui.setVisible(true);
-		mGui.setArea(rec);
-		mGui.updateConfigWrapper(mWidgetManager);
-		mGui.procWrapper(*eventHandler, rec);
+		mGui(*mGraphics->getCanvas(), { 1920, 1080 }) {
+		setRoot(&mGui);
 	}
 
-	void drawFrame(Canvas* canvas) override { mGui.drawWrapper(*canvas); }
-
 private:
-	WidgetManager mWidgetManager;
 	Sketch3DGUI mGui;
 };
 

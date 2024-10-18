@@ -1,10 +1,10 @@
 
 #include "GUI.hpp"
-#include "GraphicApplication.hpp"
+#include "WidgetApplication.hpp"
 
 using namespace tp;
 
-class LibraryViewer : public Application {
+class LibraryViewer : public WidgetApplication {
 public:
 	LibraryViewer() :
 		gui(&library, &player) {
@@ -12,24 +12,14 @@ public:
 		library.checkExisting();
 
 		gui.updateTracks();
+
+		setRoot(&gui);
 	}
-
-	void processFrame(EventHandler* eventHandler, halnf delta) override {
-		auto rec = RectF{ { 0, 0 }, mWindow->getSize() };
-
-		gui.setVisible(true);
-		gui.setArea(rec);
-		gui.updateConfigWrapper(mWidgetManager);
-		gui.procWrapper(*eventHandler, rec);
-	}
-
-	void drawFrame(Canvas* canvas) override { gui.drawWrapper(*canvas); }
 
 private:
 	Player player;
 	Library library;
 
-	tp::WidgetManager mWidgetManager;
 	LibraryWidget gui;
 };
 
