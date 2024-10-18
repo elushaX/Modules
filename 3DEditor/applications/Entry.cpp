@@ -1,12 +1,12 @@
 
 #include "EditorWidget.hpp"
 
-#include "GraphicApplication.hpp"
+#include "WidgetApplication.hpp"
+#include "RootWidget.hpp"
 
 using namespace tp;
 
-
-class EditorGUI : public Application {
+class EditorGUI : public WidgetApplication {
 public:
 	EditorGUI() {
 		auto canvas = this->mGraphics->getCanvas();
@@ -14,25 +14,14 @@ public:
 
 		mEditor.loadDefaults();
 
+		setRoot(mGui);
 		// mScene.mCamera.lookAtPoint({ 0, 0, 0 }, { 3, 3, 2 }, { 0, 0, 1 });
 	}
 
 	~EditorGUI() override { delete mGui; }
 
-	void processFrame(EventHandler* eventHandler, halnf delta) override {
-		auto rec = RectF({ 0, 0 }, mWindow->getSize());
-
-		mGui->setArea(rec);
-		mGui->setVisible(true);
-		mGui->updateConfigWrapper(mWidgetManager);
-		mGui->procWrapper(*eventHandler, rec);
-	}
-
-	void drawFrame(Canvas* canvas) override { mGui->drawWrapper(*canvas); }
-
 private:
 	Editor mEditor;
-	WidgetManager mWidgetManager;
 	EditorWidget* mGui;
 };
 

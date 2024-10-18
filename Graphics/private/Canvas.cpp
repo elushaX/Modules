@@ -117,6 +117,10 @@ void Canvas::popClamp() {
 	}
 }
 
+const RectF& Canvas::getClampedArea() const {
+	return mScissors.last();
+}
+
 void Canvas::text(
 	const char* string, const RectF& aRec, halnf size, Align align, halnf marging, const RGBA& col
 ) {

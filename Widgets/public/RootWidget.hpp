@@ -18,6 +18,8 @@ namespace tp {
 		void setRootWidget(Widget* widget);
 		static void setWidgetArea(Widget& widget, const RectF& rect);
 
+		[[nodiscard]] bool isDebug() const;
+
 		// Graphic Application Interface
 	public:
 		void processFrame(EventHandler* events, const RectF& screenArea);

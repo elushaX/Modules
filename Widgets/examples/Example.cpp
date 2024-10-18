@@ -1,5 +1,5 @@
 
-#include "GraphicApplication.hpp"
+#include "WidgetApplication.hpp"
 
 #include "RootWidget.hpp"
 #include "FloatingWidget.hpp"
@@ -10,10 +10,10 @@
 using namespace tp;
 
 
-class WidgetApplication : public Application {
+class Example : public WidgetApplication {
 public:
-	WidgetApplication() {
-		exampleBasic();
+	Example() {
+		exampleScrolling();
 	}
 
 	void exampleAll() {
@@ -33,7 +33,7 @@ public:
 			menus[0].addToMenu(&menu);
 		}
 
-		mRootWidget.setRootWidget(&dock);
+		setRoot(&dock);
 	}
 
 	void exampleBasic() {
@@ -46,7 +46,7 @@ public:
 		widget.addChild(&button);
 		widget.addChild(&slider);
 
-		mRootWidget.setRootWidget(&widget);
+		setRoot(&widget);
 	}
 
 	void exampleScrolling() {
@@ -55,7 +55,7 @@ public:
 		static ButtonWidget buttons[10];
 		static ScrollableBarWidget scrollBar;
 
-		mRootWidget.setRootWidget(&widget);
+		setRoot(&widget);
 
 		widget.addChild(&scrollBar);
 		widget.addChild(&content);
@@ -91,7 +91,7 @@ public:
 
 		RootWidget::setWidgetArea(openButton, { 333, 333, 222, 222 });
 
-		mRootWidget.setRootWidget(&root);
+		setRoot(&root);
 	}
 
 	void exampleNestedMenus() {
@@ -100,7 +100,7 @@ public:
 		static FloatingMenu menu2;
 		static ButtonWidget buttons[15];
 
-		mRootWidget.setRootWidget(&dock);
+		setRoot(&dock);
 
 		dock.addChild(&menu1);
 		dock.addChild(&menu2);
@@ -140,7 +140,7 @@ public:
 		static Widget widgets[15];
 		static ButtonWidget buttons[15];
 
-		mRootWidget.setRootWidget(&widgets[0]);
+		setRoot(&widgets[0]);
 
 		widgets[0].addChild(&widgets[1]);
 
@@ -173,7 +173,7 @@ public:
 		static FloatingMenu menu2;
 		static ButtonWidget buttons[15];
 		
-		mRootWidget.setRootWidget(&dock);
+		setRoot(&dock);
 
 		dock.addChild(&menu2);
 		dock.addChild(&menu1);
@@ -203,29 +203,11 @@ public:
 		RootWidget::setWidgetArea(menu2, { 300, 100, 150, 500 });
 		RootWidget::setWidgetArea(menu1, { 100, 100, 150, 300 });
 	}
-
-	void processFrame(EventHandler* eventHandler, halnf deltaTime) override {
-		const auto rec = RectF({ 0, 0 }, mWindow->getSize());
-		mRootWidget.processFrame(eventHandler, rec);
-	}
-
-	void drawFrame(Canvas* canvas) override {
-		mRootWidget.drawFrame(*canvas);
-
-		// drawDebug();
-	}
-
-	bool forceNewFrame() override {
-		return mRootWidget.needsUpdate();
-	}
-
-private:
-	RootWidget mRootWidget;
 };
 
 int main() {
 	{
-		WidgetApplication gui;
+		Example gui;
 		gui.run();
 	}
 }

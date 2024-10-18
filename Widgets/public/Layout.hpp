@@ -20,6 +20,7 @@ namespace tp {
 
 	class WidgetLayout {
 		friend class DebugManager;
+		friend class LayoutManager;
 
 	public:
 		explicit WidgetLayout(Widget* widget) { mWidget = widget; }
@@ -62,5 +63,8 @@ namespace tp {
 		Vec2<SizePolicy> mSizePolicy = { SizePolicy::Fixed, SizePolicy::Fixed };
 		Vec2F mMinSize = { 50, 50 };
 		Vec2F mMaxSize = { FLT_MAX / 2, FLT_MAX / 2 };
+
+	private:
+		// RectF mPrevArea{};
 	};
 }

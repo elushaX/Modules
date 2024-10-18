@@ -51,6 +51,11 @@ void Widget::removeChild(Widget* child) {
 	child->triggerWidgetUpdate("parent changed");
 }
 
+void Widget::clear() {
+	mChildren.clear();
+	mDepthOrder.removeAll();
+}
+
 void Widget::endAnimations() { mArea.endAnimation(); }
 bool Widget::processesEvents() const { return false; }
 void Widget::updateAnimations() { mArea.updateCurrentRect(); }

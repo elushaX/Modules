@@ -80,10 +80,12 @@ void RootWidget::drawRecursion(Canvas& canvas, Widget* active, const Vec2F& pos)
 	canvas.setOrigin(pos);
 	canvas.pushClamp({ pos, active->getArea().size });
 
-	active->draw(canvas);
+	if (canvas.getClampedArea().size.length2() > EPSILON) {
+		active->draw(canvas);
 
-	for (auto child = active->mDepthOrder.lastNode(); child; child = child->prev) {
-		drawRecursion(canvas, child->data, pos + child->data->getArea().pos);
+		for (auto child = active->mDepthOrder.lastNode(); child; child = child->prev) {
+			drawRecursion(canvas, child->data, pos + child->data->getArea().pos);
+		}
 	}
 
 	canvas.setOrigin(pos);
@@ -150,3 +152,4 @@ void RootWidget::closePopup(Widget* widget) {
 
 void RootWidget::lockFocus(Widget* widget) { mUpdateManager.lockFocus(widget); }
 void RootWidget::freeFocus(Widget* widget) { mUpdateManager.freeFocus(widget); }
+bool RootWidget::isDebug() const { return gDebugWidget.isDebug(); }

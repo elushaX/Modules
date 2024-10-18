@@ -59,6 +59,7 @@ namespace tp {
 
 		void pushClamp(const RectF& rec);
 		void popClamp();
+		const RectF& getClampedArea() const;
 
 		void debugCross(RectF rec, const RGBA& col);
 		void rect(RectF rec, const RGBA& col, halnf round = 0);

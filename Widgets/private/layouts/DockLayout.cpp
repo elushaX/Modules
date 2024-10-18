@@ -169,7 +169,7 @@ void DockLayout::calculateHeaderAreas() {
 	}
 }
 
-ualni DockLayout::getVisibleSidesSize() {
+ualni DockLayout::getVisibleSidesSize() const {
 	ualni out = 0;
 	for (ualni i = 0; i < 4; i++) {
 		if (isSideVisible(Side(i))) out++;

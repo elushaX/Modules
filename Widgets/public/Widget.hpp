@@ -39,11 +39,18 @@ namespace tp {
 		};
 
 	public:
+		Widget(const Widget&&) = delete;
+		Widget(const Widget&) = delete;
+		void operator=(const Widget&) = delete;
+
 		Widget();
 		virtual ~Widget();
 
 		void addChild(Widget* child, bool front = false);
 		void removeChild(Widget* child);
+		void clear();
+
+		const List<Widget*>& getChildren() { return mDepthOrder; }
 
 		void bringToFront();
 		void bringToBack();
