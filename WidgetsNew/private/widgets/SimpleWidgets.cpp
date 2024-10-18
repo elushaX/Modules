@@ -79,3 +79,52 @@ void ButtonWidget::mouseLeave() {
 
 	triggerWidgetUpdate("button out of focus");
 }
+
+
+void SliderWidget::process(const EventHandler& events) {
+	const auto pointer = events.getPointer();
+
+	switch (mState) {
+		case SLIDING:
+			if (events.isReleased(InputID::MOUSE1)) {
+				mState = IDLE;
+				freeFocus();
+			}
+
+			mFactor = ((pointer - mHandleSize / 2) / (getArea().relative().size - mHandleSize)).x;
+			mFactor = clamp(mFactor, 0.f, 1.f);
+			break;
+
+		case IDLE:
+		case HOVER:
+			mState = getHandleArea().isInside(pointer) ? HOVER : IDLE;
+			if (getRelativeAreaT().isInside(pointer) && events.isPressed(InputID::MOUSE1)) {
+				mState = SLIDING;
+				lockFocus();
+			}
+			break;
+	}
+}
+
+void SliderWidget::draw(Canvas& canvas) {
+	canvas.rect(getArea().relative(), mColorBG, mRounding);
+
+	switch (mState) {
+		case IDLE: canvas.rect(getHandleArea(), mColorIdle, mRounding); break;
+		case HOVER: canvas.rect(getHandleArea(), mColorHovered, mRounding); break;
+		case SLIDING: canvas.rect(getHandleArea(), mColorActive, mRounding); break;
+	}
+}
+
+RectF SliderWidget::getHandleArea() const {
+	auto area = getArea().relative();
+
+	const auto& size = area.size;
+	auto center = area.center();
+	auto tilt = -(mFactor - 0.5f) * 2;
+
+	area.pos.x = center.x - (tilt * ((size.x - mHandleSize) / 2)) - mHandleSize / 2;
+	area.size.x = mHandleSize;
+
+	return area;
+}
