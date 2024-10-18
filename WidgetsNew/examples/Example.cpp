@@ -13,7 +13,7 @@ using namespace tp;
 class WidgetApplication : public Application {
 public:
 	WidgetApplication() {
-		exampleAll();
+		exampleBasic();
 	}
 
 	void exampleAll() {
@@ -34,6 +34,19 @@ public:
 		}
 
 		mRootWidget.setRootWidget(&dock);
+	}
+
+	void exampleBasic() {
+		static Widget widget;
+		static LabelWidget label;
+		static SliderWidget slider;
+		static ButtonWidget button;
+
+		widget.addChild(&label);
+		widget.addChild(&button);
+		widget.addChild(&slider);
+
+		mRootWidget.setRootWidget(&widget);
 	}
 
 	void exampleScrolling() {

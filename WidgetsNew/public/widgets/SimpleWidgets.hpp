@@ -56,4 +56,37 @@ namespace tp {
 		RGBA mColorHovered = { 0.0f, 0.4f, 0.4f, 1.f };
 		RGBA mColor = { 0.13f, 0.13f, 0.13f, 1.f };
 	};
+
+	class SliderWidget : public Widget {
+		enum State {
+			IDLE,
+			HOVER,
+			SLIDING,
+		};
+
+	public:
+		SliderWidget() = default;
+
+		void process(const EventHandler& eventHandler) override;
+		void draw(Canvas& canvas) override;
+
+		[[nodiscard]] bool processesEvents() const override { return true; }
+		[[nodiscard]] bool needsNextFrame() const override { return mState != SLIDING; }
+
+	private:
+		RectF getHandleArea() const;
+
+	private:
+		halnf mFactor = 0;
+		State mState = IDLE;
+
+	private:
+		halnf mHandleSize = 20;
+		halnf mRounding = 5;
+
+		RGBA mColorActive = { 0.5f, 0.5f, 0.5f, 1.f };
+		RGBA mColorHovered = { 0.3f, 0.3f, 0.3f, 1.f };
+		RGBA mColorIdle = { 0.2f, 0.2f, 0.2f, 1.f };
+		RGBA mColorBG = { 0.08f, 0.08f, 0.08f, 1.0f };
+	};
 }
