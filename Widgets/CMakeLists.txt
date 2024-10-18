@@ -10,8 +10,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Math Graphics Imgui)
 
 ### -------------------------- Applications  --------------------------  ###
 
-add_executable(Widgets2Example examples/Example.cpp)
-target_link_libraries(Widgets2Example ${PROJECT_NAME} ${GLEW_LIB})
-target_include_directories(Widgets2Example PUBLIC ../Externals/glfw/include ${GLEW_INCLUDE_DIR})
+add_executable(WidgetsExample examples/Example.cpp)
+target_link_libraries(WidgetsExample ${PROJECT_NAME} ${GLEW_LIB})
+target_include_directories(WidgetsExample PUBLIC ../Externals/glfw/include ${GLEW_INCLUDE_DIR})
 
 file(COPY "examples/Font.ttf" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")

@@ -3,28 +3,26 @@
 #include "BasicLayout.hpp"
 
 #include "imgui.h"
+#include "implot.h"
+
 #include <sstream>
 
 using namespace tp;
 
 DebugManager tp::gDebugWidget;
 
-#define LIST_SIZE { -FLT_MIN, 150 }
+#define LIST_SIZE \
+	{ -FLT_MIN, 150 }
 
-bool DebugManager::update(RootWidget* rootWidget, EventHandler& events) {
+void DebugManager::update(RootWidget* rootWidget, EventHandler& events) {
 	mRootWidget = rootWidget;
 
 	events.setEnableKeyEvents(true);
 	if (events.isPressed(InputID::D)) mDebug = !mDebug;
 
 	if (mDebug) {
-		auto area = rootWidget->mRoot.getAreaT();
-		area.size -= { 400, 0 };
-		rootWidget->mRoot.setArea(area);
-
 		events.setEnableKeyEvents(true);
 		if (events.isPressed(InputID::K)) mDebugStopProcessing = !mDebugStopProcessing;
-		if (mDebugStopProcessing) return false;
 
 		if (auto widget = rootWidget->mUpdateManager.mInFocusWidget) {
 			if (auto lay = dynamic_cast<BasicLayout*>(widget->getLayout())) {
@@ -49,8 +47,6 @@ bool DebugManager::update(RootWidget* rootWidget, EventHandler& events) {
 			if (events.isPressed(InputID::L)) mLayBreakpoints.insert(breakWidget);
 		}
 	}
-
-	return true;
 }
 
 void DebugManager::drawDebug(RootWidget* rootWidget, Canvas& canvas) {
@@ -60,20 +56,24 @@ void DebugManager::drawDebug(RootWidget* rootWidget, Canvas& canvas) {
 		return;
 	}
 
+	drawPerformance();
+
 	// ImGui::Checkbox("Draw debug", &mDebug);
 
-	ImGui::SameLine(); ImGui::Text("To Toggle processing press k");
+	ImGui::SameLine();
+	ImGui::Text("To Toggle processing press k");
 
 	auto& upd = rootWidget->mUpdateManager;
 
-	recursiveDraw(canvas, &rootWidget->mRoot, { 0, 0 }, 0);
-
 	ImGui::Text("Triggered: %i", (int) upd.mTriggeredWidgets.size());
-	ImGui::SameLine(); ImGui::Text("Processing: %i", upd.mDebugWidgetsToProcess);
+	ImGui::SameLine();
+	ImGui::Text("Processing: %i", upd.mDebugWidgetsToProcess);
 
 	ImGui::Checkbox("Stop processing", &mDebugStopProcessing);
-	ImGui::SameLine(); ImGui::Checkbox("Force new frames", &mDebugRedrawAlways);
-	ImGui::SameLine(); ImGui::Checkbox("Slow-mo", &mSlowMotion);
+	ImGui::SameLine();
+	ImGui::Checkbox("Force new frames", &mDebugRedrawAlways);
+	ImGui::SameLine();
+	ImGui::Checkbox("Detailed", &mDetailed);
 
 	if (upd.mInFocusWidget) {
 		ImGui::Text("Under cursor");
@@ -87,17 +87,21 @@ void DebugManager::drawDebug(RootWidget* rootWidget, Canvas& canvas) {
 		}
 	}
 
-	ImGui::Text("Triggered");
-	{
-		if (ImGui::BeginListBox("##triggered", LIST_SIZE)) {
-			for (auto widget : upd.mTriggeredWidgets) {
-				widgetMenu(widget.first);
+	if (mDetailed) {
+		ImGui::Text("Triggered");
+		{
+			if (ImGui::BeginListBox("##triggered", LIST_SIZE)) {
+				for (auto widget : upd.mTriggeredWidgets) {
+					widgetMenu(widget.first);
+				}
+				ImGui::EndListBox();
 			}
-			ImGui::EndListBox();
 		}
-	}
 
-	drawLayoutOrder();
+		drawLayoutOrder();
+
+		recursiveDraw(canvas, &rootWidget->mRoot, { 0, 0 }, 0);
+	}
 }
 
 void DebugManager::recursiveDraw(Canvas& canvas, Widget* active, const Vec2F& pos, int depthOrder) {
@@ -173,5 +177,15 @@ void DebugManager::drawLayoutOrder() {
 			ImGui::Text("%i %s (%s)", iter.second, iter.first->mDebug.id.c_str(), std::to_string((long) iter.first).c_str());
 		}
 		ImGui::EndListBox();
+	}
+}
+
+void DebugManager::drawPerformance() {
+	if (ImPlot::BeginPlot("Per Frame Time")) {
+		ImPlot::PlotLine("Proc ms", mProcTime.get(), mProcTime.size());
+		ImPlot::PlotLine("Draw ms", mDrawTime.get(), mDrawTime.size());
+		ImPlot::PlotLine("UPD ms", mUpdManager.get(), mUpdManager.size());
+		ImPlot::PlotLine("LAY ms", mLayManager.get(), mLayManager.size());
+		ImPlot::EndPlot();
 	}
 }

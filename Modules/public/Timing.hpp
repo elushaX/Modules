@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include "Environment.hpp"
 
 namespace tp {
@@ -55,5 +56,20 @@ namespace tp {
 				time.reset();
 			}
 		}
+	};
+
+	struct TimerWrapper {
+		explicit TimerWrapper(const std::function<void()>& arg) {
+			codeSnippet = arg;
+		}
+
+		time_ms exec() {
+			Timer timer;
+			codeSnippet();
+			return timer.timePassed();
+		}
+
+	private:
+		std::function<void()> codeSnippet;
 	};
 }

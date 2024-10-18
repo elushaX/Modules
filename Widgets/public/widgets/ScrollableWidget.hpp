@@ -20,6 +20,8 @@ namespace tp {
 		[[nodiscard]] bool getDirection() const { return mVertical; }
 		[[nodiscard]] halnf getPosFactor() const { return mPosFactor - mSizeFactor / 2; }
 
+		void setDirection(bool direction) { mVertical = direction; }
+
 	private:
 		[[nodiscard]] const RectF& getHandleRect() const;
 		void updateHandleRect();
@@ -53,5 +55,13 @@ namespace tp {
 	class ScrollableWidget : public Widget {
 	public:
 		ScrollableWidget();
+
+		void setDirection(bool direction);
+
+		Widget* getContainer() { return &mContent; }
+
+	private:
+		Widget mContent;
+		ScrollableBarWidget mScroller;
 	};
 }

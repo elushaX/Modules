@@ -71,7 +71,7 @@ namespace tp {
 		void draw(Canvas& canvas) override;
 
 		[[nodiscard]] bool processesEvents() const override { return true; }
-		[[nodiscard]] bool needsNextFrame() const override { return mState != SLIDING; }
+		[[nodiscard]] bool needsNextFrame() const override { return mState != IDLE; }
 
 		[[nodiscard]] halnf val() const { return mFactor; }
 

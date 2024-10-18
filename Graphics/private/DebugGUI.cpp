@@ -9,6 +9,8 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_internal.h>
 
+#include "implot.h"
+
 namespace tp {
 	class DebugGUI::Context {
 	public:
@@ -40,6 +42,8 @@ DebugGUI::DebugGUI(Window* window) {
 
 	// appearance
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+	ImPlot::CreateContext();
 
 	return;
 
@@ -75,9 +79,12 @@ DebugGUI::DebugGUI(Window* window) {
 }
 
 DebugGUI::~DebugGUI() {
+	ImPlot::DestroyContext();
+
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
+
 
 	delete mContext;
 }

@@ -50,23 +50,18 @@ public:
 	}
 
 	void exampleScrolling() {
-		static Widget widget;
-		static Widget content;
+		static ScrollableWidget widget;
 		static ButtonWidget buttons[10];
-		static ScrollableBarWidget scrollBar;
+
+		// widget.setDirection(false);
 
 		setRoot(&widget);
 
-		widget.addChild(&scrollBar);
-		widget.addChild(&content);
-
 		for (auto& button : buttons) {
-			content.addChild(&button);
+			widget.getContainer()->addChild(&button);
 		}
 
-		widget.setLayout(new ScrollableLayout(&widget));
-
-		RootWidget::setWidgetArea(content, { 333, 333, 522, 522 });
+		RootWidget::setWidgetArea(*widget.getContainer(), { 333, 333, 522, 522 });
 	}
 
 	void examplePopup() {
