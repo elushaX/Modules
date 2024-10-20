@@ -2,19 +2,22 @@
 #include "WidgetApplication.hpp"
 
 #include "Sketch3D.hpp"
-#include "Sketch3DWidget.hpp"
+#include "SketchGUI.hpp"
 
 using namespace tp;
 
 class Sketch3DApplication : public WidgetApplication {
 public:
-	Sketch3DApplication() :
-		mGui(*mGraphics->getCanvas(), { 1920, 1080 }) {
+	Sketch3DApplication() {
 		setRoot(&mGui);
+
+		mGui.createRenderWidget(mGraphics->getCanvas(), { 1920, 1080 });
+		mGui.setProject(&mSketch);
 	}
 
 private:
-	Sketch3DGUI mGui;
+	SketchGUI mGui;
+	Project mSketch;
 };
 
 void runApp() {

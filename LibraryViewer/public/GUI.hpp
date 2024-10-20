@@ -248,7 +248,7 @@ namespace tp {
 		void process(const EventHandler& events) override {
 			filter();
 
-			for (auto track : mSongList.getContent()) {
+			for (auto track : mSongList.getContainer()->getChildren()) {
 				if (auto trackWidget = dynamic_cast<TrackWidget*>(track.data())) {
 					if (trackWidget->mState == TrackWidget::SELECTED) {
 						mCurrentTrackInfo.mTrack = trackWidget->mTrack;
@@ -268,7 +268,7 @@ namespace tp {
 		void filter() {
 			if (!mCurrentTrackInfo.isSongFilterChanged) return;
 
-			mSongList.clearChildren();
+			mSongList.getContainer()->clear();
 
 			for (auto track : mTracks) {
 				if (!mCurrentTrackInfo.songFilter.PassFilter(track->mTrack->mName.c_str()) &&
@@ -290,7 +290,7 @@ namespace tp {
 						break;
 				}
 
-				mSongList.addToMenu(track.data());
+				mSongList.getContainer()->addChild(track.data());
 			}
 
 			mCurrentTrackInfo.isSongFilterChanged = false;
@@ -302,7 +302,7 @@ namespace tp {
 
 		Buffer<TrackWidget*> mTracks;
 
-		FloatingMenu mSongList;
+		ScrollableWidget mSongList;
 		TrackInfoWidget mCurrentTrackInfo;
 		TrackWidget mCurrentTrack;
 	};

@@ -19,3 +19,6 @@
 [submodule "Externals/asio"]
 	path = Externals/asio
 	url = https://github.com/elushaX/asio.git
+[submodule "Externals/implot"]
+	path = Externals/implot
+	url = https://github.com/epezent/implot.git

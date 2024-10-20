@@ -1,4 +1,6 @@
 #include "ScrollableWidget.hpp"
+#include "ScrollableLayout.hpp"
+#include "BasicLayout.hpp"
 
 using namespace tp;
 
@@ -84,4 +86,21 @@ void ScrollableBarWidget::updateHandleRect() {
 
 const RectF& ScrollableBarWidget::getHandleRect() const {
 	return mHandleRect;
+}
+
+ScrollableWidget::ScrollableWidget() {
+	addChild(&mScroller);
+	addChild(&mContent);
+
+	setLayout(new ScrollableLayout(this));
+
+	mContent.setSizePolicy(SizePolicy::Minimal, SizePolicy::Minimal);
+}
+
+void ScrollableWidget::setDirection(bool direction) {
+	if (auto lay = dynamic_cast<BasicLayout*>(mContent.getLayout())) {
+		lay->setLayoutPolicy(direction ? LayoutPolicy::Vertical : LayoutPolicy::Horizontal);
+	}
+
+	mScroller.setDirection(direction);
 }

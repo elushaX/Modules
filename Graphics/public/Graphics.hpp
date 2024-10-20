@@ -55,17 +55,26 @@ namespace tp {
 			ualni id = 0;
 		};
 
+		struct ColorWheel {
+			HSV color = { 0.13, 0.5, 1 };
+			halnf thickness = 20;
+			halnf margin = 5;
+
+			void fromPoint(const RectF& area, const Vec2F& point);
+		};
+
 		void setOrigin(const Vec2F& origin);
 
 		void pushClamp(const RectF& rec);
 		void popClamp();
-		const RectF& getClampedArea() const;
+		[[nodiscard]] const RectF& getClampedArea() const;
 
 		void debugCross(RectF rec, const RGBA& col);
 		void rect(RectF rec, const RGBA& col, halnf round = 0);
 		void frame(RectF rec, const RGBA& col, halnf round = 0);
 		void circle(Vec2F pos, halnf size, const RGBA& col);
 		void text(const char*, const RectF&, halnf size, Align, halnf padding, const RGBA&);
+		void colorWheel(const RectF& rec, const ColorWheel& colorWheel);
 
 		ImageHandle createImageFromTextId(ualni id, Vec2F size);
 		void updateTextureID(ImageHandle handle, ualni id);

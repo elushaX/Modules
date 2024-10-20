@@ -9,41 +9,24 @@ namespace tp {
 	public:
 		WidgetApplication() = default;
 
-		void setRoot(Widget* widget) {
-			mRootWidget.setRootWidget(widget);
-		}
+		void setRoot(Widget* widget);
 
 	private:
-		void processFrame(EventHandler* eventHandler, halnf deltaTime) override {
-			const auto rec = RectF({ 0, 0 }, mWindow->getSize());
+		void processFrame(EventHandler* eventHandler, halnf deltaTime) override;
 
-			Timer timer;
-			mRootWidget.processFrame(eventHandler, rec);
-			mProcTime = timer.timePassed();
-		}
-
-		void drawFrame(Canvas* canvas) override {
-			Timer timer;
-			mRootWidget.drawFrame(*canvas);
-			mDrawTime = timer.timePassed();
-
-			if (mRootWidget.isDebug()) {
-				drawDebug();
-				debugUI();
-			}
-		}
-
-		bool forceNewFrame() override {
-			return mRootWidget.needsUpdate();
-		}
+		void drawFrame(Canvas* canvas) override;
+		bool forceNewFrame() override ;
 
 	private:
 		void debugUI();
 
 	private:
-		time_ms mProcTime = 0;
-		time_ms mDrawTime = 0;
+		halnf mDebugSplitFactor = 0.7;
 
 		RootWidget mRootWidget;
+
+	private:
+		RectF mGuiArea;
+		RectF mDebugArea;
 	};
 }

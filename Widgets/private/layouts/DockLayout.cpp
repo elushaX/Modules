@@ -61,6 +61,8 @@ void DockLayout::toggleWidgetVisibility(Side side) {
 void DockLayout::calculateSideAreas() {
 	auto startArea = getArea().relative();
 
+	if (startArea.size.x <= 0 || startArea.size.y <= 0) return;
+
 	for (auto& sideWidget : mSideWidgets) {
 		const auto side = sideWidget.order;
 
@@ -99,11 +101,13 @@ void DockLayout::calculateResizeHandles() {
 	RectF area = getArea().relative();
 
 	for (auto& sideWidget : mSideWidgets) {
+		if (!sideWidget.widget) continue;
+
 		auto& sideSize = sideWidget.absoluteSize;
 		auto& resizeHandle = sideWidget.resizeHandle;
 
 		if (resizeHandle.end < mSideSizePadding * 2) {
-			sideSize = resizeHandle.end / 2.f;
+			// sideSize = resizeHandle.end / 2.f;
 		} else {
 			sideSize = clamp(sideSize, resizeHandle.start + mSideSizePadding, resizeHandle.end - mSideSizePadding);
 		}

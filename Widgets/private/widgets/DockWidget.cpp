@@ -46,6 +46,8 @@ void DockWidget::toggleWidgetVisibility(DockLayout::Side side) {
 		widget->bringToBack();
 
 		layout()->toggleWidgetVisibility(side);
+
+		widget->triggerWidgetUpdate("dock visibility changed");
 	}
 }
 
@@ -80,9 +82,11 @@ void DockWidget::process(const EventHandler& events) {
 		if (events.isPressed(InputID::MOUSE1)) {
 			if (layout()->startResize(events.getPointer())) {
 				triggerWidgetUpdate("dock layout resizing");
+				lockFocus();
 			}
 		} else if (events.isReleased(InputID::MOUSE1)) {
 			layout()->endResize();
+			freeFocus();
 		}
 
 		if (layout()->isResizing()) {

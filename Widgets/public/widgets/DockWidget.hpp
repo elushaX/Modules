@@ -17,6 +17,8 @@ namespace tp {
 		void drawSide(DockLayout::Side side, Canvas& canvas);
 
 	public:
+		DockLayout::Side getSide(Widget* widget) { return layout()->getSideFromWidget(widget); }
+
 		void setCenterWidget(Widget* widget);
 
 		void dockWidget(Widget* widget, DockLayout::Side side);

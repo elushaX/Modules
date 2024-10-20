@@ -30,9 +30,9 @@ void ScrollableLayout::updateWidgetRects(const RectF& area, Widget* content, Scr
 	auto sizeFactor = (area.size[dir] / content->getLayout()->getArea().size[dir]);
 	auto splitFactor = 1 - ((sizeFactor > 1.f) ?  0 : mScrollerSize / area.size[!dir]);
 
-	auto holderArea = area.splitByFactorHL(splitFactor);
+	auto holderArea = dir ? area.splitByFactorHL(splitFactor) : area.splitByFactorVT(splitFactor);
 	auto contentArea = content->getLayout()->getArea();
-	auto scrollerArea = area.splitByFactorHR(splitFactor);
+	auto scrollerArea = dir ? area.splitByFactorHR(splitFactor) : area.splitByFactorVB(splitFactor);
 
 	scroller->updateSizeFactor(sizeFactor);
 
