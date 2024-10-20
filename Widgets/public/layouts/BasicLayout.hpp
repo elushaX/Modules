@@ -10,17 +10,21 @@ namespace tp {
 	public:
 		explicit BasicLayout(Widget* widget) : WidgetLayout(widget) {}
 
-		void updateLayout(bool vertical) override;
+		void arrangeChildren(bool vertical) override;
 
 		void pickRect(bool vertical) override;
-		void clampRect() override;
-		[[nodiscard]] RectF getAvailableChildArea() const override;
+
+		[[nodiscard]] RectF availableChildArea() const override;
+		[[nodiscard]] RectF minContentArea() const override;
 
 		void setLayoutPolicy(LayoutPolicy layout) { mLayoutPolicy = layout; }
 
 	private:
+		static bool canChange(Widget*, bool);
+
+	private:
 		void adjustLayout(bool vertical);
-		static halnf changeChildSize(Widget*, halnf diff, bool vertical);
+		static halnf shrinkLayoutSize(WidgetLayout* widget, halnf diff, bool vertical);
 
 	private:
 		LayoutPolicy mLayoutPolicy = LayoutPolicy::Vertical;

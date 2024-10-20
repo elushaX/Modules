@@ -29,7 +29,11 @@ const Vec2<SizePolicy>& WidgetLayout::getSizePolicy() const { return mSizePolicy
 
 void WidgetLayout::setSizePolicy(SizePolicy x, SizePolicy y) { mSizePolicy = { x, y }; }
 
+WidgetLayout* WidgetLayout::lay(Widget* w) { return w->getLayout(); }
+
 RangeF WidgetLayout::pickRange(const RangeF& current, const RangeF& children, const RangeF& parent, bool vertical) const {
+	return current;
+
 	RangeF out;
 
 	switch (mSizePolicy[vertical]) {
@@ -44,8 +48,14 @@ RangeF WidgetLayout::pickRange(const RangeF& current, const RangeF& children, co
 
 void WidgetLayout::clampMinMaxSize() {
 	auto current = getArea();
-	current.size.clamp(mMinSize, mMaxSize);
+	auto minContent = minContentArea();
+	minContent.size.clamp(mMinSize, mMaxSize);
+	current.clamp(minContent);
 	setArea(current);
+}
+
+void WidgetLayout::pickMinimalRect(bool dir) {
+	setArea(minContentArea());
 }
 
 RangeF WidgetLayout::clampRange(const RangeF& current, const RangeF& child, const RangeF& parent, bool vertical) const {
@@ -84,13 +94,17 @@ RectF WidgetLayout::getChildrenEnclosure() const {
 	return out;
 }
 
-RectF WidgetLayout::getAvailableChildArea() const {
+RectF WidgetLayout::availableChildArea() const {
 	return getArea().relative();
+}
+
+RectF WidgetLayout::minContentArea() const {
+	return getChildrenEnclosure();
 }
 
 RectF WidgetLayout::getParentEnclosure() const {
 	DEBUG_ASSERT(parent())
 	if (!parent()) return { { 0, 0 }, mMaxSize };
-	auto out = parent()->getLayout()->getAvailableChildArea();
+	auto out = parent()->getLayout()->availableChildArea();
 	return out;
 }

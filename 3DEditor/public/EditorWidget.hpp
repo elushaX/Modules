@@ -120,10 +120,10 @@ namespace tp {
 
 		ViewportWidget mViewport;
 
-		FloatingMenu mPanel;
+		FloatingScrollableMenu mPanel;
 
 		// Controls
-		FloatingMenu mRenderMenu;
+		FloatingScrollableMenu mRenderMenu;
 		ButtonWidget mRenderPathTracer;
 		ButtonWidget mRenderRaster;
 		ButtonWidget mRenderDeNoise;
@@ -131,7 +131,7 @@ namespace tp {
 		// Navigation
 		enum NavigationType { ORBIT, PAN, ZOOM } mNavigationType = ORBIT;
 
-		FloatingMenu mNavigationMenu;
+		FloatingScrollableMenu mNavigationMenu;
 		ButtonWidget mNavigationPan;
 		ButtonWidget mNavigationOrbit;
 		ButtonWidget mNavigationZoom;

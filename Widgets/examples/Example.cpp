@@ -2,7 +2,7 @@
 #include "WidgetApplication.hpp"
 
 #include "RootWidget.hpp"
-#include "FloatingWidget.hpp"
+#include "MenuWidgets.hpp"
 #include "DockWidget.hpp"
 
 #include "ScrollableLayout.hpp"
@@ -19,9 +19,9 @@ public:
 	void exampleAll() {
 		static DockWidget dock;
 		static LabelWidget centralWidget;
-		static FloatingMenu menus[4];
-		static FloatingMenu nestedMenus[4];
-		static FloatingMenu buttons[10];
+		static FloatingScrollableMenu menus[4];
+		static FloatingScrollableMenu nestedMenus[4];
+		static FloatingScrollableMenu buttons[10];
 
 		dock.setCenterWidget(&centralWidget);
 
@@ -34,6 +34,30 @@ public:
 		}
 
 		setRoot(&dock);
+	}
+
+	void exampleCollapsingMenus() {
+		static DockWidget dock;
+		static CollapsingMenuWidget mainMenu;
+		static CollapsingMenuWidget menus[3];
+		static ButtonWidget buttons[5];
+
+		for (auto& menu : menus) {
+			mainMenu.getContainer()->addChild(&menu);
+		}
+
+		menus[0].getContainer()->addChild(&buttons[0]);
+		menus[0].getContainer()->addChild(&buttons[1]);
+		menus[0].getContainer()->addChild(&buttons[2]);
+
+		menus[1].getContainer()->addChild(&buttons[3]);
+		menus[1].getContainer()->addChild(&buttons[4]);
+
+		// dock.addChild(&menus[0]);
+
+		setRoot(&menus[0]);
+
+		// RootWidget::setWidgetArea(mainMenu, { 333, 333, 522, 522 });
 	}
 
 	void exampleBasic() {
@@ -100,8 +124,8 @@ public:
 
 	void exampleNestedMenus() {
 		static DockWidget dock;
-		static FloatingMenu menu1;
-		static FloatingMenu menu2;
+		static FloatingScrollableMenu menu1;
+		static FloatingScrollableMenu menu2;
 		static ButtonWidget buttons[15];
 
 		setRoot(&dock);
@@ -173,8 +197,8 @@ public:
 
 	void exampleDock() {
 		static DockWidget dock;
-		static FloatingMenu menu1;
-		static FloatingMenu menu2;
+		static FloatingScrollableMenu menu1;
+		static FloatingScrollableMenu menu2;
 		static ButtonWidget buttons[15];
 		
 		setRoot(&dock);

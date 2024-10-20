@@ -26,11 +26,20 @@ namespace tp {
 		explicit WidgetLayout(Widget* widget) { mWidget = widget; }
 		virtual ~WidgetLayout() = default;
 
-		virtual void updateLayout(bool vertical) {}
-
+	public:
+		// picks own position and size
+		// modifies only own area
 		virtual void pickRect(bool vertical) {}
-		virtual void clampRect() {}
-		[[nodiscard]] virtual RectF getAvailableChildArea() const;
+
+		// arranges all children layouts inside itself
+		// modifies children areas
+		virtual void arrangeChildren(bool vertical) {}
+
+		// area that any child can have
+		[[nodiscard]] virtual RectF availableChildArea() const;
+
+		// minimal size base on the content of the layout
+		[[nodiscard]] virtual RectF minContentArea() const;
 
 	public:
 		const Vec2F& getMinSize();
@@ -38,6 +47,8 @@ namespace tp {
 
 		[[nodiscard]] const Vec2<SizePolicy>& getSizePolicy() const;
 		void setSizePolicy(SizePolicy x, SizePolicy y);
+
+		static WidgetLayout* lay(Widget* w);
 
 	public:
 		[[nodiscard]] const RectF& getArea() const;
@@ -49,6 +60,7 @@ namespace tp {
 
 	public:
 		void clampMinMaxSize();
+		void pickMinimalRect(bool dir);
 
 		[[nodiscard]] RangeF pickRange(const RangeF& current, const RangeF& child, const RangeF& parent, bool v) const;
 		[[nodiscard]] RangeF clampRange(const RangeF& current, const RangeF& child, const RangeF& parent, bool v) const;

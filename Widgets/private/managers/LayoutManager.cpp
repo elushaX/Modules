@@ -3,6 +3,7 @@
 
 #include "DockLayout.hpp"
 #include "ScrollableLayout.hpp"
+#include "BasicLayout.hpp"
 
 #include <algorithm>
 
@@ -78,7 +79,7 @@ void LayoutManager::adjustLayouts() {
 	});
 
 	for (auto& [iter, _] : mLayOrder) {
-		iter->getLayout()->updateLayout(mVertical);
+		iter->getLayout()->arrangeChildren(mVertical);
 	}
 }
 
@@ -92,10 +93,13 @@ static int sizePolicyDep[3][3] = {
 int LayoutManager::getLayoutOrder(WidgetLayout* parent, WidgetLayout* child) const {
 	if (!parent || !child) return 0;
 
+	return 1;
+	
 	auto policyParent = parent->getSizePolicy()[mVertical];
 	auto policyChild = parent->getSizePolicy()[mVertical];
 
-	if (dynamic_cast<DockLayout*>(parent)) return -1;
+	// if (dynamic_cast<DockLayout*>(parent)) return -1;
+	// if (dynamic_cast<BasicLayout*>(parent)) return -1;
 	// if (dynamic_cast<ScrollableLayout*>(parent)) return -1;
 
 	return sizePolicyDep[int(policyParent)][int(policyChild)];

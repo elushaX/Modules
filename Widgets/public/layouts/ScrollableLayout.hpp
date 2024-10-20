@@ -12,8 +12,8 @@ namespace tp {
 			setSizePolicy(SizePolicy::Expanding, SizePolicy::Expanding);
 		}
 
-		void updateLayout(bool vertical) override;
-		[[nodiscard]] RectF getAvailableChildArea() const override;
+		void arrangeChildren(bool vertical) override;
+		[[nodiscard]] RectF availableChildArea() const override;
 
 	private:
 		void updateWidgetRects(const RectF& area, Widget* content, ScrollableBarWidget* scroller) const;

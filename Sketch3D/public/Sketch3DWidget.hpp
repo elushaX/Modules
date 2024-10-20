@@ -3,7 +3,7 @@
 #include "Sketch3D.hpp"
 #include "Widget.hpp"
 #include "DockWidget.hpp"
-#include "FloatingWidget.hpp"
+#include "MenuWidgets.hpp"
 
 namespace tp {
 
@@ -150,15 +150,15 @@ namespace tp {
 	private:
 		Sketch3DWidget mViewport;
 
-		FloatingMenu mPanel;
+		FloatingScrollableMenu mPanel;
 
-		FloatingMenu mControls;
+		FloatingScrollableMenu mControls;
 		ButtonWidget mDrawButton;
 		ButtonWidget mMoveButton;
 		ButtonWidget mRotateButton;
 		ButtonWidget mZoomButton;
 
-		FloatingMenu mColorPicker;
+		FloatingScrollableMenu mColorPicker;
 		SliderWidget mRed;
 		SliderWidget mGreen;
 		SliderWidget mBlue;

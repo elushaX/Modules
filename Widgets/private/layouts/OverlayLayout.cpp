@@ -5,7 +5,7 @@
 
 using namespace tp;
 
-void OverlayLayout::updateLayout(bool vertical) {
+void OverlayLayout::arrangeChildren(bool vertical) {
 	if (vertical) return;
 
 	if (children().empty()) return;

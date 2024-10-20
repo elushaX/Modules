@@ -107,7 +107,7 @@ void SliderWidget::process(const EventHandler& events) {
 }
 
 void SliderWidget::draw(Canvas& canvas) {
-	canvas.rect(getArea().relative(), mColorBG, mRounding);
+	canvas.rect(getRelativeArea(), mColorBG, mRounding);
 
 	switch (mState) {
 		case IDLE: canvas.rect(getHandleArea(), mColorIdle, mRounding); break;

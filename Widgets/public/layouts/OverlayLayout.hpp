@@ -10,9 +10,8 @@ namespace tp {
 	public:
 		explicit OverlayLayout(Widget* widget) : WidgetLayout(widget) {}
 
-		void updateLayout(bool vertical) override;
+		void arrangeChildren(bool vertical) override;
 
 		void pickRect(bool vertical) override {}
-		void clampRect() override {}
 	};
 }

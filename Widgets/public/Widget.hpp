@@ -59,6 +59,7 @@ namespace tp {
 		void setSizePolicy(SizePolicy x, SizePolicy y);
 
 		void setEnabled(bool val) { mFlags.set(ENABLED, val); }
+		[[nodiscard]] bool getEnabled() const { return mFlags.get(ENABLED); }
 
 		WidgetLayout* getLayout();
 		[[nodiscard]] const WidgetLayout* getLayout() const;

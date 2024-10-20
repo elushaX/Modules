@@ -5,7 +5,8 @@
 using namespace tp;
 
 Widget::Widget() {
-	mArea.setTargetRect({ 100, 100, 10, 10 });
+	mArea.setTargetRect({ 100, 100, 50, 50 });
+
 	setLayout(WidgetManagerInterface::defaultLayout(this));
 	mArea.endAnimation();
 

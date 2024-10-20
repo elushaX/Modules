@@ -43,8 +43,7 @@ namespace tp {
 
 	public:
 		void pickRect(bool vertical) override {}
-		void clampRect() override {};
-		void updateLayout(bool vertical) override;
+		void arrangeChildren(bool vertical) override;
 		void adjustChildrenRect();
 
 	public:

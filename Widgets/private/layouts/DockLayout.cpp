@@ -188,7 +188,7 @@ auto DockLayout::getSideFromWidget(Widget* widget) -> Side {
 	return DockLayout::NONE;
 }
 
-void DockLayout::updateLayout(bool vertical) {
+void DockLayout::arrangeChildren(bool vertical) {
 	for (auto child : children()) {
 		child->getLayout()->pickRect(vertical);
 	}

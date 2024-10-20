@@ -5,7 +5,7 @@
 
 using namespace tp;
 
-void ScrollableLayout::updateLayout(bool vertical) {
+void ScrollableLayout::arrangeChildren(bool vertical) {
 	if (vertical) return;
 
 	// TODO : make better interface to get scroller and content widget
@@ -44,7 +44,7 @@ void ScrollableLayout::updateWidgetRects(const RectF& area, Widget* content, Scr
 	content->getLayout()->setArea(contentArea);
 }
 
-RectF ScrollableLayout::getAvailableChildArea() const {
+RectF ScrollableLayout::availableChildArea() const {
 	auto out = getArea();
 	// dont constrain on scroll axis
 	out.pos = -FLT_MAX / 4;

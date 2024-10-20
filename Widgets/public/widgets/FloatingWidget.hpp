@@ -13,9 +13,7 @@ namespace tp {
 		}
 
 		void process(const EventHandler& events) override;
-
 		void draw(Canvas& canvas) override;
-
 
 		[[nodiscard]] bool needsNextFrame() const override;
 
@@ -27,36 +25,5 @@ namespace tp {
 	private:
 		FloatingLayout* layout();
 		[[nodiscard]] const FloatingLayout* layout() const;
-	};
-
-	class FloatingMenu : public FloatingWidget {
-	public:
-		FloatingMenu();
-
-	public:
-		void addToMenu(Widget* widget) {
-			widget->setSizePolicy(SizePolicy::Expanding, SizePolicy::Minimal);
-			mContentWidget.addChild(widget);
-		}
-
-		const List<Widget*>& getContent() {
-			return mContentWidget.getChildren();
-		}
-
-		void clearChildren() {
-			mContentWidget.clear();
-		}
-
-		void setText(const std::string& text);
-
-	private:
-		// VerticalLayout mMenuLayout;
-		Widget mBodyLayout;
-		Widget mContentWidget;
-		ScrollableBarWidget mScrollBar;
-
-		LabelWidget mHeader;
-
-		// ButtonWidget mTestButton;
 	};
 }
