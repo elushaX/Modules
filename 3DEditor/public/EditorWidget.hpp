@@ -17,7 +17,7 @@ namespace tp {
 		~ViewportWidget() override { mCanvas->deleteImageHandle(mImage); }
 
 		void process(const EventHandler& events) override {
-			mEditor->setViewportSize(getArea().size);
+			mEditor->setViewportSize(getAreaT().size);
 		}
 
 		void draw(Canvas& canvas) override {

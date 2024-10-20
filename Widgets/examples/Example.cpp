@@ -4,6 +4,7 @@
 #include "RootWidget.hpp"
 #include "FloatingWidget.hpp"
 #include "DockWidget.hpp"
+#include "ColorPickerWidget.hpp"
 
 #include "ScrollableLayout.hpp"
 
@@ -13,7 +14,7 @@ using namespace tp;
 class Example : public WidgetApplication {
 public:
 	Example() {
-		exampleScrolling();
+		exampleColorPicker();
 	}
 
 	void exampleAll() {
@@ -36,6 +37,15 @@ public:
 		setRoot(&dock);
 	}
 
+	void exampleColorPicker() {
+		static DockWidget dock;
+		static RGBPickerWidget colorPicker;
+
+		dock.dockWidget(&colorPicker, DockLayout::RIGHT);
+
+		setRoot(&dock);
+	}
+
 	void exampleBasic() {
 		static Widget widget;
 		static LabelWidget label;
@@ -50,40 +60,44 @@ public:
 	}
 
 	void exampleScrolling() {
-		static Widget widget;
-		static Widget content;
+		static ScrollableWidget widget;
 		static ButtonWidget buttons[10];
-		static ScrollableBarWidget scrollBar;
+
+		widget.setDirection(false);
 
 		setRoot(&widget);
 
-		widget.addChild(&scrollBar);
-		widget.addChild(&content);
-
 		for (auto& button : buttons) {
-			content.addChild(&button);
+			widget.getContainer()->addChild(&button);
 		}
 
-		widget.setLayout(new ScrollableLayout(&widget));
-
-		RootWidget::setWidgetArea(content, { 333, 333, 522, 522 });
+		RootWidget::setWidgetArea(*widget.getContainer(), { 333, 333, 522, 522 });
 	}
 
 	void examplePopup() {
 		static Widget root;
+		static Widget popup;
+
 		static ButtonWidget closeButton;
 		static ButtonWidget openButton;
+		static ButtonWidget buttons[3];
+
+		for (auto& button : buttons) {
+			popup.addChild(&button);
+		}
+
+		popup.addChild(&closeButton);
 
 		root.addChild(&openButton);
 		((BasicLayout*)root.getLayout())->setLayoutPolicy(LayoutPolicy::Passive);
 
 		openButton.setAction([&](){
-			closeButton.setArea({ 50, 50, 100, 100 });
-			openButton.openPopup(&closeButton);
+			popup.setArea({ 50, 50, 300, 300 });
+			openButton.openPopup(&popup);
 		});
 
 		closeButton.setAction([&](){
-			closeButton.closePopup(&closeButton);
+			closeButton.closePopup(&popup);
 		});
 
 		openButton.setText("open");

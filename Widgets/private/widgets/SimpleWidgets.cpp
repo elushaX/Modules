@@ -128,3 +128,47 @@ RectF SliderWidget::getHandleArea() const {
 
 	return area;
 }
+
+void PopupWidget::open(Widget* parent, const RectF& at) {
+	mParentArea = parent->getArea().relative();
+	mParentArea.pos = at.pos * -1;
+	mParentArea.shrinkFromCenter(-10, true);
+
+	setArea(at);
+	parent->openPopup(this);
+}
+
+void PopupWidget::process(const EventHandler& events) {
+	bool insideParent = mParentArea.isInside(events.getPointer());
+	bool insideMenu = getArea().relative().isInside(events.getPointer());
+
+	if (!(insideMenu || insideParent)) {
+		closePopup(this);
+	}
+}
+
+void PopupWidget::draw(Canvas& canvas) {
+	canvas.rect(getArea().relative(), col, rounding);
+}
+
+void HoverPopupTriggerWidget::mouseEnter() {
+	auto area = getArea().relative();
+	auto size = Vec2F(300, 400);
+
+	if (mDirection == Right) {
+		auto popupArea = RectF{ area.p4() + Vec2F{ gap, 0.f }, size };
+		mPopup.open(this, popupArea);
+	} else {
+		auto popupArea = RectF{ area.p2() + Vec2F{ 0.f, gap }, size };
+		mPopup.open(this, popupArea);
+	}
+}
+
+PopupWidget* HoverPopupTriggerWidget::getPopup() {
+	return &mPopup;
+}
+
+void HoverPopupTriggerWidget::draw(Canvas& canvas) {
+	canvas.rect(getArea().relative(), col, rounding);
+	LabelWidget::draw(canvas);
+}

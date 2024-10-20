@@ -97,6 +97,9 @@ namespace tp {
 		Project();
 		~Project();
 
+		void setPencil();
+		void setEraser();
+
 		// pos from -1 to 1 (left ot right bottom to top)
 		void sample(halnf pressure, halnf cameraRatio, Vec2F relativeCameraPos);
 
@@ -116,6 +119,7 @@ namespace tp {
 		std::string mType = "equal";
 		Brush() = default;
 		virtual void sample(Project* proj, Vec2F crs, halnf pressure) {}
+		virtual void finish(Project* proj) {}
 		virtual void draw(Renderer* render, const Camera* camera) {}
 		virtual ~Brush() = default;
 	};
@@ -125,8 +129,9 @@ namespace tp {
 		PencilBrush();
 		~PencilBrush() override;
 
-		virtual void sample(Project* proj, Vec2F crs, halnf pressure) override;
-		virtual void draw(Renderer* render, const Camera* camera) override;
+		void finish(Project* proj) override;
+		void sample(Project* proj, Vec2F crs, halnf pressure) override;
+		void draw(Renderer* render, const Camera* camera) override;
 
 	private:
 		void ensureReady(Stroke* stroke, const Camera* cam, bool debug = false) const;

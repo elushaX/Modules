@@ -96,7 +96,7 @@ namespace tp {
 		bool mResizing = false;
 
 		Widget* mCenterWidget = nullptr;
-		RectF mCenterArea {};
+		RectF mCenterArea { 0, 0, 10, 10 };
 
 		// Parameters
 		const halnf mHandleSplitFactor = 0.3;

@@ -283,6 +283,14 @@ PencilBrush::~PencilBrush() {
 	if (mStroke) delete mStroke;
 }
 
+void PencilBrush::finish(Project* proj) {
+	if (mStroke) {
+		ensureReady(mStroke, &proj->mCamera);
+		proj->mLayers[proj->mActiveLayer]->strokes.pushBack(mStroke);
+		mStroke = nullptr;
+	}
+}
+
 Layer::~Layer() {
 	for (auto str : strokes) {
 		delete str.data();
@@ -314,6 +322,20 @@ void Project::sample(halnf pressure, halnf cameraRatio, Vec2F relativeCameraPos)
 
 		brush->sample(this, relativeCameraPos, pressure);
 	}
+}
+
+void Project::setPencil() {
+	if (auto idx = mBrushes.presents(mActiveBrush)) {
+		mBrushes.getSlotVal(idx)->finish(this);
+	}
+	mActiveBrush = "pencil";
+}
+
+void Project::setEraser() {
+	if (auto idx = mBrushes.presents(mActiveBrush)) {
+		mBrushes.getSlotVal(idx)->finish(this);
+	}
+	mActiveBrush = "eraser";
 }
 
 Project::~Project() {

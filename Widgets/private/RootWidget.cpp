@@ -2,11 +2,13 @@
 #include "RootWidget.hpp"
 
 #include "BasicLayout.hpp"
-#include "OverlayLayout.hpp"
+#include "SimpleLayouts.hpp"
 
 #include <algorithm>
 
 using namespace tp;
+
+#define SAMPLE(label, scope) gDebugWidget.##label.addSample(TimerWrapper([&]() scope ).exec());
 
 WidgetLayout* WidgetManagerInterface::defaultLayout(Widget* widget) {
 	return new BasicLayout(widget);
@@ -35,21 +37,23 @@ void RootWidget::setRootWidget(Widget* widget) {
 void RootWidget::processFrame(EventHandler* events, const RectF& screenArea) {
 	mRoot.setArea(screenArea);
 
-	if (!gDebugWidget.update(this, *events)) return;
+	gDebugWidget.mUpdManager.addSample(TimerWrapper([&]() {
+		// construct hierarchy tree of widgets to process
+		mUpdateManager.updateTreeToProcess(&mRoot);
 
-	// construct hierarchy tree of widgets to process
-	mUpdateManager.updateTreeToProcess(&mRoot);
+		updateAnimations();
+		updateAreaCache(&mRoot, true);
 
-	updateAnimations();
-	updateAreaCache(&mRoot, true);
+		// update all events and call all event processing callbacks
+		mUpdateManager.processWidgets(&mRoot, *events);
 
-	// update all events and call all event processing callbacks
-	mUpdateManager.processWidgets(&mRoot, *events);
+		updateAreaCache(&mRoot, true);
+	}).exec());
 
-	updateAreaCache(&mRoot, true);
-
-	// update widget sizes base on individual size policies
-	mLayoutManager.adjust(&mRoot);
+	gDebugWidget.mLayManager.addSample(TimerWrapper([&]() {
+		// update widget sizes base on individual size policies
+		mLayoutManager.adjust(&mRoot);
+	}).exec());
 
 	updateAreaCache(&mRoot, false);
 
@@ -67,12 +71,8 @@ bool RootWidget::needsUpdate() const {
 
 void RootWidget::drawFrame(Canvas& canvas) {
 	canvas.rect(mRoot.getAreaT(), RGBA(0, 0, 0, 1));
-
 	drawRecursion(canvas, &mRoot, { 0, 0 });
-
-	gDebugWidget.drawDebug(this, canvas);
 }
-
 
 void RootWidget::drawRecursion(Canvas& canvas, Widget* active, const Vec2F& pos) {
 	if (!active->mFlags.get(ENABLED)) return;
@@ -81,7 +81,9 @@ void RootWidget::drawRecursion(Canvas& canvas, Widget* active, const Vec2F& pos)
 	canvas.pushClamp({ pos, active->getArea().size });
 
 	if (canvas.getClampedArea().size.length2() > EPSILON) {
-		active->draw(canvas);
+		if (active->getArea().sizeVecW() > active->getArea().pos) {
+			active->draw(canvas);
+		}
 
 		for (auto child = active->mDepthOrder.lastNode(); child; child = child->prev) {
 			drawRecursion(canvas, child->data, pos + child->data->getArea().pos);
@@ -152,4 +154,3 @@ void RootWidget::closePopup(Widget* widget) {
 
 void RootWidget::lockFocus(Widget* widget) { mUpdateManager.lockFocus(widget); }
 void RootWidget::freeFocus(Widget* widget) { mUpdateManager.freeFocus(widget); }
-bool RootWidget::isDebug() const { return gDebugWidget.isDebug(); }

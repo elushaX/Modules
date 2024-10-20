@@ -12,11 +12,14 @@ set(${PROJECT_NAME}_SOURCES
 
         imgui/backends/imgui_impl_glfw.cpp
         imgui/backends/imgui_impl_opengl3.cpp
+
+        implot/implot.cpp
+        implot/implot_items.cpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${${PROJECT_NAME}_SOURCES})
 include_directories(${PROJECT_NAME} ./glfw/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ./imgui/ ./imgui/backends/)
+target_include_directories(${PROJECT_NAME} PUBLIC ./imgui/ ./imgui/backends/ ./implot/)
 
 project(Nanovg)
 set(${PROJECT_NAME}_SOURCES

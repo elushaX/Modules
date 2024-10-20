@@ -1,13 +1,18 @@
 Widgets:
-    Replace Old Widgets!!
+    Basic scrollable widget
+    Collapsing menus
+
+    Icons
+    Toolbar widget
+    Fix focus locking mechanism
+    Hover PopUps
+    Color Picker
 
     Optimize:
       Make visual parameters static
       Make get-areas fetch cache and not animation objects
 
     New Widgets:
-        Collapsing menu
-        Sliders
         Check Boxes
         Drop-Downs
         Toaster notifications
