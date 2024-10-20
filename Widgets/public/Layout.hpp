@@ -61,7 +61,7 @@ namespace tp {
 
 	protected:
 		Vec2<SizePolicy> mSizePolicy = { SizePolicy::Fixed, SizePolicy::Fixed };
-		Vec2F mMinSize = { 50, 50 };
+		Vec2F mMinSize = { 30, 30 };
 		Vec2F mMaxSize = { FLT_MAX / 2, FLT_MAX / 2 };
 
 	private:

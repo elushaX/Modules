@@ -29,6 +29,8 @@ Window::Window(Vec2F size, const char* title) {
 	// glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
 	// glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
+	mSize = size;
+
 	// Create a window and OpenGL context
 	mContext->window = glfwCreateWindow((int) size.x, (int) size.y, title, nullptr, nullptr);
 	if (!mContext->window) {

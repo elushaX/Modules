@@ -33,7 +33,11 @@ void LayoutManager::findDependencies(Widget* root) {
 	Widget::dfs(root, [this](Widget* widget) { mDepGraph.insert({ widget, {} }); });
 
 	for (auto& [widget, deps] : mDepGraph) {
+		if (!widget->isUpdate()) continue;
+
 		for (auto child : widget->mChildren) {
+			// if (!child->isUpdate()) continue;
+
 			mDepGraph.insert({ child, {} });
 
 			if (auto depOrder = getLayoutOrder(widget->getLayout(), child->getLayout())) {
