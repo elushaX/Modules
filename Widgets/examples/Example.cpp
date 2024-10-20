@@ -13,7 +13,7 @@ using namespace tp;
 class Example : public WidgetApplication {
 public:
 	Example() {
-		exampleScrolling();
+		examplePopup();
 	}
 
 	void exampleAll() {
@@ -71,19 +71,28 @@ public:
 
 	void examplePopup() {
 		static Widget root;
+		static Widget popup;
+
 		static ButtonWidget closeButton;
 		static ButtonWidget openButton;
+		static ButtonWidget buttons[3];
+
+		for (auto& button : buttons) {
+			popup.addChild(&button);
+		}
+
+		popup.addChild(&closeButton);
 
 		root.addChild(&openButton);
 		((BasicLayout*)root.getLayout())->setLayoutPolicy(LayoutPolicy::Passive);
 
 		openButton.setAction([&](){
-			closeButton.setArea({ 50, 50, 100, 100 });
-			openButton.openPopup(&closeButton);
+			popup.setArea({ 50, 50, 300, 300 });
+			openButton.openPopup(&popup);
 		});
 
 		closeButton.setAction([&](){
-			closeButton.closePopup(&closeButton);
+			closeButton.closePopup(&popup);
 		});
 
 		openButton.setText("open");

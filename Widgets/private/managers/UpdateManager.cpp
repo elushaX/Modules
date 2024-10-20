@@ -76,10 +76,19 @@ void UpdateManager::handleFocusChanges(Widget* root, EventHandler& events) {
 
 	mInFocusWidget = nullptr;
 
-	if (!mFocusLockWidget) {
-		findFocusWidget(root, &mInFocusWidget, events.getPointer());
-	} else {
-		mInFocusWidget = mFocusLockWidget;
+	findFocusWidget(root, &mInFocusWidget, events.getPointer());
+
+	if (mFocusLockWidget) {
+		bool hasLockedWidget = false;
+		for (auto iter = mInFocusWidget; iter; iter = iter->mParent) {
+			if (iter == mFocusLockWidget) {
+				hasLockedWidget = true;
+				break;
+			}
+		}
+		if (!hasLockedWidget) {
+			mInFocusWidget = mFocusLockWidget;
+		}
 	}
 
 	// if (mInFocusWidget == prevFocus) return;
