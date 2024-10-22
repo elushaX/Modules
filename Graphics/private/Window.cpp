@@ -41,6 +41,7 @@ Window::Window(Vec2F size, const char* title) {
 	// Initialize GLEW
 	if (glewInit() != GLEW_OK) {
 		printf("Failed to initialize GLEW\n");
+		exit(1);
 		return;
 	}
 
@@ -64,7 +65,9 @@ Window* Window::createWindow(Vec2F size, const char* title) {
 	}
 	count--;
 
-	glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+	#ifdef ENV_OS_LINUX
+		glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+	#endif
 	// glfwInitHint(GLFW_WAYLAND_LIBDECOR, GLFW_WAYLAND_DISABLE_LIBDECOR);
 
 	// Initialize GLFW

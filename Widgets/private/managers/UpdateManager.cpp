@@ -109,7 +109,7 @@ void UpdateManager::handleFocusChanges(Widget* root, EventHandler& events) {
 
 	int mostCommonIdx = 0;
 	if (!(path1.empty() || path2.empty())) {
-		while (path1[mostCommonIdx] == path2[mostCommonIdx] && mostCommonIdx < min(path1.size(), path2.size())) {
+		while (mostCommonIdx < min(path1.size(), path2.size()) && path1[mostCommonIdx] == path2[mostCommonIdx]) {
 			mostCommonIdx++;
 		}
 	}
