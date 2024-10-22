@@ -1,5 +1,5 @@
 
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -8,13 +8,20 @@ set(CMAKE_CXX_STANDARD 20)
 
 project(ModulesRoot)
 
-include(CMakeOptions.txt)
+include(cmake/ModulesOptions.txt)
+
+set(WINDOWS_LIBRARIES "../moduleswindowsl" CACHE STRING "Svn repository with windows libraries https://svn.riouxsvn.com/moduleswindowsl")
+
+include(cmake/FindGLEW.cmake)
+include(cmake/FindOIDN.cmake)
+include(cmake/FindPortAudio.cmake)
+
+add_subdirectory(Externals)
 
 add_subdirectory(Modules)
 add_subdirectory(Containers)
 add_subdirectory(Math)
 # add_subdirectory(Language)
-add_subdirectory(Externals)
 add_subdirectory(Connection)
 add_subdirectory(Graphics)
 add_subdirectory(DataAnalysis)
