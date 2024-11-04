@@ -18,7 +18,16 @@ namespace tp {
 		Vec2F getBufferSize();
 
 	private:
+		void renderDefault(const Scene& geometry);
+		void renderOutline(const Camera& camera, const Object& object);
+
+		void bindObjectShaderAttributes(const Object& object);
+		void bindCameraShaderAttributes(Mat4F cameraMat);
+
+	private:
 		RenderBuffer mRenderBuffer;
+
 		RenderShader mDefaultShader;
+		RenderShader mSolidShader;
 	};
 }

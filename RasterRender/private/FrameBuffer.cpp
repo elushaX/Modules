@@ -102,7 +102,7 @@ void RenderBuffer::setViewport(const RectF& viewport) {
 
 void RenderBuffer::clear() {
 	AssertGL(glClearColor(mClearCol.r, mClearCol.g, mClearCol.b, mClearCol.a));
-	AssertGL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+	AssertGL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 }
 
 void RenderBuffer::endDraw() {

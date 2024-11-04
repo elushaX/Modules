@@ -495,8 +495,8 @@ namespace tp {
 	};
 
 	template <typename Type>
-	using mat3 = Mat<Type, 3, 3>;
-	using mat3f = mat3<halnf>;
+	using Mat3 = Mat<Type, 3, 3>;
+	using Mat3F = Mat3<halnf>;
 
 	template <typename Type>
 	class Mat<Type, 3, 3> {
@@ -647,22 +647,22 @@ namespace tp {
 
 		Mat inv() { return cofactors() /= det(); }
 
-		Mat rotatorX(alnf angle) {
+		Mat rotatorX(alnf angle) const {
 			alnf cosA = (alnf) cos(angle);
 			alnf sinA = (alnf) sin(angle);
 			return { { 1, 0, 0 }, { 0, cosA, -sinA }, { 0, sinA, cosA } };
 		}
 
-		Mat rotatorY(alnf angle) {
+		Mat rotatorY(alnf angle) const {
 			alnf cosA = (alnf) cos(angle);
 			alnf sinA = (alnf) sin(angle);
 			return { { cosA, 0, sinA }, { 0, 1, 0 }, { -sinA, 0, cosA } };
 		}
 
-		Mat rotatorZ(alnf angle) {
-			alnf cosA = (alnf) cos(angle);
-			alnf sinA = (alnf) sin(angle);
-			return { { cosA, -sinA, 0 }, { sinA, cosA, 0 }, { 0, 0, 1 } };
+		static Mat rotatorZ(alnf angle) {
+			Type cosA = (Type) cos(angle);
+			Type sinA = (Type) sin(angle);
+			return { vec{ cosA, -sinA, 0 }, vec{ sinA, cosA, 0 }, vec{ 0, 0, 1 } };
 		}
 
 		static Mat rotatorDir(vec dir, alnf angle) {
@@ -707,4 +707,14 @@ namespace tp {
 
 		Type det() { return Type(); }
 	};
+
+	template<typename Type>
+	Mat<Type, 4, 4> toMat4(const Mat<Type, 3, 3>& in) {
+		Mat<Type, 4, 4> out;
+		out[0] = { in[0][0], in[0][1], in[0][2], 0 };
+		out[1] = { in[1][0], in[1][1], in[1][2], 0 };
+		out[2] = { in[2][0], in[2][1], in[2][2], 0 };
+		out[3] = Type(1);
+		return out;
+	}
 }

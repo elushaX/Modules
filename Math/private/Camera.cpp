@@ -117,16 +117,20 @@ void Camera::rotate(halnf angleX, halnf angleY) {
 	Vec3F wup(0, 0, 1);
 	mPos -= mTarget;
 
-	mat3f rotZ = mat3f::rotatorDir(wup, angleX);
+	Mat3F rotZ = Mat3F::rotatorDir(wup, angleX);
 	mPos = rotZ * mPos;
 	mUp = rotZ * mUp;
 
 	Vec3F f = mPos.unitV();
 	Vec3F s = mUp * f;
 
-	mPos = mat3f::rotatorDir(s, -angleY) * mPos;
+	mPos = Mat3F::rotatorDir(s, -angleY) * mPos;
 
 	mPos += mTarget;
 
 	lookAtPoint(mTarget, mPos, mUp);
+}
+
+void Camera::setPos(Vec3F pos) {
+	mPos = pos;
 }

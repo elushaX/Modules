@@ -18,6 +18,7 @@ namespace tp {
 		void setRatio(halnf ratio);
 		void setFOV(halnf fov);
 		void setFar(halnf far);
+		void setPos(Vec3F pos);
 
 		[[nodiscard]] const Vec3F& getPos() const;
 		[[nodiscard]] const Vec3F& getTarget() const;
