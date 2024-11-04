@@ -30,7 +30,7 @@ namespace tp {
 
 	struct Topology {
 		Vec3F Origin = { 0, 0, 0 };
-		mat3f Basis = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
+		Mat3F Basis = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
 
 		Buffer<Vec3F> Points;
 		Buffer<Vec3F> Normals;

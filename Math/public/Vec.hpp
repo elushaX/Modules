@@ -110,6 +110,13 @@ namespace tp {
 			return *this;
 		}
 
+		Vec& operator=(Type val) {
+			for (ualni i = 0; i < tSize; i++) {
+				get(i) = val;
+			}
+			return *this;
+		}
+
 		void assign(Type val) {
 			for (ualni i = 0; i < tSize; i++) {
 				get(i) = val;
@@ -576,4 +583,14 @@ namespace tp {
 
 	using Vec4F = Vec4<halnf>;
 	using Vec4I = Vec4<halni>;
+
+	template <typename Type>
+	Vec<Type, 4> toVec4(const Vec<Type, 3>& in) {
+		Vec<Type, 4> out;
+		out[0] = in[0];
+		out[1] = in[1];
+		out[2] = in[2];
+		out[3] = 0;
+		return out;
+	}
 }
