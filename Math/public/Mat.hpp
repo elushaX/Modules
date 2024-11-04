@@ -465,7 +465,7 @@ namespace tp {
 		}
 
 		// Matrix Properties
-		MVec transform(const MVec& in) const { return MVec(i.x * in.x + i.y * in.y, j.x * in.y + j.y * in.x); }
+		MVec transform(const MVec& in) const { return MVec(i.x * in.x + i.y * in.y, j.x * in.x + j.y * in.y); }
 
 		Mat transform(const Mat& in) const {
 			Mat out;

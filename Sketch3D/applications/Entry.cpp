@@ -11,7 +11,7 @@ public:
 	Sketch3DApplication() {
 		setRoot(&mGui);
 
-		mGui.createRenderWidget(mGraphics->getCanvas(), { 1920, 1080 });
+		mGui.createRenderWidget(mGraphics->getCanvas(), { 2560, 1440 });
 		mGui.setProject(&mSketch);
 	}
 
