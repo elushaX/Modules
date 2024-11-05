@@ -160,8 +160,10 @@ void UpdateManager::processActiveTree(Widget* iter, EventHandler& events, Vec2F 
 		procWidget(iter, events, false);
 	}
 
-	for (auto child : iter->mDepthOrder) {
-		processActiveTree(child.data(), events, current);
+	for (auto child = iter->mDepthOrder.firstNode(); child;) {
+		auto next = child->next; // any child may be removed at runtime
+		processActiveTree(child->data, events, current);
+		child = next;
 	}
 }
 

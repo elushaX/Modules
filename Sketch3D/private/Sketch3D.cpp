@@ -280,7 +280,7 @@ void PencilBrush::draw(Renderer* render, const Camera* camera) {
 }
 
 PencilBrush::~PencilBrush() {
-	if (mStroke) delete mStroke;
+	delete mStroke;
 }
 
 void PencilBrush::finish(Project* proj) {
