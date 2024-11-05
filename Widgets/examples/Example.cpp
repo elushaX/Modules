@@ -64,6 +64,7 @@ public:
 		static ButtonWidget buttons[10];
 
 		widget.setDirection(false);
+		// widget.setDirection(false);
 
 		setRoot(&widget);
 

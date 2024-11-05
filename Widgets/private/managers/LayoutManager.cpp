@@ -36,7 +36,7 @@ void LayoutManager::findDependencies(Widget* root) {
 		if (!widget->isUpdate()) continue;
 
 		for (auto child : widget->mChildren) {
-			// if (!child->isUpdate()) continue;
+			if (!child->isUpdate()) continue;
 
 			mDepGraph.insert({ child, {} });
 
