@@ -7,9 +7,10 @@ using namespace tp;
 void ScrollableBarWidget::process(const EventHandler& events) {
 	// all content is visible no need to process anything
 	if (mSizeFactor >= 1) {
+		if (mScrolling) freeFocus();
+
 		mScrolling = false;
 		mPosFactor = mSizeFactor / 2.f;
-		freeFocus();
 		return;
 	}
 

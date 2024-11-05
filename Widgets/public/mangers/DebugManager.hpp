@@ -87,7 +87,7 @@ namespace tp {
 		bool mDebug = false;
 		bool mDebugStopProcessing = false;
 		bool mDebugRedrawAlways = false;
-		bool mDetailed = false;
+		bool mDetailed = true;
 
 		std::set<Widget*> mProcBreakpoints;
 		std::set<Widget*> mLayBreakpoints;

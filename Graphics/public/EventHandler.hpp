@@ -87,6 +87,7 @@ namespace tp {
 		[[nodiscard]] halnf getPointerPressure() const;
 
 		void setEnableKeyEvents(bool);
+		[[nodiscard]] bool isKeyEventsEnabled() const { return mEnableKeyEvents; }
 
 	private:
 		void processEventUnguarded();

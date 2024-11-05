@@ -25,12 +25,15 @@ namespace tp {
 		void clean();
 
 		void updateTreeToProcess(Widget* root);
-		void handleFocusChanges(Widget* root, EventHandler& events);
+		void handleFocusChanges(Widget* active, Widget* prevActive);
+		Widget* findFocusWidget(Widget* root, EventHandler& events);
 
-		void findFocusWidget(Widget* iter, Widget** focus, const Vec2F& pointer);
+		void findMouseFocusWidget(Widget* iter, Widget** focus, const Vec2F& pointer);
 		static void getWidgetPath(Widget* widget, std::vector<Widget*>& out);
 		void processActiveTree(Widget* iter, EventHandler& events, Vec2F pos);
 		void processFocusItems(EventHandler& events);
+
+		Widget* getFocusWidget() { return mInFocusWidget; }
 
 	private:
 		static void procWidget(Widget* widget, EventHandler& events, bool withEvents = false);

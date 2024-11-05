@@ -69,14 +69,11 @@ void UpdateManager::getWidgetPath(Widget* widget, std::vector<Widget*>& out) {
 	}
 }
 
-void UpdateManager::handleFocusChanges(Widget* root, EventHandler& events) {
-	auto prevFocus = mInFocusWidget;
-
+Widget* UpdateManager::findFocusWidget(Widget* root, EventHandler& events) {
 	events.setCursorOrigin({ 0, 0 });
 
 	mInFocusWidget = nullptr;
-
-	findFocusWidget(root, &mInFocusWidget, events.getPointer());
+	findMouseFocusWidget(root, &mInFocusWidget, events.getPointer());
 
 	if (mFocusLockWidget) {
 		bool hasLockedWidget = false;
@@ -91,13 +88,17 @@ void UpdateManager::handleFocusChanges(Widget* root, EventHandler& events) {
 		}
 	}
 
-	// if (mInFocusWidget == prevFocus) return;
-	if (mInFocusWidget) scheduleUpdate(mInFocusWidget, "focus entered");
+	return mInFocusWidget;
+}
 
-	if (!mInFocusWidget && !prevFocus) return;
+void UpdateManager::handleFocusChanges(Widget* active, Widget* prevActive) {
+	// if (mInFocusWidget == prevFocus) return;
+	if (active) scheduleUpdate(active, "focus entered");
+
+	if (!active && !prevActive) return;
 
 	std::vector<Widget*> path2;
-	getWidgetPath(mInFocusWidget, path2);
+	getWidgetPath(active, path2);
 	size_t propLen2 = path2.size();
 	for (auto i = 0; i < path2.size(); i++) {
 		if (!path2[i]->propagateEventsToChildren()) {
@@ -107,7 +108,7 @@ void UpdateManager::handleFocusChanges(Widget* root, EventHandler& events) {
 	}
 
 	std::vector<Widget*> path1;
-	getWidgetPath(prevFocus, path1);
+	getWidgetPath(prevActive, path1);
 	size_t propLen1 = path1.size();
 	for (auto i = 0; i < path1.size(); i++) {
 		if (!path1[i]->propagateEventsToChildren()) {
@@ -135,7 +136,7 @@ void UpdateManager::handleFocusChanges(Widget* root, EventHandler& events) {
 	}
 }
 
-void UpdateManager::findFocusWidget(Widget* iter, Widget** focus, const Vec2F& pointer) {
+void UpdateManager::findMouseFocusWidget(Widget* iter, Widget** focus, const Vec2F& pointer) {
 	if (!iter->mArea.getTargetRect().isInside(pointer) || !iter->mFlags.get(Widget::ENABLED)) return;
 
 	if (iter->processesEvents()) {
@@ -143,7 +144,7 @@ void UpdateManager::findFocusWidget(Widget* iter, Widget** focus, const Vec2F& p
 	}
 
 	for (auto child = iter->mDepthOrder.lastNode(); child; child = child->prev) {
-		findFocusWidget(child->data, focus, pointer - iter->mArea.getTargetRect().pos);
+		findMouseFocusWidget(child->data, focus, pointer - iter->mArea.getTargetRect().pos);
 	}
 }
 
@@ -215,6 +216,6 @@ void UpdateManager::lockFocus(tp::Widget* widget) {
 }
 
 void UpdateManager::freeFocus(tp::Widget* widget) {
-	// DEBUG_ASSERT(mFocusLockWidget == widget)
+	DEBUG_ASSERT(mFocusLockWidget == widget)
 	mFocusLockWidget = nullptr;
 }

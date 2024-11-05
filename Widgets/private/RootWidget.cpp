@@ -58,7 +58,9 @@ void RootWidget::processFrame(EventHandler* events, const RectF& screenArea) {
 	updateAreaCache(&mRoot, false);
 
 	// trigger some widgets by moise pointer
-  mUpdateManager.handleFocusChanges(&mRoot, *events);
+	auto prevFocus = mUpdateManager.getFocusWidget();
+	auto newFocus = mUpdateManager.findFocusWidget(&mRoot, *events);
+  mUpdateManager.handleFocusChanges(newFocus, prevFocus);
 
 	// check triggered widgets for removal
 	mUpdateManager.clean();

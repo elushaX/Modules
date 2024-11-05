@@ -113,14 +113,17 @@ void DebugManager::recursiveDraw(Canvas& canvas, Widget* active, const Vec2F& po
 		canvas.text((active->mDebug.id + ":" + std::to_string(depthOrder)).c_str(), area, 22, Canvas::Align::LC, 2, color);
 	}
 
+	if (active == mRootWidget->mUpdateManager.mFocusLockWidget) {
+		canvas.frame(area, { 0, 1, 0, 1 });
+	}
+
 	if (active->mFlags.get(Widget::IN_FOCUS)) {
 		if (active->isUpdate()) {
 			canvas.circle(pos + active->mDebug.pLocal, 5, active->mDebug.col);
 			canvas.circle(active->mDebug.pGlobal, 15, active->mDebug.col);
 		}
 
-		RGBA color = { 1, 0, 0, 0.3f };
-		canvas.debugCross(area, color);
+		canvas.debugCross(area, { 0, 1, 0, 1 });
 	}
 
 	int orderIdx = 0;

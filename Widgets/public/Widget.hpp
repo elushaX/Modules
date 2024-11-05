@@ -31,6 +31,8 @@ namespace tp {
 
 		using DFSAction = std::function<void(Widget*)>;
 
+	protected:
+
 		enum Flags : int1 {
 			ENABLED = 0,
 			NEEDS_UPDATE,
