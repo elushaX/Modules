@@ -2,9 +2,10 @@
 Meshes = "meshes.obj"
 
 Camera = {
-	pos = { 0.5, 4.5, 0.2 },
-	size_x = 600,
-	size_y = 800,
+	pos = { 0, 5, 0 },
+	target = { 0, 0, 0 },
+	up = { 0, 0, 1 },
+	size = { 600, 800 },
 }
 
 Lights = {

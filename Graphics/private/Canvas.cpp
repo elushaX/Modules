@@ -27,7 +27,7 @@ Canvas::Canvas(Window* window) {
 
 	mContext->vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
 
-	if (nvgCreateFont(mContext->vg, "default", "Font.ttf") == -1) {
+	if (nvgCreateFont(mContext->vg, "default", "rsc/Font.ttf") == -1) {
 		ASSERT(!"Cant create NVG font")
 	}
 }

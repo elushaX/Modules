@@ -19,5 +19,6 @@ file(GLOB APP_SOURCES "./applications/*.cpp")
 add_executable(3DEditorApp ${APP_SOURCES})
 target_link_libraries(3DEditorApp ${PROJECT_NAME})
 
-file(COPY "rsc" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
-file(COPY "rsc/Font.ttf" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
+file(COPY "../RasterRender/rsc" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
+file(COPY "../Graphics/rsc" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
+file(COPY "../3DScene/rsc" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")

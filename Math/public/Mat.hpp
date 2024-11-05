@@ -714,7 +714,7 @@ namespace tp {
 		out[0] = { in[0][0], in[0][1], in[0][2], 0 };
 		out[1] = { in[1][0], in[1][1], in[1][2], 0 };
 		out[2] = { in[2][0], in[2][1], in[2][2], 0 };
-		out[3] = Type(1);
+		out[3] = { Type(0), Type(0), Type(0), Type(1) };
 		return out;
 	}
 }

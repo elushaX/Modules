@@ -28,6 +28,10 @@ namespace tp {
 		void navigationZoom(halnf factor);
 		void navigationReset();
 
+		void selectObject(const Vec2F& screenPos);
+		Object* getActiveObject();
+
+		Scene* getScene();
 
 	private:
 		void sendBuffersToGPU();
@@ -36,6 +40,8 @@ namespace tp {
 	private:
 		Scene mScene;
 
+		Camera mResetCamera;
+
 		RenderType mRenderType = RenderType::RASTER;
 
 		RasterRender mRasterRenderer;
@@ -43,5 +49,7 @@ namespace tp {
 
 		RayTracer::OutputBuffers mPathTracerBuffers;
 		uint4 mPathRenderTexture = 0;
+
+		Object* mActive = nullptr;
 	};
 }

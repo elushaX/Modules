@@ -30,14 +30,6 @@ namespace tp {
 		void render(const Scene& scene, OutputBuffers& out, const RenderSettings& settings);
 
 	private:
-		struct RayCastData {
-			const Object* obj = nullptr;
-			TrigCache* trig = nullptr;
-			Vec3F hitPos = { 0, 0, 0 };
-			bool hit = false;
-			bool inv = false;
-		};
-
 		struct LightData {
 			halnf intensity = 0;
 		};

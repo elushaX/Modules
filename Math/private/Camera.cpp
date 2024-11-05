@@ -88,7 +88,7 @@ void Camera::lookAtPoint(const Vec3F& aTarget, const Vec3F& aPos, Vec3F aUp) {
 	}
 	mPos = aPos;
 	mTarget = aTarget;
-	Vec3F f = (mPos - mTarget).normalize();
+	Vec3F f = (mTarget - mPos).normalize();
 	mUp = f * (aUp.normalize() * f);
 }
 

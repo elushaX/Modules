@@ -7,6 +7,61 @@ extern "C" {
 }
 
 #include <filesystem>
+#include <utility>
+
+tp::Vec3F tp::Scene::getVec3(lua_State* state, const char* name) {
+	int stackSize = lua_gettop(state);
+
+	// Access the "pos" field and validate it
+	lua_getfield(state, -1, name);
+	if (!lua_istable(state, -1) || lua_rawlen(state, -1) != 3) {
+		throw IOError(std::string("Invalid vec3 named ") + name);
+	}
+
+	// Read the values from the table
+	float pos[3];
+	for (int i = 0; i < 3; i++) {
+		lua_rawgeti(state, -1, i + 1);
+		if (lua_isnumber(state, -1)) {
+			pos[i] = lua_tonumber(state, -1);
+		} else {
+			throw IOError("vec3 values must be numbers");
+		}
+		lua_pop(state, 1); // pop number
+	}
+	lua_pop(state, 1); // pop vec3
+
+	ASSERT(stackSize == lua_gettop(state))
+
+	return { pos[0], pos[1], pos[2] };
+}
+
+tp::Vec2F tp::Scene::getVec2(lua_State* state, const char* name) {
+	int stackSize = lua_gettop(state);
+
+	// Access the "pos" field and validate it
+	lua_getfield(state, -1, name);
+	if (!lua_istable(state, -1) || lua_rawlen(state, -1) != 2) {
+		throw IOError(std::string("Invalid vec2 named ") + name);
+	}
+
+	// Read the values from the table
+	float pos[2];
+	for (int i = 0; i < 2; i++) {
+		lua_rawgeti(state, -1, i + 1);
+		if (lua_isnumber(state, -1)) {
+			pos[i] = lua_tonumber(state, -1);
+		} else {
+			throw IOError("vec3 values must be numbers");
+		}
+		lua_pop(state, 1); // pop number
+	}
+	lua_pop(state, 1); // pop vec3
+
+	ASSERT(stackSize == lua_gettop(state))
+
+	return { pos[0], pos[1] };
+}
 
 // Function to read a Lua table representing RenderSettings
 int readRenderSettings(lua_State* L, tp::RenderSettings& settings) {
@@ -53,23 +108,8 @@ int readRenderSettings(lua_State* L, tp::RenderSettings& settings) {
 }
 
 // Function to read a Lua table representing a light
-int readLight(lua_State* L, tp::PointLight* light) {
-	lua_getfield(L, -1, "pos"); // Get the "pos" field from the light table
-	if (!lua_istable(L, -1)) {
-		printf("Light is missing the 'pos' table.\n");
-		return 0; // Error
-	}
-	for (int i = 0; i < 3; i++) {
-		lua_rawgeti(L, -1, i + 1); // Index is 1-based in Lua
-		if (!lua_isnumber(L, -1)) {
-			printf("Light 'pos' field is not a number at index %d.\n", i);
-			lua_pop(L, 2); // Pop both the number and the 'pos' table
-			return 0;      // Error
-		}
-		light->pos[i] = lua_tonumber(L, -1);
-		lua_pop(L, 1); // Pop the number
-	}
-	lua_pop(L, 1); // Pop the 'pos' table
+int tp::Scene::readLight(lua_State* L, tp::PointLight* light) {
+	light->pos = getVec3(L, "pos");
 
 	lua_getfield(L, -1, "intensity"); // Get the "intensity" field from the light table
 	if (!lua_isnumber(L, -1)) {
@@ -121,65 +161,28 @@ bool tp::Scene::loadLuaFormat(const std::string& scenePath) {
 	}
 
 	// --- camera
-
-	// Access Camera table
-	lua_getglobal(L, "Camera");
-	if (!lua_istable(L, -1)) {
-		printf("Camera is not a table.\n");
-		lua_close(L);
-		return false;
-	}
-
-	// Verify you are inside the "Camera" table
-	int cameraTableIndex = lua_gettop(L); // Get the index of the "Camera" table
-
-	// Access the "pos" field and validate it
-	lua_getfield(L, cameraTableIndex, "pos");
-	if (!lua_istable(L, -1) || lua_rawlen(L, -1) != 3) {
-		printf("Invalid 'pos' field in Camera table.\n");
-		lua_close(L);
-		return false;
-	}
-
-	// Read the values from the table
-	float pos[3];
-	for (int i = 0; i < 3; i++) {
-		lua_rawgeti(L, -1, i + 1);
-		if (lua_isnumber(L, -1)) {
-			pos[i] = lua_tonumber(L, -1);
-		} else {
-			printf("Invalid 'pos' field value at index %d.\n", i + 1);
+	{
+		lua_getglobal(L, "Camera");
+		if (!lua_istable(L, -1)) {
+			printf("Camera is not a table.\n");
 			lua_close(L);
 			return false;
 		}
+
+		Vec3F camPos = getVec3(L, "pos");
+		Vec3F camTarget = getVec3(L, "target");
+		Vec3F camUp = getVec3(L, "up");
+		Vec2F camSize = getVec2(L, "size");
+
+		mRenderSettings.size = camSize;
+
+		mCamera.lookAtPoint(camTarget, camPos, camUp);
+		mCamera.setFOV(3.14 / 4);
+		mCamera.setFar(100);
+		mCamera.setRatio((tp::halnf) camSize.y / (tp::halnf) camSize.x);
+
 		lua_pop(L, 1);
 	}
-
-	// Access the "size_x" field and validate it
-	lua_getfield(L, cameraTableIndex, "size_x");
-	if (!lua_isnumber(L, -1)) {
-		printf("Invalid or missing 'size_x' field in Camera table.\n");
-		lua_close(L);
-		return false;
-	}
-	int size_x = lua_tointeger(L, -1);
-	lua_pop(L, 1); // Pop the 'size_x' value from the stack
-
-	// Access the "size_y" field and validate it
-	lua_getfield(L, cameraTableIndex, "size_y");
-	if (!lua_isnumber(L, -1)) {
-		printf("Invalid or missing 'size_y' field in Camera table.\n");
-		lua_close(L);
-		return false;
-	}
-	int size_y = lua_tointeger(L, -1);
-
-	mRenderSettings.size = { (tp::halnf) size_x, (tp::halnf) size_y };
-
-	mCamera.lookAtPoint({ 0, 0, 0 }, { pos[0], pos[1], pos[2] }, { 0, 0, 1 });
-	mCamera.setFOV(3.14 / 4);
-	mCamera.setFar(100);
-	mCamera.setRatio((tp::halnf) size_y / (tp::halnf) size_x);
 
 	// ---------- LIGHTS
 	{

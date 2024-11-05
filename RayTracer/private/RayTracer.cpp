@@ -43,6 +43,8 @@ normal = n1 * barycentric.x + n2 * barycentric.y + n3 * barycentric.z;
 
 using namespace tp;
 
+
+// TODO : de-duplicate in Scene?
 void RayTracer::castRay(const Ray& ray, RayCastData& out, alnf farVal) {
 	out.hit = false;
 	out.obj = nullptr;
