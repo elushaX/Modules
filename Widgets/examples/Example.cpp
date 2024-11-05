@@ -14,7 +14,7 @@ using namespace tp;
 class Example : public WidgetApplication {
 public:
 	Example() {
-		exampleColorPicker();
+		exampleNestedMenus();
 	}
 
 	void exampleAll() {
