@@ -24,7 +24,10 @@ Editor::Editor() {
 void Editor::renderViewport() {
 	switch (mRenderType) {
 		case RenderType::RASTER:
-			mRasterRenderer.render(mScene, mScene.mRenderSettings.size);
+			mRasterRenderer.beginRender(mScene, mScene.mRenderSettings.size);
+			mRasterRenderer.renderDefault(mScene);
+			if (mActive) mRasterRenderer.renderOutline(mScene.mCamera, *mActive);
+			mRasterRenderer.endRender();
 			break;
 
 		case RenderType::PATH_TRACER:
@@ -54,6 +57,7 @@ uint4 Editor::getViewportTexID() {
 
 void Editor::loadDefaults() {
 	mScene.load("rsc/scene/script.lua");
+	mResetCamera = mScene.mCamera;
 }
 
 void Editor::setViewportSize(const Vec2F& size) {
@@ -73,6 +77,7 @@ Editor::~Editor() {
 }
 
 void Editor::renderPathFrame() {
+	mScene.updateCache();
 	mPathRenderer.render(mScene, mPathTracerBuffers, mScene.mRenderSettings);
 	sendBuffersToGPU();
 }
@@ -116,5 +121,20 @@ void Editor::navigationZoom(halnf factor) {
 }
 
 void Editor::navigationReset() {
-	mScene.mCamera.lookAtPoint({ 0, 0, 0 }, { 1, 5, 1 }, { 0, 0, 1 });
+	mScene.mCamera = mResetCamera;
+	// mScene.mCamera.lookAtPoint({ 0, 0, 0 }, { 1, 5, 1 }, { 0, 0, 1 });
 }
+
+void Editor::selectObject(const Vec2F& screenPos) {
+	mScene.updateCache();
+
+	auto dir = (mScene.mCamera.project(screenPos) - mScene.mCamera.getPos()).normalize();
+	Ray ray = Ray( dir, mScene.mCamera.getPos() );
+
+	auto rayCastData = mScene.castRay(ray, 1000);
+	mActive = rayCastData.obj;
+}
+
+Object* Editor::getActiveObject() { return mActive; }
+
+Scene* Editor::getScene() { return &mScene; }

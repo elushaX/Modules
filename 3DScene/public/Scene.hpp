@@ -6,6 +6,8 @@
 
 #include <string>
 
+struct lua_State;
+
 namespace tp {
 	struct RenderSettings {
 		uhalni depth = 2;
@@ -42,7 +44,22 @@ namespace tp {
 		halnf intensity = 1.f;
 	};
 
+	struct RayCastData {
+		Object* obj = nullptr;
+		TrigCache* trig = nullptr;
+		Vec3F hitPos = { 0, 0, 0 };
+		bool hit = false;
+		bool inv = false;
+	};
+
 	class Scene {
+		struct IOError : public std::exception {
+			explicit IOError(std::string in) :
+				description(std::move(in)) {}
+
+			std::string description;
+		};
+
 	public:
 		Scene() = default;
 
@@ -51,11 +68,23 @@ namespace tp {
 		bool loadLuaFormat(const std::string& scenePath);
 		bool loadOBJFormat(const std::string& objectsPath);
 
+		const RayCastData& castRay(const Ray& ray, alnf farVal);
+
+		void updateCache();
+
+	private:
+		Vec3F getVec3(lua_State* state, const char* name);
+		Vec2F getVec2(lua_State* state, const char* name);
+
+		int readLight(lua_State* L, tp::PointLight* light);
+
 	public:
 		Buffer<Object> mObjects;
 		Buffer<PointLight> mLights;
 		Camera mCamera;
 
 		RenderSettings mRenderSettings;
+
+		RayCastData mRayCastData;
 	};
 }

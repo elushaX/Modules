@@ -36,7 +36,7 @@ DebugGUI::DebugGUI(Window* window) {
 	ImGui_ImplOpenGL3_Init("#version 330");
 
 	ImGuiIO& io = ImGui::GetIO();
-	io.Fonts->AddFontFromFileTTF("Font.ttf", 20.f);
+	io.Fonts->AddFontFromFileTTF("rsc/Font.ttf", 20.f);
 
 	io.ConfigInputTrickleEventQueue = false;
 

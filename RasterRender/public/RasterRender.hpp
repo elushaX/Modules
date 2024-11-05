@@ -12,20 +12,25 @@ namespace tp {
 		RasterRender();
 		~RasterRender();
 
-		void render(const Scene& geometry, const Vec2<ualni>& size);
+		void beginRender(const Scene& geometry, const Vec2<ualni>& size);
+		void endRender();
+
+		void renderDefault(const Scene& geometry);
+		void renderOutline(const Camera& camera, const Object& object);
+
+		void resize(const Vec2<ualni>& size);
+
 		uint4 getRenderBufferID();
 		RenderBuffer* getRenderBuffer();
 		Vec2F getBufferSize();
 
 	private:
-		void renderDefault(const Scene& geometry);
-		void renderOutline(const Camera& camera, const Object& object);
-
 		void bindObjectShaderAttributes(const Object& object);
-		void bindCameraShaderAttributes(Mat4F cameraMat);
+		void bindCameraShaderAttributes(const Mat4F& cameraMat);
 
 	private:
 		RenderBuffer mRenderBuffer;
+		RenderBuffer mTempBuffer;
 
 		RenderShader mDefaultShader;
 		RenderShader mSolidShader;

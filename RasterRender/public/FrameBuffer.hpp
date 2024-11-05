@@ -7,7 +7,7 @@
 namespace tp {
 	class RenderBuffer {
 	public:
-		explicit RenderBuffer(const Vec2F& size);
+		explicit RenderBuffer(const Vec2F& size = { 10, 10 });
 		RenderBuffer(const Vec2F& size, tp::uint1 samples);
 		~RenderBuffer();
 

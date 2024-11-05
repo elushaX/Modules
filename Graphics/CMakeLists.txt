@@ -19,5 +19,5 @@ target_link_libraries(Example${PROJECT_NAME} ${PROJECT_NAME} ${BINDINGS_LIBS})
 target_include_directories(Example${PROJECT_NAME} PRIVATE ${BINDINGS_INCLUDE})
 
 
-file(COPY "examples/Font.ttf" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
+file(COPY "../Graphics/rsc" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
 

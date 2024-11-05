@@ -49,3 +49,38 @@ bool tp::Scene::loadOBJFormat(const std::string& objetsPath) {
 
 	return mObjects.size();
 }
+
+const tp::RayCastData& tp::Scene::castRay(const Ray& ray, alnf farVal) {
+	auto& out = mRayCastData;
+
+	out.hit = false;
+	out.obj = nullptr;
+
+	farVal *= farVal;
+
+	for (auto obj : mObjects) {
+		for (auto trig : obj->mCache.TrigCaches) {
+			if (trig->castRay(ray)) {
+
+				auto dist = (TrigCache::getHitPos() - ray.pos).length2();
+
+				if (farVal > dist && dist > EPSILON) {
+					out.trig = &trig.data();
+					out.hitPos = TrigCache::getHitPos();
+					out.obj = &obj.data();
+					out.hit = true;
+
+					farVal = dist;
+				}
+			}
+		}
+	}
+
+	return mRayCastData;
+}
+
+void tp::Scene::updateCache() {
+	for (auto obj : mObjects) {
+		obj->mCache.updateCache();
+	}
+}
