@@ -35,13 +35,16 @@ namespace tp {
 
 		Widget* getFocusWidget() { return mInFocusWidget; }
 
+		bool canRemoveWidget(Widget* widget) const;
+		void removeWidget(Widget* widget);
+
 	private:
 		static void procWidget(Widget* widget, EventHandler& events, bool withEvents = false);
 
 	private:
 		std::map<Widget*, bool> mTriggeredWidgets;
 		Widget* mInFocusWidget = nullptr;
-		Widget* mFocusLockWidget = nullptr;
+		List<Widget*> mFocusLockStack;
 
 	private:
 		int mDebugWidgetsToProcess = 0;

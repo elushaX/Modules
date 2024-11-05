@@ -86,7 +86,7 @@ void DockWidget::process(const EventHandler& events) {
 			}
 		} else if (events.isReleased(InputID::MOUSE1)) {
 			layout()->endResize();
-			freeFocus();
+			if (layout()->isResizing()) freeFocus();
 		}
 
 		if (layout()->isResizing()) {

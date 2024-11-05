@@ -19,4 +19,4 @@ add_executable(Sketch3DApp ./applications/Entry.cpp)
 target_link_libraries(Sketch3DApp ${PROJECT_NAME})
 
 file(COPY "rsc" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
-file(COPY "applications/Font.ttf" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
+file(COPY "../Graphics/rsc" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")

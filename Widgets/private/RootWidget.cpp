@@ -150,8 +150,10 @@ void RootWidget::openPopup(Widget* widget) {
 }
 
 void RootWidget::closePopup(Widget* widget) {
-	mPopups.removeChild(widget);
-	mUpdateManager.freeFocus(widget);
+	if (mUpdateManager.canRemoveWidget(widget)) {
+		mPopups.removeChild(widget);
+		mUpdateManager.removeWidget(widget);
+	}
 }
 
 void RootWidget::lockFocus(Widget* widget) { mUpdateManager.lockFocus(widget); }

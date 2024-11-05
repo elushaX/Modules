@@ -75,16 +75,16 @@ Widget* UpdateManager::findFocusWidget(Widget* root, EventHandler& events) {
 	mInFocusWidget = nullptr;
 	findMouseFocusWidget(root, &mInFocusWidget, events.getPointer());
 
-	if (mFocusLockWidget) {
+	if (mFocusLockStack.size()) {
 		bool hasLockedWidget = false;
 		for (auto iter = mInFocusWidget; iter; iter = iter->mParent) {
-			if (iter == mFocusLockWidget) {
+			if (iter == mFocusLockStack.last()) {
 				hasLockedWidget = true;
 				break;
 			}
 		}
 		if (!hasLockedWidget) {
-			mInFocusWidget = mFocusLockWidget;
+			mInFocusWidget = mFocusLockStack.last();
 		}
 	}
 
@@ -212,10 +212,24 @@ void UpdateManager::procWidget(Widget* widget, EventHandler& events, bool withEv
 }
 
 void UpdateManager::lockFocus(tp::Widget* widget) {
-	mFocusLockWidget = widget;
+	DEBUG_ASSERT(mFocusLockStack.find(widget) == nullptr)
+	// TODO : check that widget is a child of top of the stack
+	mFocusLockStack.pushBack(widget);
 }
 
 void UpdateManager::freeFocus(tp::Widget* widget) {
-	DEBUG_ASSERT(mFocusLockWidget == widget)
-	mFocusLockWidget = nullptr;
+	DEBUG_ASSERT(mFocusLockStack.last() == widget)
+	mFocusLockStack.popBack();
+}
+
+bool UpdateManager::canRemoveWidget(Widget* widget) const {
+	if (auto node = mFocusLockStack.find(widget)) {
+		if (node->next) return false;
+	}
+
+	return true;
+}
+
+void UpdateManager::removeWidget(Widget* widget) {
+	freeFocus(widget);
 }

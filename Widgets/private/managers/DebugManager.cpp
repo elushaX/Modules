@@ -113,8 +113,8 @@ void DebugManager::recursiveDraw(Canvas& canvas, Widget* active, const Vec2F& po
 		canvas.text((active->mDebug.id + ":" + std::to_string(depthOrder)).c_str(), area, 22, Canvas::Align::LC, 2, color);
 	}
 
-	if (active == mRootWidget->mUpdateManager.mFocusLockWidget) {
-		canvas.frame(area, { 0, 1, 0, 1 });
+	if (mRootWidget->mUpdateManager.mFocusLockStack.find(active)) {
+		canvas.frame(area, { 0, 1, 0, 0.5f });
 	}
 
 	if (active->mFlags.get(Widget::IN_FOCUS)) {
