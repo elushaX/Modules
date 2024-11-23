@@ -58,6 +58,7 @@ namespace tp {
 		[[nodiscard]] Index2D size() const { return { mSize.x, mSize.y }; }
 
 		tType* getBuff() const { return mBuff; }
+    void setBuff(tType* data, Index2D size) { mBuff = data; mSize = size; }
 
 		void flipY() {
 			for (Index i = 0; i < mSize.x; i++) {
