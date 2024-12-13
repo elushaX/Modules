@@ -36,7 +36,7 @@ namespace tp {
 		void lockFocus(Widget*) override;
 		void freeFocus(Widget*) override;
 
-		void updateAnimations();
+		void updateAnimations() override;
 		void updateAreaCache(Widget* iter, bool read);
 
 	private:
