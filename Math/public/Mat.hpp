@@ -465,8 +465,15 @@ namespace tp {
 		}
 
 		// Matrix Properties
+		MVec toGlobal(const MVec &in) const { return i * in.x + j * in.y; }
+
+		Mat toGlobal(const Mat &in) const { return {toGlobal(in.i), toGlobal(in.j)}; }
+
+		MVec toLocal(const MVec &in) const { return transform(in); }
+
 		MVec transform(const MVec& in) const { return MVec(i.x * in.x + i.y * in.y, j.x * in.x + j.y * in.y); }
 
+		// ???
 		Mat transform(const Mat& in) const {
 			Mat out;
 			out.i.x = i.x * in.i.x + j.x * in.i.y;

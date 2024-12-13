@@ -10,6 +10,7 @@ namespace tp {
 		WidgetApplication() = default;
 
 		void setRoot(Widget* widget);
+		virtual void debugUI();
 
 	private:
 		void processFrame(EventHandler* eventHandler, halnf deltaTime) override;
@@ -17,8 +18,6 @@ namespace tp {
 		void drawFrame(Canvas* canvas) override;
 		bool forceNewFrame() override ;
 
-	private:
-		void debugUI();
 
 	private:
 		halnf mDebugSplitFactor = 0.7;

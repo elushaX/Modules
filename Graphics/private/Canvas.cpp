@@ -82,6 +82,19 @@ void Canvas::frame(RectF rec, const RGBA& col, halnf round) {
 	// nvgFill(mContext->vg);
 }
 
+void Canvas::line(Vec2F start, Vec2F end, const RGBA& col, halnf thickness) {
+	start += mOrigin;
+	end += mOrigin;
+
+	nvgBeginPath(mContext->vg);
+	nvgFillColor(mContext->vg, { col.r, col.g, col.b, col.a});
+	nvgMoveTo(mContext->vg, start.x, start.y);
+	nvgLineTo(mContext->vg, end.x, end.y);
+	nvgStrokeWidth(mContext->vg, thickness);
+	nvgStrokeColor(mContext->vg, { col.r, col.g, col.b, col.a });
+	nvgStroke(mContext->vg);
+}
+
 void Canvas::circle(Vec2F pos, halnf size, const RGBA& col) {
 	pos += mOrigin;
 

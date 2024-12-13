@@ -75,6 +75,7 @@ namespace tp {
 		void circle(Vec2F pos, halnf size, const RGBA& col);
 		void text(const char*, const RectF&, halnf size, Align, halnf padding, const RGBA&);
 		void colorWheel(const RectF& rec, const ColorWheel& colorWheel);
+		void line(Vec2F start, Vec2F end, const RGBA& col, halnf thickness);
 
 		ImageHandle createImageFromTextId(ualni id, Vec2F size);
 		void updateTextureID(ImageHandle handle, ualni id);

@@ -70,6 +70,29 @@ namespace tp {
 			return *this;
 		}
 
+		Rect<Type>& adjust(tp::halnf left, tp::halnf bottom, tp::halnf right, tp::halnf top) {
+			x += left;
+			y += bottom;
+			size.x += -left + right;
+			size.y += -bottom + top;
+			return *this;
+		}
+
+		Rect<Type> adjusted(tp::halnf left, tp::halnf bottom, tp::halnf right, tp::halnf top) const {
+			return Rect<Type>(*this).adjust(left, bottom, right, top);
+		}
+
+		[[nodiscard]] halnf left() const { return x; }
+		[[nodiscard]] halnf bottom() { return y; }
+		[[nodiscard]] halnf top() { return y + size.y; }
+		[[nodiscard]] halnf right() { return x + size.x; }
+
+		static Rect fromPoints(const Vec2<Type>& p1, const Vec2<Type>& p2) {
+			tp::Vec2F min = {tp::min(p1.x, p2.x), tp::min(p1.y, p2.y)};
+			tp::Vec2F max = {tp::max(p1.x, p2.x), tp::max(p1.y, p2.y)};
+			return { min, max - min };
+		}
+
 		bool operator==(const Rect<Type>& rect) const { return (pos == rect.pos && size == rect.size); }
 
 		bool isEnclosedIn(const Rect<Type>& rect, bool aParent = false) const {
@@ -184,13 +207,23 @@ namespace tp {
 		}
 
 		void expand(const Vec2<Type>& point) {
-			pos.x = min(point.x, pos.x);
-			pos.y = min(point.y, pos.y);
+			if (point.x < x) {
+				size.x += x - point.x;
+				x = point.x;
+			}
 
-			auto p = pos + size;
-			p.x = max(point.x, p.x);
-			p.y = max(point.y, p.y);
-			size = p - pos;
+			if (point.y < y) {
+				size.y += y - point.y;
+				y = point.y;
+			}
+
+			if (point.x > x + size.x) {
+				size.x = point.x - x;
+			}
+
+			if (point.y > y + size.y) {
+				size.y = point.y - y;
+			}
 		}
 
 		void expand(const Rect<Type>& rect) {
