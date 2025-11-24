@@ -1,5 +1,7 @@
 project(Containers)
 
+include(GoogleTest)
+
 ### ---------------------- Static Library  ---------------------  ###
 file(GLOB SOURCES "./private/*.cpp")
 file(GLOB HEADERS "./public/*.hpp")
@@ -23,6 +25,11 @@ file(GLOB TEST_SOURCES
 add_executable(Tests${PROJECT_NAME} ${TEST_SOURCES})
 target_link_libraries(Tests${PROJECT_NAME} ${PROJECT_NAME} UnitTest++)
 add_test(NAME Tests${PROJECT_NAME} COMMAND Tests${PROJECT_NAME})
+
+
+add_executable(testLinearRingBuffer ./tests/testLinearRingBuffer.cpp)
+target_link_libraries(testLinearRingBuffer ${PROJECT_NAME} gtest)
+gtest_discover_tests(testLinearRingBuffer)
 
 
 add_executable(AVLTreeSpeedTest ./tests/AVLTreeProfiling.cpp)
