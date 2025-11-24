@@ -16,6 +16,7 @@ file(GLOB TEST_SOURCES
         ./tests/ListTest.cpp
         ./tests/MapTest.cpp
         ./tests/TreeTest.cpp
+        ./tests/RingBufferByte.cpp
         ./tests/Tests.cpp
 )
 
