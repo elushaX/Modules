@@ -1,3 +1,4 @@
+#include <filesystem>
 #include "FCNN.hpp"
 #include "LocalConnection.hpp"
 
@@ -71,7 +72,9 @@ struct NumberRec {
 		{
 			ArchiverLocalConnection<true> archiver;
 
-			archiver.connection.connect(LocalConnection::Location("NumRec.wb"), LocalConnection::Type(true));
+			if (std::filesystem::exists(std::filesystem::path("NumRec.wb"))) {
+				archiver.connection.connect(LocalConnection::Location("NumRec.wb"), LocalConnection::Type(true));
+			}
 
 			if (archiver.connection.getConnectionStatus().isOpened()) {
 				archiver % nn;
@@ -215,7 +218,7 @@ int main() {
 
 	auto batchSize = trainRange.idxDiff() / numBatches;
 
-	for (auto epoch : IterRange(1)) {
+	for (auto epoch : IterRange(10)) {
 		printf("Epoch %i\n", epoch.index());
 
 		for (auto batchIdx : IterRange(trainRange.idxDiff() / batchSize)) {
@@ -241,5 +244,5 @@ int main() {
 		// app.displayImage(i);
 	}
 
-	printf("\n\nIncorrect - %i out of %i (%f)\n\n", errors, testRange.idxDiff(), (halnf) errors / (halnf) testRange.idxDiff());
+	printf("\n\nIncorrect - %i out of %i error percentage (%f)\n\n", errors, testRange.idxDiff(), (halnf) errors / (halnf) testRange.idxDiff());
 }

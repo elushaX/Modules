@@ -14,4 +14,4 @@ add_executable(WidgetsExample examples/Example.cpp)
 target_link_libraries(WidgetsExample ${PROJECT_NAME} ${GLEW_LIB})
 target_include_directories(WidgetsExample PUBLIC ../Externals/glfw/include ${GLEW_INCLUDE_DIR})
 
-file(COPY "examples/Font.ttf" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
+file(COPY "examples/Font.ttf" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/rsc")
