@@ -15,7 +15,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC Graphics Connection Widgets)
 target_link_libraries(${PROJECT_NAME} PUBLIC ${BINDINGS_LIBS})
 
 file(COPY "library" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}")
-file(COPY "applications/Font.ttf" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/")
+file(COPY "applications/Font.ttf" DESTINATION "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/rsc/")
 
 ### -------------------------- Applications  --------------------------  ###
 add_executable(libView ./applications/Entry.cpp)
