@@ -10,6 +10,8 @@
 
 using namespace tp;
 
+#include <filesystem>
+
 void loadImage(Buffer<halnf>& output, const char* name) {
 	int x, y, channels_in_file;
 	unsigned char* loadedImage = stbi_load(name, &x, &y, &channels_in_file, 4);
@@ -28,7 +30,9 @@ void loadImage(Buffer<halnf>& output, const char* name) {
 void loadNN(FCNN& nn) {
 	ArchiverLocalConnection<true> archiver;
 
-	archiver.connection.connect(LocalConnection::Location("NumRec.wb"), LocalConnection::Type(true));
+	if (std::filesystem::exists(std::filesystem::path("NumRec.wb"))) {
+		archiver.connection.connect(LocalConnection::Location("NumRec.wb"), LocalConnection::Type(true));
+	}
 
 	if (archiver.connection.getConnectionStatus().isOpened()) {
 		archiver % nn;
@@ -56,7 +60,7 @@ void executeCmd(const char* imageName) {
 }
 
 int main(int argc, char** argv) {
-	const char* imageName = "digit.png";
+	const char* imageName = "tmp2.png";
 
 	if (argc == 2) {
 		imageName = argv[1];
