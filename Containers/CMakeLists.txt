@@ -32,5 +32,9 @@ target_link_libraries(testLinearRingBuffer ${PROJECT_NAME} gtest)
 gtest_discover_tests(testLinearRingBuffer)
 
 
+add_executable(benchLinearRingBuffer ./tests/benchLinearRingBuffer.cpp)
+target_link_libraries(benchLinearRingBuffer benchmark::benchmark benchmark::benchmark_main ${PROJECT_NAME})
+# target_compile_features(benchLinearRingBuffer PRIVATE cxx_std_20)
+
 add_executable(AVLTreeSpeedTest ./tests/AVLTreeProfiling.cpp)
 target_link_libraries(AVLTreeSpeedTest ${PROJECT_NAME})

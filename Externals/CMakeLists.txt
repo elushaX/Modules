@@ -56,3 +56,4 @@ target_include_directories(${PROJECT_NAME} INTERFACE ./imageIO/)
 add_subdirectory(lalr)
 
 add_subdirectory(googletest)
+add_subdirectory(benchmark)

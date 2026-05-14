@@ -1,188 +1,50 @@
-#include "LinearRingBuffer.hpp"
+#include <benchmark/benchmark.h>
+#include <vector>
+#include <map>
 
-#include <gtest/gtest.h>
-
-#include <cstring>
-#include <cstdint>
-#include <random>
-
-static void fill(void* ptr, size_t n, uint8_t value) { std::memset(ptr, value, n); }
-
-static bool check(const void* ptr, size_t n, uint8_t value) {
-	const uint8_t* p = static_cast<const uint8_t*>(ptr);
-	for (size_t i = 0; i < n; ++i) {
-		if (p[i] != value) return false;
-	}
-	return true;
-}
-
-static bool expect_mem_eq(const void* ptr, size_t n, uint8_t value) {
-	const uint8_t* p = static_cast<const uint8_t*>(ptr);
-	for (size_t i = 0; i < n; ++i) {
-		if (p[i] != value) return false;
-	}
-	return true;
-}
-
-using Data = std::vector<uint8_t>;
-using DataStorage = std::vector<Data>;
-
-typedef ::testing::Types<
-	std::integral_constant<size_t, 64>,
-	std::integral_constant<size_t, 128>,
-	std::integral_constant<size_t, 1000>,
-	std::integral_constant<size_t, 4096>,
-	std::integral_constant<size_t, 4096 * 2>>
-	BufferSizes;
-
-template <typename TypeParam>
-class LinearRingBufferTest : public ::testing::Test {
-protected:
-	LinearRingBuffer rb;
-
-	LinearRingBufferTest() :
-		historySize_(10),
-		rb(size_t(TypeParam::value), size_t(historySize_)) {}
-
-	static constexpr auto ITERATIONS = TypeParam::value * 10;
-
-	size_t messagesPushed_ = 0;
-	size_t historySize_ = 0;
-
-	auto iterations() { return ITERATIONS; }
-
-	auto historySize() { return historySize_; }
-
-	size_t randomSize() {
-		static std::random_device rnd;
-		std::uniform_int_distribution<size_t> dist(0, 1000);
-		return dist(rnd);
-	}
-
-	auto write_and_advance(size_t messageSize, DataStorage* storage) {
-		Data pushedSample(messageSize);
-
-		for (auto idx = 0; idx < messageSize; idx++) {
-			pushedSample[idx] = (idx + messagesPushed_++ * 53) % 321;
+// -------------------------------------------------------------
+// Benchmark: push_back into a vector
+// -------------------------------------------------------------
+static void BM_VectorPushBack(benchmark::State& state) {
+	for (auto _ : state) {
+		std::vector<int> v;
+		v.reserve(state.range(0));
+		for (int i = 0; i < state.range(0); i++) {
+			v.push_back(i);
 		}
+		benchmark::DoNotOptimize(v);
+	}
+}
 
-		std::memcpy(this->rb.write_data(), pushedSample.data(), pushedSample.size());
-		this->rb.write_advance(pushedSample.size());
+BENCHMARK(BM_VectorPushBack)->Arg(1000)->Arg(100000);
 
-		if (storage) {
-			storage->push_back(pushedSample);
+// -------------------------------------------------------------
+// Benchmark: inserting into std::map
+// -------------------------------------------------------------
+static void BM_MapInsert(benchmark::State& state) {
+	for (auto _ : state) {
+		std::map<int, int> m;
+		for (int i = 0; i < state.range(0); i++) {
+			m.emplace(i, i);
 		}
-	};
-
-	auto read_and_advance(size_t messageSize, DataStorage* storage) {
-		Data poppedSample(messageSize);
-
-		std::memcpy(poppedSample.data(), this->rb.read_data(), poppedSample.size());
-
-		this->rb.read_advance(poppedSample.size());
-
-		if (storage) {
-			storage->push_back(poppedSample);
-		}
-	};
-
-	auto reset_with_history() { this->rb.read_reset_with_history(); };
-
-	auto read_with_history(size_t messageSize, DataStorage* storage) {
-		Data poppedSample(messageSize);
-
-		std::memcpy(poppedSample.data(), this->rb.read_data(), poppedSample.size());
-
-		if (storage) {
-			storage->push_back(poppedSample);
-		}
-	};
-};
-
-TYPED_TEST_SUITE(LinearRingBufferTest, BufferSizes);
-
-TYPED_TEST(LinearRingBufferTest, LinearWriteAcrossBoundary) {
-	constexpr size_t N = TypeParam::value;
-
-	if (N % 4096 != 0) {
-		return;
-	}
-
-	auto* base = this->rb.write_data();
-
-	size_t half = N - 16;
-	fill(base, half, 0xAA);
-	fill(base + half, 32, 0xBB);
-
-	EXPECT_EQ(expect_mem_eq(base, 16, 0xBB), true);
-	EXPECT_EQ(expect_mem_eq(base + 16, half - 16, 0xAA), true);
-	EXPECT_EQ(expect_mem_eq(base + half, 32, 0xBB), true);
-}
-
-TYPED_TEST(LinearRingBufferTest, Chase) {
-
-	DataStorage pushed;
-	DataStorage popped;
-
-	static constexpr auto MSG_SIZE = 31;
-
-	for (auto iteration = 0; iteration < this->iterations(); iteration++) {
-		this->write_and_advance(MSG_SIZE, &pushed);
-		this->read_and_advance(MSG_SIZE, &popped);
-	}
-
-	ASSERT_EQ(pushed.size(), popped.size());
-
-	for (auto idx = 0; idx < popped.size(); idx++) {
-		ASSERT_EQ(pushed[idx], popped[idx]);
+		benchmark::DoNotOptimize(m);
 	}
 }
+BENCHMARK(BM_MapInsert)->Arg(1000)->Arg(100000);
 
-Data makeMessageWithHistory(const Data& prev, const Data& current, size_t historySize) {
-	if (historySize > prev.size()) historySize = prev.size();
+// -------------------------------------------------------------
+// Benchmark: lookup in std::map
+// -------------------------------------------------------------
+static void BM_MapLookup(benchmark::State& state) {
+	std::map<int, int> m;
+	for (int i = 0; i < state.range(0); i++)
+		m.emplace(i, i);
 
-	std::vector<uint8_t> result;
-
-	result.reserve(historySize + current.size());
-
-	result.insert(result.end(), prev.end() - historySize, prev.end());
-	result.insert(result.end(), current.begin(), current.end());
-
-	return result;
-}
-
-TYPED_TEST(LinearRingBufferTest, History) {
-
-	DataStorage pushed;
-	DataStorage popped;
-
-	pushed.push_back(Data(this->historySize()));
-
-	static constexpr auto MAX_MSG_SIZE = 111;
-
-	for (auto iteration = 0; iteration < this->iterations(); iteration++) {
-
-		const auto MSG_SIZE = this->historySize() + this->randomSize() % MAX_MSG_SIZE;
-
-		auto prevPushed = pushed.back();
-		pushed.clear();
-
-		this->reset_with_history();
-
-		this->write_and_advance(MSG_SIZE, &pushed);
-		auto currentPushed = pushed.back();
-
-		this->read_with_history(this->historySize() + MSG_SIZE, &popped);
-		auto poppedWithHistory = popped.back();
-		popped.clear();
-
-		auto correctResult = makeMessageWithHistory(prevPushed, currentPushed, this->historySize());
-
-		ASSERT_EQ(correctResult, poppedWithHistory);
+	for (auto _ : state) {
+		auto it = m.find(state.range(0) / 2);
+		benchmark::DoNotOptimize(it);
 	}
 }
+BENCHMARK(BM_MapLookup)->Arg(1000)->Arg(100000);
 
-int main(int argc, char** argv) {
-	::testing::InitGoogleTest(&argc, argv);
-	return RUN_ALL_TESTS();
-}
+BENCHMARK_MAIN();
