@@ -1,7 +1,6 @@
 
 #include "Test.hpp"
 
-/*
 using namespace tp;
 
 void testAutomation() {
@@ -26,20 +25,6 @@ void test() {
 }
 
 int main() {
-
-	tp::ModuleManifest* deps[] = { &tp::gModuleLanguage, nullptr };
-	tp::ModuleManifest testModule("Test", nullptr, nullptr, deps);
-
-	if (!testModule.initialize()) {
-		return 1;
-	}
-
 	testAutomation();
 	test();
-
-	testModule.deinitialize();
 }
-
-*/
-
-int main() { return 0; }

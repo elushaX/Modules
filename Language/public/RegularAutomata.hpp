@@ -91,11 +91,11 @@ namespace tp {
 
 	private:
 		Buffer2D<ualni> mTable;
-		Buffer<Pair<bool, tStateType>> mStates;
+		Buffer<std::pair<bool, tStateType>> mStates;
 
 		ualni mCurrentState = 0;
 		ualni mStartState = 0;
 
-		Range<tAlphabetType> mSymbolRange = { 0, 0 };
+		IterRange<tAlphabetType> mSymbolRange = { 0, 0 };
 	};
 }

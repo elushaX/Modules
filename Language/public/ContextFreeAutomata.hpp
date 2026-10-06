@@ -57,7 +57,7 @@ namespace tp {
 
 				if (mTable.get({ 0, mCurrentState }).type == Action::REDUCE) {
 					StackItem* newItem = &mItems.append(StackItem{});
-					for (auto iter : Range<ualni>(action.num)) {
+					for (auto iter : IterRange<ualni>(action.num)) {
 						newItem->leafs.append(mStack.last());
 						mCurrentState = mStack.last()->state;
 						mStack.pop();
@@ -108,7 +108,7 @@ namespace tp {
 
 				if (state->isAccepting()) {
 					ASSERT(state->getTransitions()->size() == 0)
-					for (auto symbolIndex : Range<ualni>(numSymbols)) {
+					for (auto symbolIndex : IterRange<ualni>(numSymbols)) {
 						mTable.set({ stateIndex, symbolIndex }, { Action::REDUCE, state->getStateVal().numArgs() });
 					}
 				} else {
@@ -132,6 +132,6 @@ namespace tp {
 		ualni mStartState = 0;
 		ualni mCurrentState = 0;
 
-		Range<ualni> mRange;
+		IterRange<ualni> mRange;
 	};
 }
