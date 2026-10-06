@@ -172,17 +172,17 @@ namespace tp {
 		}
 
 		void transitionAny(Vertex* from, Vertex* to, bool consumes = false) {
-			for (auto symbol : Range<ualni>(tMinSymbol, tMaxSymbol)) {
+			for (auto symbol : IterRange<ualni>(tMinSymbol, tMaxSymbol)) {
 				transitionVal(from, to, symbol);
 			}
 		}
 
 		void transitionVal(Vertex* from, Vertex* to, tAlphabetType val) { mGraph->addTransition(from, to, val); }
 
-		void transitionRange(Vertex* from, Vertex* to, Range<ualni> range, bool exclude) {
+		void transitionRange(Vertex* from, Vertex* to, IterRange<ualni> range, bool exclude) {
 			if (exclude) {
-				Range<ualni> first = { tMinSymbol, range.mBegin - 1 };
-				Range<ualni> second = { range.mEnd + 1, tMaxSymbol };
+				IterRange<ualni> first = { tMinSymbol, range.mBegin - 1 };
+				IterRange<ualni> second = { range.mEnd + 1, tMaxSymbol };
 
 				if (first.valid()) {
 					for (auto symbol : first) {

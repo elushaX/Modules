@@ -1,8 +1,4 @@
 
-cmake_minimum_required(VERSION 3.2)
-
-set(CMAKE_CXX_STANDARD 23)
-
 project(Language)
 
 ### ---------------------- Static Library  ---------------------  ###
@@ -10,7 +6,7 @@ file(GLOB SOURCES "./private/*.cpp" "./private/*/*.cpp")
 file(GLOB HEADERS "./public/*.hpp" "./public/*/*.hpp")
 add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
 target_include_directories(${PROJECT_NAME} PUBLIC public/)
-target_link_libraries(${PROJECT_NAME} PUBLIC Strings)
+target_link_libraries(${PROJECT_NAME} PUBLIC Math Containers Strings)
 
 ### -------------------------- Tests  --------------------------  ###
 enable_testing()

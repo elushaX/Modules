@@ -13,6 +13,8 @@ namespace tp {
 		Type mid() const { return (start + end) / 2.f; }
 		Type size() const { return (end - start); }
 
+		[[nodiscard]] bool valid() const { return (start <= end); }
+
 		void resizeFromCenter(Type newSize) {
 			const auto middle = mid();
 			const auto len = newSize / 2;

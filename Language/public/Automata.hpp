@@ -69,7 +69,7 @@ namespace tp {
 	private:
 		List<State> mStates;
 		State* mStartState = nullptr;
-		Range<ualni> mAlphabetRange = { ENV_UALNI_MAX, ENV_UALNI_MIN };
+		IterRange<ualni> mAlphabetRange = { ENV_UALNI_MAX, ENV_UALNI_MIN };
 
 	public:
 		FiniteStateAutomation() = default;
@@ -107,7 +107,7 @@ namespace tp {
 
 		[[nodiscard]] const List<State>* getStates() const { return &mStates; }
 
-		[[nodiscard]] Range<ualni> getAlphabetRange() const { return mAlphabetRange; }
+		[[nodiscard]] IterRange<ualni> getAlphabetRange() const { return mAlphabetRange; }
 
 	private:
 		typedef AvlTree<AvlNumericKey<State*>, bool> StatesSet;
@@ -116,10 +116,10 @@ namespace tp {
 		static void expandSet(StatesSet& set) {
 			List<State*> workingSet;
 
-			set.forEach([&](AvlNumericKey<State*>& key, bool) { workingSet.pushBack(key.val); });
+			set.traverse(set.head(), false, [&](typename StatesSet::Node* node) { workingSet.pushBack(node->key.val); });
 
 			while (workingSet.length()) {
-				auto first = workingSet.first()->data;
+				auto first = workingSet.first();
 				set.insert(first, {});
 
 				for (auto transition : first->mTransitions) {
@@ -134,8 +134,8 @@ namespace tp {
 
 		// States that are reachable from initial set with symbol transition
 		static void findMoveSet(StatesSet& from, StatesSet& moveSet, tAlphabetType symbol) {
-			from.forEach([&](AvlNumericKey<State*>& key, bool) {
-				for (auto transition : key.val->mTransitions) {
+			from.traverse(from.head(), false, [&](typename StatesSet::Node* node) {
+				for (auto transition : node->key.val->mTransitions) {
 					if (transition->isEpsilon()) continue;
 					if (!transition->isTransition(symbol)) continue;
 					if (moveSet.find(transition->mState)) continue;
@@ -155,8 +155,10 @@ namespace tp {
 			};
 
 			struct GroupInfo {
+				using TransitionsTree = AvlTree<AvlNumericKey<StatesSet*>, tAlphabetType>;
+
 				StatesSet* group = nullptr;
-				AvlTree<AvlNumericKey<StatesSet*>, tAlphabetType> transitions;
+				TransitionsTree transitions;
 				State* newState = nullptr;
 				bool accepting = false;
 				tStateType stateVal = tStateType();
@@ -176,7 +178,7 @@ namespace tp {
 			workingSet.pushBack(&groups.first());
 
 			while (workingSet.length()) {
-				StatesSet* group = workingSet.first()->data;
+				StatesSet* group = workingSet.first();
 				GroupInfo* info = &groupInfos.get({ group });
 
 				for (auto symbol : getAlphabetRange()) {
@@ -212,11 +214,11 @@ namespace tp {
 				GroupInfo* info = &group->val;
 				ualni accepting = 0;
 
-				info->group->forEach([&](AvlNumericKey<State*>& key, bool) {
-					if (key.val->mIsAccepting) {
+				info->group->traverse(info->group->head(), false, [&](typename StatesSet::Node* node) {
+					if (node->key.val->mIsAccepting) {
 						accepting++;
 						info->accepting = true;
-						info->stateVal = key.val->mStateVal;
+						info->stateVal = node->key.val->mStateVal;
 					}
 				});
 
@@ -236,11 +238,11 @@ namespace tp {
 
 			// create transitions
 			for (auto group : groupInfos) {
-				auto functor = [&](AvlNumericKey<StatesSet*> targetGroupKey, tAlphabetType symbol) {
-					GroupInfo* targetGroup = &groupInfos.get({ (StatesSet*) targetGroupKey.val });
-					addTransition(group->val.newState, targetGroup->newState, symbol);
+				auto functor = [&](typename GroupInfo::TransitionsTree::Node* targetGroupNode) {
+					GroupInfo* targetGroup = &groupInfos.get({ (StatesSet*) targetGroupNode->key.val });
+					addTransition(group->val.newState, targetGroup->newState, targetGroupNode->data);
 				};
-				group->val.transitions.forEach(functor);
+				group->val.transitions.traverse(group->val.transitions.head(), false, functor);
 			}
 
 			return true;

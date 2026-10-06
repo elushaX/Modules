@@ -12,20 +12,20 @@ namespace tp {
 	template <typename tAlphabetType, typename tTokenType, tTokenType tInTransition, ualni MinSymbol, ualni MaxSymbol>
 	class Parser {
 
-		typedef RegularGrammar<tAlphabetType, tTokenType> RegularGrammar;
-		typedef RegularCompiler<tAlphabetType, tTokenType, tInTransition, MinSymbol, MaxSymbol> RegularCompiler;
-		typedef FiniteStateAutomation<tAlphabetType, tTokenType> RegularGraph;
-		typedef RegularAutomata<tAlphabetType, tTokenType> RegularAutomata;
+		using ParserRegularGrammar = RegularGrammar<tAlphabetType, tTokenType>;
+		using ParserRegularCompiler = RegularCompiler<tAlphabetType, tTokenType, tInTransition, MinSymbol, MaxSymbol>;
+		using RegularGraph = FiniteStateAutomation<tAlphabetType, tTokenType>;
+		using ParserRegularAutomata = RegularAutomata<tAlphabetType, tTokenType>;
 
 		// ContextFreeGrammar;
 		// ContextFreeCompiler;
-		typedef FiniteStateAutomation<ContextFreeCompiler::SymbolVal, ContextFreeCompiler::Item> ContextFreeGraph;
-		typedef ContextFreeAutomata<ContextFreeCompiler::SymbolVal, ContextFreeCompiler::Item> ContextFreeAutomata;
+		using ContextFreeGraph = FiniteStateAutomation<ContextFreeCompiler::SymbolVal, ContextFreeCompiler::Item>;
+		using ParserContextFreeAutomata = ContextFreeAutomata<ContextFreeCompiler::SymbolVal, ContextFreeCompiler::Item>;
 
 	public:
 		struct ParseResult {
 			bool accepted = false;
-			const ContextFreeAutomata::StackItem* ast = nullptr;
+			const ParserContextFreeAutomata::StackItem* ast = nullptr;
 		};
 
 	public:
@@ -34,13 +34,13 @@ namespace tp {
 	public:
 		bool compileTables(
 			const ContextFreeGrammar& cfGrammar,
-			const RegularGrammar& reGrammar,
+			const ParserRegularGrammar& reGrammar,
 			const Map<String, tTokenType>& contextFreeToRegular
 		) {
 			// Compile Regular Grammar
 			{
 				RegularGraph graph;
-				RegularCompiler compiler;
+				ParserRegularCompiler compiler;
 				compiler.compile(graph, reGrammar);
 				graph.makeDeterministic();
 				mRegularAutomata.construct(graph);
@@ -92,14 +92,14 @@ namespace tp {
 				lengthIter -= result.advancedIdx;
 			}
 
-			ContextFreeAutomata::AcceptResult result = mContextFreeAutomata.accept(tokens.getBuff(), tokens.size());
+			ParserContextFreeAutomata::AcceptResult result = mContextFreeAutomata.accept(tokens.getBuff(), tokens.size());
 			return { result.accepted, result.ast };
 		}
 
 	public:
 		// save load compiled tables
-		RegularAutomata mRegularAutomata;
-		ContextFreeAutomata mContextFreeAutomata;
+		ParserRegularAutomata mRegularAutomata;
+		ParserContextFreeAutomata mContextFreeAutomata;
 
 		Map<tTokenType, ContextFreeCompiler::SymbolVal> mGrammarGlue;
 		Map<ContextFreeCompiler::SymbolVal, String> mAstNames;

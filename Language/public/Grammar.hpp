@@ -2,7 +2,6 @@
 #pragma once
 
 #include "Buffer.hpp"
-#include "LanguageCommon.hpp"
 #include "Map.hpp"
 #include "Strings.hpp"
 
@@ -192,7 +191,7 @@ namespace tp {
 			~ClassNode() override { mRanges.removeAll(); }
 
 		public:
-			Buffer<Range<tAlphabetType>> mRanges;
+			Buffer<IterRange<tAlphabetType>> mRanges;
 			bool mExclude = false;
 		};
 
@@ -201,7 +200,7 @@ namespace tp {
 
 		~RegularGrammar() {
 			for (auto rule : mRules) {
-				delete rule->t1;
+				delete rule->first;
 			}
 		}
 
@@ -219,6 +218,6 @@ namespace tp {
 		}
 
 	public:
-		Buffer<Pair<const Node*, tTokType>> mRules;
+		Buffer<std::pair<const Node*, tTokType>> mRules;
 	};
 }
