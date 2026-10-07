@@ -83,6 +83,7 @@ namespace tp {
 			ContextFreeGrammar* cf = nullptr;
 			UserRegexGrammar* rg = nullptr;
 			Map<String, alni>* terminals = nullptr;
+			Buffer<String>* actions = nullptr; // action tag per CFG production (parallel to cf rules)
 			String start;
 			bool hasStart = false;
 			alni nextToken = 0;
@@ -94,12 +95,14 @@ namespace tp {
 		};
 
 		// token 0 of the user tokenizer is reserved for whitespace (the ignore token)
+		// actions receives one entry per CFG production (same order as cf.getRules())
 		void translate(
 			AstNode root,
 			const tAlphabetType* text,
 			ContextFreeGrammar& cf,
 			UserRegexGrammar& rg,
 			Map<String, alni>& terminals,
+			Buffer<String>& actions,
 			GrammarParser& grammarParser,
 			RegexParser& regexParser
 		);
@@ -122,6 +125,7 @@ namespace tp {
 		void collectProduction(AstNode node, BuildCtx& ctx);
 		bool isRegexSymbol(AstNode sym, BuildCtx& ctx);
 		void buildProduction(AstNode node, BuildCtx& ctx);
+		String altAction(AstNode altNode, BuildCtx& ctx);
 		void collectAlts(AstNode alts, Buffer<AstNode>& out);
 		void collectAltsRest(AstNode rest, Buffer<AstNode>& out);
 		void collectSymbolNodes(AstNode symbols, Buffer<AstNode>& out);

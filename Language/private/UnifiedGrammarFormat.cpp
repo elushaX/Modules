@@ -49,7 +49,15 @@ template <typename tAlphabetType>
 void UnifiedGrammarDefinition<tAlphabetType>::buildGrammarTokenizer(GRegexGrammar& rg) {
 	rg.addRule(rg.seq({ gLetter(rg), rg.rep(gAlnum(rg)) }), GIdent);
 	rg.addRule(rg.seq({ rg.val((tAlphabetType) '\''), rg.rep(gNot(rg, (tAlphabetType) '\'')), rg.val((tAlphabetType) '\'') }), GLiteral);
-	rg.addRule(rg.seq({ rg.val((tAlphabetType) '"'), rg.rep(gNot(rg, (tAlphabetType) '"')), rg.val((tAlphabetType) '"') }), GRegex);
+	// a regex literal "..." where \" is an escaped quote: " ( \<any> | not(") )* "
+	rg.addRule(
+		rg.seq({
+			rg.val((tAlphabetType) '"'),
+			rg.rep(rg.alt(rg.seq({ rg.val((tAlphabetType) '\\'), rg.any() }), gNot(rg, (tAlphabetType) '"'))),
+			rg.val((tAlphabetType) '"')
+		}),
+		GRegex
+	);
 	rg.addRule(rg.seq({ rg.val((tAlphabetType) '['), rg.rep(gNot(rg, (tAlphabetType) ']')), rg.val((tAlphabetType) ']') }), GAction);
 	rg.addRule(rg.val((tAlphabetType) '%'), GPercent);
 	rg.addRule(rg.val((tAlphabetType) '{'), GLBrace);
@@ -400,6 +408,7 @@ void UnifiedGrammarTranslator<tAlphabetType>::translate(
 	ContextFreeGrammar& cf,
 	UserRegexGrammar& rg,
 	Map<String, alni>& terminals,
+	Buffer<String>& actions,
 	GrammarParser& grammarParser,
 	RegexParser& regexParser
 ) {
@@ -411,6 +420,7 @@ void UnifiedGrammarTranslator<tAlphabetType>::translate(
 	ctx.cf = &cf;
 	ctx.rg = &rg;
 	ctx.terminals = &terminals;
+	ctx.actions = &actions;
 	ctx.nextToken = 1;
 
 	walkGrammar(root, ctx);
@@ -537,6 +547,15 @@ bool UnifiedGrammarTranslator<tAlphabetType>::isRegexSymbol(AstNode sym, BuildCt
 }
 
 template <typename tAlphabetType>
+String UnifiedGrammarTranslator<tAlphabetType>::altAction(AstNode altNode, BuildCtx& ctx) {
+	AstNode optAction = altNode->leafs[1];
+	if (optAction->leafs.size() == 0) return String("");
+	// OptAction := Action ('[name]')
+	String text = lexeme(ctx.text, optAction->leafs[0]->symbol);
+	return stripQuotes(text); // strips the surrounding [ ]
+}
+
+template <typename tAlphabetType>
 void UnifiedGrammarTranslator<tAlphabetType>::buildProduction(AstNode node, BuildCtx& ctx) {
 	String lhs = lexeme(ctx.text, node->leafs[0]->symbol);
 	AstNode alts = node->leafs[2];
@@ -567,6 +586,7 @@ void UnifiedGrammarTranslator<tAlphabetType>::buildProduction(AstNode node, Buil
 
 		// production
 		auto rule = ctx.cf->addRule(lhs);
+		if (ctx.actions) ctx.actions->append(altAction(altNode, ctx));
 
 		// empty alternative -> epsilon production
 		if (symbolNodes.size() == 0) {

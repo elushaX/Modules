@@ -67,10 +67,11 @@ namespace tp {
 			// split ast into RE and CF part
 			// generate and execute grammar api commands
 			// use existing tokenizer code to create RE transition matrix
+			mActions.clear();
 			Translator translator;
 			translator.translate(
 				parsed.ast, grammar,
-				userContextFreeGrammar, userRegularGrammar, terminalsMap,
+				userContextFreeGrammar, userRegularGrammar, terminalsMap, mActions,
 				mUnifiedGrammarParser, mRegexParser
 			);
 
@@ -86,12 +87,36 @@ namespace tp {
 
 		[[nodiscard]] bool isCompiled() const { return mCompileOk; }
 
+		// ---- semantic-action accessors for walking the result AST ----
+
+		using StackItem = ContextFreeAutomata<ContextFreeCompiler::SymbolVal, ContextFreeCompiler::Item>::StackItem;
+
+		// action tag assigned to the production that reduced this node (empty if none / terminal)
+		[[nodiscard]] String actionOf(const StackItem* node) const {
+			// compiler rule 0 is the augmented start; our actions are 0-based over the user productions
+			if (!node || node->rule <= 0) return String("");
+			ualni idx = (ualni) (node->rule - 1);
+			if (idx >= mActions.size()) return String("");
+			return mActions[idx];
+		}
+
+		// source text covered by a node's terminal symbol
+		[[nodiscard]] String lexemeOf(const tAlphabetType* source, const StackItem* node) const {
+			char buf[512];
+			ualni n = node->symbol.len < 511 ? node->symbol.len : 511;
+			for (ualni i = 0; i < n; i++) buf[i] = (char) source[node->symbol.start + i];
+			buf[n] = 0;
+			return String(buf);
+		}
+
 	private:
 		UGParser mUnifiedGrammarParser;
 		UGRegexTokensParser mRegexParser;
 
 		Map<String, typename Def::GTokens> mUnifiedTerminals;
 		Map<String, typename Def::RTokens> mRegexTerminals;
+
+		Buffer<String> mActions; // action tag per user production (compiler rule index - 1)
 
 		bool mCompileOk = false;
 

@@ -2,6 +2,8 @@
 #include "compiler/Functions.hpp"
 #include "primitives/PrimitiveObjects.hpp"
 
+#include "Strings.hpp"
+
 using namespace tp;
 using namespace obj;
 
@@ -50,6 +52,6 @@ static bool init(const ModuleManifest*) {
 
 static void deinit(const ModuleManifest*) { objects_api::finalize(); }
 
-static ModuleManifest* sModuleDependencies[] = { nullptr };
+static ModuleManifest* sModuleDependencies[] = { &gModuleStrings, nullptr };
 
 ModuleManifest obj::gModuleObjects = ModuleManifest("Objects", init, deinit, sModuleDependencies);

@@ -16,6 +16,7 @@ namespace tp {
 		struct StackItem {
 			ualni state = 0;
 			tAlphabetType symbol;
+			alni rule = -1; // reduce rule index that produced this node (-1 for shifted terminals)
 			Buffer<StackItem*> leafs;
 		};
 
@@ -36,6 +37,7 @@ namespace tp {
 			auto newItem = [&](tAlphabetType symbol) -> StackItem* {
 				auto node = mItems.newNode();
 				node->data.symbol = symbol;
+				node->data.rule = -1;
 				node->data.leafs.clear();
 				mItems.pushBack(node);
 				return &node->data;
@@ -62,6 +64,7 @@ namespace tp {
 					alni lhs = mRuleLhs[rule];
 
 					StackItem* parent = newItem(mNonTerminalSymbols[(ualni) lhs]);
+					parent->rule = (alni) rule;
 
 					for (ualni i = 0; i < pop; i++) {
 						parent->leafs.append(mValueStack.last());
