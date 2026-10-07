@@ -8,6 +8,12 @@
 using namespace tp;
 using namespace obj;
 
+// The oscript grammar (Unified Grammar format) lives only in oscript.g.
+// CMake wraps that file verbatim into oscript.g.hpp as a raw string literal.
+static const char* oscript_grammar =
+#include "oscript.g.hpp"
+	;
+
 namespace {
 
 	// Builds the typed Statement/Expression AST by walking the generic parse
@@ -86,6 +92,7 @@ namespace {
 			if (is(act, "stm_log")) return buildLog(inner);
 			if (is(act, "stm_assign")) return buildAssign(inner);
 			if (is(act, "stm_ignore")) return buildIgnore(inner);
+			if (is(act, "stm_break")) return nullptr; // break not implemented
 
 			return nullptr;
 		}
@@ -155,8 +162,8 @@ namespace {
 
 		void buildIdList(OScriptNode node, Buffer<std::string>& out) {
 			// id_list : id_list ',' id ',' | id | <empty>
+			if (node->leafs.size() == 0) return; // empty alternative
 			String act = action(node);
-			if (is(act, "id_list_empty")) return;
 			if (is(act, "id_list_create")) {
 				out.append(lexeme(node->leafs[0]));
 				return;
@@ -212,10 +219,10 @@ namespace {
 
 		Expression* buildExprList(OScriptNode node) {
 			// expr_list : expr_list ',' expr ',' | expr | <empty>
-			String act = action(node);
-			if (is(act, "expr_list_empty")) {
+			if (node->leafs.size() == 0) { // empty alternative
 				return new ExpressionList();
 			}
+			String act = action(node);
 			if (is(act, "expr_list_create")) {
 				auto list = new ExpressionList();
 				list->mItems.append(buildExpr(node->leafs[0]));
@@ -241,7 +248,7 @@ namespace {
 		OScriptParser parser;
 		bool compiled = false;
 		GrammarHolder() {
-			compiled = parser.compileTables(obj::oscript_grammar, String::Logic::calcLength(obj::oscript_grammar));
+			compiled = parser.compileTables(oscript_grammar, String::Logic::calcLength(oscript_grammar));
 		}
 	};
 
