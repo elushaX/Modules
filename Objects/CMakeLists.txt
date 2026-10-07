@@ -1,12 +1,10 @@
 project(Objects)
 
-### ------------- Embed oscript.g as a raw string literal -------------  ###
-# The oscript grammar lives only in oscript.g; wrap it verbatim so Parser.cpp
-# can #include it directly as a C string.
 set(OSCRIPT_G "${CMAKE_CURRENT_SOURCE_DIR}/private/parser/oscript.g")
 set(OSCRIPT_G_HPP "${CMAKE_CURRENT_BINARY_DIR}/generated/oscript.g.hpp")
-file(READ "${OSCRIPT_G}" OSCRIPT_G_CONTENTS)
-file(WRITE "${OSCRIPT_G_HPP}" "R\"OSCRIPT(\n${OSCRIPT_G_CONTENTS}\n)OSCRIPT\"\n")
+file(READ "${OSCRIPT_G}" OSCRIPT_G_HEX HEX)
+string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," OSCRIPT_G_BYTES "${OSCRIPT_G_HEX}")
+file(WRITE "${OSCRIPT_G_HPP}" "${OSCRIPT_G_BYTES}0x00\n")
 
 ### ---------------------- Static Library  ---------------------  ###
 file(GLOB SOURCES "./private/*.cpp" "./private/*/*.cpp")

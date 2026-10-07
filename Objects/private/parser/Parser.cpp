@@ -8,16 +8,12 @@
 using namespace tp;
 using namespace obj;
 
-// The oscript grammar (Unified Grammar format) lives only in oscript.g.
-// CMake wraps that file verbatim into oscript.g.hpp as a raw string literal.
-static const char* oscript_grammar =
+static const char oscript_grammar[] = {
 #include "oscript.g.hpp"
-	;
+};
 
 namespace {
 
-	// Builds the typed Statement/Expression AST by walking the generic parse
-	// tree produced by SimpleParser, dispatching on each node's action tag.
 	class AstBuilder {
 	public:
 		AstBuilder(OScriptParser& parser, const char* source) :
@@ -25,7 +21,6 @@ namespace {
 			mSource(source) {}
 
 		Statement* buildScript(OScriptNode node) {
-			// script : stmts [tmp] | [tmp]
 			if (node->leafs.size() == 0) {
 				return new StatementScope({}, true);
 			}
@@ -54,22 +49,17 @@ namespace {
 			return *a == *b;
 		}
 
-		// ---- scopes / statements ----
-
 		StatementScope* buildStatementScope(OScriptNode stmts) {
-			// stmts : stmts stmt [stm_list_append] | stmt [stm_list_create]
 			String act = action(stmts);
 			if (is(act, "stm_list_create")) {
 				return new StatementScope({ buildStatement(stmts->leafs[0]) }, true);
 			}
-			// stm_list_append
 			auto scope = buildStatementScope(stmts->leafs[0]);
 			scope->mStatements.append(buildStatement(stmts->leafs[1]));
 			return scope;
 		}
 
 		StatementScope* buildScope(OScriptNode node) {
-			// scope : '{' stmts '}' [scope] | '{' '}' [scope_empty]
 			String act = action(node);
 			if (is(act, "scope_empty")) {
 				return new StatementScope({}, true);
@@ -78,7 +68,6 @@ namespace {
 		}
 
 		Statement* buildStatement(OScriptNode stmt) {
-			// stmt : <sub> [';'] [tmp] — unwrap to the meaningful child
 			OScriptNode inner = stmt->leafs[0];
 			String act = action(inner);
 
@@ -92,13 +81,12 @@ namespace {
 			if (is(act, "stm_log")) return buildLog(inner);
 			if (is(act, "stm_assign")) return buildAssign(inner);
 			if (is(act, "stm_ignore")) return buildIgnore(inner);
-			if (is(act, "stm_break")) return nullptr; // break not implemented
+			if (is(act, "stm_break")) return nullptr;
 
 			return nullptr;
 		}
 
 		Statement* buildDefMethod(OScriptNode node) {
-			// 'method' id '(' id_list ')' scope
 			auto method = new StatementFuncDef(lexeme(node->leafs[1]));
 			method->mStatements = buildScope(node->leafs[5]);
 			Buffer<std::string> args;
@@ -108,12 +96,10 @@ namespace {
 		}
 
 		Statement* buildDefClass(OScriptNode node) {
-			// 'class' id scope
 			return new StatementClassDef(lexeme(node->leafs[1]), buildScope(node->leafs[2]));
 		}
 
 		Statement* buildIf(OScriptNode node) {
-			// 'if' '(' expr ')' scope ['else' scope]
 			Expression* cond = buildExpr(node->leafs[2]);
 			StatementScope* onTrue = buildScope(node->leafs[4]);
 			if (node->leafs.size() == 5) {
@@ -123,12 +109,10 @@ namespace {
 		}
 
 		Statement* buildWhile(OScriptNode node) {
-			// 'while' '(' expr ')' scope
 			return new StatementWhile(buildExpr(node->leafs[2]), buildScope(node->leafs[4]));
 		}
 
 		Statement* buildReturn(OScriptNode node) {
-			// 'return' expr | 'return'
 			if (node->leafs.size() == 2) {
 				return new StatementReturn(buildExpr(node->leafs[1]));
 			}
@@ -136,44 +120,35 @@ namespace {
 		}
 
 		Statement* buildVarDefNewType(OScriptNode node) {
-			// 'var' id ':' id
 			return new StatementLocalDef(lexeme(node->leafs[1]), new ExpressionNew(lexeme(node->leafs[3])));
 		}
 
 		Statement* buildVarDefAssign(OScriptNode node) {
-			// 'var' id '=' expr
 			return new StatementLocalDef(lexeme(node->leafs[1]), buildExpr(node->leafs[3]));
 		}
 
 		Statement* buildLog(OScriptNode node) {
-			// 'print' expr
 			return new StatementPrint(buildExpr(node->leafs[1]));
 		}
 
 		Statement* buildAssign(OScriptNode node) {
-			// expr '=' expr
 			return new StatementCopy(buildExpr(node->leafs[0]), buildExpr(node->leafs[2]));
 		}
 
 		Statement* buildIgnore(OScriptNode node) {
-			// expr
 			return new StatementIgnore(buildExpr(node->leafs[0]));
 		}
 
 		void buildIdList(OScriptNode node, Buffer<std::string>& out) {
-			// id_list : id_list ',' id ',' | id | <empty>
-			if (node->leafs.size() == 0) return; // empty alternative
+			if (node->leafs.size() == 0) return;
 			String act = action(node);
 			if (is(act, "id_list_create")) {
 				out.append(lexeme(node->leafs[0]));
 				return;
 			}
-			// id_list_append
 			buildIdList(node->leafs[0], out);
 			out.append(lexeme(node->leafs[2]));
 		}
-
-		// ---- expressions ----
 
 		Expression* buildExpr(OScriptNode node) {
 			String act = action(node);
@@ -218,8 +193,7 @@ namespace {
 		}
 
 		Expression* buildExprList(OScriptNode node) {
-			// expr_list : expr_list ',' expr ',' | expr | <empty>
-			if (node->leafs.size() == 0) { // empty alternative
+			if (node->leafs.size() == 0) {
 				return new ExpressionList();
 			}
 			String act = action(node);
@@ -228,7 +202,6 @@ namespace {
 				list->mItems.append(buildExpr(node->leafs[0]));
 				return list;
 			}
-			// expr_list_append
 			auto list = (ExpressionList*) buildExprList(node->leafs[0]);
 			list->mItems.append(buildExpr(node->leafs[2]));
 			return list;
@@ -243,7 +216,6 @@ namespace {
 		}
 	};
 
-	// Compiled once — the grammar tables do not depend on the input.
 	struct GrammarHolder {
 		OScriptParser parser;
 		bool compiled = false;
@@ -265,7 +237,6 @@ obj::Parser::Result obj::Parser::parse(const std::string& stream) {
 	OScriptParser& parser = grammarParser();
 
 	auto res = parser.parse(src.c_str(), (ualni) src.size());
-
 
 	if (!res.accepted || !res.ast) {
 		return { nullptr, true };
