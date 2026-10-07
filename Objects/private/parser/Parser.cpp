@@ -8,9 +8,7 @@
 using namespace tp;
 using namespace obj;
 
-static const char oscript_grammar[] = {
 #include "oscript.g.hpp"
-};
 
 namespace {
 

@@ -4,7 +4,7 @@ set(OSCRIPT_G "${CMAKE_CURRENT_SOURCE_DIR}/private/parser/oscript.g")
 set(OSCRIPT_G_HPP "${CMAKE_CURRENT_BINARY_DIR}/generated/oscript.g.hpp")
 file(READ "${OSCRIPT_G}" OSCRIPT_G_HEX HEX)
 string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," OSCRIPT_G_BYTES "${OSCRIPT_G_HEX}")
-file(WRITE "${OSCRIPT_G_HPP}" "${OSCRIPT_G_BYTES}0x00\n")
+file(WRITE "${OSCRIPT_G_HPP}" "const char oscript_grammar[] = {${OSCRIPT_G_BYTES}0x00};\n")
 
 ### ---------------------- Static Library  ---------------------  ###
 file(GLOB SOURCES "./private/*.cpp" "./private/*/*.cpp")
