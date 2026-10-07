@@ -23,25 +23,34 @@ namespace tp {
 			mCurrentState = mStartState;
 
 			ualni advancedIdx = 0;
+			bool hasAccept = false;
+			ualni acceptIdx = 0;
+			tStateType acceptState = tStateType();
 
 			while (advancedIdx < size) {
 				const tAlphabetType& symbol = *(stream + advancedIdx);
 
 				if (!(symbol >= mSymbolRange.mBegin && symbol < mSymbolRange.mEnd)) {
-					return { false, advancedIdx, {} };
+					break;
 				}
 
 				mCurrentState = mTable.get({ (ualni) (symbol - mSymbolRange.mBegin), mCurrentState });
 
 				if (mCurrentState == mStates.size()) {
-					return { false, advancedIdx, {} };
-				}
-
-				if (mStates[mCurrentState].first) {
-					return { true, advancedIdx, mStates[mCurrentState].second };
+					break;
 				}
 
 				advancedIdx++;
+
+				if (mStates[mCurrentState].first) {
+					hasAccept = true;
+					acceptIdx = advancedIdx;
+					acceptState = mStates[mCurrentState].second;
+				}
+			}
+
+			if (hasAccept) {
+				return { true, acceptIdx, acceptState };
 			}
 
 			return { false, advancedIdx, {} };

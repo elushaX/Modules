@@ -31,6 +31,8 @@ namespace tp {
 	public:
 		Parser() = default;
 
+		void setIgnoreToken(tTokenType token) { mIgnoreToken = token; }
+
 	public:
 		bool compileTables(
 			const ContextFreeGrammar& cfGrammar,
@@ -48,18 +50,18 @@ namespace tp {
 
 			// compile context free grammar
 			{
-				ContextFreeGraph graph;
 				ContextFreeCompiler compiler;
-				compiler.compile(cfGrammar, graph);
-				graph.makeDeterministic();
-				mContextFreeAutomata.construct(graph);
+				if (!compiler.compile(cfGrammar)) return false;
+				mContextFreeAutomata.construct(compiler);
 
 				// make glue
 				for (auto symbol : *compiler.getSymbols()) {
 					auto symbolId = compiler.getSymbolId(symbol->mId);
 					if (symbol->mIsTerminal) {
 						auto iter = contextFreeToRegular.presents(symbol->mId);
-						if (!iter) return false;
+						if (!iter) {
+							return false;
+						}
 						mGrammarGlue.put(contextFreeToRegular.getSlotVal(iter), symbolId);
 					} else {
 						mAstNames.put(symbolId, symbol->mId);
@@ -84,9 +86,14 @@ namespace tp {
 					return { false, nullptr };
 				}
 
-				tokens.append(ContextFreeCompiler::SymbolVal(
-					mGrammarGlue.get(result.state), ualni(sentenceIter - sentence), result.advancedIdx
-				));
+				if (result.state != mIgnoreToken) {
+					if (!mGrammarGlue.presents(result.state)) {
+						return { false, nullptr };
+					}
+					tokens.append(ContextFreeCompiler::SymbolVal(
+						mGrammarGlue.get(result.state), ualni(sentenceIter - sentence), result.advancedIdx
+					));
+				}
 
 				sentenceIter += result.advancedIdx;
 				lengthIter -= result.advancedIdx;
@@ -103,5 +110,7 @@ namespace tp {
 
 		Map<tTokenType, ContextFreeCompiler::SymbolVal> mGrammarGlue;
 		Map<ContextFreeCompiler::SymbolVal, String> mAstNames;
+
+		tTokenType mIgnoreToken = tTokenType();
 	};
 }

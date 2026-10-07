@@ -52,8 +52,8 @@ namespace tp {
 					return;
 				}
 
-				transitionAny(left, node.left);
-				transitionAny(node.right, right);
+				transitionEpsilon(left, node.left);
+				transitionEpsilon(node.right, right);
 
 				idx++;
 			}
@@ -84,8 +84,8 @@ namespace tp {
 		Node compileAlternation(const Grammar::AlternationNode* alt, Vertex* aLeft = nullptr, Vertex* aRight = nullptr) {
 			auto first_node = compileNode(alt->mFirst, aLeft, aRight);
 			auto second_node = compileNode(alt->mSecond);
-			transitionAny(first_node.left, second_node.left);
-			transitionAny(second_node.right, first_node.right);
+			transitionEpsilon(first_node.left, second_node.left);
+			transitionEpsilon(second_node.right, first_node.right);
 			return first_node;
 		}
 
@@ -103,21 +103,21 @@ namespace tp {
 				auto left_node = compileNode(repeat->mNode, aLeft, middle);
 
 				auto right_node = compileNode(repeat->mNode, middle, aRight);
-				transitionAny(right_node.right, right_node.left);
-				transitionAny(right_node.left, right_node.right);
+				transitionEpsilon(right_node.right, right_node.left);
+				transitionEpsilon(right_node.left, right_node.right);
 
 				return { left_node.left, right_node.right };
 			} else {
 				auto node = compileNode(repeat->mNode, aLeft, aRight);
-				transitionAny(node.right, node.left);
-				transitionAny(node.left, node.right);
+				transitionEpsilon(node.right, node.left);
+				transitionEpsilon(node.left, node.right);
 				return node;
 			}
 		}
 
 		Node compileIf(const Grammar::IfNode* ifNode, Vertex* aLeft = nullptr, Vertex* aRight = nullptr) {
 			auto node = compileNode(ifNode->mNode, aLeft, aRight);
-			transitionAny(node.left, node.right);
+			transitionEpsilon(node.left, node.right);
 			return node;
 		}
 
@@ -134,7 +134,7 @@ namespace tp {
 			for (auto range : node->mRanges) {
 				auto middle = addVertex();
 				transitionRange(left, middle, { ualni(range->mBegin), ualni(range->mEnd) }, node->mExclude);
-				transitionAny(middle, right);
+				transitionEpsilon(middle, right);
 			}
 			return { left, right };
 		}
@@ -177,12 +177,14 @@ namespace tp {
 			}
 		}
 
+		void transitionEpsilon(Vertex* from, Vertex* to) { mGraph->addEpsilonTransition(from, to); }
+
 		void transitionVal(Vertex* from, Vertex* to, tAlphabetType val) { mGraph->addTransition(from, to, val); }
 
 		void transitionRange(Vertex* from, Vertex* to, IterRange<ualni> range, bool exclude) {
 			if (exclude) {
-				IterRange<ualni> first = { tMinSymbol, range.mBegin - 1 };
-				IterRange<ualni> second = { range.mEnd + 1, tMaxSymbol };
+				IterRange<ualni> first = { tMinSymbol, range.mBegin };
+				IterRange<ualni> second = { range.mEnd, tMaxSymbol };
 
 				if (first.valid()) {
 					for (auto symbol : first) {
