@@ -1,5 +1,13 @@
 project(Objects)
 
+### ------------- Embed oscript.g as a raw string literal -------------  ###
+# The oscript grammar lives only in oscript.g; wrap it verbatim so Parser.cpp
+# can #include it directly as a C string.
+set(OSCRIPT_G "${CMAKE_CURRENT_SOURCE_DIR}/private/parser/oscript.g")
+set(OSCRIPT_G_HPP "${CMAKE_CURRENT_BINARY_DIR}/generated/oscript.g.hpp")
+file(READ "${OSCRIPT_G}" OSCRIPT_G_CONTENTS)
+file(WRITE "${OSCRIPT_G_HPP}" "R\"OSCRIPT(\n${OSCRIPT_G_CONTENTS}\n)OSCRIPT\"\n")
+
 ### ---------------------- Static Library  ---------------------  ###
 file(GLOB SOURCES "./private/*.cpp" "./private/*/*.cpp")
 file(GLOB HEADERS "./public/*.hpp" "./public/*/*.hpp" "./applications/*.hpp")
@@ -7,6 +15,7 @@ file(GLOB HEADERS "./public/*.hpp" "./public/*/*.hpp" "./applications/*.hpp")
 add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ./public/ ${BINDINGS_INCLUDE})
+target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/generated")
 target_link_libraries(${PROJECT_NAME} PUBLIC Math Connection Language)
 target_compile_definitions(${PROJECT_NAME} PUBLIC USERDATA_DESTROY_FAILED_TREE_ROOTS)
 
