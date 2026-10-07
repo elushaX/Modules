@@ -31,6 +31,7 @@ namespace tp {
 		class Rule {
 		public:
 			Rule() = default;
+			explicit Rule(const String& id) { mId = id; }
 			Rule(const String& id, const InitialierList<Arg>& args);
 
 		public:
@@ -38,6 +39,7 @@ namespace tp {
 			[[nodiscard]] bool isProductive() const;
 			[[nodiscard]] const String& getId() const { return mId; }
 			[[nodiscard]] const Buffer<Arg>* getArgs() const { return &mArgs; }
+			void addArg(const Arg& arg) { mArgs.append(arg); }
 
 		private:
 			String mId;
@@ -50,12 +52,25 @@ namespace tp {
 	public:
 		void addRule(const Rule& rule);
 		void addRule(const String& id, const InitialierList<Arg>& args);
+		Rule* addRule(const String& id) {
+			mRules.append(Rule(id));
+			return &mRules.last();
+		}
 		void setStart(const String& startRule);
 		[[nodiscard]] const Buffer<Rule>* getRules() const { return &mRules; }
 		[[nodiscard]] const String& getStartTerminal() const { return mStartTerminal; }
 
+		void setTerminalPrecedence(const String& name, ualni level, alni assoc) {
+			mTerminalPrecedence.put(name, level);
+			mTerminalAssoc.put(name, assoc);
+		}
+		[[nodiscard]] const Map<String, ualni>* getTerminalPrecedence() const { return &mTerminalPrecedence; }
+		[[nodiscard]] const Map<String, alni>* getTerminalAssoc() const { return &mTerminalAssoc; }
+
 	public:
 		Buffer<Rule> mRules;
+		Map<String, ualni> mTerminalPrecedence;
+		Map<String, alni> mTerminalAssoc;
 		String mStartTerminal;
 		bool mIsLooped = false;
 	};
@@ -173,7 +188,7 @@ namespace tp {
 			~RepetitionNode() override { delete mNode; }
 
 		public:
-			Node* mNode = nullptr;
+			const Node* mNode = nullptr;
 			bool mPlus = false;
 		};
 
@@ -182,13 +197,13 @@ namespace tp {
 			ClassNode() :
 				Node(Node::CLASS) {}
 
-			explicit ClassNode(const Buffer<Range<tAlphabetType>>& ranges, bool exclude = false) :
+			explicit ClassNode(const Buffer<IterRange<tAlphabetType>>& ranges, bool exclude = false) :
 				Node(Node::CLASS) {
 				mExclude = exclude;
 				mRanges = ranges;
 			}
 
-			~ClassNode() override { mRanges.removeAll(); }
+			~ClassNode() override { mRanges.clear(); }
 
 		public:
 			Buffer<IterRange<tAlphabetType>> mRanges;
@@ -213,7 +228,7 @@ namespace tp {
 		const Node* may(const Node* a) { return new IfNode(a); }
 		const Node* any() { return new AnyNode(); }
 		const Node* rep(const Node* rep, bool plus = false) { return new RepetitionNode(rep, plus); }
-		const Node* ranges(const Buffer<Range<tAlphabetType>>& ranges, bool exclude = false) {
+		const Node* ranges(const Buffer<IterRange<tAlphabetType>>& ranges, bool exclude = false) {
 			return new ClassNode(ranges, exclude);
 		}
 

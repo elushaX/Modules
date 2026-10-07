@@ -344,23 +344,25 @@ namespace tp {
 			const Node* operator->() const { return mIter; }
 			const Iterator& operator*() const { return *this; }
 
-			bool operator!=(ualni idx) const { return mSlot != idx; }
+			bool operator!=(ualni idx) const { return mSlot != (alni) idx; }
 
 			void operator++() {
 				mSlot++;
-				while ((map->isDeletedNode(map->mTable[mSlot]) || !map->mTable[mSlot]) && (mSlot != (map->mNSlots - 1))) {
+				while (mSlot < (alni) map->mNSlots && (map->isDeletedNode(map->mTable[mSlot]) || !map->mTable[mSlot])) {
 					mSlot++;
 				}
-				if (mSlot != map->mNSlots) {
+				if (mSlot < (alni) map->mNSlots) {
 					mIter = map->mTable[mSlot];
 					mEntry++;
+				} else {
+					mIter = nullptr;
 				}
 			}
 		};
 
 		[[nodiscard]] Iterator begin() const { return Iterator(this); }
 
-		[[nodiscard]] ualni end() const { return mNSlots - 1; }
+		[[nodiscard]] ualni end() const { return mNSlots; }
 
 		template <class Archiver>
 		void archiveWrite(Archiver& ar) const {

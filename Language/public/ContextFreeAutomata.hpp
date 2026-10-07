@@ -1,19 +1,16 @@
 
+
 #pragma once
 
 #include "Strings.hpp"
 #include "Automata.hpp"
 #include "Buffer2D.hpp"
+#include "ContextFreeCompiler.hpp"
 
 namespace tp {
 
 	template <typename tAlphabetType, typename tStateType>
 	class ContextFreeAutomata {
-
-		struct Action {
-			enum Type { SHIFT, REDUCE, TRAP } type = TRAP;
-			ualni num = 0; // state to shift (shift action) or pop count (reduce action)
-		};
 
 	public:
 		struct StackItem {
@@ -32,106 +29,118 @@ namespace tp {
 		ContextFreeAutomata() = default;
 
 		AcceptResult accept(const tAlphabetType* stream, ualni size) {
-			mCurrentState = mStartState;
-			mStack.append(&mItems.append({ mCurrentState, {}, {} }));
+			mItems.removeAll();
+			mStateStack.clear();
+			mValueStack.clear();
+
+			auto newItem = [&](tAlphabetType symbol) -> StackItem* {
+				auto node = mItems.newNode();
+				node->data.symbol = symbol;
+				node->data.leafs.clear();
+				mItems.pushBack(node);
+				return &node->data;
+			};
+
+			mStateStack.append(ualni(0));
 
 			ualni advancedIdx = 0;
-			while (advancedIdx < size) {
-				const tAlphabetType& symbol = *(stream + advancedIdx);
 
-				if (!(symbol >= mRange.mBegin && symbol < mRange.mEnd)) {
-					return { false, advancedIdx, nullptr };
-				}
+			while (true) {
+				ualni state = mStateStack.last();
+				ualni look = (advancedIdx < size) ? (ualni(stream[advancedIdx].id) - mNonTerminalCount) : mTerminalCount;
 
-				const Action& action = mTable.get({ ualni(symbol - mRange.mBegin), mCurrentState });
+				const ContextFreeCompiler::Action& action = mActionTable.get({ state, look });
 
-				if (action.type == Action::TRAP) {
-					return { false, advancedIdx, nullptr };
-				}
+				if (action.type == ContextFreeCompiler::Action::SHIFT) {
+					mStateStack.append(action.num);
+					mValueStack.append(newItem(stream[advancedIdx]));
+					advancedIdx++;
 
-				if (action.type == Action::SHIFT) {
-					mStack.last()->symbol = symbol;
-					mStack.append(&mItems.append({ mCurrentState, {}, {} }));
-					mCurrentState = action.num;
-				}
+				} else if (action.type == ContextFreeCompiler::Action::REDUCE) {
+					ualni rule = action.num;
+					ualni pop = mRulePopCount[rule];
+					alni lhs = mRuleLhs[rule];
 
-				if (mTable.get({ 0, mCurrentState }).type == Action::REDUCE) {
-					StackItem* newItem = &mItems.append(StackItem{});
-					for (auto iter : IterRange<ualni>(action.num)) {
-						newItem->leafs.append(mStack.last());
-						mCurrentState = mStack.last()->state;
-						mStack.pop();
+					StackItem* parent = newItem(mNonTerminalSymbols[(ualni) lhs]);
+
+					for (ualni i = 0; i < pop; i++) {
+						parent->leafs.append(mValueStack.last());
+						mValueStack.pop();
+						mStateStack.pop();
 					}
 
-					if (!mStack.size()) {
-						if (advancedIdx == size) {
-							return { true, advancedIdx, newItem };
-						} else {
-							return { false, advancedIdx, {} };
-						}
+					for (ualni i = 0; i < parent->leafs.size() / 2; i++) {
+						auto tmp = parent->leafs[i];
+						parent->leafs[i] = parent->leafs[parent->leafs.size() - 1 - i];
+						parent->leafs[parent->leafs.size() - 1 - i] = tmp;
 					}
 
-					mStack.append(&mItems.append({ mCurrentState, {}, {} }));
-				}
+					ualni gotoState = (ualni) mGotoTable.get({ mStateStack.last(), (ualni) lhs });
+					mStateStack.append(gotoState);
+					mValueStack.append(parent);
 
-				advancedIdx++;
+				} else if (action.type == ContextFreeCompiler::Action::ACCEPT) {
+					return { true, advancedIdx, mValueStack.size() ? mValueStack.last() : nullptr };
+				} else {
+					return { false, advancedIdx, nullptr };
+				}
 			}
-
-			return { false, advancedIdx, nullptr };
 		}
 
 	public:
-		typedef FiniteStateAutomation<tAlphabetType, tStateType> Automata;
-		typedef Automata::State AutomataState;
+		void construct(const ContextFreeCompiler& compiler) {
+			mNonTerminalCount = compiler.getNonTerminals()->size();
+			mTerminalCount = compiler.getTerminals()->size();
+			mStartSymbol = compiler.getStartSymbol();
 
-		void construct(const Automata& automata) {
-			mRange = automata.getAlphabetRange();
-
-			const ualni numStates = automata.numStates();
-			const ualni numSymbols = mRange.idxDiff();
-
-			mTable.reserve({ numSymbols, numStates });
-			mTable.assign(Action{ Action::TRAP, 0 });
-
-			Map<const AutomataState*, ualni> states;
-			ualni stateIndex = 0;
-			for (auto state : *automata.getStates()) {
-				states.put(&state.data(), { stateIndex });
-				stateIndex++;
+			mNonTerminalSymbols.clear();
+			for (auto sym : *compiler.getNonTerminals()) {
+				mNonTerminalSymbols.append(sym.data());
 			}
 
-			stateIndex = 0;
-			for (auto state : *automata.getStates()) {
-				if (&state.data() == automata.getStartState()) {
-					mStartState = stateIndex;
-				}
+			mRuleLhs.clear();
+			for (auto lhs : *compiler.getRuleLhs()) {
+				mRuleLhs.append(lhs.data());
+			}
 
-				if (state->isAccepting()) {
-					ASSERT(state->getTransitions()->size() == 0)
-					for (auto symbolIndex : IterRange<ualni>(numSymbols)) {
-						mTable.set({ stateIndex, symbolIndex }, { Action::REDUCE, state->getStateVal().numArgs() });
-					}
-				} else {
-					for (auto transition : *state->getTransitions()) {
-						ualni symbolIndex = ualni(transition->getSymbol()) - mRange.mBegin;
-						ualni targetStateIndex = states.get(transition->getState());
-						mTable.set({ stateIndex, symbolIndex }, { Action::SHIFT, targetStateIndex });
-					}
-				}
+			mRulePopCount.clear();
+			for (auto pop : *compiler.getRulePopCount()) {
+				mRulePopCount.append(pop.data());
+			}
 
-				stateIndex++;
+			ualni S = compiler.getActionTable()->size().x;
+			ualni N = mNonTerminalCount;
+			ualni T = mTerminalCount;
+
+			mActionTable.reserve({ S, T + 1 });
+			for (ualni s = 0; s < S; s++) {
+				for (ualni t = 0; t <= T; t++) {
+					mActionTable.set({ s, t }, compiler.getActionTable()->get({ s, t }));
+				}
+			}
+
+			mGotoTable.reserve({ S, N });
+			for (ualni s = 0; s < S; s++) {
+				for (ualni n = 0; n < N; n++) {
+					mGotoTable.set({ s, n }, compiler.getGotoTable()->get({ s, n }));
+				}
 			}
 		}
 
 	private:
-		Buffer2D<Action> mTable;
+		Buffer2D<ContextFreeCompiler::Action> mActionTable;
+		Buffer2D<alni> mGotoTable;
+		Buffer<alni> mRuleLhs;
+		Buffer<ualni> mRulePopCount;
+		Buffer<ContextFreeCompiler::SymbolVal> mNonTerminalSymbols;
 
-		Buffer<StackItem> mItems;
-		Buffer<StackItem*> mStack;
+		Buffer<ualni> mStateStack;
+		Buffer<StackItem*> mValueStack;
+		List<StackItem> mItems;
 
-		ualni mStartState = 0;
-		ualni mCurrentState = 0;
+		tAlphabetType mStartSymbol = tAlphabetType();
 
-		IterRange<ualni> mRange;
+		ualni mNonTerminalCount = 0;
+		ualni mTerminalCount = 0;
 	};
 }
