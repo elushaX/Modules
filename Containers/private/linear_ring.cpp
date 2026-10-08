@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <stdexcept>
 #include <cstring>
+#include <utility>
 
 namespace lrbm {
 	static int create_memfd(const char* name) {
