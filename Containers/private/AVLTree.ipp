@@ -46,19 +46,55 @@ void tp::AvlTree<Key, Data, Allocator>::insert(KeyArg key, DataArg data) {
 }
 
 template <typename Key, typename Data, class Allocator>
+auto tp::AvlTree<Key, Data, Allocator>::insertAfter(Node* predecessor, KeyArg key, DataArg data) -> Node* {
+	Node* inserted = newNode(key, data);
+
+	if (mRoot) {
+		attachAfter(predecessor, inserted);
+	}
+
+	restoreInvariants(inserted);
+	return inserted;
+}
+
+template <typename Key, typename Data, class Allocator>
+void tp::AvlTree<Key, Data, Allocator>::attachAfter(Node* predecessor, Node* inserted) {
+	if (!predecessor) {
+		Node* first = minNode(mRoot);
+		first->mLeft = inserted;
+		inserted->mParent = first;
+		return;
+	}
+
+	if (predecessor->mRight == &gNullNode) {
+		predecessor->mRight = inserted;
+		inserted->mParent = predecessor;
+		return;
+	}
+
+	Node* successor = minNode(predecessor->mRight);
+	successor->mLeft = inserted;
+	inserted->mParent = successor;
+}
+
+template <typename Key, typename Data, class Allocator>
+void tp::AvlTree<Key, Data, Allocator>::refreshNode(Node* node) {
+	restoreInvariants(node);
+}
+
+template <typename Key, typename Data, class Allocator>
 void tp::AvlTree<Key, Data, Allocator>::remove(KeyArg key) {
+	if (auto node = findSubTree(mRoot, key)) {
+		removeNode(node);
+	}
+}
 
-	auto node = findSubTree(mRoot, key);
-
-	if (!node) return;
+template <typename Key, typename Data, class Allocator>
+void tp::AvlTree<Key, Data, Allocator>::removeNode(Node* node) {
+	DEBUG_ASSERT(node);
 
 	if (node->mRight != &gNullNode && node->mLeft != &gNullNode) {
-		Node* min = minNode(node->mRight);
-		injectNodeInstead(node, min);
-		std::swap(node, min);
-		// auto const& newKey = min->key.getFindKey(head->mRight);
-		node = findSubTree(node->mRight, key);
-		DEBUG_ASSERT(node);
+		injectNodeInstead(node, minNode(node->mRight));
 	}
 
 	if (node->mRight != &gNullNode) {
@@ -116,20 +152,44 @@ auto tp::AvlTree<Key, Data, Allocator>::minNode(Node* head) const -> Node* {
 }
 
 template <typename Key, typename Data, class Allocator>
+auto tp::AvlTree<Key, Data, Allocator>::next(Node* node) const -> Node* {
+	if (node->mRight != &gNullNode) return minNode(node->mRight);
+
+	while (node->mParent && node->mParent->mRight == node) {
+		node = node->mParent;
+	}
+
+	return node->mParent;
+}
+
+template <typename Key, typename Data, class Allocator>
+auto tp::AvlTree<Key, Data, Allocator>::prev(Node* node) const -> Node* {
+	if (node->mLeft != &gNullNode) return maxNode(node->mLeft);
+
+	while (node->mParent && node->mParent->mLeft == node) {
+		node = node->mParent;
+	}
+
+	return node->mParent;
+}
+
+template <typename Key, typename Data, class Allocator>
 auto tp::AvlTree<Key, Data, Allocator>::find(KeyArg key) const -> Node* {
 	return findSubTree(mRoot, key);
 }
 
 template <typename Key, typename Data, class Allocator>
 auto tp::AvlTree<Key, Data, Allocator>::findSubTree(Node* iter, KeyArg key) const -> Node* {
+	Key query = key;
+
 	while (true) {
-		if (iter == &gNullNode) return nullptr;
-		if (iter->key.exactNode(key)) return iter;
-		if (iter->key.descentRight(key)) {
-			// key = iter->key.keyInRightSubtree(key);
+		if (!iter || iter == &gNullNode) return nullptr;
+		if (iter->key.exactNode(query)) return iter;
+		if (iter->key.descentRight(query)) {
+			query = iter->key.keyInRightSubtree(query);
 			iter = iter->mRight;
 		} else {
-			// key = iter->key.keyInLeftSubtree(key);
+			query = iter->key.keyInLeftSubtree(query);
 			iter = iter->mLeft;
 		}
 	}

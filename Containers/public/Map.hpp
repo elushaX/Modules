@@ -50,10 +50,11 @@ namespace tp {
 		tAllocator mAlloc;
 		Node** mTable = nullptr;
 		ualni mNSlots = 0;
+		ualni mNDeleted = 0;
 		ualni mNEntries = 0;
 
 	private:
-		constexpr halnf maxLoadFactor() { return halnf(MAP_MAX_LOAD_PERCENTAGE) / 100.f; }
+		static constexpr halnf maxLoadFactor() { return halnf(MAP_MAX_LOAD_PERCENTAGE) / 100.f; }
 
 		inline Node** newTable(const ualni len) { return new (mAlloc.allocate(sizeof(Node*) * len)) Node*[len](); }
 
@@ -79,6 +80,7 @@ namespace tp {
 			mNSlots = next2pow((uhalni) ((1.f / (maxLoadFactor())) * mNEntries + 1));
 			mTable = newTable(mNSlots);
 			mNEntries = 0;
+			mNDeleted = 0;
 
 			for (alni i = 0; i < nSlotsOld; i++) {
 				if (!tableOld[i] || isDeletedNode(tableOld[i])) {
@@ -142,27 +144,37 @@ namespace tp {
 			ualni const mask = mNSlots - 1;
 			ualni const shift = (hashed_key >> MAP_PERTURB_SHIFT) & ~1;
 			ualni idx = hashed_key & mask;
+			alni reusable = -1;
 		NEXT:
-			if (isDeletedNode(mTable[idx]) || !mTable[idx]) {
-				return idx;
+			if (!mTable[idx]) {
+				return reusable >= 0 ? (ualni) reusable : idx;
 			}
-			if (mTable[idx]->key == key) {
+			if (isDeletedNode(mTable[idx])) {
+				if (reusable < 0) reusable = (alni) idx;
+			} else if (mTable[idx]->key == key) {
 				return idx;
 			}
 			idx = ((5 * idx) + 1 + shift) & mask;
 			goto NEXT;
 		}
 
+		void occupy(ualni idx) {
+			if (isDeletedNode(mTable[idx])) mNDeleted--;
+			mNEntries++;
+		}
+
+		[[nodiscard]] bool overloaded() const { return (halnf) (mNEntries + mNDeleted) / mNSlots > maxLoadFactor(); }
+
 		void put(Node* node) {
 			const ualni idx = findSlotWrite(node->key);
 
 			if (!mTable[idx] || isDeletedNode(mTable[idx])) {
-				mNEntries++;
+				occupy(idx);
 			}
 
 			mTable[idx] = node;
 
-			if ((halnf) mNEntries / mNSlots > maxLoadFactor()) {
+			if (overloaded()) {
 				rehash();
 			}
 		}
@@ -186,12 +198,12 @@ namespace tp {
 		void put(KeyArg key, ValArg val) {
 			const ualni idx = findSlotWrite(key);
 			if (!mTable[idx] || isDeletedNode(mTable[idx])) {
+				occupy(idx);
 				mTable[idx] = newNode(key, val);
-				mNEntries++;
 			} else {
 				mTable[idx]->val = val;
 			}
-			if ((halnf) mNEntries / mNSlots > maxLoadFactor()) {
+			if (overloaded()) {
 				rehash();
 			}
 		}
@@ -218,7 +230,9 @@ namespace tp {
 			markDeletedSlot(idx);
 
 			mNEntries--;
-			if (halnf(mNEntries / mNSlots) < 1.f - maxLoadFactor()) {
+			mNDeleted++;
+			const bool sparse = mNSlots > MAP_MIN_SIZE * 4 && (halnf) mNEntries < (halnf) mNSlots * maxLoadFactor() * 0.25f;
+			if (sparse || overloaded()) {
 				rehash();
 			}
 		}
@@ -261,6 +275,7 @@ namespace tp {
 				}
 			}
 			mNEntries = 0;
+			mNDeleted = 0;
 			mNSlots = in.mNSlots;
 			deleteTable(mTable);
 			mTable = newTable(mNSlots);
@@ -297,6 +312,7 @@ namespace tp {
 			mTable = newTable(tTableInitialSize);
 			mNSlots = tTableInitialSize;
 			mNEntries = 0;
+			mNDeleted = 0;
 		}
 
 		[[nodiscard]] alni slotIdx(alni entry_idx_in) const {
