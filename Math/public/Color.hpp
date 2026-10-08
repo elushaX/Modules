@@ -106,4 +106,9 @@ namespace tp {
 		HSV rgbs;
 		flt4 a = 1.f;
 	};
+
+	constexpr halnf kDisplayGamma = 2.2f;
+
+	[[nodiscard]] halnf gammaToLinear(halnf encoded);
+	[[nodiscard]] halnf linearToGamma(halnf linear);
 }

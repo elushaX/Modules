@@ -35,6 +35,7 @@ namespace tp {
 
 	void sleep(time_ms duration);
 	time_ms get_time();
+	time_ns get_time_ns();
 	void updateGlobalTime();
 
 	struct FpsCounter {
