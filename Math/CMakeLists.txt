@@ -8,7 +8,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC ./public/)
 target_link_libraries(${PROJECT_NAME} PUBLIC Containers)
 
 ### -------------------------- Tests  --------------------------  ###
-file(GLOB TEST_SOURCES "./tests/*.cpp")
-add_executable(Test${PROJECT_NAME} ${TEST_SOURCES})
-target_link_libraries(Test${PROJECT_NAME} ${PROJECT_NAME} UnitTest++)
-add_test(NAME Test${PROJECT_NAME} COMMAND Test${PROJECT_NAME})
+if (MODULES_BUILD_TESTS)
+	file(GLOB TEST_SOURCES "./tests/*.cpp")
+	add_executable(Test${PROJECT_NAME} ${TEST_SOURCES})
+	target_link_libraries(Test${PROJECT_NAME} ${PROJECT_NAME} UnitTest++)
+	add_test(NAME Test${PROJECT_NAME} COMMAND Test${PROJECT_NAME})
+endif ()
