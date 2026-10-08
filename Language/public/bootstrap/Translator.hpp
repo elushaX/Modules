@@ -3,76 +3,18 @@
 
 #include "Parser.hpp"
 
+#include "bootstrap/CFGrammar.hpp"
+#include "bootstrap/RegexGrammar.hpp"
+
 namespace tp {
 
-	// =====================================================================
-	// Defines the Unified Grammar format (the .g syntax + the inline regex
-	// syntax) via the existing C++ grammar interface. Only builds grammars.
-	// =====================================================================
-	template <typename tAlphabetType>
-	struct UnifiedGrammarDefinition {
-
-		// .g grammar tokens
-		enum GTokens : alni {
-			GInTransition = -1,
-			GIdent,
-			GLiteral,  // '...'
-			GRegex,    // "..."
-			GAction,   // [...]
-			GPercent, GLBrace, GRBrace, GColon, GSemi, GPipe,
-			GIgnore
-		};
-
-		// regex tokens (0 is reserved so it never collides with the ignore token)
-		enum RTokens : alni {
-			RInTransition = -1,
-			RNone = 0,
-			RChar,     // a literal char
-			REscape,   // \X
-			RString,   // "..."
-			RPipe, RStar, RPlus, RQuestion, RLParen, RRParen,
-			RLBracket, RRBracket, RMinus, RCaret
-		};
-
-		using GRegexGrammar = RegularGrammar<tAlphabetType, GTokens>;
-		using GRegexNode = typename GRegexGrammar::Node;
-		using GrammarParser = Parser<tAlphabetType, GTokens, GInTransition, 0, 127>;
-
-		using RRegexGrammar = RegularGrammar<tAlphabetType, RTokens>;
-		using RRegexNode = typename RRegexGrammar::Node;
-		using RegexParser = Parser<tAlphabetType, RTokens, RInTransition, 0, 127>;
-
-		// .g tokenizer character classes
-		static const GRegexNode* gLetter(GRegexGrammar& rg);
-		static const GRegexNode* gAlnum(GRegexGrammar& rg);
-		static const GRegexNode* gNot(GRegexGrammar& rg, tAlphabetType q);
-
-		// regex tokenizer character classes
-		static const RRegexNode* rNot(RRegexGrammar& rg, tAlphabetType q);
-		static const RRegexNode* rAnyChar(RRegexGrammar& rg);
-
-		// .g tokenizer + structure
-		static void buildGrammarTokenizer(GRegexGrammar& rg);
-		static void buildGrammarStructure(ContextFreeGrammar& cfg, Map<String, GTokens>& tm);
-
-		// regex tokenizer + structure
-		static void buildRegexTokenizer(RRegexGrammar& rg);
-		static void buildRegexStructure(ContextFreeGrammar& cfg, Map<String, RTokens>& tm);
-	};
-
-	// =====================================================================
-	// Walks a parsed Unified Grammar AST and generates the target grammar:
-	// a ContextFreeGrammar (productions + precedence) and a RegularGrammar
-	// (tokenizer), executed through the existing grammar api.
-	// =====================================================================
 	template <typename tAlphabetType>
 	struct UnifiedGrammarTranslator {
 
-		using Def = UnifiedGrammarDefinition<tAlphabetType>;
-		using GrammarParser = typename Def::GrammarParser;
-		using RegexParser = typename Def::RegexParser;
+		using GrammarParser = typename CFGDefinition<tAlphabetType>::GrammarParser;
+		using RegexParser = typename RegexDefinition<tAlphabetType>::RegexParser;
 
-		using Automata = ContextFreeAutomata<ContextFreeCompiler::SymbolVal, ContextFreeCompiler::Item>;
+		using Automata = DetPushDownAutomata<ContextFreeCompiler::SymbolVal, ContextFreeCompiler::Item>;
 		using AstNode = const typename Automata::StackItem*;
 
 		using UserRegexGrammar = RegularGrammar<tAlphabetType, alni>;
@@ -150,3 +92,5 @@ namespace tp {
 		String mRegexText;
 	};
 }
+
+#include "bootstrap/Translator.ipp"
