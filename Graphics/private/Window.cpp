@@ -1,190 +1,149 @@
-
 #include "Window.hpp"
 #include "WindowContext.hpp"
 
-#include "Rect.hpp"
-
-#include <GL/glew.h>
-
-#ifdef ENV_OS_WINDOWS
-#define GLFW_EXPOSE_NATIVE_WIN32
-#endif
-
-#ifdef ENV_OS_LINUX
-#define GLFW_EXPOSE_NATIVE_WAYLAND
-#endif
-
-#include <GLFW/glfw3.h>
-#include <cstdio>
+#include "WindowInputDispatcher.hpp"
 
 using namespace tp;
 
-static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-static void scrollCallback(GLFWwindow* window, double xOffset, double yOffset);
+WindowIdentity WindowIdentity::generic() { return { MODULES_GENERIC_APP_ID, MODULES_GENERIC_APP_NAME }; }
 
-Window::Window(Vec2F size, const char* title) {
-	mContext = new Context();
-
-	// glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
-	// glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
-
-	mSize = size;
-
-	// Create a window and OpenGL context
-	mContext->window = glfwCreateWindow((int) size.x, (int) size.y, title, nullptr, nullptr);
-	if (!mContext->window) {
-		printf("Failed to create GLFW window\n");
-		return;
-	}
-
-	glfwMakeContextCurrent(mContext->window);
-
-	// Initialize GLEW
-	if (glewInit() != GLEW_OK) {
-		printf("Failed to initialize GLEW\n");
-		exit(1);
-		return;
-	}
-
-	// set event bindings
-	glfwSetWindowUserPointer(mContext->window, this);
-	glfwSetKeyCallback(mContext->window, keyCallback);
-	glfwSetMouseButtonCallback(mContext->window, mouseButtonCallback);
-	glfwSetScrollCallback(mContext->window, scrollCallback);
+Window::Window(Vec2F size, const WindowIdentity& identity) :
+	mSize(size),
+	mContext(new Context()),
+	mInput(std::make_unique<WindowInputDispatcher>()) {
+	mContext->platform = createPlatformWindow(*this, size, identity);
+	mContext->vulkan = new VulkanContext(*mContext->platform);
 }
 
 Window::~Window() {
-	glfwDestroyWindow(mContext->window);
+	delete mContext->vulkan;
+	mContext->platform.reset();
 	delete mContext;
 }
 
-Window* Window::createWindow(Vec2F size, const char* title) {
-	static int count = 1;
-	if (!count) {
-		printf("Window class is a singleton\n");
-		return nullptr;
-	}
-	count--;
+Window* Window::createWindow(Vec2F size, const WindowIdentity& identity) { return new Window(size, identity); }
 
-	#ifdef ENV_OS_LINUX
-		glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
-	#endif
-	// glfwInitHint(GLFW_WAYLAND_LIBDECOR, GLFW_WAYLAND_DISABLE_LIBDECOR);
+void Window::destroyWindow(Window* window) { delete window; }
 
-	// Initialize GLFW
-	if (!glfwInit()) {
-		printf("Failed to initialize GLFW\n");
-		return nullptr;
-	}
+bool Window::shouldClose() const { return mContext->platform->shouldClose(); }
 
-	// Set the GLFW error callback
-	glfwSetErrorCallback([](int error, const char* description) {
-		printf("GLFW Error: %i %s\n", error, description);
-	});
+void Window::requestClose() { mContext->platform->requestClose(); }
 
-	auto out = new Window(size, title);
+void Window::processEvents(bool wait) { mContext->platform->dispatchEvents(wait ? -1.0f : 0.0f); }
 
-	return out;
+void Window::processEventsFor(halnf timeoutMs) { mContext->platform->dispatchEvents(timeoutMs > 0 ? timeoutMs : 0.0f); }
+
+void Window::wake() { mContext->platform->wake(); }
+
+void Window::flushPendingInput() { mContext->platform->flushPendingInput(); }
+
+bool Window::isWaitingForFrame() const { return mContext->platform->isWaitingForFrame(); }
+
+bool Window::hasPendingWork() const {
+	const InputCoalescer& coalescer = mContext->platform->coalescer();
+	return !coalescer.isEmpty() || coalescer.hasPendingConfigure();
 }
 
-void Window::destroyWindow(Window* window) {
-	delete window;
-	glfwTerminate();
+void Window::setInputDeliveryPolicies(const InputDeliveryPolicies& policies) {
+	mContext->platform->coalescer().setPolicies(policies);
 }
 
-bool Window::shouldClose() const { return glfwWindowShouldClose(mContext->window); }
+const CoalescingStatistics& Window::inputStatistics() const { return mContext->platform->coalescer().statistics(); }
 
-void Window::processEvents(bool wait) {
-	if (wait) glfwWaitEvents();
-	else glfwPollEvents();
-	checkAxisUpdates();
+uint64_t Window::swapchainRecreations() const { return mContext->vulkan->swapchainRecreations(); }
+
+halnf Window::refreshIntervalMs() const { return mContext->platform->refreshIntervalMs(); }
+
+void Window::waitForReady() {
+	mContext->platform->waitUntilConfigured();
+	mContext->vulkan->syncSwapchainToWindow();
 }
 
-void Window::draw() {
-	glfwSwapBuffers(mContext->window);
+void Window::draw() {}
+
+bool Window::frameBegin() {
+	const VkExtent2D extent = mContext->platform->framebufferExtent();
+	return mContext->vulkan->beginFrame((int) extent.width, (int) extent.height);
+}
+
+void Window::frameEnd() {
+	mContext->platform->commitFrameGeometry();
+	mContext->vulkan->endFrame();
 }
 
 const Vec2F& Window::getSize() const { return mSize; }
 
+Vec2F Window::getFramebufferSize() const {
+	const VkExtent2D extent = mContext->platform->framebufferExtent();
+	return { (halnf) extent.width, (halnf) extent.height };
+}
+
+halnf Window::getContentScale() const { return mContext->platform->scale(); }
+
+const WindowFrame& Window::frame() const { return mContext->platform->frame(); }
+
+PlatformInfo Window::platformInfo() const { return mContext->platform->platformInfo(); }
+
 Window::Context* Window::getContext() { return mContext; }
 
-void Window::setEventHandler(EventHandler* eventHandler) { mEventHandler = eventHandler; }
-EventHandler* Window::getEventHandler() { return mEventHandler; }
+VulkanContext* Window::vulkan() { return mContext->vulkan; }
 
+void Window::setEventHandler(EventHandler* eventHandler) { mInput->setEventHandler(eventHandler); }
 
-void Window::checkAxisUpdates() {
-	if (!mEventHandler) return;
+EventHandler* Window::getEventHandler() { return mInput->eventHandler(); }
 
-	int w, h;
-	glfwGetWindowSize(mContext->window, &w, &h);
+void Window::addInputObserver(WindowInputObserver* observer) { mInput->addObserver(observer); }
 
-	if (mSize != Vec2F((halnf) w, (halnf) h)) {
-		mSize = { (halnf) w, (halnf) h };
-		mEventHandler->postEvent(InputID::WINDOW_RESIZE, {});
-	}
+void Window::removeInputObserver(WindowInputObserver* observer) { mInput->removeObserver(observer); }
 
-	double x, y;
-	glfwGetCursorPos(mContext->window, &x, &y);
+WindowInputObserver& Window::injectInput() { return mContext->platform->coalescer().recorder(); }
 
-	// int posX, posY;
-	// glfwGetWindowPos(mContext->window, &posX, &posY);
+void Window::setRawInputTap(WindowInputObserver* tap) { mContext->platform->coalescer().setTap(tap); }
 
-	if (mPointerPos != Vec2F{ (halnf) x, (halnf) y }) {
-		mPointerPos = { (halnf) x, (halnf) y };
+WindowInputObserver& Window::dispatcher() { return *mInput; }
 
-		// auto pos = Vec2F{ (halnf) posX, (halnf) posY };
-		RectF windowRec = { { 0, 0 }, mSize };
-
-		if (windowRec.isInside(mPointerPos)) {
-			mEventHandler->postEvent(InputID::MOUSE1, { InputEvent::Type::MOUSE_POS, {}, mPointerPos });
-		}
-	}
+void Window::setPlatformInputEnabled(bool enabled) {
+	if (enabled == mPlatformInputEnabled) return;
+	mPlatformInputEnabled = enabled;
+	mContext->platform->setAcceptsInput(enabled);
 }
 
-static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+void Window::minimize() { mContext->platform->minimize(); }
 
-	auto* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
-	if (!self) return;
+void Window::toggleMaximize() { mContext->platform->toggleMaximize(); }
 
-	EventHandler* eventHandler = self->getEventHandler();
-	if (!eventHandler) return;
+bool Window::isMaximized() const { return mContext->platform->isMaximized(); }
 
-	self->checkAxisUpdates();
+void Window::setFullScreen(bool fullScreen) { mContext->platform->setFullScreen(fullScreen); }
 
-	if (action == GLFW_PRESS) {
-		eventHandler->postEvent((InputID) key, { InputEvent::Type::BUTTON_ACTION, InputEvent::ButtonAction::PRESS, {} });
-	} else if (action == GLFW_RELEASE) {
-		eventHandler->postEvent((InputID) key, { InputEvent::Type::BUTTON_ACTION, InputEvent::ButtonAction::RELEASE, {} });
-	}
-}
+bool Window::isFullScreen() const { return mContext->platform->isFullScreen(); }
 
-static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-	auto* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
-	if (!self) return;
+bool Window::isFocused() const { return mContext->platform->isFocused(); }
 
-	EventHandler* eventHandler = self->getEventHandler();
-	if (!eventHandler) return;
+void Window::beginMove() { mContext->platform->beginMove(); }
 
-	self->checkAxisUpdates();
+void Window::beginResize(WindowEdge edge) { mContext->platform->beginResize(edge); }
 
-	auto id = (InputID) ((int) InputID::MOUSE1 + button);
+void Window::showWindowMenu(Vec2F contentPosition) { mContext->platform->showWindowMenu(contentPosition); }
 
-	if (action == GLFW_PRESS) {
-		// printf("mouse\n");
-		eventHandler->postEvent(id, { InputEvent::Type::BUTTON_ACTION, InputEvent::ButtonAction::PRESS, {} });
-	} else if (action == GLFW_RELEASE) {
-		eventHandler->postEvent(id, { InputEvent::Type::BUTTON_ACTION, InputEvent::ButtonAction::RELEASE, {} });
-	}
+void Window::setCursor(CursorShape shape) { mContext->platform->setCursor(shape); }
 
-}
+void Window::setClipboardText(const std::string& text) { mContext->platform->setClipboardText(text); }
 
-static void scrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
-	auto* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
-	if (!self) return;
+std::string Window::clipboardText() { return mContext->platform->clipboardText(); }
 
-	EventHandler* eventHandler = self->getEventHandler();
-	if (!eventHandler) return;
+ClipboardImage Window::clipboardImage() { return mContext->platform->clipboardImage(); }
 
-	eventHandler->postEvent(InputID::SCROLL, { InputEvent::Type::SCROLL, {}, {}, { xOffset, yOffset } });
+bool Window::openUrl(const std::string& url) { return mContext->platform->openUrl(url); }
+
+void Window::setTextInputEnabled(bool enabled) { mContext->platform->setTextInputEnabled(enabled); }
+
+void Window::setTextInputRect(const RectF& contentRect) { mContext->platform->setTextInputRect(contentRect); }
+
+void Window::notifyResized() {
+	const Vec2F size = mContext->platform->contentSize();
+	const bool changed = size != mSize;
+	mSize = size;
+
+	if (changed) mInput->onResized();
 }
