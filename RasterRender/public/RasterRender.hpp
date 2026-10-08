@@ -4,11 +4,12 @@
 #include "Rect.hpp"
 
 #include "FrameBuffer.hpp"
-#include "Shader.hpp"
 
 namespace tp {
 	class RasterRender {
 	public:
+		class Context;
+
 		RasterRender();
 		~RasterRender();
 
@@ -25,14 +26,9 @@ namespace tp {
 		Vec2F getBufferSize();
 
 	private:
-		void bindObjectShaderAttributes(const Object& object);
-		void bindCameraShaderAttributes(const Mat4F& cameraMat);
-
-	private:
 		RenderBuffer mRenderBuffer;
 		RenderBuffer mTempBuffer;
 
-		RenderShader mDefaultShader;
-		RenderShader mSolidShader;
+		Context* mCtx = nullptr;
 	};
 }

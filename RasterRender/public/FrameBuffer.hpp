@@ -7,14 +7,19 @@
 namespace tp {
 	class RenderBuffer {
 	public:
+		class Context;
+
 		explicit RenderBuffer(const Vec2F& size = { 10, 10 });
 		RenderBuffer(const Vec2F& size, tp::uint1 samples);
 		~RenderBuffer();
 
 		void beginDraw();
+		void beginCommands();
+		void beginPass();
 		void setViewport(const RectF& viewport);
 		void clear();
 		void endDraw();
+		void measureGpuTime(const char* name);
 
 		[[nodiscard]] uint4 texId() const;
 		[[nodiscard]] uint4 buffId() const;
@@ -23,14 +28,16 @@ namespace tp {
 
 		[[nodiscard]] const Vec2F& getSize() const;
 
+		[[nodiscard]] Context* context() const { return mCtx; }
+
+		[[nodiscard]] void* activeCommandBuffer() const;
+		[[nodiscard]] void* renderTarget() const;
+
 	public:
 		RGBA mClearCol = 0.f;
 
 	private:
-		uint4 mFrameBufferID = 0; // regroups 0, 1, or more textures, and 0 or 1 depth buffer.
-		uint4 mTextureId = 0;     // texture we're going to render to ( colour attachement #0 )
-		uint4 mDepthBufferID = 0;
-		uint4 mDrawBuffers[1] = { 0 };
+		Context* mCtx = nullptr;
 		Vec2F mSize;
 		ualni mSamples = 0;
 	};

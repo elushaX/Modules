@@ -21,7 +21,7 @@ namespace tp {
 		GPUBuffers() = default;
 		virtual ~GPUBuffers() = default;
 
-		virtual void drawCall() = 0;
+		virtual void drawCall(void* commandBuffer) = 0;
 	};
 
 	class Object {
