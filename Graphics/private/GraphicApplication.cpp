@@ -1,131 +1,136 @@
+#include <cstdio>
 
 #include "GraphicApplication.hpp"
+#include "Profiler.hpp"
 
 #include "imgui.h"
 
 using namespace tp;
 
-Application::Application() {
-	mWindow = Window::createWindow({1500, 900});
+Application::Application(const WindowIdentity& identity) {
+	mWindow = Window::createWindow({ 1500, 900 }, identity);
 	mGraphics = new Graphics(mWindow);
-
-	mDrawTimer.setDuration(1000.f / mDrawPerSecond);
-	mProcTimer.setDuration(1000.f / mProcPerSecond);
 	mPerSecondTimer.setDuration(1000.f);
 }
 
-void Application::runDefaultLoop() {
-	auto eventHandler = new EventHandler();
+void Application::start() {
+	mHangWatchdog = std::make_unique<HangWatchdog>(hangSettings());
+	for (const HangWatchdog::Contributor& contributor : mHangContributors)
+		mHangWatchdog->addContributor(contributor);
+	mEventHandler = new EventHandler();
+	mWindow->setEventHandler(mEventHandler);
 
-	mWindow->setEventHandler(eventHandler);
+	mWindow->waitForReady();
 
-	mDrawTimer.reset();
-	mProcTimer.reset();
+	mPreviousFrameTime = get_time();
 	mPerSecondTimer.reset();
-
-	bool redrawNeeded = false;
-
-	// proc first frame by default
-	{
-		mWindow->processEvents(false);
-		processFrame(eventHandler, 0);
-
-		mGraphics->drawBegin();
-		drawFrame(mGraphics->getCanvas());
-		mGraphics->drawEnd();
-		mWindow->draw();
-	}
-
-	time_ms prevProcTime = get_time();
-
-	bool isForcedNewFrame = true;
-
-	while (!mWindow->shouldClose()) {
-		mWindow->processEvents(!isForcedNewFrame);
-		updateGlobalTime();
-
-		if (mProcTimer.isTimeout() || eventHandler->isEvents() || isForcedNewFrame) {
-
-			while ((eventHandler->isEvents() || isForcedNewFrame)) {
-
-				eventHandler->processEvent();
-
-				time_ms currentTime = get_time();
-				processFrame(eventHandler, halnf(currentTime - prevProcTime));
-				prevProcTime = currentTime;
-
-				redrawNeeded = true;
-				mFramesProcessed++;
-
-				isForcedNewFrame = forceNewFrame();
-
-				if (isForcedNewFrame) {
-					// mWindow->processEvents();
-					break;
-				}
-			}
-
-			mProcTimer.wait();
-			mProcTimer.reset();
-		}
-
-		if (mDrawTimer.isTimeout()) {
-			mDrawTimer.reset();
-
-			if (redrawNeeded) {
-				mGraphics->drawBegin();
-
-				drawFrame(mGraphics->getCanvas());
-
-				mGraphics->drawEnd();
-
-				mWindow->draw();
-
-				redrawNeeded = false;
-				mFramesDrawn++;
-			}
-		}
-
-		if (mPerSecondTimer.isTimeout()) {
-			mPerSecondTimer.reset();
-
-			mFramesProcessedPerSecond = mFramesProcessed;
-			mFramesDrawnPerSecond = mFramesDrawn;
-
-			mFramesDrawn = 0;
-			mFramesProcessed = 0;
-		}
-	}
-
-	delete eventHandler;
+	runFrame();
 }
 
-void Application::runDebugLoop() {
-	auto eventHandler = new EventHandler();
-	mWindow->setEventHandler(eventHandler);
+void Application::step(halnf deltaMs) {
+	enterPhase(UiPhase::Idle);
+	mWindow->processEvents(false);
+	runFrame(deltaMs);
+}
 
-	time_ms prevProcTime = get_time();
-
-	while (!mWindow->shouldClose()) {
-		mWindow->processEvents();
-		eventHandler->processAllEvent();
-		time_ms currentTime = get_time();
-		processFrame(eventHandler, halnf(currentTime - prevProcTime));
-		prevProcTime = currentTime;
-
-
-		mGraphics->drawBegin();
-		drawFrame(mGraphics->getCanvas());
-		mGraphics->drawEnd();
-		mWindow->draw();
-	}
-
-	delete eventHandler;
+void Application::finish() {
+	mHangWatchdog.reset();
+	mWindow->setEventHandler(nullptr);
+	delete mEventHandler;
+	mEventHandler = nullptr;
 }
 
 void Application::run() {
-	runDefaultLoop();
-	// runDebugLoop();
+	start();
+
+	while (!mWindow->shouldClose()) {
+		enterPhase(UiPhase::Idle);
+		mWindow->processEvents(!wantsFrame() || mWindow->isWaitingForFrame());
+		while (mWindow->isWaitingForFrame() && !mWindow->shouldClose())
+			mWindow->processEvents(true);
+		runFrame();
+	}
+
+	finish();
+}
+
+void Application::addHangContributor(HangWatchdog::Contributor contributor) {
+	if (mHangWatchdog) mHangWatchdog->addContributor(contributor);
+	mHangContributors.push_back(std::move(contributor));
+}
+
+HangSettings Application::hangSettings() const {
+	HangSettings settings;
+	settings.application = HangWatchdog::processName();
+	return settings;
+}
+
+void Application::enterPhase(UiPhase phase) {
+	if (mHangWatchdog) mHangWatchdog->enterPhase(phase);
+}
+
+bool Application::wantsFrame() { return forceNewFrame() || mWindow->hasPendingWork(); }
+
+void Application::runFrame() {
+	updateGlobalTime();
+
+	const time_ms now = get_time();
+	const halnf deltaMs = halnf(now - mPreviousFrameTime);
+	mPreviousFrameTime = now;
+	runFrame(deltaMs);
+}
+
+void Application::runFrame(halnf deltaMs) {
+	mFrameStart = get_time_ns();
+	Profiler::global().beginFrame();
+
+	{
+		enterPhase(UiPhase::Input);
+		TP_PROFILE_SCOPE("frame.process");
+		processPendingInput(deltaMs);
+	}
+	enterPhase(UiPhase::Draw);
+	present();
+	updateFrameCounters();
+
+	Profiler::global().endFrame();
+}
+
+void Application::processPendingInput(halnf deltaMs) {
+	halnf deltaTime = deltaMs;
+	mWindow->flushPendingInput();
+
+	do {
+		TP_PROFILE_COUNT("input.events", 1);
+		if (mHangWatchdog) mHangWatchdog->noteInputEvent();
+		mEventHandler->processEvent();
+		processFrame(mEventHandler, deltaTime);
+		deltaTime = 0;
+		mFramesProcessed++;
+	} while (mEventHandler->hasQueuedEvents());
+}
+
+void Application::present() {
+	TP_PROFILE_SCOPE("frame.present");
+	mGraphics->drawBegin();
+	{
+		TP_PROFILE_SCOPE("frame.draw");
+		drawFrame(mGraphics->getCanvas());
+	}
+	enterPhase(UiPhase::Present);
+	mGraphics->drawEnd();
+	mWindow->draw();
+	mFramesDrawn++;
+}
+
+void Application::updateFrameCounters() {
+	if (!mPerSecondTimer.isTimeout()) return;
+	mPerSecondTimer.reset();
+
+	mFramesProcessedPerSecond = mFramesProcessed;
+	mFramesDrawnPerSecond = mFramesDrawn;
+	mFramesDrawn = 0;
+	mFramesProcessed = 0;
 }
 
 void Application::processFrame(EventHandler* eventHandler, halnf deltaTime) {}

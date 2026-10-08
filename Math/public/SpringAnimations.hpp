@@ -2,154 +2,151 @@
 
 #include "Color.hpp"
 #include "Rect.hpp"
-#include "Timing.hpp"
+
+#include <cmath>
 
 namespace tp {
+
+	struct SpringParameters {
+		halnf stiffness = 0.0008f;
+		halnf damping = 0.0566f;
+
+		static SpringParameters criticallyDamped(halnf responseMs) {
+			const halnf angularFrequency = 2.0f * 3.14159265f / responseMs;
+			return { angularFrequency * angularFrequency, 2.0f * angularFrequency };
+		}
+	};
+
 	class SpringValue {
 	public:
 		SpringValue() = default;
 
-		void updateCurrentPosition() {
-			const auto deltaTime = halnf(gCurrentTime - mPrevTime);
-			const auto deltaPos = mTargetPosition - mCurrentPosition;
+		explicit SpringValue(halnf value) :
+			mValue(value),
+			mTarget(value) {}
 
-			auto deltaVelocity = deltaPos * mSpringStiffness;
-			deltaVelocity -= mVelocity * (mVelocityDamping);
+		void setParameters(const SpringParameters& parameters) { mParameters = parameters; }
 
-			mVelocity += deltaVelocity;
-			mCurrentPosition += mVelocity * deltaTime;
-			mPrevTime = gCurrentTime;
-		}
+		void setTarget(halnf target) { mTarget = target; }
 
-		void setTargetPosition(halnf pos) {
-			mTargetPosition = pos;
-			if (mVelocity == 0) mPrevTime = gCurrentTime;
-		}
-
-		[[nodiscard]] halnf getCurrentPos() const { return mCurrentPosition; }
-		[[nodiscard]] halnf getTargetPos() const { return mTargetPosition; }
-		[[nodiscard]] halnf getVelocity() const { return mVelocity; }
-		[[nodiscard]] halnf getDeltaPos() const { return mTargetPosition - mCurrentPosition; }
-
-		void endAnimation() {
-			mCurrentPosition = mTargetPosition;
+		void snapTo(halnf value) {
+			mValue = value;
+			mTarget = value;
 			mVelocity = 0;
 		}
 
+		void snapToTarget() { snapTo(mTarget); }
+
+		void launch(halnf value, halnf velocity, halnf target) {
+			mValue = value;
+			mVelocity = velocity;
+			mTarget = target;
+		}
+
+		void step(halnf deltaMs) {
+			while (deltaMs > 0) {
+				const halnf substep = deltaMs < kMaxSubstepMs ? deltaMs : kMaxSubstepMs;
+				const halnf acceleration = mParameters.stiffness * (mTarget - mValue) - mParameters.damping * mVelocity;
+
+				mVelocity += acceleration * substep;
+				mValue += mVelocity * substep;
+				deltaMs -= substep;
+			}
+		}
+
+		[[nodiscard]] bool isSettled(halnf tolerance) const {
+			const bool closeToTarget = std::fabs(mTarget - mValue) <= tolerance;
+			const bool nearlyStill = std::fabs(mVelocity) * kVelocityHorizonMs <= tolerance;
+			return closeToTarget && nearlyStill;
+		}
+
+		[[nodiscard]] halnf value() const { return mValue; }
+		[[nodiscard]] halnf target() const { return mTarget; }
+		[[nodiscard]] halnf velocity() const { return mVelocity; }
+
 	private:
-		time_ms mPrevTime = 0;
+		static constexpr halnf kMaxSubstepMs = 1.0f;
+		static constexpr halnf kVelocityHorizonMs = 16.0f;
 
-		halnf mTargetPosition = 0;
-		halnf mCurrentPosition = 0;
-
+		SpringParameters mParameters;
+		halnf mValue = 0;
+		halnf mTarget = 0;
 		halnf mVelocity = 0;
-
-		halnf mSpringStiffness = 0.0041;
-		halnf mVelocityDamping = 0.25f;
 	};
 
-	class SpringVec {
+	template <int ChannelCount>
+	class SpringChannels {
 	public:
-		SpringVec() = default;
-
-		void updateCurrentPosition() {
-			mPosX.updateCurrentPosition();
-			mPosY.updateCurrentPosition();
+		void setParameters(const SpringParameters& parameters) {
+			for (auto& channel : mChannels)
+				channel.setParameters(parameters);
 		}
 
-		void setTargetPosition(Vec2F pos) {
-			mPosX.setTargetPosition(pos.x);
-			mPosY.setTargetPosition(pos.y);
+		void step(halnf deltaMs) {
+			for (auto& channel : mChannels)
+				channel.step(deltaMs);
 		}
 
-		[[nodiscard]] Vec2F getCurrentPos() const {
-			return { mPosX.getCurrentPos(), mPosY.getCurrentPos() };
+		void snapToTarget() {
+			for (auto& channel : mChannels)
+				channel.snapToTarget();
 		}
 
-		[[nodiscard]] Vec2F getTargetPos() const {
-			return { mPosX.getTargetPos(), mPosY.getTargetPos() };
+		[[nodiscard]] bool isSettled(halnf tolerance) const {
+			for (const auto& channel : mChannels) {
+				if (!channel.isSettled(tolerance)) return false;
+			}
+			return true;
 		}
 
-		[[nodiscard]] Vec2F getVelocity() const {
-			return { mPosX.getVelocity(), mPosY.getVelocity() };
+	protected:
+		void setChannelTargets(const halnf (&targets)[ChannelCount]) {
+			for (int index = 0; index < ChannelCount; index++)
+				mChannels[index].setTarget(targets[index]);
 		}
 
-		[[nodiscard]] bool checkAnimationShouldEnd() const {
-			halnf velocityEpsilon = 0.0001f;
-			halnf positionEpsilon = 1;
-
-			const auto vel = abs(mPosY.getVelocity()) > velocityEpsilon || abs(mPosX.getVelocity()) > velocityEpsilon;
-			const auto pos = abs(mPosY.getDeltaPos()) > positionEpsilon || abs(mPosX.getDeltaPos()) > positionEpsilon;
-
-			return !(pos || vel);
+		void snapChannels(const halnf (&values)[ChannelCount]) {
+			for (int index = 0; index < ChannelCount; index++)
+				mChannels[index].snapTo(values[index]);
 		}
 
-		void endAnimation() {
-			mPosX.endAnimation();
-			mPosY.endAnimation();
-		}
+		[[nodiscard]] halnf channelValue(int index) const { return mChannels[index].value(); }
+		[[nodiscard]] halnf channelTarget(int index) const { return mChannels[index].target(); }
 
 	private:
-		SpringValue mPosY;
-		SpringValue mPosX;
+		SpringValue mChannels[ChannelCount];
 	};
 
-	class SpringRect {
+	class SpringVec2 : public SpringChannels<2> {
 	public:
-		SpringRect() = default;
+		void setTarget(const Vec2F& target) { setChannelTargets({ target.x, target.y }); }
+		void snapTo(const Vec2F& value) { snapChannels({ value.x, value.y }); }
 
-		[[nodiscard]] RectF getTargetRect() const {
-			const auto start = mStartPos.getTargetPos();
-			const auto end = mEndPos.getTargetPos();
-			return { start, end - start };
+		[[nodiscard]] Vec2F value() const { return { channelValue(0), channelValue(1) }; }
+		[[nodiscard]] Vec2F target() const { return { channelTarget(0), channelTarget(1) }; }
+	};
+
+	class SpringRect : public SpringChannels<4> {
+	public:
+		void setTarget(const RectF& target) { setChannelTargets({ target.x, target.y, target.z, target.w }); }
+		void snapTo(const RectF& value) { snapChannels({ value.x, value.y, value.z, value.w }); }
+
+		[[nodiscard]] RectF value() const { return { channelValue(0), channelValue(1), channelValue(2), channelValue(3) }; }
+
+		[[nodiscard]] RectF target() const {
+			return { channelTarget(0), channelTarget(1), channelTarget(2), channelTarget(3) };
 		}
+	};
 
-		[[nodiscard]] RectF getCurrentRect() const {
-			const auto start = mStartPos.getCurrentPos();
-			const auto end = mEndPos.getCurrentPos();
-			return { start, end - start };
+	class SpringColor : public SpringChannels<4> {
+	public:
+		void setTarget(const RGBA& target) { setChannelTargets({ target.r, target.g, target.b, target.a }); }
+		void snapTo(const RGBA& value) { snapChannels({ value.r, value.g, value.b, value.a }); }
+
+		[[nodiscard]] RGBA value() const { return { channelValue(0), channelValue(1), channelValue(2), channelValue(3) }; }
+
+		[[nodiscard]] RGBA target() const {
+			return { channelTarget(0), channelTarget(1), channelTarget(2), channelTarget(3) };
 		}
-
-		[[nodiscard]] RGBA getCurrentColor() const {
-			const auto start = mStartPos.getCurrentPos();
-			const auto end = mEndPos.getCurrentPos();
-			return { start.x, start.y, end.x, end.y };
-		}
-
-		void setTargetRect(const RectF& rect) {
-			mStartPos.setTargetPosition(rect.p1());
-			mEndPos.setTargetPosition(rect.p3());
-		}
-
-		void setTargetColor(const RGBA& color) {
-			mStartPos.setTargetPosition({ color.r, color.g });
-			mEndPos.setTargetPosition({ color.b, color.a });
-		}
-
-		SpringVec& getStart() {
-			return mStartPos;
-		}
-
-		SpringVec& getEnd() {
-			return mEndPos;
-		}
-
-		void updateCurrentRect() {
-			mStartPos.updateCurrentPosition();
-			mEndPos.updateCurrentPosition();
-		}
-
-		[[nodiscard]] bool shouldEndTransition() const {
-			return mStartPos.checkAnimationShouldEnd() && mEndPos.checkAnimationShouldEnd();
-		}
-
-		void endAnimation() {
-			mStartPos.endAnimation();
-			mEndPos.endAnimation();
-		}
-
-	private:
-		SpringVec mStartPos;
-		SpringVec mEndPos;
 	};
 }
