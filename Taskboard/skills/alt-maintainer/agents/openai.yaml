@@ -1,0 +1,4 @@
+interface:
+  display_name: "ALT Linux Maintainer"
+  short_description: "Сборка ALT p11 для MCom03 и SDK"
+  default_prompt: "Используй $alt-maintainer для сопровождения сборки ALT p11 и SDK MCom03."

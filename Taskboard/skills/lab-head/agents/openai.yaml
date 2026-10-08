@@ -1,0 +1,4 @@
+interface:
+  display_name: "Laboratory Head"
+  short_description: "Отчёты и метрики лаборатории ОРСПО"
+  default_prompt: "Используй $lab-head для подготовки отчёта или анализа метрик лаборатории."

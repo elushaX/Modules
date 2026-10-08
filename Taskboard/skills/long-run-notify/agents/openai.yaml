@@ -1,0 +1,4 @@
+interface:
+  display_name: "Long Run Notify"
+  short_description: "Долгие удалённые задачи с уведомлением"
+  default_prompt: "Используй $long-run-notify для надёжного запуска долгой задачи и уведомления о результате."

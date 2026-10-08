@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sunrise on zeld"
+  short_description: "Нативная сборка Sunrise и работа со стендом"
+  default_prompt: "Use $develop-sunrise-on-zeld to create an isolated worktree and build Sunrise natively on zeld."

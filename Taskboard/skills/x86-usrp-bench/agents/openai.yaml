@@ -1,0 +1,4 @@
+interface:
+  display_name: "x86 + USRP Bench"
+  short_description: "Reserve and operate the x86+usrp0 bench"
+  default_prompt: "Use $x86-usrp-bench to reserve the x86+usrp0 bench and run a verified hardware test."

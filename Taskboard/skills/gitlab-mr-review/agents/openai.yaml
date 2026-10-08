@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitLab MR Review"
+  short_description: "Ревью и исправление MR в git.elvees.com"
+  default_prompt: "Используй $gitlab-mr-review для проведения ревью указанного GitLab MR."
