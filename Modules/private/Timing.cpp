@@ -7,6 +7,8 @@
 
 #define GETTIMEMSC() (time_ms)(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now()).time_since_epoch()).count())
 
+#define GETTIMENSC() (time_ns)(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count())
+
 #define THREAD_SLEEP(time_ms) std::this_thread::sleep_for(std::chrono::milliseconds(time_ms))
 
 tp::time_ms tp::gCurrentTime = tp::get_time();
@@ -16,6 +18,8 @@ namespace tp {
 		gCurrentTime = GETTIMEMSC();
 		return gCurrentTime;
 	}
+
+	time_ns get_time_ns() { return GETTIMENSC(); }
 
 	void updateGlobalTime() {
 		get_time();

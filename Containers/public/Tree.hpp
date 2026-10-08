@@ -65,11 +65,17 @@ namespace tp {
 		Node* head() const;
 
 		void insert(KeyArg key, DataArg data);
+		Node* insertAfter(Node* predecessor, KeyArg key, DataArg data);
 		void remove(KeyArg key);
+		void removeNode(Node* node);
 		void removeAll();
+		void refreshNode(Node* node);
 
 		Node* maxNode(Node* head) const;
 		Node* minNode(Node* head) const;
+
+		Node* next(Node* node) const;
+		Node* prev(Node* node) const;
 
 		Node* find(KeyArg key) const;
 		Node* findSubTree(Node* iter, KeyArg key) const;
@@ -97,6 +103,7 @@ namespace tp {
 
 		inline auto insertNode(Node* head, KeyArg key, DataArg data) -> Node*;
 		inline auto findInsertParent(Node* head, KeyArg key) -> Node*;
+		inline void attachAfter(Node* predecessor, Node* inserted);
 
 		inline void injectNodeInstead(Node* target, Node* from);
 
