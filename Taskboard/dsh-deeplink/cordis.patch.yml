@@ -1,0 +1,22 @@
+# taskboard-deeplink bundle for your shared dsh web server.
+# Mounts the Node half (serves the client bundle + the /plugins/taskboard-deeplink/task route) and the
+# task-manager MCP server, so every session on this server has the board tools (get_task, add_note, ...).
+# Paths default to this checkout / ~/agents/manager; override with the env vars if your layout differs.
+- insert:
+    - id: taskboard-deeplink
+      name: taskboard-deeplink
+    - id: mcp-task-manager
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: task-manager
+        transport: stdio
+        command: uv
+        args:
+          - run
+          - --project
+          - !!js process.env.TASKBOARD_SERVER_DIR ?? '/home/auser/src/intern/active/Modules/Taskboard/server'
+          - python
+          - !!js (process.env.TASKBOARD_SERVER_DIR ?? '/home/auser/src/intern/active/Modules/Taskboard/server') + '/server.py'
+        env:
+          TASKS_DB: !!js process.env.TASKS_DB ?? '/home/auser/agents/manager/tasks.db'
+          AGENTS_SESSIONS_DIR: !!js process.env.AGENTS_SESSIONS_DIR ?? '/home/auser/agents/manager/sessions'

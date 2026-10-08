@@ -1,0 +1,8 @@
+{
+  "name": "agents-subrouter-token",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@subrouter/cli": "0.6.1"
+  }
+}

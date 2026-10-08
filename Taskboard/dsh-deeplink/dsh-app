@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+	cat <<'EOF'
+dsh-app — the dsh web UI as one chromeless Firefox app window, one tab per board task.
+
+  dsh-app                       open (or raise) the app window
+  dsh-app --task <id>           open the task's tab; if it is already open, focus it
+  dsh-app dsh-app://task/<id>   the same, as the URL-scheme handler (xdg-open dsh-app://task/42)
+  dsh-app --kiosk               fullscreen, borderless
+
+The window's Firefox runs with its WebDriver BiDi remote agent on loopback (DSH_APP_REMOTE_PORT).
+A second launch connects to it, selects the task's tab (or opens it), raises the window through a
+short-lived handoff tab that it closes again, so a task never gets two tabs. Opens are serialized
+with flock on $PROFILE/.dsh-app-router.lock, because the remote agent accepts one session at a time.
+
+Environment: DSH_APP_PORT (dsh web, default 3080), DSH_APP_PROFILE (default ~/.local/share/dsh-app-firefox),
+DSH_APP_REMOTE_PORT (default 9271).
+EOF
+}
+
+HERE="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+PORT="${DSH_APP_PORT:-3080}"
+BASE="http://127.0.0.1:${PORT}"
+PROFILE="${DSH_APP_PROFILE:-$HOME/.local/share/dsh-app-firefox}"
+REMOTE_PORT="${DSH_APP_REMOTE_PORT:-9271}"
+LOG="$PROFILE/dsh-web.log"
+ROUTER_LOCK="$PROFILE/.dsh-app-router.lock"
+CLASS=dsh-app
+
+kiosk=0
+task=""
+while [ $# -gt 0 ]; do
+	case "$1" in
+		--kiosk) kiosk=1 ;;
+		--task) task="${2:?--task needs an id}"; shift ;;
+		dsh-app://task/*) task="${1#dsh-app://task/}"; task="${task%%[/?#]*}" ;;
+		dsh-app://*) ;;
+		-h|--help) usage; exit 0 ;;
+		*) echo "dsh-app: unknown argument $1" >&2; usage >&2; exit 2 ;;
+	esac
+	shift
+done
+
+if [ -n "$task" ] && ! [[ "$task" =~ ^[0-9]+$ ]]; then
+	echo "dsh-app: task id must be a number, got '$task'" >&2
+	exit 2
+fi
+
+server_answers() {
+	curl -s -o /dev/null --max-time 3 "$BASE/"
+}
+
+ensure_server() {
+	server_answers && return 0
+	if [ "$PORT" = "3080" ]; then
+		systemctl --user start dsh-web.service 2>/dev/null || nohup dsh web --no-open --port "$PORT" >"$LOG" 2>&1 &
+	else
+		nohup dsh web --no-open --port "$PORT" >"$LOG" 2>&1 &
+	fi
+	for _ in $(seq 1 60); do
+		server_answers && return 0
+		sleep 1
+	done
+	echo "dsh-app: dsh web on $BASE did not come up" >&2
+	return 1
+}
+
+launch_token() {
+	local code
+	code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 3 "$BASE/" || echo 000)"
+	[ "$code" = "200" ] && return 0
+	{
+		journalctl --user -u dsh-web.service 2>/dev/null || true
+		cat "$LOG" 2>/dev/null || true
+	} | grep -oE "http://127\.0\.0\.1:${PORT}/\?token=[A-Za-z0-9_-]+" | tail -1 | sed -E 's/.*token=//' || true
+}
+
+open_url() {
+	local token="$1"
+	local url="$BASE/plugins/taskboard-deeplink/open?"
+	[ -n "$task" ] && url="${url}id=$task&"
+	[ -n "$token" ] && url="${url}token=$token"
+	echo "${url%[?&]}"
+}
+
+remote_agent_answers() {
+	curl -s -o /dev/null --max-time 2 "http://127.0.0.1:$REMOTE_PORT/json/version"
+}
+
+task_tabs() {
+	node "$HERE/lib/task-tabs.mjs" "$@" >/dev/null
+}
+
+route_to_task_tab() {
+	local url
+	url="$(open_url "")"
+	task_tabs select "$REMOTE_PORT" "$url" "$task"
+	firefox --profile "$PROFILE" --class "$CLASS" --name "$CLASS" "${url}&handoff=1"
+	task_tabs close-handoff "$REMOTE_PORT" "$url"
+}
+
+start_window() {
+	local args=(--profile "$PROFILE" --class "$CLASS" --name "$CLASS" --remote-debugging-port "$REMOTE_PORT")
+	[ "$kiosk" -eq 1 ] && args+=(--kiosk)
+	exec firefox "${args[@]}" "$(open_url "$(launch_token)")"
+}
+
+ensure_server
+export MOZ_ENABLE_WAYLAND=1
+unset GDK_BACKEND
+
+if remote_agent_answers; then
+	exec 9>"$ROUTER_LOCK"
+	flock 9
+	route_to_task_tab
+	exit 0
+fi
+start_window

@@ -1,0 +1,16 @@
+[Desktop Entry]
+Type=Application
+Name=DSH
+Comment=DSH web UI as a chromeless app window
+Exec=dsh-app %u
+Icon=dsh
+Terminal=false
+Categories=Network;
+MimeType=x-scheme-handler/dsh-app;
+StartupWMClass=dsh-app
+StartupNotify=true
+Actions=kiosk;
+
+[Desktop Action kiosk]
+Name=DSH (fullscreen / borderless)
+Exec=dsh-app --kiosk

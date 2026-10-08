@@ -1,0 +1,41 @@
+{
+  "name": "taskboard-deeplink",
+  "description": "Taskboard integration: one DSH app window, one dsh session per board task, opened through dsh-app:// or ?tbTask.",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "main": "lib/index.mjs",
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "dsh-app",
+    "dsh-app.desktop",
+    "install.sh"
+  ],
+  "exports": {
+    ".": {
+      "default": "./lib/index.mjs"
+    },
+    "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-workspace",
+        "@deepseek-ai/dsh-api-workspace-controller",
+        "@deepseek-ai/dsh-api-session-controller",
+        "@deepseek-ai/dsh-client-ui-slots",
+        "@deepseek-ai/dsh-client-ui-sidebar"
+      ],
+      "platform": "web"
+    }
+  },
+  "engines": {
+    "dsh": ">=0.2.0-rc.2"
+  }
+}
