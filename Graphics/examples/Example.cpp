@@ -1,7 +1,5 @@
 
 #include "GraphicApplication.hpp"
-#include <GL/glew.h>
-
 
 #include "imgui.h"
 
@@ -16,8 +14,6 @@ public:
 	}
 
 	virtual void drawFrame(Canvas* canvas) override {
-		glClear(GL_COLOR_BUFFER_BIT);
-
 		ImGui::ShowDemoWindow();
 
 		drawDebug();
