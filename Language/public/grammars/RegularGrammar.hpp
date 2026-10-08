@@ -236,3 +236,5 @@ namespace tp {
 		Buffer<std::pair<const Node*, tTokType>> mRules;
 	};
 }
+
+#include "grammars/RegularGrammar.ipp"
