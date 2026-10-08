@@ -30,9 +30,9 @@ namespace tp {
 // TARGET OS
 #if defined(_WIN32) || defined(_WIN64)
 #define ENV_OS_WINDOWS
-		enum class OS { UNDEF, LINUX, WINDOWS, ANDROID, IOS } mOS = OS::WINDOWS;
+		enum class OS { UNDEF, LINUX, WINDOWS, Android, IOS } mOS = OS::WINDOWS;
 #else
-		enum class OS { UNDEF, LINUX, WINDOWS, ANDROID, IOS } mOS = OS::UNDEF;
+		enum class OS { UNDEF, LINUX, WINDOWS, Android, IOS } mOS = OS::UNDEF;
 #error "unexplored compilation to os target"
 #endif
 
@@ -60,7 +60,7 @@ namespace tp {
 // TARGET OS
 #if defined(__linux__) && !defined(__ANDROID__)
 #define ENV_OS_LINUX
-		enum class OS { UNDEF, LINUX, WINDOWS, ANDROID, IOS } mOS = OS::LINUX;
+		enum class OS { UNDEF, LINUX, WINDOWS, Android, IOS } mOS = OS::LINUX;
 #else
 #error "unexplored compilation to os target"
 #endif
@@ -89,9 +89,9 @@ namespace tp {
 // TARGET OS
 #if defined(__linux__) && !defined(__ANDROID__)
 #define ENV_OS_LINUX
-		enum class OS { UNDEF, LINUX, WINDOWS, ANDROID, IOS } mOS = OS::LINUX;
+		enum class OS { UNDEF, LINUX, WINDOWS, Android, IOS } mOS = OS::LINUX;
 #elif defined(__ANDROID__)
-		enum class OS { UNDEF, LINUX, WINDOWS, ANDROID, IOS } mOS = OS::ANDOID;
+		enum class OS { UNDEF, LINUX, WINDOWS, Android, IOS } mOS = OS::Android;
 #define ENV_OS_ANDROID
 #else
 #error "unexplored compilation to target os"
