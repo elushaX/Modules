@@ -2,13 +2,16 @@
 
 #include "Window.hpp"
 
-struct GLFWwindow;
+#include "VulkanContext.hpp"
+#include "PlatformWindow.hpp"
+
+#include <memory>
 
 namespace tp {
 
 	class Window::Context {
 	public:
-		Context() = default;
-		GLFWwindow* window = nullptr;
+		std::unique_ptr<PlatformWindow> platform;
+		VulkanContext* vulkan = nullptr;
 	};
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "InputCodes.hpp"
+#include "PointerSample.hpp"
 #include "Vec.hpp"
 #include "List.hpp"
 #include "Map.hpp"
@@ -17,6 +18,7 @@ namespace tp {
 			MOUSE_DELTA,
 			MOUSE_POS,
 			SCROLL,
+			POINTER_SAMPLE,
 		} type = Type::NONE;
 
 		enum class ButtonAction {
@@ -29,6 +31,7 @@ namespace tp {
 
 		Vec2F mouseEvent = { 0, 0 };
 		Vec2F scrollDelta = { 0, 0 };
+		PointerSample sample;
 	};
 
 	class InputState {
@@ -70,6 +73,7 @@ namespace tp {
 
 	public: // User interface
 		bool isEvents();
+		[[nodiscard]] bool hasQueuedEvents();
 		void processEvent();
 		void processAllEvent();
 
@@ -83,8 +87,10 @@ namespace tp {
 		[[nodiscard]] bool isReleased(InputID id) const;
 		[[nodiscard]] bool isDown(InputID id) const;
 		[[nodiscard]] halnf getScrollY() const;
+		[[nodiscard]] halnf getScrollX() const;
 
 		[[nodiscard]] halnf getPointerPressure() const;
+		[[nodiscard]] const PointerSample& getPointerSample() const { return mPointerSample; }
 
 		void setEnableKeyEvents(bool);
 
@@ -103,8 +109,10 @@ namespace tp {
 		Vec2F mPointer;
 		Vec2F mPointerPrev;
 		Vec2F mScrollDelta;
+		bool mScrollReported = false;
 
 		halnf mPointerPressure = 0;
+		PointerSample mPointerSample;
 
 		InputState mInputStates[(int) InputID::LAST_KEY_CODE]{};
 

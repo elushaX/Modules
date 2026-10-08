@@ -1,6 +1,8 @@
 
 #include "Color.hpp"
 
+#include <cmath>
+
 using namespace tp;
 
 RGB::RGB() { r = g = b = 1.f; }
@@ -89,7 +91,7 @@ HSV::operator RGB() const {
 		return out;
 	}
 
-	hh = h / (PI2) *360;
+	hh = h / (PI2) * 360;
 
 	if (hh >= 360.0) {
 		hh = 0.0;
@@ -137,6 +139,18 @@ HSV::operator RGB() const {
 			break;
 	}
 	return out;
+}
+
+halnf tp::gammaToLinear(halnf encoded) {
+	if (encoded <= 0.0f) return 0.0f;
+	if (encoded >= 1.0f) return 1.0f;
+	return std::pow(encoded, kDisplayGamma);
+}
+
+halnf tp::linearToGamma(halnf linear) {
+	if (linear <= 0.0f) return 0.0f;
+	if (linear >= 1.0f) return 1.0f;
+	return std::pow(linear, 1.0f / kDisplayGamma);
 }
 
 /*

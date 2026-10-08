@@ -3,9 +3,7 @@
 
 using namespace tp;
 
-EventHandler::EventHandler() {
-	mTimerEvent.reset();
-}
+EventHandler::EventHandler() { mTimerEvent.reset(); }
 
 EventHandler::~EventHandler() = default;
 
@@ -41,6 +39,13 @@ bool transitionsReduce[4][4] = {
 	{ true, true, true, false },
 	{ true, true, true, true },
 };
+
+bool EventHandler::hasQueuedEvents() {
+	mMutex.lock();
+	const bool queued = mEventQueue.length() > 0;
+	mMutex.unlock();
+	return queued;
+}
 
 void EventHandler::processAllEvent() {
 	mMutex.lock();
@@ -100,12 +105,21 @@ void EventHandler::processEventUnguarded() {
 
 		case InputEvent::Type::SCROLL:
 			{
-				if (mScrollDelta == Vec2F { 0, 0 }) {
-					mScrollDelta = eventData.scrollDelta;
-				} else {
+				if (mScrollReported) {
 					mEventQueue.popFront();
 					mScrollDelta = 0;
+					mScrollReported = false;
+				} else {
+					mScrollDelta = eventData.scrollDelta;
+					mScrollReported = true;
 				}
+				break;
+			}
+
+		case InputEvent::Type::POINTER_SAMPLE:
+			{
+				mPointerSample = eventData.sample;
+				mEventQueue.popFront();
 				break;
 			}
 
@@ -115,12 +129,11 @@ void EventHandler::processEventUnguarded() {
 			}
 	}
 
-	mPointerPressure = mInputStates[(int) InputID::MOUSE1].mCurrentState != InputState::State::NONE;
+	const bool primaryDown = mInputStates[(int) InputID::MOUSE1].mCurrentState != InputState::State::NONE;
+	mPointerPressure = mPointerSample.isStylus() ? mPointerSample.pressure : (halnf) primaryDown;
 }
 
-void EventHandler::setCursorOrigin(const Vec2F& origin) {
-	mPointerOrigin = origin;
-}
+void EventHandler::setCursorOrigin(const Vec2F& origin) { mPointerOrigin = origin; }
 
 Vec2F EventHandler::getPointer() const { return mPointer - mPointerOrigin; }
 
@@ -149,8 +162,8 @@ bool EventHandler::isDown(InputID id) const {
 
 halnf EventHandler::getScrollY() const { return mScrollDelta.y; }
 
+halnf EventHandler::getScrollX() const { return mScrollDelta.x; }
+
 Vec2F EventHandler::getPointerDelta() const { return mPointer - mPointerPrev; }
 
-void EventHandler::setEnableKeyEvents(bool enable) {
-	mEnableKeyEvents = enable;
-}
+void EventHandler::setEnableKeyEvents(bool enable) { mEnableKeyEvents = enable; }
