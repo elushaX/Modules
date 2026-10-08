@@ -1,111 +1,116 @@
 #include "RasterRender.hpp"
+
 #include "GPUBuffers.hpp"
+#include "VulkanObjectPipeline.hpp"
+#include "VulkanRenderTarget.hpp"
+#include "VulkanClipSpace.hpp"
+#include "VulkanContext.hpp"
 
-using namespace tp;
+namespace tp {
 
-RasterRender::RasterRender() {
-	mDefaultShader.load("rsc/shaders/default.vert", nullptr, "rsc/shaders/default.frag", true);
-	mSolidShader.load("rsc/shaders/default.vert", nullptr, "rsc/shaders/solid.frag", true);
-}
+	class RasterRender::Context {
+	public:
+		VulkanContext* vulkan = nullptr;
+		VulkanObjectPipeline* defaultPipeline = nullptr;
+		VulkanObjectPipeline* solidPipeline = nullptr;
+		VkRenderPass builtForRenderPass = VK_NULL_HANDLE;
 
-RasterRender::~RasterRender() {}
+		~Context() {
+			delete defaultPipeline;
+			delete solidPipeline;
+		}
 
-void RasterRender::resize(const Vec2<tp::ualni>& size) {
-	auto sizeF = Vec2F(size.x, size.y);
-	mRenderBuffer.resize(sizeF);
-	mTempBuffer.resize(sizeF);
-}
+		void ensurePipelines(VulkanRenderTarget* target) {
+			if (defaultPipeline && builtForRenderPass == target->renderPass()) return;
 
-uint4 RasterRender::getRenderBufferID() { return mRenderBuffer.texId(); }
+			delete defaultPipeline;
+			delete solidPipeline;
 
-Vec2F RasterRender::getBufferSize() { return mRenderBuffer.getSize(); }
+			defaultPipeline = new VulkanObjectPipeline(vulkan, target->renderPass(), target->sampleCount(), false);
+			solidPipeline = new VulkanObjectPipeline(vulkan, target->renderPass(), target->sampleCount(), true);
+			builtForRenderPass = target->renderPass();
+		}
+	};
 
-void RasterRender::bindCameraShaderAttributes(const Mat4F& cameraMat) {
-	static auto camera = (GLint) mDefaultShader.getu("Camera");
-	glUniformMatrix4fv(camera, 1, true, &cameraMat[0][0]);
-}
+	namespace {
 
-void RasterRender::bindObjectShaderAttributes(const Object& object) {
-	static auto origin = (GLint) mDefaultShader.getu("Origin");
-	static auto basis = (GLint) mDefaultShader.getu("Basis");
+		ObjectPushConstants makePushConstants(const Mat4F& cameraMat, const Object& object) {
+			Mat4F camera = vulkanCameraMatrix(cameraMat);
+			Mat4F basisMat = toMat4(object.mTopology.Basis);
+			Vec4F originPoint = toVec4(object.mTopology.Origin);
 
-	Mat4F basisMat = toMat4(object.mTopology.Basis);
-	Vec4F originPoint = toVec4(object.mTopology.Origin);
+			Mat4F mvp = camera * basisMat;
 
-	basisMat = basisMat.transpose();
-
-	glUniform4fv(origin, 1, &originPoint[0]);
-	glUniformMatrix4fv(basis, 1, false, &basisMat[0][0]);
-}
-
-void RasterRender::renderDefault(const Scene& geometry) {
-	mRenderBuffer.mClearCol = { 0.0f, 0.0f, 0.0f, 0.f };
-
-	mRenderBuffer.beginDraw();
-	mRenderBuffer.clear();
-
-	mDefaultShader.bind();
-
-	Mat4F cameraMat = geometry.mCamera.calculateTransformationMatrix();
-
-	glEnable(GL_DEPTH_TEST);
-
-	// glPolygonMode(GL_FRONT, GL_LINE);
-	// glPolygonMode(GL_BACK, GL_LINE);
-
-	// auto rotator = Mat3F::rotatorZ(alnf(0.001));
-
-	bindCameraShaderAttributes(cameraMat);
-
-	for (auto object : geometry.mObjects) {
-		// object->mTopology.Origin += 0.01;
-		// object->mTopology.Basis = rotator * object->mTopology.Basis;
-
-		bindObjectShaderAttributes(object.data());
-		object->mGUPBuffers->drawCall();
-	}
-
-	mDefaultShader.unbind();
-
-	glDisable(GL_DEPTH_TEST);
-
-	// glPolygonMode(GL_FRONT, GL_FILL);
-	// glPolygonMode(GL_BACK, GL_FILL);
-
-	mRenderBuffer.endDraw();
-}
-
-void RasterRender::renderOutline(const Camera& camera, const Object& object) {
-	mRenderBuffer.beginDraw();
-
-	// glEnable(GL_STENCIL_TEST);
-
-	mSolidShader.bind();
-
-	bindCameraShaderAttributes(camera.calculateTransformationMatrix());
-	bindObjectShaderAttributes(object);
-
-	object.mGUPBuffers->drawCall();
-
-	mSolidShader.unbind();
-
-	// glDisable(GL_STENCIL_TEST);
-
-	mRenderBuffer.endDraw();
-}
-
-void RasterRender::beginRender(const Scene& geometry, const Vec2<tp::ualni>& size) {
-	resize(size);
-
-	for (auto object : geometry.mObjects) {
-		if (!object->mGUPBuffers) {
-			object->mGUPBuffers = new ObjectBuffers(&object.data());
+			ObjectPushConstants constants;
+			constants.mvp = mvp.transpose();
+			constants.offset = camera * originPoint;
+			return constants;
 		}
 	}
-}
 
-void RasterRender::endRender() {
-	// pass
-}
+	RasterRender::RasterRender() {
+		mCtx = new Context();
+		mCtx->vulkan = VulkanContext::current();
+	}
 
-RenderBuffer* RasterRender::getRenderBuffer() { return &mRenderBuffer; }
+	RasterRender::~RasterRender() { delete mCtx; }
+
+	void RasterRender::resize(const Vec2<tp::ualni>& size) {
+		auto sizeF = Vec2F(size.x, size.y);
+		mRenderBuffer.resize(sizeF);
+		mTempBuffer.resize(sizeF);
+	}
+
+	uint4 RasterRender::getRenderBufferID() { return mRenderBuffer.texId(); }
+
+	Vec2F RasterRender::getBufferSize() { return mRenderBuffer.getSize(); }
+
+	void RasterRender::renderDefault(const Scene& geometry) {
+		mRenderBuffer.mClearCol = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+		mRenderBuffer.beginDraw();
+
+		auto target = static_cast<VulkanRenderTarget*>(mRenderBuffer.renderTarget());
+		auto cmd = static_cast<VkCommandBuffer>(mRenderBuffer.activeCommandBuffer());
+		mCtx->ensurePipelines(target);
+
+		mCtx->defaultPipeline->bind(cmd);
+
+		Mat4F cameraMat = geometry.mCamera.calculateTransformationMatrix();
+
+		for (auto object : geometry.mObjects) {
+			mCtx->defaultPipeline->pushUniforms(cmd, makePushConstants(cameraMat, object.data()));
+			object->mGUPBuffers->drawCall(cmd);
+		}
+
+		mRenderBuffer.endDraw();
+	}
+
+	void RasterRender::renderOutline(const Camera& camera, const Object& object) {
+		mRenderBuffer.beginDraw();
+
+		auto target = static_cast<VulkanRenderTarget*>(mRenderBuffer.renderTarget());
+		auto cmd = static_cast<VkCommandBuffer>(mRenderBuffer.activeCommandBuffer());
+		mCtx->ensurePipelines(target);
+
+		mCtx->solidPipeline->bind(cmd);
+		mCtx->solidPipeline->pushUniforms(cmd, makePushConstants(camera.calculateTransformationMatrix(), object));
+		object.mGUPBuffers->drawCall(cmd);
+
+		mRenderBuffer.endDraw();
+	}
+
+	void RasterRender::beginRender(const Scene& geometry, const Vec2<tp::ualni>& size) {
+		resize(size);
+
+		for (auto object : geometry.mObjects) {
+			if (!object->mGUPBuffers) {
+				object->mGUPBuffers = new ObjectBuffers(&object.data());
+			}
+		}
+	}
+
+	void RasterRender::endRender() {}
+
+	RenderBuffer* RasterRender::getRenderBuffer() { return &mRenderBuffer; }
+}
