@@ -2,41 +2,78 @@
 #include "WindowContext.hpp"
 
 #include "Graphics.hpp"
+#include "ImGuiPlatform.hpp"
 
-// -------- Debug UI -------- //
 #include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
+#include <imgui_impl_vulkan.h>
 #include <imgui_internal.h>
 
 #include "implot.h"
+
+#include <array>
+#include <memory>
+#include <stdexcept>
 
 namespace tp {
 	class DebugGUI::Context {
 	public:
 		ImGuiIO* io{};
 		ImGuiContext* ctx{};
+		VulkanContext* vulkan{};
+		VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
+		std::unique_ptr<ImGuiPlatform> platform;
 	};
 }
 
 using namespace tp;
 
+static VkDescriptorPool createImguiDescriptorPool(VkDevice device) {
+	const std::array<VkDescriptorPoolSize, 1> poolSizes = {
+		VkDescriptorPoolSize{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 64 },
+	};
+
+	VkDescriptorPoolCreateInfo poolInfo{
+		.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+		.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
+		.maxSets = 64,
+		.poolSizeCount = (uint32_t) poolSizes.size(),
+		.pPoolSizes = poolSizes.data(),
+	};
+
+	VkDescriptorPool pool = VK_NULL_HANDLE;
+	if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &pool) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create imgui descriptor pool");
+	}
+	return pool;
+}
+
 DebugGUI::DebugGUI(Window* window) {
 	mContext = new Context();
+	mContext->vulkan = window->getContext()->vulkan;
 
 	IMGUI_CHECKVERSION();
 	mContext->ctx = ImGui::CreateContext();
 	mContext->io = &ImGui::GetIO();
 
-	// Initialize ImGui with GLFW and OpenGL
-	ImGui_ImplGlfw_InitForOpenGL(window->getContext()->window, true);
+	mContext->platform = std::make_unique<ImGuiPlatform>(*window);
 
-	// ImGui_ImplGlfw_GetBackendData();
+	mContext->descriptorPool = createImguiDescriptorPool(mContext->vulkan->device());
 
-	ImGui_ImplOpenGL3_Init("#version 330");
+	ImGui_ImplVulkan_InitInfo initInfo{};
+	initInfo.Instance = mContext->vulkan->instance();
+	initInfo.PhysicalDevice = mContext->vulkan->physicalDevice();
+	initInfo.Device = mContext->vulkan->device();
+	initInfo.Queue = mContext->vulkan->graphicsQueue();
+	initInfo.DescriptorPool = mContext->descriptorPool;
+	initInfo.RenderPass = mContext->vulkan->renderPass();
+	initInfo.MinImageCount = mContext->vulkan->framesInFlight();
+	initInfo.ImageCount = mContext->vulkan->swapchainImageCount();
+	initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+
+	ImGui_ImplVulkan_Init(&initInfo);
 
 	ImGuiIO& io = ImGui::GetIO();
-	io.Fonts->AddFontFromFileTTF("rsc/Font.ttf", 20.f);
+	io.Fonts->AddFontFromFileTTF("rsc/Font.ttf", 18.f);
 
 	io.ConfigInputTrickleEventQueue = false;
 
@@ -79,29 +116,31 @@ DebugGUI::DebugGUI(Window* window) {
 }
 
 DebugGUI::~DebugGUI() {
+	mContext->vulkan->waitIdle();
+
 	ImPlot::DestroyContext();
 
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
+	ImGui_ImplVulkan_Shutdown();
+	mContext->platform.reset();
 	ImGui::DestroyContext();
 
+	vkDestroyDescriptorPool(mContext->vulkan->device(), mContext->descriptorPool, nullptr);
 
 	delete mContext;
 }
 
-void DebugGUI::procBegin() {
-}
+void DebugGUI::procBegin() {}
 
-void DebugGUI::procEnd() {
-}
+void DebugGUI::procEnd() {}
 
 void DebugGUI::drawBegin() {
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
+	ImGui_ImplVulkan_NewFrame();
+	mContext->platform->newFrame();
 	ImGui::NewFrame();
 }
 
 void DebugGUI::drawEnd() {
 	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	mContext->platform->endFrame();
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), mContext->vulkan->activeCommandBuffer());
 }
