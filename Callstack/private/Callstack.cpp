@@ -54,9 +54,8 @@ CallStackCapture::CallStackCapture() {
 	mBuffLoad = 0;
 	mBuffLen = STACKS_LENGTH;
 	mBuff = (CallStack*) malloc(mBuffLen * sizeof(CallStack));
-	
-	mErrorSnapshot.frames[0] = (alni) & errorNoSpaceLeft;
 
+	mErrorSnapshot.frames[0] = (alni) &errorNoSpaceLeft;
 
 	platformInit();
 
@@ -103,110 +102,45 @@ void CallStackCapture::clear() {
 	mSymbols.removeAll();
 }
 
-CallStackCapture::~CallStackCapture() { 
-	free(mBuff); 
+CallStackCapture::~CallStackCapture() {
+	free(mBuff);
 	initialized = false;
 }
 
 // ---------------------------------- Platform Depended ---------------------------------- //
 
-#if defined(ENV_OS_LINUX)
+#if defined(ENV_OS_LINUX) || defined(ENV_OS_ANDROID)
+
+#include "StackTrace.hpp"
 
 #include <cstring>
-#include <cxxabi.h>
-#include <execinfo.h>
-#include <malloc.h>
 
-void CallStackCapture::platformInit() {
+namespace {
+	void copyTail(char* out, const std::string& text) {
+		const size_t length = text.size();
+		const size_t start =
+			length > CallStackCapture::MAX_DEBUG_INFO_LEN ? length - CallStackCapture::MAX_DEBUG_INFO_LEN : 0;
+		std::strcpy(out, text.c_str() + start);
+	}
 }
 
-void CallStackCapture::platformDeinit() {
-}
+void CallStackCapture::platformInit() {}
+
+void CallStackCapture::platformDeinit() {}
 
 void CallStackCapture::platformWriteStackTrace(CallStack* stack) {
-	auto depth = backtrace((void**) stack->frames, (int) MAX_CALL_DEPTH_CAPTURE - 1);
+	uintptr_t frames[MAX_CALL_DEPTH_CAPTURE];
+	const size_t depth = StackTrace::captureCallingThread(frames, MAX_CALL_DEPTH_CAPTURE - 1);
+	for (size_t index = 0; index < depth; index++)
+		stack->frames[index] = (FramePointer) frames[index];
 	stack->frames[depth] = 0;
 }
 
-static void getGetSourceFromBinaryAddress(const char* binary, const char* address, char* file, ualni* line) {
-	static char buff[1024];
-
-	snprintf(buff, sizeof(buff), "addr2line -e %s -a %s", binary, address);
-	FILE* pipe = popen(buff, "r");
-	if (pipe) {
-		fgets(buff, sizeof(buff), pipe);
-		fgets(buff, sizeof(buff), pipe);
-		pclose(pipe);
-		char* linePtr = strchr(buff, ':');
-
-		printf("%s\n", buff);
-
-		if (linePtr != nullptr && buff[0] != '?' && buff[1] != '?' && buff[2] != ':') {
-			*linePtr = '\0';
-			auto sourceLen = std::strlen(buff);
-			std::strcpy(file, buff + ((sourceLen > CallStackCapture::MAX_DEBUG_INFO_LEN) ? (sourceLen - CallStackCapture::MAX_DEBUG_INFO_LEN) : 0));
-			*line = strtoul(linePtr + 1, nullptr, 10);
-			return;
-		}
-	}
-
-	std::strcpy(file, "unresolved");
-	*line = 0;
-}
-
-static void getDemangledName(const char* func, char* out) {
-	int status;
-	size_t funcDemangledSize = CallStackCapture::MAX_DEBUG_INFO_LEN;
-	char* funcDemangled = (char*) malloc(funcDemangledSize);
-	char* ret = abi::__cxa_demangle(func, funcDemangled, &funcDemangledSize, &status);
-	if (status == 0) {
-		funcDemangled = ret;
-		auto funcLen = std::strlen(funcDemangled);
-		std::strcpy(out, funcDemangled + ((funcLen > CallStackCapture::MAX_DEBUG_INFO_LEN) ? (funcLen - CallStackCapture::MAX_DEBUG_INFO_LEN) : 0));
-		free(ret);
-		return;
-	}
-	auto funcLen = std::strlen(func);
-	std::strcpy(out, func + ((funcLen > CallStackCapture::MAX_DEBUG_INFO_LEN) ? (funcLen - CallStackCapture::MAX_DEBUG_INFO_LEN) : 0));
-	free(funcDemangled);
-}
-
 void CallStackCapture::platformWriteDebugSymbols(FramePointer frame, DebugSymbols* out) {
-	void* addrList[1] = { (void*) frame };
-	auto symbolsArray = backtrace_symbols(addrList, 1);
-
-	// 'bin(fun+addr)'
-	char* bin = *symbolsArray;
-	char* func = nullptr;
-	char* offset = nullptr;
-
-	// 'bin fun+addr'
-	for (char* p = bin; *p; ++p) {
-		if (*p == '(') {
-			*p = 0;
-			func = p + 1;
-		} else if (*p == '+') {
-			offset = p;
-		} else if (*p == ')' && offset) {
-			*p = 0;
-		}
-	}
-
-	if (func && offset) {
-		getGetSourceFromBinaryAddress(bin, func, out->file, &out->line);
-
-		if (offset != func) {
-			*offset = 0;
-			getDemangledName(func, out->function);
-		} else {
-			std::strcpy(out->function, "unresolved");
-		}
-	} else {
-		std::strcpy(out->file, "unresolved");
-		std::strcpy(out->function, "unresolved");
-	}
-
-	free(symbolsArray);
+	const FrameSymbol symbol = StackTrace::symbolize((uintptr_t) frame);
+	copyTail(out->file, symbol.module.empty() ? std::string("unresolved") : symbol.module);
+	copyTail(out->function, symbol.function.empty() ? std::string("unresolved") : symbol.function);
+	out->line = symbol.line;
 }
 
 void CallStackCapture::printSnapshot(const CallStack* snapshot) {
@@ -238,7 +172,7 @@ void CallStackCapture::platformInit() {
 	SymInitialize(process, NULL, TRUE);
 }
 
-void CallStackCapture::platformDeinit() { 
+void CallStackCapture::platformDeinit() {
 	HANDLE process = GetCurrentProcess();
 	SymCleanup(process);
 }
