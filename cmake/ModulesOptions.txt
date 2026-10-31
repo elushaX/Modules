@@ -1,6 +1,17 @@
 option(MODULES_MEMORY_DEBUG "Debug memory" OFF)
 option(MODULES_MEMORY_DEBUG_STACK_TRACE "Record stack info on memory debug" OFF)
 
+if (ANDROID)
+    set(MODULES_DESKTOP_DEFAULT OFF)
+else ()
+    set(MODULES_DESKTOP_DEFAULT ON)
+endif ()
+
+option(MODULES_BUILD_DESKTOP "Build the desktop platform layer, desktop applications and their system dependencies" ${MODULES_DESKTOP_DEFAULT})
+option(MODULES_BUILD_TESTS "Build unit tests" ${MODULES_DESKTOP_DEFAULT})
+option(MODULES_BUILD_BENCH_TESTS "Register benchmark smoke runs as ctest tests" OFF)
+option(MODULES_BUILD_EXAMPLES "Build examples and tools" ${MODULES_DESKTOP_DEFAULT})
+
 if (MODULES_MEMORY_DEBUG)
     add_compile_definitions(MEM_DEBUG)
 endif ()
@@ -9,4 +20,6 @@ if (MODULES_MEMORY_DEBUG_STACK_TRACE)
     add_compile_definitions(MEM_STACK_TRACE)
 endif ()
 
-enable_testing()
+if (MODULES_BUILD_TESTS)
+    enable_testing()
+endif ()

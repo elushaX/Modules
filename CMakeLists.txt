@@ -1,20 +1,20 @@
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.21)
 
 set(CMAKE_CXX_STANDARD 20)
-
-# set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/./tmp/install)
-# set(CMAKE_CXX_FLAGS "-fuse-ld=lld-15 ${CMAKE_CXX_FLAGS} -gdwarf-4 ")
 
 project(ModulesRoot)
 
 include(cmake/ModulesOptions.txt)
+include(cmake/DesktopEntry.cmake)
 
 set(WINDOWS_LIBRARIES "../moduleswindowsl" CACHE STRING "Svn repository with windows libraries https://svn.riouxsvn.com/moduleswindowsl")
 
-include(cmake/FindGLEW.cmake)
-include(cmake/FindOIDN.cmake)
-include(cmake/FindPortAudio.cmake)
+if (MODULES_BUILD_DESKTOP)
+	include(cmake/FindGLEW.cmake)
+	include(cmake/FindOIDN.cmake)
+	include(cmake/FindPortAudio.cmake)
+endif ()
 
 add_subdirectory(Externals)
 
@@ -22,17 +22,21 @@ add_subdirectory(Modules)
 add_subdirectory(Containers)
 add_subdirectory(Math)
 add_subdirectory(Callstack)
+add_subdirectory(Diagnostics)
 add_subdirectory(Allocators)
 add_subdirectory(Strings)
 add_subdirectory(Language)
 add_subdirectory(Connection)
 add_subdirectory(Graphics)
-add_subdirectory(DataAnalysis)
-add_subdirectory(Objects)
 add_subdirectory(Widgets)
-add_subdirectory(LibraryViewer)
-add_subdirectory(RasterRender)
+add_subdirectory(Taskboard)
 add_subdirectory(3DScene)
-add_subdirectory(RayTracer)
-add_subdirectory(Sketch3D)
-add_subdirectory(3DEditor)
+if (MODULES_BUILD_DESKTOP OR ANDROID)
+	add_subdirectory(RasterRender)
+endif ()
+
+if (MODULES_BUILD_DESKTOP)
+	add_subdirectory(DataAnalysis)
+	add_subdirectory(Objects)
+	add_subdirectory(RayTracer)
+endif ()

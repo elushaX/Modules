@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=@DESKTOP_NAME@
+Comment=@DESKTOP_COMMENT@
+Exec=@DESKTOP_EXEC@
+Path=@DESKTOP_WORKING_DIRECTORY@
+Icon=@DESKTOP_ID@
+Terminal=false
+Categories=@DESKTOP_CATEGORIES@
+StartupWMClass=@DESKTOP_ID@
+StartupNotify=true
