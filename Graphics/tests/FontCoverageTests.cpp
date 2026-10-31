@@ -75,6 +75,7 @@ namespace {
 	std::set<char32_t> codepointsUsedByUi() {
 		std::set<char32_t> codepoints;
 		for (const std::string& directory : kUiSourceDirectories) {
+			if (!std::filesystem::exists(kSourceRoot / directory)) continue;
 			for (const auto& entry : std::filesystem::recursive_directory_iterator(kSourceRoot / directory)) {
 				if (!entry.is_regular_file()) continue;
 				std::ifstream stream(entry.path(), std::ios::binary);
