@@ -1,0 +1,10 @@
+.gradle
+.kotlin
+.cxx
+local.properties
+app/build
+/build
+!build.gradle.kts
+!app/build.gradle.kts
+!gradle
+!gradle/**
